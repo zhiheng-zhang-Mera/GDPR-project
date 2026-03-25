@@ -1,5 +1,6 @@
 package com.anonymous.mymobileapp
 import expo.modules.splashscreen.SplashScreenManager
+import com.anonymous.mymobileapp.privacy.PrivacyInterceptorPackage
 
 import android.os.Build
 import android.os.Bundle
@@ -62,4 +63,11 @@ class MainActivity : ReactActivity() {
       // because it's doing more than [Activity.moveTaskToBack] in fact.
       super.invokeDefaultOnBackPressed()
   }
+
+  override fun getPackages(): List<ReactPackage> =
+    PackageList(this).packages.apply {
+      // 在这里手动添加您的自定义原生拦截器包
+      add(PrivacyInterceptorPackage()) 
+    }
+    
 }
