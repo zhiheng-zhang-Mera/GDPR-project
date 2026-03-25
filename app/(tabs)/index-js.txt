@@ -1,0 +1,118 @@
+import { DynamicDashboard } from '@/components/DynamicDashboard';
+import { ParallaxScrollView } from '@/components/parallax-scroll-view'; // 假设使用现有包裹组件
+import { useState } from 'react';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import LargeChartCard from '../../components/health/LargeChartCard';
+import MetricCard from '../../components/health/MetricCard';
+import { useHealth } from '../../src/context/HealthContext';
+
+export default function TodayScreen() {
+  const { todayData, updateMetric } = useHealth();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+
+  const hrData = [65, 72, 85, 78, 90, 72];
+  const hrLabels = ['9a', '11a', '1p', '3p', '5p', '7p'];
+
+  const handleAddWater = () => {
+    const amount = parseInt(inputValue);
+    if (!isNaN(amount)) {
+      updateMetric('water', todayData.water + amount);
+      setModalVisible(false);
+      setInputValue('');
+    }
+  };
+
+  return (
+    // 使用 contentContainerStyle 确保 ScrollView 内部有足够的间距
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      <Text style={styles.welcome}>Overview</Text>
+      
+      <LargeChartCard 
+        label="Heart Rate" 
+        value={todayData.heartRate || 72} 
+        unit="BPM" 
+        color="#FF5252" 
+        data={hrData} 
+        labels={hrLabels}
+      />
+
+      <LargeChartCard 
+        label="Body Temp" 
+        value={todayData.temp || 36.6} 
+        unit="°C" 
+        color="#FF9800" 
+        data={[36.4, 36.6, 36.7, 36.5, 36.6, 36.6]} 
+        labels={hrLabels}
+      />
+
+      <View style={styles.row}>
+        <MetricCard 
+          label="Steps Count" 
+          value={todayData.steps.toLocaleString()} 
+          unit="steps" 
+          color="#4CAF50" 
+          isWide={false} 
+        />
+        <MetricCard 
+          label="Water Intake" 
+          value={todayData.water} 
+          unit="ml" 
+          color="#2196F3" 
+          isWide={false} 
+          iconName="add-circle-outline"
+          onPressIcon={() => setModalVisible(true)} // 触发 Modal
+        />
+      </View>
+
+      {/* 针对 Android 的手动输入 Modal */}
+      <Modal visible={modalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Log Water Intake (ml)</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="e.g. 250"
+              value={inputValue}
+              onChangeText={setInputValue}
+              autoFocus
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.btnCancel}>
+                <Text style={{color: '#666'}}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleAddWater} style={styles.btnConfirm}>
+                <Text style={{color: '#FFF', fontWeight: 'bold'}}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <ParallaxScrollView>
+      {/* 插入 V16 动态隐私仪表盘 */}
+      <DynamicDashboard />
+      </ParallaxScrollView>
+
+      {/* 底部留白，防止被 Tab Bar 遮挡 */}
+      <View style={{ height: 100 }} />
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#F8F9FA' },
+  scrollContent: { padding: 20 },
+  welcome: { fontSize: 22, fontWeight: 'bold', color: '#333', marginBottom: 20, marginTop: 10 },
+  row: { flexDirection: 'row', justifyContent: 'space-between' },
+  
+  // Modal 样式
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { backgroundColor: '#FFF', padding: 25, borderRadius: 20, width: '80%', elevation: 10 },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15 },
+  input: { borderBottomWidth: 1, borderBottomColor: '#DDD', paddingVertical: 10, fontSize: 18, marginBottom: 20 },
+  modalButtons: { flexDirection: 'row', justifyContent: 'flex-end' },
+  btnCancel: { padding: 10, marginRight: 15 },
+  btnConfirm: { backgroundColor: '#2196F3', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 8 }
+});
