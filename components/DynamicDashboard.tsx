@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { ConsentManager } from '../services/ConsentManager';
 // 假设已安装 @shopify/react-native-skia 和 d3 库
 // import { Canvas, Path } from "@shopify/react-native-skia"; 
+
+// 初始化实例
+const consentManager = new ConsentManager();
 
 export const DynamicDashboard = () => {
     const [isLDPActive, setIsLDPActive] = useState(false);
@@ -11,8 +15,10 @@ export const DynamicDashboard = () => {
     // 确保渲染的数据流节点不超过 15-20 个
 
     // [功能] 15. 点击拦截交互
-    const handleNodeClick = (sensorId: string) => {
-        // 调用 ConsentManager.withdrawConsent() 实时切断数据流
+    const handleNodeClick = async (sensorId: string) => {
+        // 调用 ConsentManager 实时切断数据流，例如切断心率数据的第三方共享
+        await consentManager.withdrawConsent(sensorId, 'ThirdPartyAnalysis');
+        console.log(`Successfully blocked sensor: ${sensorId}`);
     };
 
     return (
