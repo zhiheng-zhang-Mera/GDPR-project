@@ -1,4 +1,4 @@
-package com.anonymous.mymobileapp // 替换为您的实际包名
+package com.anonymous.mymobileapp.privacy
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
