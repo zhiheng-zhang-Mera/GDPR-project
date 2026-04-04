@@ -1,6 +1,5 @@
-import { NativeModules, Platform } from 'react-native';
+import { DeviceEventEmitter, NativeModules, Platform } from 'react-native';
 
-// 假设底层 Kotlin/Swift 模块名为 PrivacyInterceptor
 const { PrivacyInterceptor } = NativeModules;
 
 export interface InterceptResult {
@@ -10,35 +9,27 @@ export interface InterceptResult {
 }
 
 export const PrivacyBridge = {
-  /**
-   * 物理级拦截原生 API 并计算端到端延迟
-   * @param apiName 要拦截的传感器/API名称 (e.g., 'HealthKit_Steps')
-   * @param isLdp 启用本地差分隐私 (Local Differential Privacy)
-   */
   invokeInterceptor: async (apiName: string, isLdp: boolean = false): Promise<InterceptResult> => {
     const startTime = performance.now();
     
     try {
       if (Platform.OS === 'android' && PrivacyInterceptor) {
-        // 调用底层 Android 拦截中间件
-        await PrivacyInterceptor.enforceBlock(apiName, isLdp);
+        // 【关键修复】调用 Kotlin 中真实存在的方法：toggleSensorAccess
+        // 传递参数: sensorType, isAllowed (这里传 false 代表强行切断)
+        await PrivacyInterceptor.toggleSensorAccess(apiName, false);
       } else {
-        // 模拟底层执行延迟 (测试环境Fallback)
+        // 模拟环境 Fallback
         await new Promise(resolve => setTimeout(resolve, Math.random() * 30 + 20)); 
       }
       
-      const endTime = performance.now();
-      return {
-        success: true,
-        latencyMs: Math.round(endTime - startTime),
-        message: 'Native API Blocked Successfully'
-      };
+      const latency = Math.round(performance.now() - startTime);
+      
+      // 【关键修复】将真实的延迟数据广播给 EvaluationTelemetry 模块
+      DeviceEventEmitter.emit('RECORD_LATENCY', latency);
+
+      return { success: true, latencyMs: latency, message: 'Native API Blocked Successfully' };
     } catch (error: any) {
-      return {
-        success: false,
-        latencyMs: performance.now() - startTime,
-        message: error.message || 'Interception Failed'
-      };
+      return { success: false, latencyMs: Math.round(performance.now() - startTime), message: error.message || 'Interception Failed' };
     }
   }
 };
