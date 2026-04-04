@@ -1,16 +1,52 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import LargeChartCard from '../../components/health/LargeChartCard';
 import { useHealth } from '../../src/context/HealthContext';
+import { StorageService } from '../../src/services/StorageService';
 
-const MOCK_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+// 1. 新增：定义图表历史数据的 TypeScript 接口
+interface HistoryData {
+  labels: string[];
+  steps: number[];
+  water: number[];
+  temp: number[];
+}
 
 export default function HistoryScreen() {
-  const { todayData } = useHealth();
+  // 加上 as any 防止 Context 尚未声明完整类型时的报错
+  const { todayData } = useHealth() as any; 
+  
+  // 2. 将 useState 绑定到刚才定义的接口上，初始值为 null
+  const [history, setHistory] = useState<HistoryData | null>(null);
 
-  // 这里的 data 最后一个点会自动映射到 Storage 里的实时数据
-  const stepsHistory = [6000, 7500, 9000, 4000, 11000, 8400, todayData.steps];
-  const waterHistory = [1800, 2000, 1500, 2200, 1900, 1500, todayData.water];
-  const tempHistory = [36.5, 36.7, 36.6, 36.8, 36.6, 36.6, todayData.temp || 36.6];
+  useEffect(() => {
+    const fetchHistory = async () => {
+      const weekly = await StorageService.getWeeklyData();
+      if (weekly) {
+        // 3. 为 map 循环里的参数 d 和 i 增加类型标注 (d: any, i: number)
+        const stepsHistory = weekly.data.map((d: any, i: number) => i === 6 ? todayData.steps : (d.steps || 0));
+        const waterHistory = weekly.data.map((d: any, i: number) => i === 6 ? todayData.water : (d.water || 0));
+        const tempHistory = weekly.data.map((d: any, i: number) => i === 6 ? (todayData.temp || 36.6) : (d.temp || 36.6));
+
+        setHistory({
+          labels: weekly.labels,
+          steps: stepsHistory,
+          water: waterHistory,
+          temp: tempHistory
+        });
+      }
+    };
+
+    fetchHistory();
+  }, [todayData]);
+
+  if (!history) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#4CAF50" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
@@ -21,8 +57,8 @@ export default function HistoryScreen() {
         value={todayData.steps} 
         unit="steps" 
         color="#4CAF50" 
-        data={stepsHistory} 
-        labels={MOCK_LABELS}
+        data={history.steps} 
+        labels={history.labels}
       />
 
       <LargeChartCard 
@@ -30,8 +66,8 @@ export default function HistoryScreen() {
         value={todayData.water} 
         unit="ml" 
         color="#2196F3" 
-        data={waterHistory} 
-        labels={MOCK_LABELS}
+        data={history.water} 
+        labels={history.labels}
       />
 
       <LargeChartCard 
@@ -39,8 +75,8 @@ export default function HistoryScreen() {
         value={todayData.temp || 36.6} 
         unit="°C" 
         color="#FF9800" 
-        data={tempHistory} 
-        labels={MOCK_LABELS}
+        data={history.temp} 
+        labels={history.labels}
       />
 
       <View style={{ height: 80 }} />
