@@ -1,117 +1,86 @@
 import React, { useEffect, useState } from 'react';
-import { NativeModules, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { ConsentManager } from '../services/ConsentManager';
-import { recordGlobalActionLatency } from './EvaluationTelemetry';
+import { StyleSheet, Switch, Text, View } from 'react-native';
+import { useExperiment } from '../src/context/ExperimentContext';
+import { PrivacyBridge } from '../src/services/PrivacyBridge';
+import DataFlowVisualizer from './DataFlowVisualizer';
 
-const { PrivacyInterceptor } = NativeModules;
-const consentManager = new ConsentManager();
+export function DynamicDashboard() {
+  const { group, startTask, finishTask, logEvent } = useExperiment();
+  
+  const [isLdpEnabled, setIsLdpEnabled] = useState(false);
+  const [isHighRiskFlow, setIsHighRiskFlow] = useState(true); // 初始模拟为高风险（如跨境传输）
+  const [syncLatency, setSyncLatency] = useState<number | null>(null);
 
-export const DynamicDashboard = () => {
-    const [isLDPActive, setIsLDPActive] = useState(false);
-    const [isBlocked, setIsBlocked] = useState(false);
-    const [sensorValue, setSensorValue] = useState<number>(0);
+  // 组件加载时启动遥测计时
+  useEffect(() => {
+    startTask();
+    return () => finishTask(); // 卸载时记录总耗时
+  }, []);
+
+  const handleBlockAction = async () => {
+    logEvent('CLICK_BLOCK', 'Overseas_Flow');
     
-    // [Fix 1] 数据流泵 (Data Stream Pump) - 模拟 1Hz 持续数据产生，以验证脱敏延迟
-    useEffect(() => {
-        const interval = setInterval(async () => {
-            if (isBlocked) return;
-            
-            const rawHeartRate = 70 + Math.random() * 15; // 70-85 bpm
-            let finalData = rawHeartRate;
+    // 调用底层原生 API 拦截
+    const response = await PrivacyBridge.invokeInterceptor('HealthKit_Steps', isLdpEnabled);
+    
+    // RQ2: 记录同步延迟
+    setSyncLatency(response.latencyMs);
+    logEvent('API_BLOCKED', 'HealthKit_Steps', response.latencyMs);
 
-            if (isLDPActive && PrivacyInterceptor) {
-                try {
-                    // 真实调用底层 Kotlin LDP 算法进行加噪
-                    finalData = await PrivacyInterceptor.applyLDPToData(rawHeartRate, 1.0, 0.1);
-                } catch (e) {
-                    console.warn("Native API issue, using JS fallback");
-                }
-            }
-            setSensorValue(finalData);
-        }, 1000);
-        
-        return () => clearInterval(interval);
-    }, [isLDPActive, isBlocked]);
+    if (response.success) {
+      setIsHighRiskFlow(false); // 阻断成功，风险解除
+    }
+  };
 
-    // [Fix 2] 闭环交互：截断执行与遥测上报
-    const handleNodeClick = async (sensorId: string) => {
-        const startTime = Date.now();
-        await consentManager.withdrawConsent(sensorId, 'ThirdPartyAnalysis', true);
-        setIsBlocked(true); // 物理截断 UI 响应
-        const latency = Date.now() - startTime;
-        
-        recordGlobalActionLatency(latency); // 写入遥测面板
-        console.log(`Successfully blocked sensor: ${sensorId} in ${latency}ms`);
-    };
+  const toggleLdp = (value: boolean) => {
+    setIsLdpEnabled(value);
+    logEvent('TOGGLE_LDP', value ? 'ON' : 'OFF');
+  };
 
-    return (
-        <ScrollView style={{ flex: 1, padding: 20, backgroundColor: '#fff' }}>
-            <Text style={styles.header}>Dynamic Dashboard (Group B)</Text>
-            
-            {/* [Fix 3] 简易化实时动态数据流可视化 */}
-            <View style={styles.visualizerContainer}>
-                {/* 数据源节点 */}
-                <View style={styles.node}><Text style={styles.nodeText}>Watch Sensor</Text></View>
-                
-                {/* 动态连接线与实时数据反馈 */}
-                <View style={[styles.path, isBlocked ? styles.pathBlocked : (isLDPActive ? styles.pathBlurry : styles.pathActive)]}>
-                    <Text style={styles.dataText}>
-                        {isBlocked ? 'DATA CUT' : `${sensorValue.toFixed(1)} bpm`}
-                    </Text>
-                </View>
-                
-                {/* 第三方高风险节点（点击阻断） */}
-                <TouchableOpacity 
-                    style={[styles.node, isBlocked ? styles.nodeBlocked : styles.nodeOrange]}
-                    onPress={() => handleNodeClick('heart_rate')}
-                    disabled={isBlocked}
-                >
-                    <Text style={[styles.nodeText, isBlocked && styles.nodeTextBlocked]}>Cloud AI</Text>
-                    {!isBlocked && <Text style={styles.clickHint}>[Tap to Block]</Text>}
-                </TouchableOpacity>
-            </View>
+  // 根据分组渲染不同界面 (RQ1 要求的对照组设计)
+  if (group === 'A') {
+    return <View><Text>Group A: Standard Setting List (Fallback)</Text></View>;
+  }
 
-            {isLDPActive && <Text style={styles.noiseWarning}>⚠️ Data converted to statistical noise (LDP Active)</Text>}
+  if (group === 'C') {
+    return <View><Text>Group C: Static Text Based List</Text></View>;
+  }
 
-            <View style={styles.admContainer}>
-                <Text style={styles.subHeader}>Automated Decision Making (ADM) Disclosure</Text>
-                <Text style={styles.admText}>• Purpose: Health Risk Profiling</Text>
-                <Text style={styles.admText}>• Data Used: Heart Rate, Activity Logs</Text>
-                <Text style={styles.admText}>• Logic: Random Forest Classification (V2.1)</Text>
-            </View>
+  // 默认 Group B: 动态仪表盘干预组
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Privacy Enforcement Architecture</Text>
+      
+      <View style={styles.settingRow}>
+        <View>
+          <Text style={styles.label}>Local Differential Privacy (LDP)</Text>
+          <Text style={styles.desc}>Anonymize data before sharing</Text>
+        </View>
+        <Switch value={isLdpEnabled} onValueChange={toggleLdp} />
+      </View>
 
-            <TouchableOpacity 
-                style={[styles.nudgeButton, isBlocked && styles.disabledButton]}
-                onPress={() => setIsLDPActive(!isLDPActive)}
-                disabled={isBlocked}
-            >
-                <Text style={styles.nudgeText}>
-                    {isLDPActive ? "Disable LDP & Restore Precision" : "Enable Moderate Privacy (LDP)"}
-                </Text>
-            </TouchableOpacity>
-        </ScrollView>
-    );
-};
+      {/* Skia 可视化组件 */}
+      <DataFlowVisualizer 
+        isHighRisk={isHighRiskFlow} 
+        isLdpEnabled={isLdpEnabled} 
+        onBlockAction={handleBlockAction} 
+      />
+
+      {/* 显示物理层面的同步反馈 (RQ2 架构控制信任) */}
+      {syncLatency !== null && (
+        <Text style={styles.latencyText}>
+          ✓ Native API status verified. Sync latency: {syncLatency}ms
+        </Text>
+      )}
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
-    header: { fontSize: 24, fontWeight: 'bold', marginBottom: 15, color: '#333' },
-    visualizerContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 150, padding: 10, backgroundColor: '#f0f0f0', borderRadius: 12, marginBottom: 20 },
-    node: { backgroundColor: '#4CAF50', padding: 15, borderRadius: 8, zIndex: 2, alignItems: 'center', width: 100 },
-    nodeOrange: { backgroundColor: '#FF9800' },
-    nodeBlocked: { backgroundColor: '#9E9E9E' },
-    nodeText: { color: '#fff', fontWeight: 'bold', textAlign: 'center' },
-    nodeTextBlocked: { textDecorationLine: 'line-through' },
-    clickHint: { fontSize: 10, color: '#fff', marginTop: 5 },
-    path: { flex: 1, height: 4, marginHorizontal: -5, justifyContent: 'center', alignItems: 'center', zIndex: 1 },
-    pathActive: { backgroundColor: '#4CAF50' },
-    pathBlurry: { backgroundColor: '#4CAF50', opacity: 0.3, borderStyle: 'dashed', borderWidth: 2, borderColor: '#4CAF50' },
-    pathBlocked: { backgroundColor: 'transparent', borderStyle: 'dashed', borderWidth: 2, borderColor: '#FF5252' },
-    dataText: { position: 'absolute', top: -25, fontSize: 12, fontWeight: 'bold', color: '#555' },
-    noiseWarning: { marginTop: -10, marginBottom: 20, color: '#FF9800', fontStyle: 'italic', fontWeight: 'bold' },
-    subHeader: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
-    admContainer: { backgroundColor: '#f9f9f9', padding: 15, borderRadius: 8, borderWidth: 1, borderColor: '#ddd', marginBottom: 20 },
-    admText: { fontSize: 14, color: '#444', marginVertical: 2 },
-    nudgeButton: { backgroundColor: '#2196F3', padding: 16, borderRadius: 8, elevation: 3 },
-    disabledButton: { backgroundColor: '#ccc' },
-    nudgeText: { color: 'white', textAlign: 'center', fontWeight: 'bold' }
+  container: { flex: 1 },
+  header: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
+  settingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', padding: 15, borderRadius: 12, marginBottom: 15 },
+  label: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+  desc: { fontSize: 12, color: '#666', marginTop: 4 },
+  latencyText: { marginTop: 10, color: '#4CAF50', fontSize: 13, fontWeight: '500', textAlign: 'center' }
 });
