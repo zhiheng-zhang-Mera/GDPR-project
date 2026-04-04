@@ -3,6 +3,7 @@ package com.anonymous.mymobileapp
 import android.app.Application
 import android.content.res.Configuration
 
+import com.facebook.soloader.SoLoader
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactNativeHost
@@ -41,6 +42,13 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
+
+    SoLoader.init(this, false)
+
+    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+      DefaultNewArchitectureEntryPoint.load()
+    }
+
     DefaultNewArchitectureEntryPoint.releaseLevel = try {
       ReleaseLevel.valueOf(BuildConfig.REACT_NATIVE_RELEASE_LEVEL.uppercase())
     } catch (e: IllegalArgumentException) {
