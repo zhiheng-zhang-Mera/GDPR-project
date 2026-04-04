@@ -1,8 +1,9 @@
+import { DynamicDashboard } from '@/components/DynamicDashboard';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedView } from '@/components/themed-view';
 import { StyleSheet } from 'react-native';
-// 引入您的 V16 动态仪表盘组件
-import { DynamicDashboard } from '@/components/DynamicDashboard';
+// 1. 引入研究者打分和遥测面板
+import { EvaluationTelemetry } from '@/components/EvaluationTelemetry';
 
 export default function HomeScreen() {
   return (
@@ -11,8 +12,16 @@ export default function HomeScreen() {
       headerImage={<ThemedView style={styles.headerSpacer} />}
     >
       <ThemedView style={styles.container}>
-        {/* 渲染隐私控制中间件的前端交互层 */}
+        
+        {/* 2. 放在最上方，供研究人员（主试）在测试期间切换分组和受试者填表使用 */}
+        <EvaluationTelemetry />
+        
+        {/* 3. 分割线或间距 */}
+        <ThemedView style={{ height: 20, backgroundColor: 'transparent' }} />
+
+        {/* 受试者进行测试的任务区域 */}
         <DynamicDashboard />
+
       </ThemedView>
     </ParallaxScrollView>
   );
