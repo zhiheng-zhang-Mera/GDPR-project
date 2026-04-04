@@ -39,11 +39,50 @@ export function DynamicDashboard() {
 
   // 根据分组渲染不同界面 (RQ1 要求的对照组设计)
   if (group === 'A') {
-    return <View><Text>Group A: Standard Setting List (Fallback)</Text></View>;
+    return (
+      <View style={styles.container}>
+        <Text style={styles.header}>Settings</Text>
+        <View style={styles.settingRow}>
+          <Text style={styles.label}>Health Data Access (Third-Party)</Text>
+          <Switch 
+            value={isHighRiskFlow} 
+            onValueChange={async (val) => {
+              // 触发真实拦截与耗时记录
+              const res = await PrivacyBridge.invokeInterceptor('HealthKit_Steps', false);
+              setSyncLatency(res.latencyMs);
+              setIsHighRiskFlow(val);
+              if (!val) finishTask(); // 任务完成
+            }} 
+          />
+        </View>
+      </View>
+    );
   }
 
   if (group === 'C') {
-    return <View><Text>Group C: Static Text Based List</Text></View>;
+    return (
+      <View style={styles.container}>
+        <Text style={styles.header}>Privacy Authorization Log</Text>
+        <View style={[styles.settingRow, { flexDirection: 'column', alignItems: 'flex-start' }]}>
+          <Text style={styles.label}>Third-Party Data Processor</Text>
+          <Text style={[styles.desc, { marginTop: 8, marginBottom: 15 }]}>
+            Warning: Under Article 46 of GDPR, your sensitive physiological data (e.g., HealthKit Steps) is currently being transferred to overseas servers without adequate protective measures. To invoke your Right to Object (Article 21), toggle the switch below.
+          </Text>
+          <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
+            <Text style={{ fontWeight: 'bold' }}>Revoke Consent</Text>
+            <Switch 
+              value={!isHighRiskFlow} // 注意逻辑反转：开启开关代表撤销
+              onValueChange={async (val) => {
+                const res = await PrivacyBridge.invokeInterceptor('HealthKit_Steps', false);
+                setSyncLatency(res.latencyMs);
+                setIsHighRiskFlow(!val);
+                if (val) finishTask(); // 任务完成
+              }} 
+            />
+          </View>
+        </View>
+      </View>
+    );
   }
 
   // 默认 Group B: 动态仪表盘干预组
