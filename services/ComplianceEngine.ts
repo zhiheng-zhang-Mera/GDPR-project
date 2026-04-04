@@ -1,28 +1,40 @@
 import { Alert } from 'react-native';
 
 export class ComplianceEngine {
-    // [功能] 5. 双重验证系统 (系统区域 + IP 定位)
-    static async detectJurisdiction(systemRegion: string, ipRegion: string): Promise<'GDPR' | 'PIPL'> {
-        // [功能] 6. VPN 冲突警告
+    // 2026年合规白名单与高风险区配置
+    private static readonly ADEQUACY_DECISION_COUNTRIES = ['EU', 'UK', 'JP', 'KR', 'AU'];
+    private static readonly RESTRICTED_REGIONS = ['UNSAFE_REGION', 'UNKNOWN'];
+
+    static async detectJurisdiction(systemRegion: string, ipRegion: string): Promise<'GDPR' | 'PIPL' | 'APP'> {
         if (systemRegion !== ipRegion) {
             this.triggerVPNConflictWarning();
         }
-        return ipRegion === 'CN' ? 'PIPL' : 'GDPR'; // 根据管辖区切换模板
+        if (ipRegion === 'CN') return 'PIPL';
+        if (ipRegion === 'AU') return 'APP';
+        return 'GDPR'; 
     }
 
     private static triggerVPNConflictWarning() {
         Alert.alert(
             "Compliance Conflict Warning",
-            "Your IP address does not match your system region. Please manually confirm your jurisdiction to ensure data compliance."
+            "Your IP address does not match your system region. Please manually confirm your jurisdiction."
         );
     }
 
-    // [功能] 7. 地理合规过滤器 & 风险预警
+    // 修复：引入动态风险评估逻辑
     static evaluateCrossBorderRisk(serviceArea: string, targetArea: string): 'GREEN' | 'ORANGE' {
-        // 评估跨境传输风险 (例如传往无实质保护的地区)
-        if (serviceArea === 'EU' && targetArea === 'UNSAFE_REGION') {
-            return 'ORANGE'; // 触发前端橙色预警
+        if (serviceArea === targetArea) return 'GREEN';
+        
+        // 传往无充分保护决定的地区触发橙色预警
+        if (serviceArea === 'EU' && !this.ADEQUACY_DECISION_COUNTRIES.includes(targetArea)) {
+            return 'ORANGE';
         }
+        
+        // 拦截已知的高风险受限区域
+        if (this.RESTRICTED_REGIONS.includes(targetArea)) {
+            return 'ORANGE';
+        }
+
         return 'GREEN';
     }
 }

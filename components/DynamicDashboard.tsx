@@ -1,57 +1,63 @@
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ConsentManager } from '../services/ConsentManager';
-// 假设已安装 @shopify/react-native-skia 和 d3 库
-// import { Canvas, Path } from "@shopify/react-native-skia"; 
 
-// 初始化实例
 const consentManager = new ConsentManager();
 
 export const DynamicDashboard = () => {
     const [isLDPActive, setIsLDPActive] = useState(false);
     const [riskLevel, setRiskLevel] = useState<'GREEN' | 'ORANGE'>('GREEN');
     
-    // [功能] 14. 节点限制逻辑 (防视觉噪声)
-    // 确保渲染的数据流节点不超过 15-20 个
-
-    // [功能] 15. 点击拦截交互
     const handleNodeClick = async (sensorId: string) => {
-        // 调用 ConsentManager 实时切断数据流，例如切断心率数据的第三方共享
-        await consentManager.withdrawConsent(sensorId, 'ThirdPartyAnalysis');
-        console.log(`Successfully blocked sensor: ${sensorId}`);
+        const startTime = Date.now();
+        await consentManager.withdrawConsent(sensorId, 'ThirdPartyAnalysis', true);
+        const latency = Date.now() - startTime;
+        console.log(`Successfully blocked sensor: ${sensorId} in ${latency}ms`);
     };
 
     return (
-        <View style={{ flex: 1, padding: 20 }}>
-            <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Privacy Data Flow</Text>
+        <ScrollView style={{ flex: 1, padding: 20 }}>
+            <Text style={styles.header}>Privacy Data Flow</Text>
             
-            {/* [功能] 16. Skia 动态桑基图渲染容器 (需保证 60fps) */}
-            <View style={{ height: 300, backgroundColor: '#f0f0f0', marginVertical: 20 }}>
-                {/* <Canvas style={{ flex: 1 }}>
-                     此处使用 D3.js 计算桑基图路径，并用 Skia 的 Path 绘制
-                  </Canvas> 
-                */}
-                
-                {/* [功能] 17. 风险颜色警告 & [功能] 18. "模糊路径" 可视化 */}
+            <View style={styles.canvasContainer}>
+                {/* 修复：明确挂载 D3/Skia 渲染层的位置 */}
                 <Text style={{ 
-                    color: riskLevel === 'ORANGE' ? 'orange' : 'green',
-                    opacity: isLDPActive ? 0.5 : 1.0 // 开启脱敏时变为半透明模糊流
+                    color: riskLevel === 'ORANGE' ? '#ff9800' : '#4CAF50',
+                    opacity: isLDPActive ? 0.4 : 1.0,
+                    fontWeight: 'bold'
                 }}>
-                    Data Flow Line (Stylized)
+                    [ Skia WebGL Context / D3 Layout Engine Mount Point ]
                 </Text>
-
-                {isLDPActive && <Text>⚠️ Data converted to statistical noise</Text>}
+                {isLDPActive && <Text style={styles.noiseWarning}>⚠️ Data converted to statistical noise (LDP Active)</Text>}
             </View>
 
-            {/* [功能] 19. "助推" 机制 (Nudge Mechanism) */}
+            {/* 修复：增加 APP 1.7 要求的算法透明度模块 */}
+            <View style={styles.admContainer}>
+                <Text style={styles.subHeader}>Automated Decision Making (ADM) Disclosure</Text>
+                <Text style={styles.admText}>• Purpose: Health Risk Profiling</Text>
+                <Text style={styles.admText}>• Data Used: Heart Rate, Activity Logs</Text>
+                <Text style={styles.admText}>• Logic: Random Forest Classification (V2.1)</Text>
+            </View>
+
             <TouchableOpacity 
-                style={{ backgroundColor: 'blue', padding: 15, borderRadius: 8 }}
+                style={styles.nudgeButton}
                 onPress={() => setIsLDPActive(!isLDPActive)}
             >
-                <Text style={{ color: 'white', textAlign: 'center' }}>
-                    {isLDPActive ? "Disable LDP" : "Enable Moderate Privacy (LDP)"}
+                <Text style={styles.nudgeText}>
+                    {isLDPActive ? "Disable LDP & Restore Precision" : "Enable Moderate Privacy (LDP)"}
                 </Text>
             </TouchableOpacity>
-        </View>
+        </ScrollView>
     );
 };
+
+const styles = StyleSheet.create({
+    header: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
+    subHeader: { fontSize: 18, fontWeight: '600', marginBottom: 8 },
+    canvasContainer: { height: 250, backgroundColor: '#e0e0e0', borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginVertical: 20 },
+    noiseWarning: { marginTop: 10, color: '#555', fontStyle: 'italic' },
+    admContainer: { backgroundColor: '#f9f9f9', padding: 15, borderRadius: 8, borderWidth: 1, borderColor: '#ddd', marginBottom: 20 },
+    admText: { fontSize: 14, color: '#333', marginVertical: 2 },
+    nudgeButton: { backgroundColor: '#2196F3', padding: 16, borderRadius: 8, elevation: 3 },
+    nudgeText: { color: 'white', textAlign: 'center', fontWeight: 'bold' }
+});
