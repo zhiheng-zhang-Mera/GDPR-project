@@ -33,9 +33,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="experiment"
+        options={{
+        title: 'Task (RQ)',
+        tabBarIcon: ({ color }) => <Ionicons name="flask" size={24} color={color} />,
+      }}
+      />
+      <Tabs.Screen
         name="scoring"
         options={{
-          title: 'Scoring',
+          title: 'Survey',
           tabBarIcon: ({ color }) => <Ionicons name="speedometer" size={24} color={color} />,
         }}
       />

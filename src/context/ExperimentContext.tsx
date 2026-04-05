@@ -1,14 +1,15 @@
 import React, { createContext, useContext, useRef, useState } from 'react';
 
-type GroupType = 'A' | 'B' | 'C';
+export type GroupType = 'A' | 'B' | 'C';
 
-interface TelemetryEvent {
+export interface TelemetryEvent {
   timestamp: number;
   action: string;
   target: string;
   latencyMs?: number;
 }
-interface TLXScores {
+
+export interface TLXScores {
   mentalDemand: number;
   physicalDemand: number;
   temporalDemand: number;
@@ -17,21 +18,40 @@ interface TLXScores {
   frustration: number;
 }
 
+export interface UserProfile {
+  age: string;
+  gender: string;
+  culture: string;
+  education: string;
+  techSavvy: number;
+  privacyConcern: number;
+}
+
+export interface TaskEvaluation {
+  transparency: number;
+  control: number;
+  preference: string;
+}
+
 interface ExperimentState {
   group: GroupType;
   taskStartTime: number | null;
   events: TelemetryEvent[];
-  tlxScores: TLXScores | null; // 使用新的接口
+  tlxScores: TLXScores | null;
+  userProfile: UserProfile | null;
+  taskEvaluation: TaskEvaluation | null;
 }
 
 const ExperimentContext = createContext<any>(null);
 
 export const ExperimentProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [state, setState] = useState<ExperimentState>({
-    group: 'B', 
+    group: 'C', // 默认为 C 组
     taskStartTime: null,
     events: [],
-    tlxScores: null
+    tlxScores: null,
+    userProfile: null,
+    taskEvaluation: null
   });
 
   const taskTimer = useRef<number | null>(null);
@@ -60,23 +80,35 @@ export const ExperimentProvider: React.FC<{children: React.ReactNode}> = ({ chil
     logEvent('GROUP_CHANGE', group);
   };
 
-  // 保存受试者的 TLX 问卷结果
-  const saveTLXScores = (scores: TLXScores) => {
-    setState(prev => ({ ...prev, tlxScores: scores }));
-    logEvent('SUBMIT_TLX', JSON.stringify(scores));
+  // 统一保存所有问卷数据
+  const saveFinalResults = (tlx: TLXScores, profile: UserProfile, evalData: TaskEvaluation) => {
+    setState(prev => ({ 
+        ...prev, 
+        tlxScores: tlx, 
+        userProfile: profile, 
+        taskEvaluation: evalData 
+    }));
+    logEvent('SUBMIT_ALL_SURVEYS', 'completed');
   };
 
-  // 结束测试并导出完整 JSON 数据供 PLS-SEM 分析
+  // 导出供 PLS-SEM 分析的数据
   const exportSessionData = () => {
     const sessionData = JSON.stringify(state, null, 2);
-    console.log("=== EXPORT FOR PLS-SEM ===");
+    console.log("========== EXPORT FOR PLS-SEM ==========");
     console.log(sessionData);
-    // 在真机测试时，这里可以替换为保存到本地文件或发往服务器
-    alert("Data exported to console!");
+    alert("Data exported to console! Check your Metro terminal.");
   };
 
   return (
-    <ExperimentContext.Provider value={{ ...state, setGroup, startTask, finishTask, logEvent, saveTLXScores, exportSessionData }}>
+    <ExperimentContext.Provider value={{ 
+        ...state, 
+        setGroup, 
+        startTask, 
+        finishTask, 
+        logEvent, 
+        saveFinalResults, 
+        exportSessionData 
+    }}>
       {children}
     </ExperimentContext.Provider>
   );
