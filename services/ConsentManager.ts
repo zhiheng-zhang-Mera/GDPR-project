@@ -19,14 +19,16 @@ export class ConsentManager {
         const consentKey = `${dataType}_${purpose}`;
         this.consents[consentKey] = false;
         
-        // 1. 触发即时阻断原生中间件
-        await PrivacyInterceptor.toggleSensorAccess(dataType, false);
+        // 【修复点】：增加空值检查，如果原生模块不存在，则在控制台打印模拟日志
+        if (PrivacyInterceptor && PrivacyInterceptor.toggleSensorAccess) {
+            await PrivacyInterceptor.toggleSensorAccess(dataType, false);
+        } else {
+            console.log(`[Mock Native Module] PrivacyInterceptor.toggleSensorAccess called for ${dataType} to false`);
+        }
         
-        // 2. 修复：物理级数据擦除 (GDPR Art. 17)
         if (requestErasure) {
             await this.executeDataErasure(dataType);
         }
-        
         this.updateAuthorizationReceipt();
     }
 

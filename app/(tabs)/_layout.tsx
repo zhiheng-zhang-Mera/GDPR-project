@@ -19,6 +19,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="projects"
+        options={{
+          title: 'Projects',
+          tabBarIcon: ({ color }) => <Ionicons name="flask" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
@@ -26,13 +33,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="projects"
+        name="scoring"
         options={{
-        title: 'Projects',
-          tabBarIcon: ({ color }) => <Ionicons name="flask" size={24} color={color} />,
-      }}
+          title: 'Scoring',
+          tabBarIcon: ({ color }) => <Ionicons name="speedometer" size={24} color={color} />,
+        }}
       />
     </Tabs>
-    
   );
 }

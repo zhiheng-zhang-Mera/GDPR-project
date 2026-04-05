@@ -1,7 +1,28 @@
 import { Ionicons } from '@expo/vector-icons';
+import { ComponentProps } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function MetricCard({ label, value, unit, color, isWide, onPressIcon, iconName }) {
+// 1. 定义传入属性的类型，带 ? 的表示可选属性
+interface MetricCardProps {
+  label: string;
+  value: string | number;
+  unit: string;
+  color: string;
+  isWide?: boolean;
+  onPressIcon?: () => void;
+  iconName?: ComponentProps<typeof Ionicons>['name'];
+}
+
+// 2. 为组件应用这个类型
+export default function MetricCard({ 
+  label, 
+  value, 
+  unit, 
+  color, 
+  isWide, 
+  onPressIcon, 
+  iconName 
+}: MetricCardProps) {
   return (
     <View style={[styles.card, isWide ? styles.wide : styles.narrow, { borderLeftColor: color }]}>
       <View style={styles.row}>
@@ -9,6 +30,7 @@ export default function MetricCard({ label, value, unit, color, isWide, onPressI
           <Text style={styles.label}>{label}</Text>
           <Text style={styles.value}>{value} <Text style={styles.unit}>{unit}</Text></Text>
         </View>
+        {/* 只有当传入了 onPressIcon 时才渲染图标按钮 */}
         {onPressIcon && (
           <TouchableOpacity onPress={onPressIcon} style={styles.iconBtn}>
             <Ionicons name={iconName || "add-circle"} size={28} color={color} />

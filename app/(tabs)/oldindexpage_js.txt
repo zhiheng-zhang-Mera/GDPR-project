@@ -22,6 +22,7 @@ export default function TodayScreen() {
   };
 
   return (
+    // 使用 contentContainerStyle 确保 ScrollView 内部有足够的间距
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <Text style={styles.welcome}>Overview</Text>
       
@@ -58,10 +59,11 @@ export default function TodayScreen() {
           color="#2196F3" 
           isWide={false} 
           iconName="add-circle-outline"
-          onPressIcon={() => setModalVisible(true)} 
+          onPressIcon={() => setModalVisible(true)} // 触发 Modal
         />
       </View>
 
+      {/* 针对 Android 的手动输入 Modal */}
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -86,6 +88,7 @@ export default function TodayScreen() {
         </View>
       </Modal>
 
+      {/* 底部留白，防止被 Tab Bar 遮挡 */}
       <View style={{ height: 100 }} />
     </ScrollView>
   );
@@ -96,6 +99,8 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 20 },
   welcome: { fontSize: 22, fontWeight: 'bold', color: '#333', marginBottom: 20, marginTop: 10 },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
+  
+  // Modal 样式
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { backgroundColor: '#FFF', padding: 25, borderRadius: 20, width: '80%', elevation: 10 },
   modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15 },
