@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { PrivacyBridge } from '../src/services/PrivacyBridge';
+import DataFlowVisualizer from './DataFlowVisualizer'; // 引入桑基图验证组件
 
 interface Props {
     taskId: number;
@@ -11,35 +12,34 @@ interface Props {
 export function DynamicDashboard({ taskId, onInteraction }: Props) {
   const [isLdpEnabled, setIsLdpEnabled] = useState(false);
   const [syncLatency, setSyncLatency] = useState<number | null>(null);
-
-  const [nodes, setNodes] = useState({
-      local: [
-          { id: 'step_counter', label: 'Local Pedometer', color: '#4CAF50', active: true, isTrap: false },
-          { id: 'sleep_monitor', label: 'Sleep Analysis', color: '#4CAF50', active: true, isTrap: false }
-      ],
-      domestic: [
-          { id: 'cloud_backup', label: 'Encrypted Vault', color: '#81C784', active: true, isTrap: false },
-          { id: 'workout_social', label: 'Social Sync', color: '#81C784', active: true, isTrap: false },
-          { id: 'ai_workout', label: 'AI Coach', color: '#81C784', active: true, isTrap: false }
-      ],
-      thirdParty: [
-          { id: 'device_analytics', label: 'Crash Reports', color: '#FFB74D', active: true, isTrap: false }
-      ]
-  });
+  const [nodes, setNodes] = useState<any>({ local: [], domestic: [], thirdParty: [] });
 
   useEffect(() => {
+      // 扩展至 18 节点，与 Standard Settings 保持相同的认知负荷
       let initialNodes = {
         local: [
-            { id: 'step_counter', label: 'Local Pedometer', color: '#4CAF50', active: taskId !== 2, isTrap: false },
-            { id: 'sleep_monitor', label: 'Sleep Analysis', color: '#4CAF50', active: taskId !== 2, isTrap: false }
+            { id: 'step_counter', label: 'Pedometer', color: '#4CAF50', active: taskId !== 2, isTrap: false },
+            { id: 'sleep_monitor', label: 'Sleep Analysis', color: '#4CAF50', active: taskId !== 2, isTrap: false },
+            { id: 'water_logger', label: 'Hydration', color: '#4CAF50', active: taskId !== 2, isTrap: false },
+            { id: 'menstrual_cal', label: 'Cycle Cal', color: '#4CAF50', active: taskId !== 2, isTrap: false },
+            { id: 'blood_pressure', label: 'BP Log', color: '#4CAF50', active: taskId !== 2, isTrap: false },
+            { id: 'local_voice', label: 'Voice Cmds', color: '#4CAF50', active: taskId !== 2, isTrap: false }
         ],
         domestic: [
-            { id: 'cloud_backup', label: 'Encrypted Vault', color: '#81C784', active: taskId !== 2, isTrap: false },
+            { id: 'calorie_calc', label: 'Calorie', color: '#81C784', active: taskId !== 2, isTrap: false },
+            { id: 'heart_rate_var', label: 'HRV Monitor', color: '#81C784', active: taskId !== 2, isTrap: false },
             { id: 'workout_social', label: 'Social Sync', color: '#81C784', active: taskId !== 2, isTrap: false },
-            { id: 'ai_workout', label: 'AI Coach', color: '#81C784', active: taskId !== 2, isTrap: false }
+            { id: 'cloud_backup', label: 'Vault', color: '#81C784', active: taskId !== 2, isTrap: false },
+            { id: 'device_analytics', label: 'Crash Reports', color: '#81C784', active: taskId !== 2, isTrap: false },
+            { id: 'ai_workout', label: 'AI Coach', color: '#81C784', active: taskId !== 2, isTrap: false },
+            { id: 'diet_plan', label: 'Dietary', color: '#81C784', active: taskId !== 2, isTrap: false },
+            { id: 'med_reminders', label: 'Med Sync', color: '#81C784', active: taskId !== 2, isTrap: false }
         ],
         thirdParty: [
-            { id: 'device_analytics', label: 'Crash Reports', color: '#FFB74D', active: taskId !== 2, isTrap: false }
+            { id: 'ad_network', label: 'Global Ads', color: '#FFB74D', active: taskId !== 2, isTrap: false },
+            { id: 'social_meta', label: 'Social Media', color: '#FFB74D', active: taskId !== 2, isTrap: false },
+            { id: 'wearable_api', label: 'External API', color: '#FFB74D', active: taskId !== 2, isTrap: false },
+            { id: 'academic_pool', label: 'Research Pool', color: '#FFB74D', active: taskId !== 2, isTrap: false }
         ]
       };
 
@@ -51,6 +51,8 @@ export function DynamicDashboard({ taskId, onInteraction }: Props) {
           initialNodes.thirdParty.push({ id: 'genetic_registry', label: 'DNA Registry Archive', color: '#673AB7', active: true, isTrap: true });
       } else if (taskId === 4) {
           initialNodes.thirdParty.push({ id: 'adm_insurance', label: 'Insurance Broker AI', color: '#D84315', active: true, isTrap: true });
+      } else if (taskId === 5) {
+          initialNodes.thirdParty.push({ id: 'biometric_visual', label: 'Raw Biometric Flow', color: '#C2185B', active: true, isTrap: true });
       }
 
       setNodes(initialNodes);
@@ -62,7 +64,7 @@ export function DynamicDashboard({ taskId, onInteraction }: Props) {
       let newActiveState = !node.active;
 
       if (node.isTrap) {
-          if ((taskId === 1 || taskId === 3 || taskId === 4) && newActiveState === false) isCorrectAction = true;
+          if ((taskId === 1 || taskId === 3 || taskId === 4 || taskId === 5) && newActiveState === false) isCorrectAction = true;
           if (taskId === 2 && newActiveState === true) isCorrectAction = true;
       } else {
           isError = true;
@@ -73,24 +75,22 @@ export function DynamicDashboard({ taskId, onInteraction }: Props) {
 
       const newColor = taskId === 2 && newActiveState ? '#D32F2F' : (newActiveState ? node.color : '#E0E0E0');
       
-      setNodes(prev => ({
+      setNodes((prev: any) => ({
           ...prev,
-          [category]: prev[category as keyof typeof prev].map(n => 
+          [category]: prev[category].map((n: any) => 
               n.id === node.id ? { ...n, active: newActiveState, color: newColor } : n
           )
       }));
 
-      if (onInteraction) {
-         onInteraction({ isCorrect: isCorrectAction, isError: isError, latency: response.latencyMs });
-      }
+      if (onInteraction) onInteraction({ isCorrect: isCorrectAction, isError: isError, latency: response.latencyMs });
   };
 
-  const renderNodeGroup = (title: string, category: keyof typeof nodes, desc: string) => (
+  const renderNodeGroup = (title: string, category: string, desc: string) => (
       <View style={styles.nodeGroup}>
           <Text style={styles.groupTitle}>{title}</Text>
           <Text style={styles.groupDesc}>{desc}</Text>
           <View style={styles.nodeContainer}>
-              {nodes[category].map(node => (
+              {nodes[category]?.map((node: any) => (
                   <TouchableOpacity 
                       key={node.id} 
                       style={[styles.node, { backgroundColor: node.color, opacity: node.active ? 1 : 0.6 }]}
@@ -106,6 +106,21 @@ export function DynamicDashboard({ taskId, onInteraction }: Props) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{paddingBottom: 40}}>
+      {taskId === 5 && (
+              <DataFlowVisualizer
+                // 使用 ?. 安全访问，防止 useEffect 还没运行完时 nodes.thirdParty 里找不到该节点
+                isHighRisk={nodes.thirdParty?.find((n:any) => n.id === 'biometric_visual')?.active ?? false}
+                isLdpEnabled={isLdpEnabled}
+                onBlockAction={() => {
+                    // 增加防御性判断，只有在节点真实存在时才触发拦截操作
+                    const targetNode = nodes.thirdParty?.find((n:any) => n.id === 'biometric_visual');
+                    if (targetNode) {
+                        handleNodePress(targetNode, 'thirdParty');
+                    }
+                }}
+              />
+            )}
+
       {taskId !== 2 && (
           <View style={styles.settingRow}>
             <View style={styles.textWrapper}>
@@ -118,7 +133,7 @@ export function DynamicDashboard({ taskId, onInteraction }: Props) {
 
       {renderNodeGroup('Zone 1: Local Device', 'local', 'Data stays on your physical phone.')}
       {renderNodeGroup('Zone 2: Domestic Cloud', 'domestic', 'Data encrypted in local jurisdiction servers.')}
-      {renderNodeGroup('Zone 3: External & Cross-Border', 'thirdParty', 'WARNING: Subject to foreign laws or third-party ADM algorithms.')}
+      {renderNodeGroup('Zone 3: External & Cross-Border', 'thirdParty', 'WARNING: Subject to foreign laws.')}
 
       {syncLatency !== null && (
         <View style={styles.latencyBox}>
@@ -139,9 +154,9 @@ const styles = StyleSheet.create({
   groupTitle: { fontSize: 16, fontWeight: 'bold', color: '#1565C0' },
   groupDesc: { fontSize: 12, color: '#757575', marginBottom: 10 },
   nodeContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  node: { width: '48%', padding: 15, borderRadius: 8, alignItems: 'center', marginBottom: 10, elevation: 2 },
-  nodeText: { color: '#fff', fontWeight: 'bold', fontSize: 12, textAlign: 'center' },
-  blockedText: { color: '#fff', fontSize: 10, marginTop: 4, fontWeight: '900' },
+  node: { width: '31%', padding: 10, borderRadius: 8, alignItems: 'center', marginBottom: 10, elevation: 2 }, // 缩小宽度以容纳更多节点
+  nodeText: { color: '#fff', fontWeight: 'bold', fontSize: 10, textAlign: 'center' },
+  blockedText: { color: '#fff', fontSize: 9, marginTop: 4, fontWeight: '900' },
   latencyBox: { marginTop: 10, backgroundColor: '#E8F5E9', padding: 10, borderRadius: 8 },
   latencyText: { color: '#2E7D32', fontSize: 12, fontWeight: 'bold', textAlign: 'center' }
 });

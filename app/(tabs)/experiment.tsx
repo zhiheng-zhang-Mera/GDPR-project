@@ -10,33 +10,41 @@ const EXPERIMENT_TASKS = [
         id: 1,
         title: 'Task 1: Cross-border Privacy Audit',
         scenarioTitle: 'Scenario 1: Overseas Data Transfer',
-        scenarioText: 'You are tracking sensitive hormone levels. The app updated its policy.\n\nYour task is to locate the settings and DISABLE any third-party services processing data OUTSIDE your local jurisdiction (Cross-border transfers).',
+        scenarioText: 'You are tracking sensitive hormone levels. The app updated its policy.\n\nYour task is to locate the settings and DISABLE any third-party services processing data OUTSIDE your local jurisdiction.',
         instruction: 'Identify and BLOCK the non-compliant overseas data flow.',
     },
     {
         id: 2,
         title: 'Task 2: Emergency Break-glass',
         scenarioTitle: 'Scenario 2: MEDICAL EMERGENCY',
-        scenarioText: 'CRITICAL: You are experiencing a severe allergic reaction and an ambulance has been called.\n\nYour task is to quickly override previous privacy blocks and GRANT emergency responders access to your precise location and medical history.',
+        scenarioText: 'CRITICAL: You are experiencing a severe allergic reaction and an ambulance has been called.\n\nYour task is to quickly override previous privacy blocks and GRANT emergency responders access.',
         instruction: 'Identify and ENABLE the Emergency Responder data flow.',
     },
     {
         id: 3,
         title: 'Task 3: Right to Erasure',
         scenarioTitle: 'Scenario 3: Genetic Data Deletion',
-        scenarioText: 'You have decided to leave a specialized DNA analysis program. To fully protect your genetic privacy, you must exercise your "Right to be Forgotten".\n\nYour task is to locate and DESTROY your historical DNA records stored in the remote registry.',
+        scenarioText: 'You have decided to leave a specialized DNA analysis program. To fully protect your genetic privacy, you must exercise your "Right to be Forgotten".',
         instruction: 'Identify and SEVER the Genetic Registry connection.',
     },
     {
         id: 4,
         title: 'Task 4: Automated Decision-Making (ADM)',
         scenarioTitle: 'Scenario 4: Algorithmic Profiling',
-        scenarioText: 'The app introduced a new algorithm that calculates your "Health Risk Score" and shares it with third-party insurance brokers without explicit human oversight.\n\nYour task is to OPT-OUT of this automated insurance profiling.',
+        scenarioText: 'The app introduced a new algorithm that calculates your "Health Risk Score" and shares it with third-party insurance brokers without human oversight.',
         instruction: 'Identify and BLOCK the Insurance Broker AI profiling.',
+    },
+    {
+        id: 5,
+        title: 'Task 5: Visual Data Flow Proof', // 新增的多任务与视觉证明
+        scenarioTitle: 'Scenario 5: Visual Pipeline Audit',
+        scenarioText: 'A high-risk Raw Biometric data flow has been detected. You need to visually verify the flow status.\n\nYour task is to either enable Local Differential Privacy (LDP) to blur the data, or completely block the raw biometric stream.',
+        instruction: 'Use the interface to secure the Raw Biometric Telemetry flow.',
     }
 ];
 
 export default function ExperimentScreen() {
+    // ... [保留原本的 React 状态和函数定义完全不变, startCurrentTask, handleTaskComplete, handleInteraction 等]
     const router = useRouter();
     const { group, setGroup, startTask, finishTask } = useExperiment();
 
@@ -78,7 +86,7 @@ export default function ExperimentScreen() {
 
     const handleInteraction = (res: { isCorrect: boolean, isError: boolean }) => {
         if (res.isCorrect) setCurrentAccuracy(true);
-        if (res.isError) setCurrentErrors(prev => prev + 1); // 记录误操作次数
+        if (res.isError) setCurrentErrors(prev => prev + 1);
     };
 
     const renderBriefing = () => (
@@ -160,6 +168,7 @@ export default function ExperimentScreen() {
     );
 }
 
+// ... [styles 保持原样]
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f9f9f9' },
     progressContainer: { padding: 10, alignItems: 'center', backgroundColor: '#e0e0e0' },
