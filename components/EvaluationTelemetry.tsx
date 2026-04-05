@@ -13,9 +13,13 @@ export const EvaluationTelemetry = () => {
     
     const [actionLatencies, setActionLatencies] = useState<number[]>([]);
     
-    // 供受试者打分的状态（NASA-TLX量表）
-    const [mentalDemand, setMentalDemand] = useState(4);
-    const [frustration, setFrustration] = useState(4);
+    // 将所有维度的初始默认分值设置在 0（即 -3 到 +3 的中立位置）
+    const [mentalDemand, setMentalDemand] = useState(0);
+    const [physicalDemand, setPhysicalDemand] = useState(0);
+    const [temporalDemand, setTemporalDemand] = useState(0);
+    const [performance, setPerformance] = useState(0);
+    const [effort, setEffort] = useState(0);
+    const [frustration, setFrustration] = useState(0);
 
     useEffect(() => {
         const subscription = DeviceEventEmitter.addListener('RECORD_LATENCY', (latencyMs: number) => {
@@ -24,16 +28,19 @@ export const EvaluationTelemetry = () => {
         return () => subscription.remove();
     }, []);
 
-    // 渲染 1-7 分选择器的复用组件
+    // 渲染 -3 到 +3 分选择器的复用组件
     const renderScale = (value: number, setter: (v: number) => void) => (
         <View style={styles.scaleRow}>
-            {[1, 2, 3, 4, 5, 6, 7].map(num => (
+            {[-3, -2, -1, 0, 1, 2, 3].map(num => (
                 <TouchableOpacity 
                     key={num} 
                     style={[styles.scaleBtn, value === num && styles.scaleBtnActive]}
                     onPress={() => setter(num)}
                 >
-                    <Text style={value === num ? styles.scaleTextActive : styles.scaleText}>{num}</Text>
+                    <Text style={value === num ? styles.scaleTextActive : styles.scaleText}>
+                        {/* 如果是正数，强制显示 '+' 号以增强对比度 */}
+                        {num > 0 ? `+${num}` : num}
+                    </Text>
                 </TouchableOpacity>
             ))}
         </View>
@@ -74,11 +81,33 @@ export const EvaluationTelemetry = () => {
                 <Text style={styles.subtitle}>NASA-TLX: How mentally demanding was the task?</Text>
                 {renderScale(mentalDemand, setMentalDemand)}
 
-                <Text style={styles.subtitle}>NASA-TLX: How frustrated did you feel?</Text>
+                <Text style={styles.subtitle}>NASA-TLX: How physically demanding was the task?</Text>
+                {renderScale(physicalDemand, setPhysicalDemand)}
+
+                <Text style={styles.subtitle}>NASA-TLX: How hurried or rushed was the pace of the task?</Text>
+                {renderScale(temporalDemand, setTemporalDemand)}
+
+                <Text style={styles.subtitle}>NASA-TLX: How successful were you in accomplishing what you were asked to do?</Text>
+                {renderScale(performance, setPerformance)}
+
+                <Text style={styles.subtitle}>NASA-TLX: How hard did you have to work to accomplish your level of performance?</Text>
+                {renderScale(effort, setEffort)}
+
+                <Text style={styles.subtitle}>NASA-TLX: How insecure, discouraged, irritated, stressed, and annoyed were you?</Text>
                 {renderScale(frustration, setFrustration)}
 
                 {!tlxScores ? (
-                    <Button title="Submit TLX Score" onPress={() => saveTLXScores(mentalDemand, frustration)} />
+                    <Button 
+                        title="Submit TLX Score" 
+                        onPress={() => saveTLXScores({
+                            mentalDemand,
+                            physicalDemand,
+                            temporalDemand,
+                            performance,
+                            effort,
+                            frustration
+                        })} 
+                    />
                 ) : (
                     <View>
                         <Text style={styles.successText}>✓ TLX Recorded</Text>
@@ -99,9 +128,10 @@ const styles = StyleSheet.create({
     tlxBox: { marginTop: 20 },
     subtitle: { fontSize: 13, marginBottom: 8, color: '#444' },
     scaleRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-    scaleBtn: { width: 35, height: 35, borderRadius: 18, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' },
+    // 稍微放大按钮尺寸 (从 35 改为 38)，确保带有符号的文本 (如 "-3" 或 "+3") 居中时不会过于拥挤
+    scaleBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' },
     scaleBtnActive: { backgroundColor: '#2196F3' },
-    scaleText: { color: '#666' },
-    scaleTextActive: { color: '#fff', fontWeight: 'bold' },
+    scaleText: { color: '#666', fontSize: 13 },
+    scaleTextActive: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
     successText: { color: '#4CAF50', textAlign: 'center', marginBottom: 10, fontWeight: 'bold' }
 });

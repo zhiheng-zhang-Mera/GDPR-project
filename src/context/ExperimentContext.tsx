@@ -8,12 +8,20 @@ interface TelemetryEvent {
   target: string;
   latencyMs?: number;
 }
+interface TLXScores {
+  mentalDemand: number;
+  physicalDemand: number;
+  temporalDemand: number;
+  performance: number;
+  effort: number;
+  frustration: number;
+}
 
 interface ExperimentState {
   group: GroupType;
   taskStartTime: number | null;
   events: TelemetryEvent[];
-  tlxScores: { mentalDemand: number; frustration: number } | null; // 新增
+  tlxScores: TLXScores | null; // 使用新的接口
 }
 
 const ExperimentContext = createContext<any>(null);
@@ -52,13 +60,13 @@ export const ExperimentProvider: React.FC<{children: React.ReactNode}> = ({ chil
     logEvent('GROUP_CHANGE', group);
   };
 
-  // 【新增】保存受试者的 TLX 问卷结果
-  const saveTLXScores = (mentalDemand: number, frustration: number) => {
-    setState(prev => ({ ...prev, tlxScores: { mentalDemand, frustration } }));
-    logEvent('SUBMIT_TLX', `mental:${mentalDemand},frustration:${frustration}`);
+  // 保存受试者的 TLX 问卷结果
+  const saveTLXScores = (scores: TLXScores) => {
+    setState(prev => ({ ...prev, tlxScores: scores }));
+    logEvent('SUBMIT_TLX', JSON.stringify(scores));
   };
 
-  // 【新增】结束测试并导出完整 JSON 数据供 PLS-SEM 分析
+  // 结束测试并导出完整 JSON 数据供 PLS-SEM 分析
   const exportSessionData = () => {
     const sessionData = JSON.stringify(state, null, 2);
     console.log("=== EXPORT FOR PLS-SEM ===");

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 // 修正路径：假设在 src/context/ 目录下
-import { ConsentState } from '@/constants/MockData';
+import { ConsentState } from '../../constants/MockData';
 import { auditLog } from '../utils/auditLogger';
 
 const PrivacyContext = createContext<{
