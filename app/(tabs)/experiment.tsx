@@ -8,38 +8,57 @@ import { useExperiment } from '../../src/context/ExperimentContext';
 const EXPERIMENT_TASKS = [
     {
         id: 1,
-        title: 'Task 1: Cross-border Privacy Audit',
+        // 对应 RQ3: Interaction Efficiency & Time Cost (通过橙色高亮降低视觉搜索时间)
+        // 对应 RP Table 3 (Scenario B: Third-party Deep Processing)
+        title: 'Task 1: Cross-border Privacy Audit (Visual Identification)',
         scenarioTitle: 'Scenario 1: Overseas Data Transfer',
-        scenarioText: 'You are tracking sensitive hormone levels. The app updated its policy.\n\nYour task is to locate the settings and DISABLE any third-party services processing data OUTSIDE your local jurisdiction.',
-        instruction: 'Identify and BLOCK the non-compliant overseas data flow.',
+        scenarioText: '系统检测到您的“激素治疗(Hormone Therapy)”敏感数据正被请求进行跨境传输，这违反了本地数据主权原则。\n\n在动态面板中，高风险的跨境数据流将以【橙色警告路径 (Orange Flow)】显示。',
+        instruction: '请在数据流图中快速识别【橙色数据流】，并点击以在底层物理阻断它。',
     },
     {
         id: 2,
-        title: 'Task 2: Emergency Break-glass',
-        scenarioTitle: 'Scenario 2: MEDICAL EMERGENCY',
-        scenarioText: 'CRITICAL: You are experiencing a severe allergic reaction and an ambulance has been called.\n\nYour task is to quickly override previous privacy blocks and GRANT emergency responders access.',
-        instruction: 'Identify and ENABLE the Emergency Responder data flow.',
+        // 对应 RQ1: Cognitive Load (测试动态视觉反馈能否降低心理负荷)
+        // 对应 RP Section 7.3: Local Differential Privacy (LDP) Visualization
+        title: 'Task 2: Local Differential Privacy (The Blurry Path)', 
+        scenarioTitle: 'Scenario 2: Data De-identification',
+        scenarioText: '某研究机构需要您的运动步态和心率数据。您希望协助研究，但不想暴露精确个体身份。\n\n系统支持本地差分隐私(LDP)，可在数据离开设备前加入噪点。',
+        instruction: '请找到生物特征数据流，开启“模糊处理 (LDP)”。观察其如何变成【模糊路径 (Blurry Path)】并将警报降级为绿色。',
     },
     {
         id: 3,
-        title: 'Task 3: Right to Erasure',
-        scenarioTitle: 'Scenario 3: Genetic Data Deletion',
-        scenarioText: 'You have decided to leave a specialized DNA analysis program. To fully protect your genetic privacy, you must exercise your "Right to be Forgotten".',
-        instruction: 'Identify and SEVER the Genetic Registry connection.',
+        // 对应 RQ2: Perceived Behavioral Control (测试对底层传感器的细粒度控制感)
+        // 对应 RP Section 7.2: Granular Strategies (Sampling rate modulation)
+        title: 'Task 3: Granular Sensor Modulation (Native Interception)',
+        scenarioTitle: 'Scenario 3: Background GPS & Microphone',
+        scenarioText: '一个“城市压力映射(Urban Stress Mapping)”项目正在高频度采集您的后台位置和环境音，这可能导致行动轨迹泄露。\n\n隐私拦截中间件允许您在不完全关闭服务的情况下，从底层限制传感器的精度。',
+        instruction: '请找到 GPS 节点，将其采样率从高频(1Hz)调节为低频(0.01Hz)以模糊轨迹。',
     },
     {
         id: 4,
-        title: 'Task 4: Automated Decision-Making (ADM)',
-        scenarioTitle: 'Scenario 4: Algorithmic Profiling',
-        scenarioText: 'The app introduced a new algorithm that calculates your "Health Risk Score" and shares it with third-party insurance brokers without human oversight.',
-        instruction: 'Identify and BLOCK the Insurance Broker AI profiling.',
+        // 对应 RQ3 & 交互对比 (测试在极端情况下的撤回/授权效率)
+        // 对应 RP Table 3 (Scenario A: Emergency Break-glass)
+        title: 'Task 4: Emergency Break-glass Override',
+        scenarioTitle: 'Scenario 4: MEDICAL EMERGENCY',
+        scenarioText: '紧急情况 (CRITICAL)：您正经历严重的过敏性休克，急救人员需要立即读取您之前屏蔽的完整健康史。\n\n根据 GDPR 第6条“保护生命攸关的利益(Vital Interests)”，您需要打破常规限制。',
+        instruction: '请使用“紧急破窗机制(Break-glass)”，一键暂时覆盖所有隐私拦截，将精确数据放行给急救中心。',
     },
     {
         id: 5,
-        title: 'Task 5: Visual Data Flow Proof', // 新增的多任务与视觉证明
-        scenarioTitle: 'Scenario 5: Visual Pipeline Audit',
-        scenarioText: 'A high-risk Raw Biometric data flow has been detected. You need to visually verify the flow status.\n\nYour task is to either enable Local Differential Privacy (LDP) to blur the data, or completely block the raw biometric stream.',
-        instruction: 'Use the interface to secure the Raw Biometric Telemetry flow.',
+        // 对应 RQ1 & 语义鸿沟 (Semantic Gap)
+        // 对应 RP Section 3.2 & 3.4 (APP 1.7 自动化决策透明度)
+        title: 'Task 5: Automated Decision-Making (ADM) Transparency',
+        scenarioTitle: 'Scenario 5: Algorithmic Profiling',
+        scenarioText: '保险公司在未经人工审核的情况下，使用黑盒算法(AI)评估您的“健康风险评分”，并可能据此提高您的保费。\n\n最新的隐私法案要求应用程序必须对这类自动化决策(ADM)提供明确的拒绝权。',
+        instruction: '请识别出通向【保险经纪(Insurance Broker)】的算法分析(AI Profiling)数据流，并彻底切断它。',
+    },
+    {
+        id: 6,
+        // 对应 RQ2: System Trust & API Blockade (测试“被遗忘权”的彻底执行)
+        // 对应 RP Section 5.2 (The Architectural Control Paradox)
+        title: 'Task 6: Sensor-Level API Blockade (Right to Erasure)',
+        scenarioTitle: 'Scenario 6: Revoke Consent & Sever Pipeline',
+        scenarioText: '您决定退出基因数据(Genetic Data)分析计划。为了行使“被遗忘权”，仅仅修改表面设置是不够的，必须通过底层中间件彻底销毁管道。\n\n您的操作将直接触发 Native 层的强制隔离。',
+        instruction: '找到基因注册表连接，点击撤回授权。请验证该数据管道(Pipeline)是否在视觉上已被【彻底物理截断 (Severed)】。',
     }
 ];
 
