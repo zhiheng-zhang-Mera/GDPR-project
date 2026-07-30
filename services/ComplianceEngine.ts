@@ -1,40 +1,64 @@
-import { Alert } from 'react-native';
+import { Alert, DeviceEventEmitter } from 'react-native';
+
+// 建立 GDPR 与 PIPL 的完整法条映射字典
+export const REGULATION_MAPPING = {
+    EXCESSIVE_COLLECTION: {
+        description: '健康数据或传感器调用频率过高',
+        gdpr: 'Art. 5(1)(c) Data Minimisation (数据最小化原则)',
+        pipl: '第5条 最小限度收集原则',
+    },
+    UNAUTHORIZED_CROSS_BORDER: {
+        description: '数据流向未通过等效评估的境外区域',
+        gdpr: 'Art. 44-49 International Transfers (跨境传输通用原则)',
+        pipl: '第38条 跨境提供条件',
+    },
+    SENSITIVE_LEAK_RISK: {
+        description: '未经二次明确同意读取心率/生物特征',
+        gdpr: 'Art. 9 Processing of Special Categories (特殊类别敏感数据限制)',
+        pipl: '第28条 敏感个人信息处理规范',
+    }
+};
 
 export class ComplianceEngine {
-    // 2026年合规白名单与高风险区配置
-    private static readonly ADEQUACY_DECISION_COUNTRIES = ['EU', 'UK', 'JP', 'KR', 'AU'];
-    private static readonly RESTRICTED_REGIONS = ['UNSAFE_REGION', 'UNKNOWN'];
+    // 缓存上次弹窗时间，防刷机制（HCI 交互优化）
+    private static lastAlertTime: Record<string, number> = {};
+    private static readonly ALERT_COOLDOWN_MS = 10000; // 10秒防刷限制
 
-    static async detectJurisdiction(systemRegion: string, ipRegion: string): Promise<'GDPR' | 'PIPL' | 'APP'> {
-        if (systemRegion !== ipRegion) {
-            this.triggerVPNConflictWarning();
+    /**
+     * 接收被动审计事件，分析合规风险并执行双层交互设计
+     */
+    static processAuditEvent(
+        eventType: keyof typeof REGULATION_MAPPING, 
+        apiName: string, 
+        contextData: string
+    ) {
+        const now = Date.now();
+        const lastTime = this.lastAlertTime[eventType] || 0;
+        const regulation = REGULATION_MAPPING[eventType];
+
+        // 无论是否弹窗，非侵入式日志流必须实时更新
+        DeviceEventEmitter.emit('ON_NEW_LOG_STREAM', {
+            timestamp: now,
+            apiName,
+            issue: regulation.description,
+            gdpr: regulation.gdpr,
+            pipl: regulation.pipl
+        });
+
+        // 规避“弹窗轰炸”：如果距离上次该类型弹窗不足10秒，则跳过本次 Alert
+        if (now - lastTime < this.ALERT_COOLDOWN_MS) {
+            return;
         }
-        if (ipRegion === 'CN') return 'PIPL';
-        if (ipRegion === 'AU') return 'APP';
-        return 'GDPR'; 
+
+        this.lastAlertTime[eventType] = now;
+        this.triggerInteractiveWarning(apiName, regulation);
     }
 
-    private static triggerVPNConflictWarning() {
+    private static triggerInteractiveWarning(apiName: string, regulation: any) {
         Alert.alert(
-            "Compliance Conflict Warning",
-            "Your IP address does not match your system region. Please manually confirm your jurisdiction."
+            "⚠️ 异常数据请求警告",
+            `组件 [${apiName}] 触发风险行为：\n${regulation.description}\n\n可能违反条例：\n• GDPR: ${regulation.gdpr}\n• PIPL: ${regulation.pipl}`,
+            [{ text: "已知晓", style: "default" }]
         );
-    }
-
-    // 修复：引入动态风险评估逻辑
-    static evaluateCrossBorderRisk(serviceArea: string, targetArea: string): 'GREEN' | 'ORANGE' {
-        if (serviceArea === targetArea) return 'GREEN';
-        
-        // 传往无充分保护决定的地区触发橙色预警
-        if (serviceArea === 'EU' && !this.ADEQUACY_DECISION_COUNTRIES.includes(targetArea)) {
-            return 'ORANGE';
-        }
-        
-        // 拦截已知的高风险受限区域
-        if (this.RESTRICTED_REGIONS.includes(targetArea)) {
-            return 'ORANGE';
-        }
-
-        return 'GREEN';
     }
 }
