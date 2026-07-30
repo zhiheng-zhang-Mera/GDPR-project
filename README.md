@@ -1,5 +1,26 @@
 # Welcome to your Expo app 👋
 
+## GDPR permission-audit architecture
+
+The `7-30-adjusted` implementation now contains a non-blocking compliance path:
+
+- `src/compliance/IComplianceEngine.ts`: pluggable regulation-engine contract.
+- `GDPRComplianceEngine.ts`: dynamic baseline + deviation thresholds mapped to GDPR Articles 5, 6, and 9.
+- `ViolationRepository.ts`: persistent finding state and notification de-duplication.
+- `ViolationSimulator.ts` and `Evaluation.ts`: random 24-hour test configurations, ground truth, precision, and recall.
+- Android `AuditScheduler` / `PermissionAuditWorker`: unique 24-hour WorkManager audit without Root or VPN.
+- Android `ViolationSimulatorWorker`: isolated test-harness scheduling.
+
+Run the deterministic engine verification with:
+
+```bash
+npm run test:compliance
+```
+
+The Android AppOps history surface varies by OS/OEM and may require privileged or device-owner
+deployment for cross-application access counts. The worker records this capability explicitly
+instead of claiming unavailable evidence or blocking another application's data flow.
+
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started

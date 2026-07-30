@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": ".compliance-test-build",
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/compliance/IComplianceEngine.ts",
+    "src/compliance/types.ts",
+    "src/compliance/GDPRComplianceEngine.ts",
+    "src/compliance/ViolationSimulator.ts",
+    "src/compliance/Evaluation.ts",
+    "tests/runComplianceTests.ts"
+  ]
+}
