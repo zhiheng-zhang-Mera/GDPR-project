@@ -1,0 +1,264 @@
+% ==================== Chapter 4: Detailed Design and Implementation ====================
+\newpage\section{System Detailed Design and Implementation} [Estimated: 6,000 words]
+
+\subsection{Permission History Statistics} [Estimated: 1,200 words]
+The framework reads historical permission calls via \texttt{AppOpsManager.getHistoricalOps()} without root. \texttt{AppOpsManager} is an Android system service for tracking and controlling app operations. Each platform-defined runtime permission (except background modifiers) has an associated app-op for tracking and silent failure.
+
+Core implementation:
+
+\begin{lstlisting}[caption=Historical permission reading]
+class PermissionHistoryReader(private val context: Context) {
+    private val appOpsManager = context.getSystemService(AppOpsManager::class.java)
+    
+    fun getHistoricalOps(packageName: String, opCode: Int, since: Long): List<HistoricalOp> {
+        val ops = appOpsManager.getHistoricalOps(
+            packageName,
+            opCode,
+            since,
+            System.currentTimeMillis()
+        )
+        return ops.map { op ->
+            HistoricalOp(
+                packageName = op.packageName,
+                opCode = op.opCode,
+                count = op.count,
+                timestamp = op.timestamp
+            )
+        }
+    }
+}
+\end{lstlisting}
+
+Note that some \texttt{AppOpsManager} functionality ``is not universally available to third-party application developers; most functionality is for system apps only''. However, the core \texttt{getHistoricalOps} read capability is open to third-party apps, providing the basis for our root-free implementation.
+
+The \texttt{HistoricalOp} data structure captures the package name, operation code, call count, and timestamp. To handle Android version differences, the implementation includes a compatibility layer that handles API level variations (Android 12 vs 13 vs 14) and vendor-specific log retention policies.
+
+\subsection{Low-Frequency Audit Scheduling} [Estimated: 1,200 words]
+The framework uses WorkManager for 24-hour periodic auditing. WorkManager is an Android Jetpack component designed for persistent background work. Key features:
+
+\begin{itemize}
+\item \textbf{Persistence}: scheduled work is stored in an internal SQLite database; WorkManager ensures work persists across device reboots.
+\item \textbf{Power-saving adaptation}: automatically adapts to Doze mode and other power-saving features.
+\item \textbf{Flexible scheduling}: supports one-time or periodic work with flexible scheduling windows.
+\end{itemize}
+
+The minimum interval for periodic work is 15 minutes. For a 24-hour interval, WorkManager's periodic work is designed for use cases that ``want to keep a reasonably consistent delay between successive runs and are willing to tolerate drift''. For example, a 24-hour periodic task may exhibit drift as shown in Table~\ref{tab:drift}.
+
+\begin{table}[H]
+\centering
+\caption{Typical drift of WorkManager 24-hour periodic task}
+\begin{tabular}{c|c}
+\toprule
+\textbf{Iteration} & \textbf{Execution time} \\
+\midrule
+1 & Day 1 06:00 \\
+2 & Day 2 06:24 \\
+3 & Day 3 07:15 \\
+4 & Day 4 08:00 \\
+\bottomrule
+\end{tabular}
+\label{tab:drift}
+\end{table}
+
+To mitigate drift, the framework employs a flexible execution window and maintains a last-audit timestamp in shared preferences, ensuring that audits occur at roughly 24-hour intervals even with system-imposed delays.
+
+\subsection{Expert Baseline + Dynamic Threshold Decision} [Estimated: 1,500 words]
+\subsubsection{Expert Baseline Library}
+The framework pre-configures \texttt{baseline\_config.json} as the expert baseline library. Baselines are organised by application category (MAPS, SOCIAL, TOOLS) and permission type (GPS, camera, microphone, contacts):
+
+\begin{lstlisting}[caption=baseline\_config.json (expert baseline library)]
+{
+  "MAPS": {
+    "ACCESS_FINE_LOCATION": 80,
+    "CAMERA": 5
+  },
+  "SOCIAL": {
+    "CAMERA": 30,
+    "MICROPHONE": 20
+  },
+  "TOOLS": {
+    "ACCESS_FINE_LOCATION": 10,
+    "READ_CONTACTS": 15
+  },
+  "DEFAULT": {
+    "ACCESS_FINE_LOCATION": 20,
+    "CAMERA": 10,
+    "MICROPHONE": 5,
+    "READ_CONTACTS": 5
+  }
+}
+\end{lstlisting}
+
+Baseline values are set based on: (1) Android official privacy best practices——``minimise permission requests, request only the most essential permissions for app functionality''; (2) typical call patterns of mainstream app categories derived from analysis of the top 50 apps in each category; (3) threshold recommendations from well-known security reports on anomalous permission calls. Apps not explicitly classified receive the DEFAULT relaxed baseline.
+
+\subsubsection{Dynamic Deviation Algorithm}
+Static thresholds (e.g., ``warn if GPS calls exceed 100/day'') fail to adapt to usage differences across categories——80 GPS calls/day may be normal for a maps app, but 10 may be anomalous for a tool app. Our framework uses a ``baseline + 3× standard deviation'' dynamic algorithm:
+
+\[
+\text{Threshold} = \text{Baseline}(category, permission) + 3 \times \sigma_{category, permission}
+\]
+
+where $\sigma$ is computed from the historical call distribution of same-category apps for the same permission. This is based on the statistical ``3-sigma rule''——under normal distribution, 99.73\% of data points lie within mean ± 3$\sigma$, so points beyond are statistically anomalous.
+
+Decision flow:
+\begin{enumerate}
+\item Obtain app category via PackageManager.
+\item Load baseline from \texttt{baseline\_config.json} for that category and permission.
+\item Compute standard deviation from historical data of same-category apps.
+\item If actual count exceeds ``baseline + 3×$\sigma$'', trigger warning.
+\item Otherwise, only log, no notification.
+\end{enumerate}
+
+This algorithm is more scientific than fixed thresholds——it accounts for category differences (maps vs tools) and normal intra-category variation (via standard deviation), achieving context-aware anomaly detection.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm, auto]
+    \node (start) [draw, ellipse, minimum width=2cm] {Start};
+    \node (get) [draw, rectangle, below of=start] {Get app category \& permission};
+    \node (load) [draw, rectangle, below of=get] {Load baseline from JSON};
+    \node (calc) [draw, rectangle, below of=load] {Compute std dev ($\sigma$)};
+    \node (compare) [draw, diamond, below of=calc, aspect=2, text width=3cm] {Actual > Baseline + 3$\sigma$?};
+    \node (alert) [draw, rectangle, below left of=compare, xshift=-2cm] {Trigger alert};
+    \node (log) [draw, rectangle, below right of=compare, xshift=2cm] {Log only};
+    \node (end) [draw, ellipse, below of=log, xshift=2cm] {End};
+
+    \draw[->] (start) -- (get);
+    \draw[->] (get) -- (load);
+    \draw[->] (load) -- (calc);
+    \draw[->] (calc) -- (compare);
+    \draw[->] (compare) -- node[above left] {Yes} (alert);
+    \draw[->] (compare) -- node[above right] {No} (log);
+    \draw[->] (alert) -- ++(0,-1.5) -| (end.west);
+    \draw[->] (log) -- (end.west);
+\end{tikzpicture}
+\caption{Dynamic threshold decision flow}
+\label{fig:threshold}
+\end{figure}
+
+\subsection{Automated Violation Simulator Implementation} [Estimated: 1,200 words]
+The Violation Simulator is a self-contained test harness that generates randomised permission call patterns to systematically validate the compliance engine.
+
+\subsubsection{Random Configuration Generator}
+The \texttt{TestConfigGenerator} produces test parameters for each simulation round:
+
+\begin{lstlisting}[caption=Random configuration generation]
+object TestConfigGenerator {
+    private val PERMISSIONS = listOf(
+        "ACCESS_FINE_LOCATION", "CAMERA", 
+        "MICROPHONE", "READ_CONTACTS"
+    )
+    private val RANDOM = Random(System.currentTimeMillis())
+    
+    data class TestConfig(
+        val permission: String,
+        val totalCalls: Int,          // 50-200
+        val triggerTimes: List<Long>, // Random timestamps within 24h
+        val packageName: String       // Randomly selected or generated
+    )
+    
+    fun generateRandomConfig(): TestConfig {
+        val permission = PERMISSIONS[RANDOM.nextInt(PERMISSIONS.size)]
+        val totalCalls = RANDOM.nextInt(150) + 50 // 50..199
+        val numTriggers = RANDOM.nextInt(10) + 1  // 1..10 trigger points
+        val triggerTimes = generateTriggerTimes(numTriggers)
+        val packageName = "com.sim.app.${RANDOM.nextInt(1000)}"
+        return TestConfig(permission, totalCalls, triggerTimes, packageName)
+    }
+}
+\end{lstlisting}
+
+The random variables cover: (1) permission type——different sensitivity levels; (2) total call count——normal to excessive ranges; (3) trigger times——distributed across the 24-hour window to simulate periodic or bursty behaviour; (4) package name——ensures the audit engine processes each simulated app independently.
+
+\subsubsection{Simulation Scheduling and Execution}
+The simulator uses WorkManager's \texttt{OneTimeWorkRequest} to dispatch calls at the specified random times:
+
+\begin{lstlisting}[caption=Violation simulator worker]
+class ViolationSimulatorWorker(
+    context: Context, 
+    params: WorkerParameters
+) : CoroutineWorker(context, params) {
+    
+    override suspend fun doWork(): Result {
+        val config = TestConfigGenerator.generateRandomConfig()
+        // Store ground truth in a separate table
+        GroundTruthRecorder.record(config)
+        
+        // Schedule sub-tasks at random trigger times
+        for (timestamp in config.triggerTimes) {
+            val delay = timestamp - System.currentTimeMillis()
+            if (delay > 0) {
+                val request = OneTimeWorkRequestBuilder<SimulatedCallWorker>()
+                    .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                    .setInputData(workDataOf(
+                        "permission" to config.permission,
+                        "count" to config.totalCalls / config.triggerTimes.size,
+                        "package" to config.packageName
+                    ))
+                    .build()
+                WorkManager.getInstance(context).enqueue(request)
+            }
+        }
+        return Result.success()
+    }
+}
+\end{lstlisting}
+
+Each simulated call is logged by the \texttt{SimulatedCallWorker}, which invokes the appropriate permission API (e.g., \texttt{LocationManager.requestLocationUpdates()}) to generate real system-level audit entries. This ensures that the audit engine processes the simulator's calls through the same \texttt{AppOpsManager} path as real applications.
+
+\subsubsection{Ground Truth Recording and Comparison}
+The \texttt{GroundTruthRecorder} stores the exact configuration of each simulation run. During test evaluation, the audit engine's output is compared against this ground truth:
+
+\begin{lstlisting}[caption=Ground truth comparison]
+fun compareResults(simulatorConfig: TestConfig, auditReport: ComplianceReport): TestResult {
+    val expectedViolation = simulatorConfig.totalCalls > getThreshold(
+        getCategory(simulatorConfig.packageName),
+        simulatorConfig.permission
+    )
+    val actualViolation = auditReport.hasViolation(
+        simulatorConfig.packageName,
+        simulatorConfig.permission
+    )
+    return TestResult(
+        expected = expectedViolation,
+        actual = actualViolation,
+        match = (expectedViolation == actualViolation)
+    )
+}
+\end{lstlisting}
+
+\subsection{Data Storage and Deduplication Design} [Estimated: 900 words]
+Audit results are persisted via Room database. Room is a SQLite abstraction layer; each entity must have a primary key.
+
+The database schema comprises three main tables:
+\begin{enumerate}
+\item \textbf{ViolationRecord}: stores each detected violation with fields for packageName, permissionType, violationCount, riskLevel (LOW, MEDIUM, HIGH), and timestamp.
+\item \textbf{AuditLog}: stores every audit cycle's metadata, including start time, end time, total apps scanned, and number of violations found.
+\item \textbf{GroundTruth}: (test-only) stores the simulator's configuration for validation purposes.
+\end{enumerate}
+
+Deduplication follows the ``notify only on state reversal'' principle——a new record and notification are inserted only when the permission state differs from the last recorded state, avoiding repeated alerts. This is implemented through a combination of database queries and in-memory state caching.
+
+The notification trigger logic is:
+\begin{enumerate}
+\item After each audit, retrieve the last recorded state for each (package, permission) pair.
+\item If the current audit indicates a violation and the previous state did not (state reversal), trigger a notification.
+\item If the risk level escalates (LOW to MEDIUM or MEDIUM to HIGH), also trigger a notification.
+\item Otherwise, update the database silently without disturbing the user.
+\end{enumerate}
+
+\begin{lstlisting}[caption=Room entity for violation records]
+@Entity(tableName = "violation_records")
+data class ViolationRecord(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val packageName: String,
+    val permissionType: String,
+    val violationCount: Int,
+    val riskLevel: RiskLevel,  // LOW, MEDIUM, HIGH
+    val timestamp: Long,
+    val baselineUsed: Int,
+    val thresholdUsed: Int,
+    val isActive: Boolean = true
+)
+\end{lstlisting}

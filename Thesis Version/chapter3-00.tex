@@ -1,0 +1,93 @@
+% ==================== Chapter 3: Requirements and Architecture ====================
+\newpage\section{System Requirements and Overall Design} [Estimated: 4,500 words]
+
+\subsection{System Boundaries} [Estimated: 800 words]
+Our framework is positioned as a ``non-intrusive, low-power privacy compliance supervision tool for end users''. The boundary constraints are:
+
+\begin{itemize}
+\item \textbf{Monitoring only, no interception}: The framework reads historical data without modifying or intercepting permission calls, consistent with Privacy by Design——enhancing transparency without affecting normal system operation.
+\item \textbf{No root required}: all data reading uses public APIs (AppOpsManager), ensuring ordinary users can install and use it.
+\item \textbf{Low resource footprint}: WorkManager's background scheduling naturally adapts to system power-saving policies (Doze mode). Target memory <150 MB, extra battery drain <2\%.
+\item \textbf{Offline operation}: all auditing and decision logic runs locally on the device; no data is transmitted to external servers, preserving user privacy.
+\end{itemize}
+
+Functional requirements include: (1) periodic permission call collection, (2) category-based baseline loading, (3) dynamic threshold computation and violation detection, (4) notification generation with tiered severity levels, (5) audit trail persistence and retrieval, and (6) a test harness for automated validation.
+
+\subsection{Modular Compliance Engine and GDPR Audit Support} [Estimated: 1,200 words]
+A central design principle of this framework is \textbf{modularity with explicit regulatory audit hooks}. The compliance engine is structured as a pluggable module that exposes clear interfaces for GDPR-specific compliance checks, enabling both transparency and extensibility.
+
+The framework treats GDPR compliance not as a monolithic, hard-coded rule set but as a \textbf{configurable audit specification}. This is achieved through:
+
+\begin{enumerate}
+\item \textbf{Separation of policy from mechanism}: The \texttt{IComplianceEngine} interface decouples the auditing logic (how data is collected and analysed) from the regulatory rules (what constitutes a violation). The expert baseline library and dynamic threshold parameters are stored in external JSON configuration, allowing GDPR-specific thresholds to be updated without modifying core code.
+\item \textbf{Audit trail generation}: Every audit cycle produces a structured \texttt{ComplianceReport} that records: (a) the permission call statistics for each app; (b) the baseline and threshold values applied; (c) the violation status and reason. This report serves as an auditable record that can be presented to data protection authorities, fulfilling GDPR Article 5(2) accountability requirements.
+\item \textbf{Regulatory framework parameterisation}: The engine supports dynamic selection of regulatory frameworks (GDPR, PIPL, CCPA) through the \texttt{setRegulatoryFramework()} method. Each framework defines its own mapping of ``special categories'' and permissible thresholds. For GDPR, the engine specifically flags permissions that access health-related data (location, heart rate sensors, activity recognition) as high-sensitivity, applying stricter baseline multipliers.
+\item \textbf{Verifiable consent revocation tracking}: The framework monitors not only call frequencies but also the correlation between UI-level permission toggles and actual kernel-level API usage. By comparing the system's recorded permission state with the app's historical call logs, it can detect discrepancies——a direct audit of GDPR Article 7.3 compliance (ease of withdrawal). If an app continues to access a permission after the user has revoked it via system settings, the framework flags a critical violation.
+\end{enumerate}
+
+\begin{lstlisting}[caption=IComplianceEngine core interface with regulatory audit support]
+public interface IComplianceEngine {
+    // Load baseline configuration (GDPR/PIPL/CCPA profiles)
+    void loadBaseline(Context context, RegulatoryFramework framework);
+    
+    // Perform audit and produce verifiable report
+    ComplianceReport audit(List<HistoricalOp> ops);
+    
+    // Get current thresholds for verification
+    ThresholdConfig getThresholdConfig();
+    
+    // Switch regulatory framework dynamically
+    void setRegulatoryFramework(RegulatoryFramework framework);
+    
+    // Verify consent revocation effectiveness
+    RevocationVerification verifyRevocation(String packageName, String permission);
+}
+\end{lstlisting}
+
+\subsection{Automated Test Harness Design} [Estimated: 1,000 words]
+To systematically validate the framework's detection accuracy, we introduce a dedicated \textbf{Violation Simulator} module. This test harness operates in a controlled environment, generating synthetic permission call logs that mimic both benign and malicious behaviour.
+
+The simulator's architecture comprises three core components:
+\begin{enumerate}
+\item \textbf{Random Configuration Generator}: Produces test parameters including target permission type, total call count, distribution pattern (uniform, bursty, periodic), and time window.
+\item \textbf{Scheduler}: Uses WorkManager's \texttt{OneTimeWorkRequest} to dispatch simulated permission calls at the configured random times, ensuring the simulation respects Android's background execution limits.
+\item \textbf{Ground Truth Recorder}: Logs the exact parameters of each simulated run, serving as the ``expected result'' against which the audit engine's output is compared during validation.
+\end{enumerate}
+
+This design enables N-round independent test cycles, each with randomised parameters, providing statistical confidence in the engine's precision and recall metrics. The simulator runs entirely within the application's test environment and does not interact with real device sensors or external services.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.2cm, auto, every node/.style={align=center}]
+    % Nodes
+    \node (app) [draw, rectangle, fill=bluebox, minimum width=3cm, minimum height=1cm] {Android App \\ (Permission Requests)};
+    \node (appops) [draw, rectangle, fill=bluebox, below of=app, node distance=2cm] {AppOpsManager \\ (Historical Ops)};
+    \node (work) [draw, rectangle, fill=greenbox, below of=appops, node distance=2cm] {WorkManager \\ (24h Periodic)};
+    \node (room) [draw, rectangle, fill=greenbox, right of=work, node distance=4cm] {Room Database \\ (Deduplication)};
+    \node (engine) [draw, rectangle, fill=orangebox, below of=work, node distance=2.5cm, minimum width=5cm] {Compliance Engine \\ (Modular + GDPR Audit)};
+    \node (sim) [draw, rectangle, fill=redbox, left of=engine, node distance=4cm] {Violation Simulator \\ (Test Harness)};
+    \node (monte) [draw, rectangle, fill=redbox, below left of=engine, node distance=2.5cm, xshift=-2.5cm] {Monte Carlo \\ Logical Injection};
+    \node (smoke) [draw, rectangle, fill=redbox, below right of=engine, node distance=2.5cm, xshift=2.5cm] {Single Smoke Test \\ (24h real device)};
+    \node (report) [draw, rectangle, fill=greenbox, below of=engine, node distance=2.5cm] {Compliance Report \\ (Auditable Log)};
+
+    % Arrows
+    \draw[->] (app) -- (appops);
+    \draw[->] (appops) -- (work);
+    \draw[->] (work) -- (room);
+    \draw[->] (room) |- (engine);
+    \draw[->] (work) -- (engine);
+    \draw[->] (sim) -- (engine);
+    \draw[->] (monte) -- (engine);
+    \draw[->] (smoke) -- (engine);
+    \draw[->] (engine) -- (report);
+\end{tikzpicture}
+\caption{System architecture overview showing modular compliance engine and test harness}
+\label{fig:arch}
+\end{figure}
+
+\subsection{Layered Validation Strategy} [Estimated: 500 words]
+The framework employs a two-layer validation strategy to ensure algorithmic correctness while maintaining engineering feasibility:
+
+\textbf{Logical layer (Monte Carlo injection)}: bypasses physical hardware, generates large random permission call samples in the JUnit memory environment (random package names, random permission types, random counts 0--300, random timestamps). This completes 1000 rounds of random testing within 3 minutes, validating the algorithmic correctness——including precision, recall, and F1-Score. The theoretical foundation is that algorithmic correctness is a function of the input-output mapping, independent of the physical source of inputs. As long as random samples cover the legal input space, performance on random samples is a statistically unbiased estimator of real-world performance.
+
+\textbf{Integration layer (automated simulation + single smoke test)}: The violation simulator runs N independent 24-hour test cycles, generating randomised call patterns. The audit engine's outputs are automatically compared against ground truth. Additionally, one end-to-end test on a real device uses a specially crafted malicious APK to verify the end-to-end flow and obtain screenshots for the thesis defence.

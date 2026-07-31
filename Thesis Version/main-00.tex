@@ -1,0 +1,165 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{listings}
+%\usepackage{listings-kotlin}
+\usepackage{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}  % Overleaf-compatible version
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+
+\definecolor{bluebox}{RGB}{230,240,255}
+\definecolor{greenbox}{RGB}{230,255,230}
+\definecolor{redbox}{RGB}{255,230,230}
+\definecolor{orangebox}{RGB}{255,245,220}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+}
+
+\title{A GDPR Compliance Warning Framework Based on Android Permission Auditing: Design and Implementation}
+\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
+\date{July 2026}
+
+\begin{document}
+
+\maketitle
+\newpage\tableofcontents
+\newpage
+
+% ==================== Include Chapters ====================
+\input{chapter1-00}
+\input{chapter2-00}
+\input{chapter3-00}
+\input{chapter4-00}
+\input{chapter5-00}
+\input{chapter6-00}
+\input{chapter7-00}
+
+% ==================== Bibliography ====================
+\bibliographystyle{ieeetr}
+\begin{thebibliography}{99}
+
+\bibitem{1} General Data Protection Regulation (GDPR), Regulation (EU) 2016/679 of the European Parliament and of the Council, 2016.
+
+\bibitem{2} Parliament of Australia, \emph{Privacy and Other Legislation Amendment Act 2024 (Cth)}, Provisions for Automated Decision-Making (APP 1.7) mandatory in late 2026, 2024.
+
+\bibitem{3} Mordor Intelligence, \emph{mHealth Market Size \& Share Analysis - Growth Trends \& Forecasts (2026 - 2031)}, 2026.
+
+\bibitem{4} Deloitte, ``2017 Global Mobile Consumer Survey: US Edition,'' Deloitte, Tech. Rep., 2017.
+
+\bibitem{5} H. Nissenbaum, ``A Contextual Approach to Privacy Online,'' \emph{Daedalus}, vol. 140, no. 4, pp. 32-48, 2011.
+
+\bibitem{6} S. G. Hart and L. E. Staveland, ``Development of NASA-TLX (Task Load Index): Results of Empirical and Theoretical Research,'' \emph{Advances in Psychology}, vol. 52, pp. 139-183, 1988.
+
+\bibitem{7} J. F. Hair, G. T. M. Hult, C. M. Ringle, and M. Sarstedt, \emph{A Primer on Partial Least Squares Structural Equation Modeling (PLS-SEM)}, 3rd ed. Sage Publications, 2022.
+
+\bibitem{8} T. Dinev and P. Hart, ``An Extended Privacy Calculus Model for E-Commerce Transactions,'' \emph{Information Systems Research}, vol. 17, no. 1, pp. 61-80, 2006.
+
+\bibitem{9} IQVIA Institute for Human Data Science, ``Digital Health Trends 2021: Innovation, Evidence, Regulation, and Adoption,'' IQVIA Institute for Human Data Science, Tech. Rep., Jul. 2021.
+
+\bibitem{10} C. P. Hoffman et al., ``The Mechanics of Privacy Resignation: Why Users Quit Managing Their Data,'' \emph{New Media \& Society}, 2024.
+
+\bibitem{11} L. Parker et al., ``88\% of Android mHealth Apps Share Data: A Systematic Assessment of Privacy and Security of Mobile Health Apps,'' \emph{BMJ}, vol. 373, no. n1248, 2021.
+
+\bibitem{12} A. M. McDonald and L. F. Cranor, ``The Cost of Reading Privacy Policies,'' \emph{I/S: A Journal of Law and Policy for the Information Society}, vol. 4, p. 543, 2008.
+
+\bibitem{13} J. A. Obar and A. Oeldorf-Hirsch, ``The Biggest Lie on the Internet: Ignoring Privacy Policies and Terms of Service Anymore?'' \emph{Information, Communication \& Society}, vol. 23, no. 1, pp. 128-147, 2018.
+
+\bibitem{14} S. Liao et al., ``Beyond Notice and Choice: Investigating the Impact of Visual Feedback Latency on Privacy Resignation in mHealth Ecosystems,'' \emph{Computers in Human Behavior}, vol. 152, pp. 108-120, 2024.
+
+\bibitem{15} S. Sun, ``An Exploration of Spatial Privacy,'' The University of Melbourne, Capstone Project Report, 2015.
+
+\bibitem{16} M. U. Altaf, ``Privacy Oriented Data Analysis, with a Focus on Location-Specific Privacy Issues,'' M.S. thesis, The University of Melbourne, 2017.
+
+\bibitem{17} Y. Lu, ``Development and Evaluation of a Semantic-Based Access Framework for Health Record Linkage,'' Ph.D. dissertation, The University of Melbourne, 2018.
+
+\bibitem{18} R. Guo and F. Chen, ``Privacy Policy Compliance of Mobile Sports and Health Apps in China: Scale Development, Data Analysis, and Prospects for Regulatory Reform,'' \emph{JMIR mHealth and uHealth}, vol. 14, 2026.
+
+\bibitem{19} European Commission, ``Proposal for a Regulation of the European Parliament and of the Council on the European Health Data Space,'' COM(2022) 197 final, 2022.
+
+\bibitem{20} National People's Congress, \emph{Personal Information Protection Law of the People's Republic of China}, 2021.
+
+\bibitem{21} Parliament of Australia, \emph{Privacy Act 1988 (Cth)}, 1988.
+
+\bibitem{22} D. Kahneman, \emph{Thinking, Fast and Slow}. Farrar, Straus and Giroux, 2011.
+
+\bibitem{23} J. Kaye et al., ``Dynamic Consent: A Patient-Centred Approach to E-Health,'' \emph{European Journal of Human Genetics}, vol. 23, no. 2, pp. 141-146, 2015.
+
+\bibitem{24} Z. Wang, A. Stell, and R. O. Sinnott, ``The Australasian Diabetes Data Network (ADDN) Dynamic Consent Model,'' 2023.
+
+\bibitem{25} E. Xiong et al., ``The Australians Together Health Initiative (ATHENA): Dynamic Consent Platform,'' \emph{JMIR Formative Research}, 2024.
+
+\bibitem{26} J. Muchagata, P. Vieira-Marques, and A. Ferreira, ``mHealth Applications: User-Adaptive Visualization,'' in \emph{Proceedings of the 21st ICEIS}, 2019.
+
+\bibitem{27} J. Sweller, P. Ayres, and S. Kalyuga, \emph{Cognitive Load Theory}. Springer Science \& Business Media, 2011.
+
+\bibitem{28} E. R. Tufte, \emph{The Visual Display of Quantitative Information}. Graphics Press, 2001.
+
+\bibitem{29} M. Agrawala, W. Li, and F. Berthouzoz, ``Design Principles for Visual Communication,'' \emph{Communications of the ACM}, vol. 54, no. 4, pp. 60-69, 2011.
+
+\bibitem{30} P. Cavanagh, ``Visual Attention,'' \emph{Vision Research}, vol. 51, no. 13, pp. 1538-1558, 2011.
+
+\bibitem{31} C. G. Healey and J. T. Enns, ``Attention and Visual Memory in Visualization,'' \emph{IEEE Transactions on Visualization and Computer Graphics}, vol. 18, no. 7, pp. 1170-1188, 2012.
+
+\bibitem{32} A. Corman, R. Canaway, C. Culnane, and V. Teague, ``Technical Guarantees of Privacy-Preserving Technologies and Public Understanding,'' 2022.
+
+\bibitem{33} D. H. McKnight, V. Choudhury, and C. Kacmar, ``Developing and Validating Trust Measures for E-Commerce: An Integrative Typology,'' \emph{Information Systems Research}, vol. 13, no. 3, pp. 334-359, 2002.
+
+\bibitem{34} J. D. Lee and K. A. See, ``Trust in Automation: Designing for Appropriate Reliance,'' \emph{Human Factors}, vol. 46, no. 1, pp. 50-80, 2004.
+
+\bibitem{35} J. van Dijk, \emph{The Digital Divide}. Cambridge, UK: Polity Press, 2020.
+
+\bibitem{36} G. A. Wildenbos, L. Peute, and M. Jaspers, ``Aging Barriers Influencing Mobile Health Usability for Older Adults: A Literature Segmentation Strategy (LSS),'' \emph{International Journal of Medical Informatics}, vol. 114, pp. 66-75, 2018.
+
+\bibitem{37} S. Turner and L. M. Tanczer, ``In Principle vs In Practice: User, Expert and Policymaker Attitudes Towards the Right to Data Portability in the Internet of Things,'' \emph{Computer Law \& Security Review}, vol. 52, p. 105912, 2024.
+
+\bibitem{38} H. Fan and Y. Zhao, ``A Comparative Study of Personal Information Protection in China and the EU: From the Perspective of mHealth Data Sovereignty,'' \emph{International Data Privacy Law}, vol. 13, no. 2, pp. 112-128, 2023.
+
+\bibitem{39} I. Ajzen, ``The Theory of Planned Behavior,'' \emph{Organizational Behavior and Human Decision Processes}, vol. 50, no. 2, pp. 179-211, 1991.
+
+\bibitem{40} S. H. Ali and H. Thu, ``The Theory of Planned Behavior,'' \emph{Organizational Behavior and Human Decision Processes}, vol. 50, no. 2, pp. 179-211, 1991.
+
+\bibitem{41} R. B. Kline, \emph{Principles and Practice of Structural Equation Modeling}, 4th ed. Guilford Publications, 2016.
+
+\bibitem{42} R. Xu, H. Saidi, and R. Anderson, ``Aurasium: Practical Enforcement of User Privacy Policies via App Repackaging,'' in \emph{Proceedings of the 21st USENIX Security Symposium}, 2012, pp. 27-42.
+
+\bibitem{43} N. Artenstein and I. Revivo, \emph{Man in the Binder: He Who Controls the Binder, Controls the Android}, Black Hat USA, 2014.
+
+\bibitem{44} X. Wang et al., ``DeepDroid: Dynamically Enforcing Enterprise-Level Security Policy on Android,'' in \emph{Proceedings of the 21st USENIX Security Symposium}, 2012, pp. 27-42.
+
+\bibitem{45} D. Wu and S. Bratus, ``A Context-Aware Kernel IPC Firewall for Android,'' Dartmouth College, Computer Science, Tech. Rep., 2016.
+
+\bibitem{46} C. Dwork, ``Differential Privacy,'' \emph{International Colloquium on Automata, Languages, and Programming}, pp. 1-12, 2006.
+
+\bibitem{47} N. Kock and P. Hadaya, ``Minimum Sample Size Estimation in PLS-SEM: The Inverse Square Root and Gamma-Exponential Methods,'' \emph{Information Systems Journal}, vol. 28, no. 1, pp. 227-261, 2018.
+
+\bibitem{48} D. Barclay, C. Higgins, and R. Thompson, ``The Partial Least Squares (PLS) Approach to Causal Modeling: Personal Computer Adoption and Use as an Illustration,'' \emph{Technology Studies}, vol. 2, no. 2, pp. 285-309, 1995.
+
+\bibitem{49} M. Egele, C. Kruegel, E. Kirda, and G. Vigna, ``PiOS: Detecting Privacy Leaks in iOS Applications,'' in \emph{Proceedings of the 18th Network and Distributed System Security Symposium (NDSS)}, 2011.
+
+\end{thebibliography}
+
+\end{document}

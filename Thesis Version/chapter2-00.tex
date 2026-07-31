@@ -1,0 +1,63 @@
+% ==================== Chapter 2: Literature Review ====================
+\newpage\section{Literature Review and State of the Art} [Estimated: 5,000 words]
+
+\subsection{Technical Mapping of GDPR} [Estimated: 1,200 words]
+GDPR imposes concrete technical requirements on mobile applications. The most relevant articles include:
+
+\textbf{Article 5——Principles}: Article 5(1)(a) mandates lawful, fair and transparent processing; Article 5(1)(c) establishes data minimisation; Article 5(2) requires accountability. This framework operationalises data minimisation as quantifiable permission call frequency metrics through periodic auditing and dynamic thresholds.
+
+\textbf{Article 6——Lawfulness of processing}: Six lawful bases are listed. In mHealth, user consent (Article 6(1)(a)) is the most common basis——but consent is valid only if the user can understand and supervise the scope and frequency of data processing. This framework reinforces informed consent by providing verifiable audit logs.
+
+\textbf{Article 9——Special categories}: Article 9(1) generally prohibits processing of health data, genetic data, biometric data, etc. Android dangerous permissions protect data that largely fall into these categories. Article 9(2)(a) allows processing with explicit consent——again contingent on effective user oversight.
+
+\textbf{Article 7——Conditions for consent}: Article 7.3 states that data subjects have the right to withdraw consent at any time, and withdrawal must be as easy as granting. The framework's ``notify only on state reversal'' mechanism——triggering notifications only when permission state changes from allowed to denied or vice versa——is an engineering response: reducing noise and ensuring every notification corresponds to a meaningful change.
+
+\subsection{Cognitive Load Theory and Privacy Fatigue} [Estimated: 1,200 words]
+Cognitive Load Theory (CLT), proposed by Sweller et al., posits that working memory has limited capacity, and excessive cognitive load impairs learning and decision quality. In privacy decision scenarios, when information density exceeds cognitive thresholds, users resort to heuristic processing (System 1) rather than rational deliberation (System 2).
+
+In mHealth ecosystems, this theory is particularly explanatory. Studies show that current consent models predominantly engage System 1, bypassing rational evaluation. Liao et al. further demonstrated that visual feedback latency exacerbates privacy resignation. The concept of ``privacy fatigue''——a state of apathy and helplessness resulting from repeated, complex privacy decisions——is well-documented in human-computer interaction literature.
+
+Our framework follows CLT principles:
+\begin{itemize}
+\item \textbf{Low-frequency reports over high-frequency pop-ups}: 24-hour periodic auditing avoids cognitive interruption from real-time alerts.
+\item \textbf{Notify only on state reversal}: notifications are triggered only when permission state substantively changes, reducing invalid cognitive consumption.
+\item \textbf{Tiered notification strategy}: low-risk events are only logged, high-risk events trigger alerts, achieving a verification-friction balance.
+\end{itemize}
+
+\subsection{Evaluation of Existing Permission Auditing Solutions} [Estimated: 1,300 words]
+\begin{table}[H]
+\centering
+\caption{Comparison of existing permission supervision solutions}
+\begin{tabular}{p{3cm}p{2.5cm}p{2.5cm}p{2.5cm}}
+\toprule
+\textbf{Solution} & \textbf{Frequency stats} & \textbf{Power overhead} & \textbf{No root} \\
+\midrule
+Android Privacy Dashboard & No & Low & Yes \\
+Exodus static analysis & No & Low & Yes \\
+VPN-based monitoring & Yes & High & Yes \\
+Our framework & Yes & Low & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Android Privacy Dashboard}: introduced in Android 12, shows access timeline for location, microphone, camera in the past 24 hours. Android 16 DP1 extends to 7 days. However, it lacks count statistics——it cannot answer ``how many times did this app access GPS in the last 24 hours?''.
+
+\textbf{Exodus Privacy}: analyses APK manifest and embedded SDKs, static only. Cannot capture runtime dynamic behaviour or frequency.
+
+\textbf{VPN-based solutions}: intercept network traffic via local VPN service, can analyse data exfiltration frequency. However, requires continuous foreground operation, high power consumption, and cannot cover local API calls that do not go through network.
+
+\textbf{Academic approaches}: Prior work such as TaintDroid and AppCage focused on dynamic taint tracking but required system-level modifications. More recent frameworks like DeepDroid and Aurasium offer enterprise policy enforcement but are not designed for end-user privacy supervision. None of these solutions provide a lightweight, root-free mechanism for frequency-based GDPR compliance auditing with automated validation.
+
+\textbf{Our framework}: uses \texttt{AppOpsManager.getHistoricalOps()} for root-free historical data reading, WorkManager for 24-hour periodic scheduling, and ``expert baseline + dynamic threshold'' for frequency-based compliance judgment, achieving low power and frequency statistics simultaneously. The addition of an automated violation simulator distinguishes our validation approach from prior work.
+
+\subsection{Automated Testing and Randomisation in Security Validation} [Estimated: 1,300 words]
+The use of automated randomisation for security testing has a rich history. Fuzzing techniques, pioneered by Miller et al., generate random inputs to trigger unexpected behaviour in software systems. In the mobile security domain, randomisation has been employed for app compatibility testing (Android Monkey) and permission misuse detection.
+
+Monte Carlo methods, which rely on repeated random sampling, are widely used for approximating numerical results and validating algorithmic correctness under uncertainty. In our context, Monte Carlo logical injection provides a statistically sound approach to verifying the compliance engine's decision logic without the overhead of physical device testing.
+
+The key advantage of automated randomisation over manual testing is coverage. Manual test cases are limited by human imagination and effort; random generators can explore edge cases and corner conditions that would otherwise be missed. By combining random frequency generation, random timing, and random permission selection, our violation simulator ensures that the compliance engine is exercised across a broad spectrum of possible input patterns.
+
+Prior work on privacy policy compliance (e.g., PrimeLife, EnCoRe) has focused on policy representation and enforcement, but validation has typically relied on small, hand-crafted test suites. Our approach contributes a scalable, automated validation methodology that can be integrated into continuous integration pipelines for ongoing regression testing.
+
+\subsection{Summary and Research Gap} [Estimated: 500 words]
+The literature reveals a clear gap: no existing solution provides (a) root-free, low-power frequency-based permission auditing, (b) a scientifically grounded dynamic threshold engine that adapts to application categories, (c) a modular compliance framework with explicit GDPR audit hooks, and (d) an automated validation methodology using randomisation to ensure algorithmic robustness. This thesis addresses all four dimensions, presenting a comprehensive framework from design through validation.

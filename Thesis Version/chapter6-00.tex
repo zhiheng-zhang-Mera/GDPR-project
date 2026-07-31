@@ -1,0 +1,51 @@
+% ==================== Chapter 6: Discussion ====================
+\newpage\section{Discussion and Limitations} [Estimated: 4,000 words]
+
+\subsection{Verification-Friction Trade-off} [Estimated: 1,000 words]
+Privacy supervision tools face a fundamental design tension: sufficiency of verification vs. user cognitive friction. Too frequent notifications cause ``notification fatigue''——users habitually ignore all alerts; too sparse auditing may miss critical privacy violations.
+
+Our framework balances via:
+\begin{enumerate}
+\item \textbf{Tiered notification}: low-risk events (slightly exceeding baseline) only logged; high-risk events (baseline+3$\sigma$ exceeded) trigger notifications.
+\item \textbf{Notify only on state reversal}: only when permission state substantively changes.
+\item \textbf{24-hour summary}: users receive a summary report every 24 hours, not real-time pushes, consistent with CLT's ``low-frequency reports over high-frequency pop-ups''.
+\end{enumerate}
+
+However, this balance has limitations: in truly urgent scenarios (e.g., malicious app harvesting sensitive data in the background), a 24-hour detection delay may be too long. Future work could introduce streaming anomaly detection——identifying sudden spikes in real-time continuous monitoring.
+
+\subsection{Modularity and GDPR Audit Transparency} [Estimated: 800 words]
+While the modular design enables regulatory adaptability, it also introduces potential pitfalls:
+\begin{itemize}
+\item \textbf{Configuration drift}: If the baseline JSON is updated without proper versioning, audit trails may become inconsistent. We mitigate this by embedding a configuration hash in each ComplianceReport, allowing verification of which baseline version was used for a given audit.
+\item \textbf{Over-reliance on default categories}: Apps misclassified (e.g., a social app incorrectly labelled as tools) may receive inappropriate baselines. The framework provides a feedback mechanism for users to manually correct category assignments, which are then logged for audit purposes.
+\item \textbf{Transparency of threshold logic}: The dynamic threshold algorithm is deterministic and fully documented; the source code and configuration are open for inspection. This addresses the GDPR requirement for transparency in automated decision-making (Recital 71), as the framework does not employ opaque machine learning models but rather statistically grounded, explainable rules.
+\end{itemize}
+
+\subsection{Algorithmic Explainability and User Trust} [Estimated: 700 words]
+One of the GDPR's key requirements is the right to explanation (Recital 71) for automated decisions. Our framework's threshold logic is fully transparent: when a violation is flagged, the user (or auditor) can see the exact baseline, standard deviation, and computed threshold for that permission and category. This explainability is built into the compliance report, which includes a human-readable breakdown of the decision. This contrasts with black-box anomaly detectors, making our framework more suitable for regulatory contexts where auditability is paramount.
+
+\subsection{Randomness and Robustness Validation} [Estimated: 700 words]
+The use of automated randomisation in our test harness provides several advantages:
+\begin{itemize}
+\item \textbf{Edge case discovery}: Random configurations expose boundary conditions and corner cases that hand-crafted tests might miss.
+\item \textbf{Statistical confidence}: Repeated runs with different random seeds yield confidence intervals for precision and recall metrics.
+\item \textbf{Reproducibility}: While individual random runs vary, the overall statistical distribution is stable, enabling reproducible validation.
+\end{itemize}
+
+The primary limitation is that random testing cannot guarantee coverage of all possible inputs; it provides probabilistic rather than absolute assurance. Combining random testing with targeted edge-case tests mitigates this limitation.
+
+\subsection{Logical Injection vs. Physical Reality} [Estimated: 400 words]
+Monte Carlo logical injection validates algorithmic correctness, but cannot verify interaction with real Android system APIs. Behaviour differences across Android versions, vendor-specific log cleaning policies, and hardware variations remain concerns. The single smoke test provides a sanity check, but a large-scale physical device test would be needed for comprehensive validation. Resource constraints prevented such a study in this thesis.
+
+\subsection{Fragmentation Limitations} [Estimated: 400 words]
+Android ecosystem fragmentation challenges real-world effectiveness:
+\begin{itemize}
+\item \textbf{Vendor custom log cleaning}: different vendors (Huawei, Xiaomi, OPPO, vivo) may periodically clean permission logs for performance, causing incomplete data from \texttt{getHistoricalOps()}, reducing recall.
+\end{itemize}
+
+Mitigation strategies:
+\begin{enumerate}
+\item \textbf{Guide users to whitelist}: on first launch, guide users to add the framework to system battery optimisation and auto-start whitelists.
+\item \textbf{Multi-source fusion}: attempt to use alternative APIs (e.g., UsageStatsManager) to improve data coverage.
+\item \textbf{Version adaptation layer}: implement adapters for Android 12, 13, 14 differences to unify data reading.
+\end{enumerate}

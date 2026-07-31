@@ -1,0 +1,28 @@
+% ==================== Chapter 7: Conclusion ====================
+\newpage\section{Conclusion and Future Work} [Estimated: 1,500 words]
+
+\subsection{Summary of Contributions}
+This paper presents a GDPR compliance warning framework based on Android permission auditing. The core contributions are:
+
+\begin{itemize}
+\item A non-intrusive, low-power permission call frequency audit using \texttt{AppOpsManager.getHistoricalOps()}, WorkManager, and Room, achieving <150 MB memory and <2\% extra battery drain.
+\item An intelligent decision engine with ``expert baseline + dynamic threshold'' that adapts to application categories and historical variance, outperforming fixed-threshold approaches.
+\item A modular, auditable compliance engine that explicitly supports GDPR Articles 5, 7, and 9, producing verifiable audit trails, supporting regulatory framework switching, and enabling independent verification of consent revocation effectiveness.
+\item An automated violation simulator that enables systematic, randomised stress testing of the detection logic, providing statistical confidence in precision and recall metrics.
+\item A practical validation methodology combining Monte Carlo logical injection, automated simulation-based pressure testing, and a single real-device smoke test, balancing academic rigour with engineering feasibility.
+\end{itemize}
+
+\subsection{Key Findings}
+Experimental results show precision $\ge 99\%$ and recall $\ge 98\%$ in 1000 Monte Carlo rounds. The 50-cycle automated simulation confirms consistent detection performance across diverse random configurations. The single 24-hour smoke test successfully captured malicious background calls and triggered warnings. The sensitivity analysis confirms the 3-sigma choice provides optimal balance between precision and recall.
+
+\subsection{Future Work}
+\begin{enumerate}
+\item \textbf{Privacy policy integration}: incorporate NLP techniques to automatically extract permission usage claims from privacy policies and compare against actual runtime behaviour.
+\item \textbf{Cross-platform extension}: extend the framework to emerging operating systems like HarmonyOS NEXT, studying its microkernel-based permission auditing mechanisms.
+\item \textbf{Streaming anomaly detection}: introduce real-time detection of sudden permission usage spikes, reducing detection latency below 24 hours.
+\item \textbf{Large-scale user study}: conduct a broader user study to evaluate the cognitive impact of the tiered notification strategy and refine the verification-friction balance.
+\item \textbf{Federated learning for baselines}: explore privacy-preserving aggregation of baseline statistics across devices to improve threshold accuracy without centralising sensitive data.
+\end{enumerate}
+
+\subsection{Concluding Remarks}
+This work provides a practically feasible and academically sound technical path for operationalising GDPR's data minimisation principle on mobile devices, with transparency and auditability as first-class design goals. The integration of automated randomisation into the validation methodology sets a new standard for rigorous evaluation of privacy compliance tools.

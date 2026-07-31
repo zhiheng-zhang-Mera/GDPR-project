@@ -1,0 +1,54 @@
+% ==================== Chapter 1: Introduction ====================
+\newpage\begin{abstract}
+The rapid expansion of the mobile health (mHealth) market——projected to reach \$403.02 billion by 2031——has intensified the compliance gap between background permission call frequencies and the ``data minimisation'' principle of the GDPR. Existing permission management solutions (native dashboards, Exodus static analysis, VPN packet capture) either lack frequency statistics or incur excessive power overhead, failing to serve as non-intrusive, low-energy compliance supervision tools.
+
+This paper presents a GDPR compliance warning framework based on Android permission auditing. It reads historical permission data via \texttt{AppOpsManager.getHistoricalOps()} without root access, and schedules 24-hour periodic audits via WorkManager with Room deduplication. The core decision engine employs an ``expert baseline library + dynamic threshold'' approach: a pre-configured \texttt{baseline\_config.json} (based on Android official recommendations and security reports) defines category-specific baselines for GPS/microphone/contacts; a dynamic deviation algorithm using ``baseline + 3× standard deviation'' replaces static thresholds. The validation layer employs Monte Carlo random testing in the JUnit memory environment, generating thousands of random permission call samples to complete algorithmic correctness verification within minutes.
+
+Experimental results show that in 1000 rounds of Monte Carlo logical injection, the system achieves precision of REPLACEMENT and recall of REPLACEMENT. A single 24-hour end-to-end smoke test successfully captured malicious background permission calls and triggered warning notifications. Runtime memory footprint is below 150 MB and extra battery drain is under 2\%. This work provides a technically rigorous and engineering-feasible path for GDPR compliance supervision.
+\end{abstract}
+
+\section{Introduction} [Estimated: 2,000 words]
+
+\subsection{Mobile Privacy Landscape} [Estimated: 500 words]
+The mHealth sector is undergoing a structural transformation from consumer-grade health tracking to specialised clinical interventions. According to IQVIA Institute, innovation peaked between 2016 and 2021, while Mordor Intelligence forecasts the global mHealth market to reach \$403.02 billion by 2031, with a CAGR of 25.4\%. This expansion means that sensitive biological metrics——heart rate variability, hormonal fluctuations, and even genomic sequences——are being collected at unprecedented frequencies by smartphone-embedded biosensors.
+
+However, technological progress has not been matched by privacy safeguards. The GDPR explicitly classifies health data as ``special category data'' under Article 9(1), prohibiting processing unless exceptions in Article 9(2) apply. Article 5(1)(c) establishes the ``data minimisation'' principle, requiring that personal data be ``adequate, relevant and limited to what is necessary.'' Article 25 mandates Privacy by Design and by Default.
+
+In the Android ecosystem, dangerous permissions are grouped into 9 categories covering 24 items——calendar, camera, contacts, location, microphone, phone, sensors, SMS, and storage. Most of the data protected by these permissions fall under the GDPR's special categories. While Android 12 introduced the Privacy Dashboard, showing 24-hour access timelines for location, microphone, and camera, it only provides qualitative information (whether accessed) and lacks quantitative frequency statistics——a key dimension for assessing compliance with the data minimisation principle.
+
+\subsection{Problem Statement: The Transparency Paradox} [Estimated: 600 words]
+Current mobile application ecosystems suffer from a deep ``transparency paradox'': users are asked to make informed privacy decisions, but the tools provided fail both cognitively and executively.
+
+\textbf{Cognitively}, studies show that 63--97\% of users skip lengthy text agreements depending on interface complexity, default settings, and device type. In mHealth contexts, the granularity of sensitive data requests amplifies this heuristic behaviour. Excessive visual noise induces ``privacy fatigue'', leading cognitively overwhelmed users to resort to ``blind agreement''.
+
+\textbf{Executively}, existing permission management suffers from a critical ``verification gap''. Application-layer revocation often fails to synchronise with kernel-layer enforcement——a UI-level ``deny'' may merely change a flag while underlying sensor callbacks continue. Research indicates that approximately 88\% of mHealth applications share data inconsistently with their stated policies. Users have no mechanism to verify whether a toggle actually severs the data pipeline, creating an ``illusion of control'' that fundamentally undermines GDPR Article 7.3——withdrawal of consent should be as easy as granting it.
+
+Specifically, existing solutions for monitoring permission call frequency have significant shortcomings:
+
+\begin{itemize}
+\item \textbf{Native Privacy Dashboard}: only shows qualitative usage (whether accessed) within 24 hours, no count statistics.
+\item \textbf{Exodus and static analysis}: based on APK manifest declarations, cannot capture runtime dynamic behaviour.
+\item \textbf{VPN-based monitoring}: can analyse network traffic but requires continuous foreground operation, high power consumption, and cannot cover local API calls that do not go through network.
+\end{itemize}
+
+\subsection{Research Objectives and Contributions} [Estimated: 500 words]
+To address these issues, this paper presents a GDPR compliance warning framework based on Android permission auditing, with the following objectives:
+
+\begin{enumerate}
+\item \textbf{Non-intrusive periodic auditing}: using \texttt{AppOpsManager.getHistoricalOps()} to read historical permission data without root, and WorkManager for 24-hour periodic low-power auditing.
+\item \textbf{Dynamic threshold matching engine}: an ``expert baseline + dynamic threshold'' decision mechanism——pre-configured baselines based on Android official guidance and security reports, with a ``baseline + 3× standard deviation'' deviation algorithm replacing static thresholds for more scientific anomaly detection.
+\item \textbf{Automated violation simulation}: introducing a self-contained test harness that generates randomised permission call patterns to systematically validate the engine's detection accuracy under diverse, unpredictable scenarios.
+\item \textbf{Monte Carlo logical-layer validation}: generating large random permission call samples in the JUnit memory environment via Monte Carlo methods to verify algorithmic correctness efficiently.
+\end{enumerate}
+
+The main contributions of this work are:
+
+\begin{itemize}
+\item A modular, auditable compliance engine that explicitly implements GDPR Articles 5, 7, and 9, providing verifiable consent revocation tracking and transparent audit trails.
+\item A dynamic threshold algorithm that adapts to application categories and historical variance, outperforming fixed-threshold approaches.
+\item A practical validation methodology combining automated randomised simulation for stress testing with a single real-device smoke test for end-to-end verification.
+\item An open, configurable baseline library that can be updated without code changes, supporting regulatory evolution.
+\end{itemize}
+
+\subsection{Thesis Structure} [Estimated: 400 words]
+This thesis is organised into seven chapters. Chapter 1 introduces the background, problems and objectives. Chapter 2 reviews related work and regulatory mappings. Chapter 3 presents system requirements and overall architecture. Chapter 4 details the system design and implementation, including the novel violation simulator. Chapter 5 covers the testing and evaluation strategy centred on automated randomisation. Chapter 6 discusses limitations and trade-offs. Chapter 7 concludes and outlines future work.

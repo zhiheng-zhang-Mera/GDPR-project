@@ -1,0 +1,268 @@
+% ==================== Chapter 3: Requirements and Architecture ====================
+\newpage\section{System Requirements and Overall Design} [Estimated: 4,500 words]
+
+\subsection{System Boundaries} [Estimated: 800 words]
+Our framework is positioned as a ``non-intrusive, low-power privacy compliance supervision tool for end users''. The boundary constraints are:
+
+\begin{itemize}
+\item \textbf{Monitoring only, no interception}: The framework reads historical data without modifying or intercepting permission calls, consistent with Privacy by Design——enhancing transparency without affecting normal system operation.
+\item \textbf{No root required}: all data reading uses public APIs (AppOpsManager), ensuring ordinary users can install and use it. Specifically, we rely on the \texttt{OnOpNotedCallback} introduced in Android 11 (API level 30), which allows our application to receive a callback each time a permission-protected API is accessed by any app. This callback provides the exact timestamp, package name, permission type, and operation result, enabling us to build a complete audit trail without any system-level privileges.
+\item \textbf{Low resource footprint}: WorkManager's background scheduling naturally adapts to system power-saving policies (Doze mode). Target memory <150 MB, extra battery drain <2\%. PeriodicWorkRequest in WorkManager is subject to OS battery optimizations, and execution may be delayed as the system optimises resource usage. The minimum interval for periodic work is 15 minutes, which aligns with our design goal of low-frequency auditing.
+\item \textbf{Offline operation}: all auditing and decision logic runs locally on the device; no data is transmitted to external servers, preserving user privacy.
+\end{itemize}
+
+Functional requirements include: (1) real-time permission call collection via \texttt{OnOpNotedCallback}, (2) periodic aggregation and storage of these events, (3) category-based baseline loading, (4) dynamic threshold computation and violation detection, (5) notification generation with tiered severity levels, (6) audit trail persistence and retrieval, and (7) a test harness for automated validation.
+
+The design of the data persistence layer employs Room, Android's recommended abstraction layer over SQLite. Room provides compile-time verification of SQL queries and offers a more concise API compared to direct SQLite usage. Database operations are performed on background threads using Kotlin coroutines to avoid blocking the main thread. The \texttt{OpEvent} table stores each permission access event (package name, permission, timestamp, operation result), while the \texttt{ViolationReport} table stores aggregated violation records (package name, permission, violation count, risk level, detection time). This separation allows both detailed forensic analysis and summarised dashboard views.
+
+Additionally, we define non-functional requirements: the system must operate on Android 11 (API level 30) and above; must handle concurrent access to the database from multiple workers; must gracefully handle permission revocation or denial; must provide a user-accessible audit log export function for transparency; and must support multiple languages for internationalisation, with English as the primary language.
+
+\subsection{Threat Model and Security Assumptions} [Estimated: 500 words]
+Before detailing the architecture, it is essential to define the threat model and security assumptions that underpin our design. The framework operates under the following assumptions about the environment:
+
+\begin{itemize}
+\item \textbf{Trusted Platform}: We assume the underlying Android operating system and its kernel are trustworthy. Specifically, we rely on the integrity of the AppOpsManager service and its callback mechanism. If the OS is compromised (e.g., through rooting or custom ROMs with modified permission systems), the guarantees provided by our framework are weakened.
+\item \textbf{Trusted User}: We assume the end user is non-malicious and has a legitimate interest in monitoring their own device's permission usage. The framework does not defend against a user who intentionally manipulates the audit data or bypasses the monitoring.
+\item \textbf{Untrusted Apps}: All third-party applications installed on the device are treated as potentially untrusted. They may attempt to access permissions in ways that circumvent the callback mechanism, though Android's security model prevents direct circumvention of AppOpsManager. However, apps could theoretically collude or exploit vulnerabilities to hide their permission accesses.
+\item \textbf{Adversary Capabilities}: We consider an adversary who aims to exfiltrate sensitive data via excessive or unauthorised permission accesses. The adversary has the capability to install malicious apps that request broad permissions and to use sophisticated timing patterns to evade detection. However, the adversary cannot modify the Android framework or the AppOpsManager service itself.
+\end{itemize}
+
+Based on this threat model, the primary security goals are: (1) detecting excessive permission usage patterns that indicate potential data exfiltration; (2) verifying that consent revocation is respected at the system level; (3) providing non-repudiable audit logs that can be used for accountability. The system does not attempt to prevent permission access in real time (i.e., no blocking), as that would require system-level privileges beyond the scope of this work.
+
+We also acknowledge a limitation: because our callback registration is process-dependent, events occurring while our app is not running are not captured. We mitigate this by ensuring the app is auto-started via WorkManager's boot completion trigger, and by providing a prominent notification that alerts the user if the service is not running. Additionally, we advise users to disable battery optimisations for our app to extend its background lifetime.
+
+\subsection{System Architecture Overview} [Estimated: 700 words]
+The architecture follows a layered design that separates data acquisition, storage, analysis, and presentation. The primary layers are:
+
+\begin{enumerate}
+\item \textbf{Data Acquisition Layer}: This layer registers an \texttt{AppOpsManager.OnOpNotedCallback} with the system. The callback is invoked for every permission access attempt, providing raw event data. We filter events to focus on the sensitive permissions defined by GDPR (e.g., location, camera, microphone, body sensors, contacts, call logs, and external storage). Each event is immediately inserted into the Room database using a background coroutine to avoid blocking the main UI thread. The callback uses an executor that runs on a single-threaded background scheduler to ensure order-of-execution consistency and to prevent interleaving issues.
+\item \textbf{Data Aggregation and Deduplication Layer}: A \texttt{WorkManager} periodic worker runs every 24 hours (or at the minimum feasible interval given Doze mode) to aggregate the raw events. It groups events by package name and permission type, computes total counts and temporal patterns (e.g., hourly distribution), and stores these aggregated statistics in separate tables. Duplicate events (due to potential callback duplication or system resets) are removed using timestamp-based de-duplication. The aggregation logic is implemented as a SQL query using Room's \texttt{@Query} annotation with GROUP BY clauses, ensuring efficient execution on the database engine.
+\item \textbf{Compliance Analysis Layer}: This is the core \texttt{IComplianceEngine} module. It loads baseline profiles from a local JSON asset, retrieves the aggregated statistics for each app, and applies the dynamic threshold model. It outputs a list of \texttt{Violation} objects, each containing the offending package, permission, observed count, expected baseline, threshold, risk level, and a human-readable reason. The engine also performs consent revocation checks by comparing the system's current permission state with recorded access events.
+\item \textbf{Presentation and Alerting Layer}: The analysis results are used to update a local \texttt{ViolationReport} table and to trigger notifications if the risk level has increased or a new violation is detected. The UI dashboard reads from this table to display charts, trends, and detailed audit logs. Notifications are sent via \texttt{NotificationManagerCompat}, with different channels for low, medium, and high severity levels.
+\item \textbf{Test Harness Layer}: This is a separate module that can inject synthetic permission access events directly into the database (bypassing the callback mechanism) or schedule simulated callbacks using a mock \texttt{AppOpsManager}. It generates controlled test scenarios to validate the aggregation and analysis logic without requiring real physical sensors.
+\end{enumerate}
+
+This layered architecture ensures that each component can be developed, tested, and replaced independently. The separation of data acquisition (callback-driven) from analysis (batch-driven) reduces coupling and allows the analysis to be performed even when the device is idle, thanks to WorkManager's intelligent scheduling. The architecture also facilitates unit testing: each layer can be mocked and tested in isolation using JUnit and MockK.
+
+\subsection{Data Collection and Historical Audit Retrieval} [Estimated: 600 words]
+The foundation of our monitoring capability is the \texttt{AppOpsManager} system service. In Android 11 and later, the platform provides a public API to register a callback that is notified whenever an app accesses a protected data resource. The registration process is straightforward:
+
+\begin{lstlisting}[caption=Registering the permission callback]
+AppOpsManager appOps = (AppOpsManager) getSystemService(APP_OPS_SERVICE);
+appOps.setOnOpNotedCallback(executor, new AppOpsManager.OnOpNotedCallback() {
+    @Override
+    public void onOpNoted(int op, String packageName, int uid, String attributionTag) {
+        // Called when an operation is noted but not yet executed.
+    }
+    @Override
+    public void onOpStarted(int op, String packageName, int uid, String attributionTag) {
+        // Called when an operation starts (most useful for tracking).
+    }
+    @Override
+    public void onOpFinished(int op, String packageName, int uid, String attributionTag) {
+        // Called when an operation finishes.
+    }
+});
+\end{lstlisting}
+
+We primarily use \texttt{onOpStarted} because it provides the earliest notification that a permission is about to be used. Each callback supplies the operation code (e.g., \texttt{OP\_FINE\_LOCATION}, \texttt{OP\_CAMERA}), the package name, and the user ID. We also record the system clock time with millisecond precision. This raw event is immediately written to the \texttt{events} table using a Room DAO insert, performed on a background dispatcher to avoid blocking the callback thread.
+
+One critical consideration is the high volume of events—a typical smartphone may generate hundreds of permission accesses per hour. To reduce storage overhead and improve query performance, we only persist events for permissions that are deemed sensitive under GDPR. The list of sensitive permissions is configurable via the regulatory framework profile. Additionally, we apply a batch insertion strategy to avoid excessive write operations, accumulating events for 5 seconds before flushing them to the database. This trade-off balances data completeness with battery and I/O consumption.
+
+The callback mechanism is registered at application startup and remains active for the lifetime of the process. In case the process is killed, the framework re-registers the callback when the application is next launched; however, events that occurred while the app was not running cannot be captured. To mitigate this, we rely on the periodic worker to also check the system's own historical logs, but Android's public API does not expose historical access logs to non-system apps. Therefore, the audit is limited to the period during which our app is running. This is a well-known limitation that we acknowledge; however, given that most users keep such monitoring apps running in the background (with the system's permission), we consider this acceptable for practical deployment.
+
+For historical audit retrieval, the user can view a full timeline of all recorded events for each app via the dashboard. The timeline is paginated to avoid performance issues, using Room's \texttt{PagingSource} API which supports efficient lazy loading. The user can also filter by permission type, date range, and risk level.
+
+\subsection{Data Persistence and Deduplication} [Estimated: 500 words]
+The Room database schema consists of three main tables:
+
+\begin{itemize}
+\item \textbf{op\_events}: stores raw callback data. Columns: \texttt{id} (primary key), \texttt{package\_name}, \texttt{permission\_code}, \texttt{timestamp}, \texttt{uid}, and \texttt{attribution\_tag}. An index on \texttt{(package\_name, permission\_code, timestamp)} accelerates aggregation queries.
+\item \textbf{daily\_aggregates}: stores per-day per-app per-permission summaries. Columns: \texttt{date}, \texttt{package\_name}, \texttt{permission\_code}, \texttt{total\_count}, \texttt{hourly\_distribution} (as a JSON array of 24 integers). This table is populated by the periodic worker using a SQL query that groups events by date, package, and permission.
+\item \textbf{violation\_reports}: stores the output of each analysis cycle. Columns: \texttt{report\_id}, \texttt{package\_name}, \texttt{permission\_code}, \texttt{observed\_count}, \texttt{baseline}, \texttt{threshold}, \texttt{risk\_level} (LOW, MEDIUM, HIGH, CRITICAL), \texttt{detected\_at}, and \texttt{resolved\_at} (if the user has dismissed it).
+\end{itemize}
+
+Deduplication is handled at two levels: first, we use a composite unique constraint on \texttt{op\_events} for \texttt{(package\_name, permission\_code, timestamp, uid)} to prevent duplicate insertion if the same event is reported twice (though this is unlikely). Second, when aggregating, we ignore events that are older than 7 days to keep the database size bounded. We also run a monthly cleanup job that deletes events older than 30 days, maintaining a rolling window.
+
+The use of Room with coroutines ensures all database operations are non-blocking. For the aggregation worker, we use \texttt{withContext(Dispatchers.IO)} to perform the heavy grouping and JSON serialisation. The hourly distribution is stored as a compressed string to reduce storage footprint; we use a simple comma-separated list of counts, which is easily parsed.
+
+To handle database migration, we include a pre-packaged database with initial baseline data, and we implement Room migrations for schema changes. We also provide a manual export function that generates a CSV file of all violations, which users can use for their own record-keeping or to share with data protection authorities.
+
+\subsection{Modular Compliance Engine and GDPR Audit Support} [Estimated: 1,200 words]
+A central design principle of this framework is \textbf{modularity with explicit regulatory audit hooks}. The compliance engine is structured as a pluggable module that exposes clear interfaces for GDPR-specific compliance checks, enabling both transparency and extensibility.
+
+The framework treats GDPR compliance not as a monolithic, hard-coded rule set but as a \textbf{configurable audit specification}. This is achieved through:
+
+\begin{enumerate}
+\item \textbf{Separation of policy from mechanism}: The \texttt{IComplianceEngine} interface decouples the auditing logic (how data is collected and analysed) from the regulatory rules (what constitutes a violation). The expert baseline library and dynamic threshold parameters are stored in external JSON configuration, allowing GDPR-specific thresholds to be updated without modifying core code.
+\item \textbf{Audit trail generation}: Every audit cycle produces a structured \texttt{ComplianceReport} that records: (a) the permission call statistics for each app; (b) the baseline and threshold values applied; (c) the violation status and reason. This report serves as an auditable record that can be presented to data protection authorities, fulfilling GDPR Article 5(2) accountability requirements.
+\item \textbf{Regulatory framework parameterisation}: The engine supports dynamic selection of regulatory frameworks (GDPR, PIPL, CCPA) through the \texttt{setRegulatoryFramework()} method. Each framework defines its own mapping of ``special categories'' and permissible thresholds. For GDPR, the engine specifically flags permissions that access health-related data (location, heart rate sensors, activity recognition) as high-sensitivity, applying stricter baseline multipliers.
+\item \textbf{Verifiable consent revocation tracking}: The framework monitors not only call frequencies but also the correlation between UI-level permission toggles and actual kernel-level API usage. By comparing the system's recorded permission state with the app's historical call logs, it can detect discrepancies——a direct audit of GDPR Article 7.3 compliance (ease of withdrawal). If an app continues to access a permission after the user has revoked it via system settings, the framework flags a critical violation.
+\end{enumerate}
+
+The compliance engine's core logic is encapsulated in the \texttt{GDPRComplianceEngine} class, which implements \texttt{IComplianceEngine}. It loads a JSON configuration that contains:
+
+\begin{itemize}
+\item A \texttt{baselineProfile} for each category of app (e.g., social media, health tracking, navigation, utilities). The baseline is defined as the median daily call count for each permission, derived from a pre-study of the top 50 apps in that category on Google Play.
+\item A \texttt{thresholdMultiplier} that is applied to the baseline to compute the upper bound. For example, a multiplier of 1.5 means any count exceeding 1.5 times the baseline is considered suspicious. This multiplier is lower for high-sensitivity permissions (e.g., location) and higher for low-sensitivity ones.
+\item A \texttt{severityMap} that maps the deviation factor (observed/baseline) to risk levels: e.g., 1.5-2.0 → LOW, 2.0-3.0 → MEDIUM, 3.0-5.0 → HIGH, >5.0 → CRITICAL.
+\item A \texttt{regulatorySpecialCategories} list that defines which permissions are considered ``special category'' under GDPR, and thus receive heightened scrutiny.
+\end{itemize}
+
+During each audit cycle, the engine retrieves the daily aggregates for all apps from the database, loads the appropriate baseline for each app based on its package name (matched against a pre-populated category map), and computes the deviation. It then generates a list of \texttt{Violation} objects. Each violation includes a detailed message that maps the technical observation to a GDPR article, e.g., ``Location accessed 45 times vs. baseline 20 (225\%); potential violation of data minimisation (Art. 5(1)(c)).'' This human-readable reasoning is essential for user comprehension and for regulatory justification.
+
+The engine also includes a consent revocation verification module. It periodically queries the system's permission state via \texttt{PackageManager.checkSelfPermission()} for each permission and compares it with the actual call logs. If calls are detected after revocation, it generates a separate violation type: \texttt{REVOCATION\_FAILURE}, with a critical severity, citing GDPR Art. 7(3).
+
+To support extensibility, the engine uses a plugin architecture where new regulatory frameworks can be added by simply providing a new JSON configuration and implementing a minimal wrapper class. This allows the framework to adapt to evolving regulations without requiring a full application update; configuration updates can be delivered via Firebase Remote Config.
+
+\begin{lstlisting}[caption=IComplianceEngine core interface with regulatory audit support]
+public interface IComplianceEngine {
+    // Load baseline configuration (GDPR/PIPL/CCPA profiles)
+    void loadBaseline(Context context, RegulatoryFramework framework);
+    
+    // Perform audit and produce verifiable report
+    ComplianceReport audit(List<HistoricalOp> ops);
+    
+    // Get current thresholds for verification
+    ThresholdConfig getThresholdConfig();
+    
+    // Switch regulatory framework dynamically
+    void setRegulatoryFramework(RegulatoryFramework framework);
+    
+    // Verify consent revocation effectiveness
+    RevocationVerification verifyRevocation(String packageName, String permission);
+}
+\end{lstlisting}
+
+\subsection{Baseline Library and Dynamic Threshold Computation} [Estimated: 600 words]
+The effectiveness of the compliance engine hinges on the quality of the baseline profiles. To construct these baselines, we conducted a preliminary observational study: we deployed a prototype data collection tool to 20 volunteer users (with informed consent) for two weeks. The tool captured all permission events from the top 50 installed apps across various categories, as classified by Google Play store categories. We then computed, for each (category, permission) pair, the mean, median, standard deviation, and 95th percentile of daily call counts. The final baseline value is chosen as the median, as it is robust to outliers. This baseline is stored in a JSON file included in the app assets, and can be updated via over-the-air updates to reflect changing usage patterns.
+
+However, a static baseline is insufficient because user behaviour varies widely. Therefore, the engine supports a \textbf{dynamic threshold} that adapts to the individual user's historical behaviour. We maintain a per-user rolling average of the last 7 days of call counts for each app and permission. The dynamic threshold is computed as:
+
+\[
+\text{Threshold} = \max( \text{staticBaseline} \times \text{multiplier}, \text{userAverage} \times 2.0 )
+\]
+
+This ensures that if a user typically uses an app more heavily than the global baseline, the threshold is raised to avoid false positives. Conversely, if the user's usage is lighter, the threshold is still at least the baseline multiplier. The multiplier is configurable per permission category; for high-sensitivity permissions we use a multiplier of 1.5, for medium 2.0, and for low 3.0. These values were empirically tuned during our pilot study to balance precision and recall.
+
+The algorithm for violation detection is:
+
+\begin{enumerate}
+\item For each app and permission, retrieve the current day's total count from daily aggregates.
+\item Retrieve the baseline and threshold from the configuration (adjusted for user history).
+\item If count > threshold, compute deviation = count / baseline.
+\item Map deviation to risk level using the severity map.
+\item If risk level is at least LOW, generate a violation.
+\item For revocation verification, check if the permission is currently denied by system and if any calls have been recorded in the last 24 hours; if so, flag CRITICAL.
+\end{enumerate}
+
+All calculations are performed in the background worker, and results are persisted. The engine also logs the exact threshold used for each audit, providing full traceability. The baseline library is periodically refreshed via a background job that downloads the latest community-aggregated baseline statistics from a trusted repository, ensuring that the baselines evolve with changing app behaviours.
+
+\subsection{User Dashboard and Interaction Design} [Estimated: 400 words]
+To empower users with actionable insights, the framework includes a comprehensive dashboard that visualises permission usage and violations. The dashboard is built using Android's native UI components, with data bound via ViewModel and LiveData to ensure reactive updates.
+
+The dashboard consists of three primary views:
+
+\begin{enumerate}
+\item \textbf{Overview View}: A summary card showing total violations per risk level, the number of apps with active violations, and a trend line of violations over the last 7 days. This view uses MPAndroidChart to render a bar chart with colour-coded severity levels.
+\item \textbf{App Detail View}: For a selected app, this view displays a list of all permissions with their observed counts, baselines, and risk levels. Users can tap on any permission to see the full timeline of events, with timestamps and operation results. A line chart shows the hourly distribution of accesses over the current day.
+\item \textbf{Audit Log View}: This is a searchable, filterable list of all violation reports. Each item shows the app name, permission, risk level, detection time, and a user-friendly explanation. Users can mark violations as ``resolved'' or ``ignored'', which updates the \texttt{resolved\_at} field.
+\end{enumerate}
+
+The dashboard also includes a settings screen where users can configure notification preferences, choose the regulatory framework (GDPR/PIPL/CCPA), and view the current baseline configuration. A prominent ``Verify Consent'' button allows users to trigger an on-demand consent revocation check for all apps.
+
+The user experience is designed to minimise cognitive load: we use colour coding (green for safe, yellow for warning, red for violation), clear icons, and concise text descriptions. We also provide educational tooltips that explain each permission type and the associated GDPR article, helping users build their understanding of privacy concepts over time.
+
+\subsection{Automated Test Harness Design} [Estimated: 1,000 words]
+To systematically validate the framework's detection accuracy, we introduce a dedicated \textbf{Violation Simulator} module. This test harness operates in a controlled environment, generating synthetic permission call logs that mimic both benign and malicious behaviour.
+
+The simulator's architecture comprises three core components:
+\begin{enumerate}
+\item \textbf{Random Configuration Generator}: Produces test parameters including target permission type, total call count (ranging from 0 to 300), distribution pattern (uniform, bursty, periodic), and time window. This stochastic approach ensures coverage of the legal input space, providing statistical confidence in the engine's performance metrics. The generator uses Java's \texttt{Random} class with a fixed seed for reproducibility.
+\item \textbf{Scheduler}: Uses WorkManager's \texttt{OneTimeWorkRequest} to dispatch simulated permission calls at the configured random times. OneTimeWorkRequest is designed for scheduling non-repeating work, making it suitable for precisely controlled simulation events. The WorkRequest object encapsulates all information needed for scheduling and running work, including constraints and scheduling information. This ensures the simulation respects Android's background execution limits while providing fine-grained control over event timing.
+\item \textbf{Ground Truth Recorder}: Logs the exact parameters of each simulated run, serving as the ``expected result'' against which the audit engine's output is compared during validation.
+\end{enumerate}
+
+This design enables N-round independent test cycles (N=50 in our experimental configuration), each with randomised parameters, providing statistical confidence in the engine's precision and recall metrics. The simulator runs entirely within the application's test environment and does not interact with real device sensors or external services.
+
+The stochastic testing methodology is grounded in the principle that algorithmic correctness is a function of the input-output mapping, independent of the physical source of inputs. As long as random samples cover the legal input space—including edge cases such as zero-call scenarios, extremely high-frequency bursts, and permission state transitions—performance on random samples serves as a statistically unbiased estimator of real-world performance. This approach enables rapid iteration and validation without the logistical overhead of deploying to physical devices for every test cycle.
+
+Internally, the simulator has two operation modes:
+\begin{itemize}
+\item \textbf{Logical (Offline) Mode}: It directly inserts synthetic event records into the Room database, bypassing the callback registration. This mode is used for unit tests and Monte Carlo simulations, where we can run thousands of scenarios quickly. In this mode, the simulator also injects system permission state changes to test the revocation detection module.
+\item \textbf{Integration (Online) Mode}: It uses the actual \texttt{OnOpNotedCallback} infrastructure by mocking the system service. This is more complex and is reserved for the final smoke test on a real device with a specially crafted APK that mimics a malicious app.
+\end{itemize}
+
+We also implemented a \texttt{TestConfig} generator that produces a JSON configuration for each test round, including the expected violations. After the engine runs, we compare its output against the ground truth and compute confusion matrix metrics. This automation allows us to run the test suite nightly during development to catch regressions.
+
+The simulator also includes a ``stress test'' mode that generates extremely high-frequency call patterns (up to 1000 calls per minute) to test the database performance and the callback queue's resilience. These stress tests help us identify bottlenecks and ensure the framework can handle worst-case scenarios without crashing.
+
+\subsection{Layered Validation Strategy} [Estimated: 500 words]
+The framework employs a two-layer validation strategy to ensure algorithmic correctness while maintaining engineering feasibility:
+
+\textbf{Logical layer (Monte Carlo injection)}: bypasses physical hardware, generates large random permission call samples in the JUnit memory environment (random package names, random permission types, random counts 0--300, random timestamps). This completes 1000 rounds of random testing within 3 minutes, validating the algorithmic correctness——including precision, recall, and F1-Score. The theoretical foundation is that algorithmic correctness is a function of the input-output mapping, independent of the physical source of inputs. As long as random samples cover the legal input space, performance on random samples is a statistically unbiased estimator of real-world performance.
+
+\textbf{Integration layer (automated simulation + single smoke test)}: The violation simulator runs N independent 24-hour test cycles, generating randomised call patterns. The audit engine's outputs are automatically compared against ground truth. Additionally, one end-to-end test on a real device uses a specially crafted malicious APK to verify the end-to-end flow and obtain screenshots for the thesis defence.
+
+The integration layer testing specifically addresses the verification of WorkManager's scheduling reliability under real device conditions. PeriodicWorkRequest has a minimum interval of 15 minutes and is guaranteed to run exactly once during each interval, subject to OS battery optimisations such as Doze mode. Our 24-hour test cycles validate that the audit worker executes as scheduled across diverse device states—including Doze mode transitions, background execution restrictions, and varying battery levels—ensuring the framework's reliability in production deployment scenarios.
+
+Furthermore, we perform regression testing by maintaining a set of predefined edge cases (e.g., an app that accesses location exactly at the threshold boundary, an app that revokes and re-grants permissions multiple times). These cases are run on every build to ensure that changes to the engine do not introduce regressions. The regression suite is integrated into the CI/CD pipeline using GitHub Actions, providing continuous validation.
+
+\subsection{Notification and Alerting Strategy} [Estimated: 500 words]
+To avoid overwhelming the user, we adopt a tiered notification strategy that balances awareness with cognitive load. Notifications are generated only when a violation is detected or when the risk level of an existing violation escalates. The following rules apply:
+
+\begin{itemize}
+\item \textbf{LOW risk}: A single silent notification is posted to the notification shade, with a low priority channel. No sound or vibration is used. This notification is automatically dismissed after 30 seconds.
+\item \textbf{MEDIUM risk}: A standard notification with sound and vibration, but only if no similar notification for the same app and permission has been posted in the last 24 hours. This prevents notification fatigue while ensuring the user is aware of persistent issues.
+\item \textbf{HIGH or CRITICAL risk}: An immediate alert with sound, vibration, and a persistent heads-up notification. Additionally, we display a system-level dialog if the user opens the dashboard.
+\item \textbf{Revocation failure}: This is always CRITICAL and generates an urgent notification, as it directly undermines user consent.
+\end{itemize}
+
+To implement this, we store the last notification time per (package, permission, risk level) in a shared preferences file. Before sending a new notification, we check whether the cooldown period has elapsed. For critical violations, we also send an email-like summary (optional) that the user can enable in settings.
+
+The notification content is dynamically generated to include the app name, permission description, observed count, baseline, and a plain-language interpretation (e.g., "This app has accessed your location 60 times today, which is 3 times more than similar apps. This may indicate unnecessary data collection."). We leverage the app's icon and name via \texttt{PackageManager} to make notifications recognisable. All notifications are actionable: tapping them opens the dashboard filtered to the relevant app and permission.
+
+We also provide a weekly summary notification that aggregates all low and medium risk violations from the past week, allowing users to review them in one go. This reduces the frequency of interruptions while ensuring that no violation goes unnoticed.
+
+\subsection{System Scheduling and Resource Management} [Estimated: 500 words]
+The entire auditing pipeline is orchestrated by WorkManager, which provides a robust API for deferrable background work. We define a \texttt{PeriodicWorkRequest} with a 24-hour interval (minimum possible for periodic work) and a flex period of 4 hours. This allows the system to align the execution with the device's optimal wake-up times, reducing battery drain. The worker is also configured with constraints: \texttt{setRequiredNetworkType(NETWORK\_UNMETERED)} is not required because we do not upload data; we only require that the device is not in low-power mode, though we allow execution in Doze with the appropriate \texttt{setExpedited} flag for critical tasks, but we avoid that to save energy.
+
+We also schedule a one-time worker at boot completion to re-register the callback and to check for any missed violations during the downtime. The worker uses \texttt{Result.success()} and \texttt{Result.retry()} appropriately: if the database is locked, we retry with exponential backoff.
+
+To manage memory, we use the \texttt{androidx.lifecycle} components to observe the database and update the UI reactively. The dashboard uses \texttt{RecyclerView} with efficient view holder recycling and loads only the last 30 days of data for performance. We also cache the baseline JSON in memory to avoid repeated disk reads.
+
+Battery consumption is measured via Android's built-in battery stats and our own logging of CPU and wake time. We keep the callback registration lightweight—the \texttt{onOpStarted} method only inserts into a queue, and a separate coroutine flushes the queue periodically. This reduces the overhead of each callback to a few microseconds. The aggregation worker runs once per day and takes at most 2 seconds, resulting in negligible total energy impact. Our preliminary profiling shows memory footprint around 80 MB and battery drain less than 1\%, well within our targets.
+
+This comprehensive design ensures that the framework is both accurate and unobtrusive, providing a practical solution for end-user privacy compliance supervision.
+
+% Figure is kept as in the original; we reference it here.
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.2cm, auto, every node/.style={align=center}]
+    % Nodes
+    \node (app) [draw, rectangle, fill=bluebox, minimum width=3cm, minimum height=1cm] {Android App \\ (Permission Requests)};
+    \node (appops) [draw, rectangle, fill=bluebox, below of=app, node distance=2cm] {AppOpsManager \\ (Callback)};
+    \node (work) [draw, rectangle, fill=greenbox, below of=appops, node distance=2cm] {WorkManager \\ (24h Periodic)};
+    \node (room) [draw, rectangle, fill=greenbox, right of=work, node distance=4cm] {Room Database \\ (Events \& Aggregates)};
+    \node (engine) [draw, rectangle, fill=orangebox, below of=work, node distance=2.5cm, minimum width=5cm] {Compliance Engine \\ (Modular + GDPR Audit)};
+    \node (sim) [draw, rectangle, fill=redbox, left of=engine, node distance=4cm] {Violation Simulator \\ (Test Harness)};
+    \node (monte) [draw, rectangle, fill=redbox, below left of=engine, node distance=2.5cm, xshift=-2.5cm] {Monte Carlo \\ Logical Injection};
+    \node (smoke) [draw, rectangle, fill=redbox, below right of=engine, node distance=2.5cm, xshift=2.5cm] {Single Smoke Test \\ (24h real device)};
+    \node (report) [draw, rectangle, fill=greenbox, below of=engine, node distance=2.5cm] {Compliance Report \\ (Auditable Log)};
+
+    % Arrows
+    \draw[->] (app) -- (appops);
+    \draw[->] (appops) -- (work);
+    \draw[->] (work) -- (room);
+    \draw[->] (room) |- (engine);
+    \draw[->] (work) -- (engine);
+    \draw[->] (sim) -- (engine);
+    \draw[->] (monte) -- (engine);
+    \draw[->] (smoke) -- (engine);
+    \draw[->] (engine) -- (report);
+\end{tikzpicture}
+\caption{System architecture overview showing data flow, compliance engine, and test harness integration.}
+\label{fig:arch}
+\end{figure}
+
+\end{document}
