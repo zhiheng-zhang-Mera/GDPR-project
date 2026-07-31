@@ -1,0 +1,91 @@
+% ==================== Chapter 4: Implementation (Revision 06) ====================
+\newpage
+\section{System Design and Implementation}
+
+\subsection{Technology Stack}
+
+The application uses Expo and React Native for the Android interface, TypeScript for the compliance and simulation logic, and AsyncStorage for local persistence. The release build uses Hermes and Android release optimisation. This stack differs from a native Kotlin, Room, and WorkManager implementation; those technologies remain relevant candidates for a future privileged acquisition and scheduling layer but are not presented as implemented components.
+
+\subsection{Compliance Types and Interface}
+
+The central input type is \texttt{PermissionAudit}. It records a package identifier, a supported permission category, aggregate access count, audit-window timestamps, and optional foreground/background counts. The output type \texttt{ComplianceFinding} records the active state, calculated threshold, violation count, risk, regulatory mapping, rationale, and timestamp.
+
+\texttt{IComplianceEngine} separates the rule contract from a particular regulation-specific implementation. The current \texttt{GDPRComplianceEngine} declares its regulation identifier and implements a single \texttt{evaluate} operation. This interface is intentionally small: extensibility is achieved through code-level implementations rather than an unverified remote plugin system.
+
+\subsection{Rule Table and Threshold Evaluation}
+
+The rule table is a TypeScript \texttt{Record} keyed by LOCATION, MICROPHONE, and CONTACTS. Table~\ref{tab:implemented-rules} shows the implemented values.
+
+\begin{table}[H]
+\centering
+\caption{Implemented permission rules}
+\label{tab:implemented-rules}
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Permission} & \textbf{Baseline} & \textbf{Multiplier} & \textbf{Threshold} \\
+\midrule
+LOCATION & 24 & 1.5 & 36 \\
+MICROPHONE & 8 & 1.5 & 12 \\
+CONTACTS & 4 & 1.5 & 6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The engine first retrieves the rule, calculates the ceiling of baseline times multiplier, and subtracts the threshold from the supplied count. A strictly positive excess activates the finding. The ratio of excess to threshold determines MEDIUM, HIGH, or CRITICAL risk. Inactive findings use LOW.
+
+The rule record also stores a concise rationale and the GDPR provisions most likely to be relevant. This makes the result inspectable, but it does not encode application purpose or lawful basis. The term ``compliance finding'' is therefore used as a software data type; in the thesis prose, it is interpreted as a warning for human review.
+
+\subsection{Violation Simulation}
+
+\texttt{createSimulationConfig} randomly selects one of the three permission categories, generates between 50 and 200 calls, distributes timestamps over a 24-hour interval, and calculates the expected threshold result. \texttt{simulationToAudit} converts the configuration into the engine's input structure.
+
+For integrated evaluation, \texttt{createEvaluationConfig} generates a normal control every fifth round by setting the count immediately below its permission threshold. The remaining rounds use the generated high-count configuration. This produces a predictable 80/20 violating-to-normal balance for the APK workflow.
+
+The simulator is useful for repeatability but cannot be the sole oracle for implementation correctness because it imports the same rule table as the engine. Chapter 5 therefore supplements it with a separate oracle and independent boundary generator. Trigger times are retained in the data structure for interface realism, although the current decision does not use their distribution.
+
+\subsection{Local Finding Repository}
+
+\texttt{ViolationRepository} stores findings under a versioned AsyncStorage key. A finding identifier combines package name and permission category. Saving a finding replaces the prior record for the same identifier and returns two control values:
+
+\begin{itemize}
+    \item \texttt{changed}, indicating that the serialised finding differs; and
+    \item \texttt{shouldNotify}, indicating a new finding, an active-state reversal, or an increase in risk rank.
+\end{itemize}
+
+This design suppresses unchanged repeated results without claiming that Android system notifications were validated in the reported tests. AsyncStorage is adequate for a demonstrator but does not provide relational queries, tamper resistance, or transactional audit export. A production audit repository would require schema migration, integrity protection, retention policy, and explicit user-controlled export.
+
+\subsection{Native Bridge Boundary}
+
+\texttt{PrivacyBridge} looks up an optional React Native module named \texttt{PrivacyInspector}. It defines calls for daily scheduling, immediate audit, simulation scheduling, and log dispatch, and it listens for \texttt{ON\_PASSIVE\_AUDIT\_EVENT}. Optional chaining prevents an absent module from crashing these calls.
+
+This code is an integration boundary rather than evidence that cross-application AppOps acquisition or WorkManager scheduling is present in the evaluated APK. A production module would need to document its Android authority model, API-level behaviour, data provenance, and failure semantics. Its output would also have to pass the runtime validation boundary before evaluation.
+
+\subsection{Application Views and Evaluation Telemetry}
+
+The application exposes tab-based views for the dashboard, experiments, privacy information, history, scoring, and settings. The experiment workflow generates configurations, invokes the engine, persists findings, and updates the rendered result. Evaluation telemetry permits automated tests to identify completion and obtain aggregate outcomes from the UI hierarchy.
+
+The release APK was selected for integration evidence because it represents the optimised deployment artefact rather than the development server. Its size reduction and runtime behaviour are reported in Chapter 5. UI automation relied on adb launch, input injection, hierarchy capture, screenshots, logcat, \texttt{dumpsys meminfo}, and \texttt{gfxinfo}.
+
+\subsection{Security Analysis of the Implementation}
+
+The initial engine assumes that TypeScript types remain valid at runtime. The adversarial evaluation demonstrates that this assumption is unsafe. An unknown permission key can yield an undefined rule and a \texttt{TypeError}; inherited object keys can resolve through the prototype chain; JavaScript coercion can convert strings, booleans, arrays, and objects; and \texttt{NaN} can silently propagate through threshold arithmetic.
+
+The required repair is a fail-closed parser placed before \texttt{evaluate}. It should:
+
+\begin{enumerate}
+    \item accept only the three explicit permission literals;
+    \item read rules through \texttt{Map} or an own-property check;
+    \item require \texttt{Number.isFinite} and \texttt{Number.isInteger} for counts and timestamps;
+    \item reject negative counts and invalid window ordering;
+    \item bound audit duration and future time offset;
+    \item return a structured rejection with a reason code; and
+    \item prohibit non-finite fields in every output.
+\end{enumerate}
+
+\subsection{Temporal Extension}
+
+The current detector is an aggregate-count classifier. A robust successor should calculate counts across multiple horizons, a peak access rate, and decaying cumulative risk. It should distinguish a uniform daily pattern from a burst and retain enough state to identify repeated near-threshold windows. These features require new external oracles and should not be tuned on the same adversarial corpus used for final reporting.
+
+\subsection{Implementation Summary}
+
+The implemented system is compact and traceable: a simulation or future authorised source produces an audit; the TypeScript engine applies an explicit rule; the repository stores the latest finding; and the React Native interface renders the outcome. The implementation chapter deliberately excludes earlier design claims that are not present in the repository, including a Room schema, Kotlin workers, population-derived three-sigma adaptation, and validated physical-device AppOps collection.

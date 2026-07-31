@@ -1,0 +1,56 @@
+% ==================== Chapter 2: Literature Review (Revision 03) ====================
+\newpage
+\section{Literature Review and State of the Art}
+
+\subsection{From GDPR Principles to Technical Warning Signals}
+
+Article 5 of the GDPR establishes lawfulness, fairness, transparency, purpose limitation, data minimisation, accuracy, storage limitation, integrity, confidentiality, and accountability \cite{1}. Article 5(1)(c) requires personal data to be adequate, relevant, and limited to what is necessary. Article 25 further requires data protection by design and by default. These provisions motivate technical mechanisms that make data processing observable, but they do not define a universal numeric limit for permission access.
+
+This distinction determines the role of the proposed framework. A high access count may be legitimate for navigation and disproportionate for a calculator. A threshold crossing is therefore an auditable warning signal rather than proof of a GDPR infringement. Purpose, lawful basis, user expectations, foreground context, data destination, and safeguards remain relevant to any legal assessment. The prototype operationalises only one observable component: whether a structured permission count exceeds an explicit, permission-specific rule.
+
+Article 7 concerns the conditions for consent and withdrawal, while Article 9 imposes additional conditions on special-category data. Location, microphone, and contact information are not automatically special-category data in every context, although they may reveal health, biometric, religious, political, or other protected information. The engine's GDPR mappings are consequently explanatory prompts. They identify provisions that may require review and do not replace a controller's legal analysis.
+
+\subsection{Transparency, Cognitive Load, and Warning Design}
+
+Privacy notices impose a substantial verification burden on users. Long policies and frequent prompts encourage heuristic decision-making, while repeated low-value warnings can create habituation and privacy fatigue \cite{12,13,27}. Cognitive Load Theory suggests that information should be structured so that users can identify the reason for an intervention without processing unnecessary detail \cite{27}. Trust in automation likewise depends on calibrated rather than unconditional reliance \cite{34}.
+
+These findings support three interface principles used by the prototype. First, a finding should expose its threshold, observed count, risk level, and rationale. Second, unchanged findings should not repeatedly demand attention. Third, severity should be interpretable and should not imply legal certainty. The local repository therefore records whether a finding changed and whether notification would be justified by a state transition or risk escalation.
+
+The evaluation in this thesis does not include a user study. Claims that the interface reduces cognitive load or improves privacy decisions remain design hypotheses. A longitudinal study using behavioural measures and instruments such as NASA-TLX would be required to validate those effects \cite{6}.
+
+\subsection{Android Permission Transparency and Acquisition Constraints}
+
+Android has progressively expanded runtime permission controls and system privacy interfaces. The Privacy Dashboard introduced a system-managed history for selected sensitive permissions, providing users with temporal visibility. However, access to app-operation history by a third-party application is constrained by Android version, privileges, attribution, and vendor implementation. Public presence of an \texttt{AppOpsManager} method does not imply that an ordinary sandboxed application can retrieve unrestricted histories for every other package.
+
+This constraint divides a complete system into two parts. The decision layer can be implemented and tested using structured \texttt{PermissionAudit} observations. The acquisition layer requires an authorised source, such as system integration, device-owner deployment, user-mediated export, or another platform-supported mechanism. The current repository validates the former and exposes a React Native native-module boundary for the latter; it does not claim that unrestricted cross-application acquisition was demonstrated on a stock physical device.
+
+Static-analysis systems such as FlowDroid and dynamic taint-tracking systems address different questions. They seek code paths or data flows from sensitive sources to sinks, often at greater deployment and computational cost. VPN-based monitoring observes network traffic but cannot directly observe local permission use and introduces its own trust boundary. Native dashboards are low-overhead and authoritative but do not provide the custom rule evaluation developed here. The proposed prototype therefore occupies a narrower position: explainable evaluation of supplied permission-frequency observations.
+
+\subsection{Rule-Based and Statistical Detection}
+
+Rule-based systems are attractive for compliance warnings because their outputs can be traced to an explicit condition. They also expose their limitations. A fixed threshold ignores temporal concentration and application purpose, while a learned anomaly model can be difficult to explain and may drift as behaviour changes. Hybrid systems may combine population priors, per-user history, and contextual features, but those additions require empirical data and independent validation.
+
+The implemented prototype uses fixed expert-configured baselines multiplied by 1.5. It does not compute a rolling mean, standard deviation, or three-sigma threshold, and it does not contain a validated population study of the top 50 applications. Those mechanisms remain possible extensions, not evaluated features. This factual boundary is essential because a claimed adaptive model cannot be supported by experiments that exercise a deterministic fixed rule.
+
+The current rule is intentionally simple:
+
+\begin{equation}
+T_p=\left\lceil 1.5B_p \right\rceil,\qquad
+A(x,p)=\mathbb{I}[x>T_p],
+\end{equation}
+
+where $B_p$ is the configured baseline for permission $p$, $T_p$ is the threshold, $x$ is the supplied access count, and $A$ is the active-warning decision. Simplicity makes exhaustive boundary reasoning possible, but it also makes temporal bypass predictable unless time-derived features are added.
+
+\subsection{Randomised, Boundary, and Adversarial Validation}
+
+Randomised testing explores a larger input space than a small hand-written suite. Its value depends on the oracle and distribution. If the expected result is produced by the same helper used by the system under test, perfect agreement may merely demonstrate shared logic. The evaluation therefore introduces an external oracle for the main Monte Carlo round and separately concentrates samples at $T_p-2$ through $T_p+2$.
+
+Boundary testing is necessary because random uniform inputs may rarely land close to a threshold. Adversarial testing asks a different question: what happens when assumptions are violated? Fuzzing permission keys, numeric types, and time windows tests the runtime trust boundary; burst and split-window samples test omissions in the decision model. These cases cannot all be placed in a conventional confusion matrix, because they use different threat definitions and expected failure policies.
+
+Confidence intervals are also required for honest interpretation. An observed accuracy of 100\% is a point estimate. Wilson intervals and the rule of three express the uncertainty remaining after zero observed errors. Repeated deterministic mutations are useful for stress and reproducibility, but repetitions of the same mutation class should not be described as independent population samples.
+
+\subsection{Research Gap}
+
+Prior approaches typically emphasise one of four goals: platform transparency, static disclosure analysis, data-flow detection, or user notification. The research gap addressed here is a reproducible connection between an explainable permission-frequency rule, a usable Android demonstrator, and an evaluation that explicitly separates correctness from adversarial coverage.
+
+The contribution is accordingly methodological as well as technical. The prototype demonstrates how a compliance-warning decision can be exposed and tested. The negative adversarial results demonstrate why a narrow rule must not be generalised into a claim of complete GDPR compliance detection. Chapters 3 and 4 translate this position into explicit architecture and implementation boundaries, and Chapter 5 evaluates both the supported rule and its uncovered attack surface.

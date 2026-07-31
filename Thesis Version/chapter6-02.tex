@@ -1,0 +1,75 @@
+% ==================== Chapter 6: Discussion and Limitations (Revision 02) ====================
+\newpage
+\section{Discussion, Limitations and Future Development}
+
+\subsection{Correctness Is Not Coverage}
+
+The most important result of this study is the difference between implementing a rule correctly and selecting a complete rule. Within the defined aggregate-count domain, the engine showed no observed classification error across independent random, boundary, and APK integration samples. When the threat model was expanded, however, short-term bursts and cross-window splitting bypassed the detector in every tested scenario.
+
+These results are compatible. The initial oracle labels a warning according to whether the count exceeds a permission-specific threshold. The adversarial oracle additionally treats extreme temporal concentration or cumulative cross-window behaviour as risky. The engine cannot detect a feature that it does not calculate. Reporting both results prevents a narrow 100\% accuracy estimate from becoming a misleading claim of general attack detection.
+
+\subsection{Explainability and Legal Interpretation}
+
+The engine's strongest design property is traceability. A reviewer can inspect the baseline, multiplier, threshold, excess count, risk mapping, GDPR reference, and rationale. This is preferable to an unexplained score when the system is used to support an audit.
+
+Explainability does not make the rule legally sufficient. GDPR data minimisation depends on purpose and necessity, not only frequency. A high count can be necessary, and a single access can be unlawful. The framework should therefore use language such as ``warning'', ``risk indicator'', or ``requires review''. It should not state that the application has violated the GDPR solely because a threshold was crossed.
+
+The baselines are expert-configured prototype values. They were not derived from the previously claimed top-50-app population study, and the implemented multiplier is fixed at 1.5 rather than calculated from a rolling standard deviation. Future empirical calibration must define the population, sampling method, application categories, distributional assumptions, and legal review process.
+
+\subsection{Runtime Trust Boundary}
+
+The second campaign shows that the input boundary is currently the most urgent engineering weakness. TypeScript types disappear at runtime, and ordinary JavaScript property access can resolve inherited keys. The combined corpus produced a high silent-normal rate, meaning malformed observations often looked compliant rather than failing visibly.
+
+A fail-closed schema layer should be implemented before temporal sophistication is added. Otherwise, a more advanced detector would still operate on untrusted semantics. Structured rejection should itself be auditable, so that upstream corruption or malicious bridge input can be distinguished from a legitimate normal observation.
+
+\subsection{Temporal Detection Trade-offs}
+
+Minute-, hour-, and day-scale windows would reduce burst and split-window evasion, but they introduce trade-offs. Short windows can increase false positives during legitimate intensive use; long windows can delay intervention. Cumulative state requires decay, reset, and retention rules. Context such as foreground status and user initiation may improve interpretation but expands the privacy footprint of the auditing tool.
+
+A suitable next design is a layered warning rather than one replacement threshold. The aggregate daily rule can remain an explainable baseline. A peak-rate rule can identify short bursts, and a decaying cumulative score can identify repeated near-threshold windows. Each component should expose its contribution to the final risk and be validated against an independent oracle.
+
+\subsection{User Experience and Verification Friction}
+
+The repository suppresses notifications when a finding is unchanged and surfaces escalation when risk increases. This supports the hypothesis that state-based notification can reduce redundant interruptions. The study did not recruit users, measure comprehension, or compare notification schedules. Claims about reduced cognitive load therefore remain theoretical.
+
+Future evaluation should compare immediate alerts, daily summaries, and state-change notifications. It should measure task completion, warning comprehension, response choice, trust calibration, and fatigue over time. Accessibility, localisation, colour-independent severity cues, and the risk of users treating a warning as legal fact should be included.
+
+\subsection{Platform and Deployment Limitations}
+
+The evaluated build was an x86\_64 release APK on one Android 16 emulator. This environment supports reproducible integration testing but cannot establish behaviour on ARM hardware, older Android releases, manufacturer-modified systems, or constrained devices.
+
+The current repository does not demonstrate unrestricted permission-history collection from other applications on a stock device. Android acquisition may require system privilege, device-owner deployment, or a user-mediated source. A production design must select and document one lawful authority model rather than assuming that an API name guarantees access.
+
+The accelerated tests do not validate WorkManager execution over 24 or 72 hours, Doze transitions, reboot recovery, vendor log retention, battery consumption, or a real malicious application's access events. These are not minor omissions: they determine whether a future native acquisition layer can produce complete and timely observations.
+
+\subsection{Performance Interpretation}
+
+The logical flood demonstrates that the TypeScript decision arithmetic is inexpensive, but its throughput excludes native bridging, persistence, acquisition, scheduling, and rendering. The APK endurance PSS remained below the provisional target and did not grow monotonically during the short run. This does not exclude a slow leak.
+
+Frame data were workload-dependent. The endurance sequence produced a useful accelerated observation, whereas Monkey produced very small frame samples because many events did not cause rendering. Neither result should be generalised to everyday responsiveness without a deterministic interaction trace and a suitable frame sample.
+
+\subsection{Threats to Validity}
+
+Internal validity is limited by the use of generated observations and by the deterministic repetition of some mutation classes. The independent oracle reduces circularity for conventional classification, but adversarial oracles encode research choices about what constitutes burst or cumulative risk.
+
+External validity is limited by one emulator, one application build, three permission categories, and no production acquisition source. Construct validity is limited because permission frequency is only a proxy for proportionality and cannot observe purpose or data destination. Statistical validity is protected by reporting heterogeneous rounds separately, but Wilson intervals still characterise the exercised sampling process rather than the entire population of Android behaviour.
+
+\subsection{Prioritised Future Work}
+
+Future work should proceed in the following order:
+
+\begin{enumerate}
+    \item implement and property-test fail-closed runtime validation;
+    \item replace prototype-sensitive object lookup with an explicit safe map;
+    \item add independent regression cases for every adversarial failure class;
+    \item add multi-scale temporal and cumulative features with documented oracles;
+    \item reproduce and fix the focus-state crash candidate;
+    \item implement an authorised Android acquisition module and provenance model;
+    \item run multi-day tests on physical ARM devices across Android versions;
+    \item measure battery, scheduling drift, log completeness, and recovery; and
+    \item conduct legal and user studies before presenting thresholds as operational compliance guidance.
+\end{enumerate}
+
+\subsection{Summary}
+
+The prototype is valuable because its success and failure are both interpretable. It reliably implements a narrow rule, and the adversarial campaign identifies exactly where that rule and its runtime boundary cease to be trustworthy. The next research phase should preserve this transparency while strengthening input validation, temporal coverage, Android acquisition, and empirical evaluation.

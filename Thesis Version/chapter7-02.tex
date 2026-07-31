@@ -1,0 +1,38 @@
+% ==================== Chapter 7: Conclusion (Revision 02) ====================
+\newpage
+\section{Conclusion}
+
+\subsection{Summary of the Study}
+
+This thesis designed, implemented, and evaluated an Android compliance-warning prototype for structured permission-audit observations. The implemented core is a React Native and TypeScript application containing explicit rules for LOCATION, MICROPHONE, and CONTACTS, a modular evaluation interface, local finding persistence, a violation simulator, and an Android interface for running and reviewing audits.
+
+The research deliberately separates a warning from a legal conclusion. The engine asks whether an observed aggregate count exceeds an explicit threshold and explains the result. It does not determine whether processing is legally necessary, nor does it establish unrestricted access to other applications' permission histories on a stock device.
+
+\subsection{Answers to the Research Questions}
+
+The first research question concerned implementation consistency. The answer is positive within the specified domain. Independent-oracle Monte Carlo and boundary-stratified testing produced 7,000 zero-error logical observations. The descriptive 95\% Wilson accuracy lower bound was 99.945\%, and the boundary corpus found no off-by-one error.
+
+The second question concerned packaged-application behaviour. The release APK completed a 1,500-observation endurance sequence without a captured crash or ANR. Peak PSS was 115.16~MB. Controlled Monkey runs completed a further 60,000 touch and motion events without crash or ANR, although an earlier unrestricted run produced one non-reproducible focus-state exception.
+
+The third question concerned adversarial coverage. The answer is that the present rule is incomplete. All tested short-term burst and cross-window split scenarios bypassed detection. All 40,000 invalid windows were accepted. Runtime count and permission-key mutations produced exceptions, non-finite values, and silent normal verdicts; 83.776\% of the combined malformed corpus was classified as normal.
+
+The fourth question concerned readiness for broader deployment. The prototype is not production-ready. Fail-closed runtime validation, safe rule lookup, temporal features, deterministic UI regression, an authorised Android acquisition layer, physical-device endurance, battery measurement, cross-version testing, and legal calibration are required.
+
+\subsection{Contributions}
+
+The thesis makes four supported contributions:
+
+\begin{itemize}
+    \item an auditable permission-frequency warning engine whose decision can be traced to explicit rule data;
+    \item an Android demonstrator connecting simulation, evaluation, persistence, telemetry, and presentation;
+    \item a progressive validation design that separates independent logical evidence from APK integration evidence; and
+    \item an adversarial evaluation showing quantitatively why conventional accuracy must not be equated with threat-model completeness.
+\end{itemize}
+
+The negative findings are part of the contribution. They identify concrete failure modes and establish a defensible repair order instead of concealing uncovered behaviour behind a single accuracy percentage.
+
+\subsection{Final Conclusion}
+
+The study demonstrates that abstract privacy principles can inform transparent technical warnings, provided that their scope is stated precisely. The prototype consistently implements its defined aggregate-count rule and remains operational under accelerated emulator testing. At the same time, temporal bypass and malformed-input acceptance show that a correct rule can still be an incomplete security control.
+
+The final conclusion is therefore calibrated: the framework is a reproducible research prototype for explainable GDPR-oriented permission warnings, not a complete or legally determinative compliance monitor. Its strongest path forward is to retain explicit reasoning while adding a fail-closed input boundary, multiple temporal scales, trustworthy Android data provenance, and physical-device evidence.

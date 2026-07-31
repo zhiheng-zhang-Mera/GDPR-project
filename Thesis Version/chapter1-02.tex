@@ -1,0 +1,70 @@
+% ==================== Chapter 1: Introduction (Revision 02) ====================
+\newpage
+\begin{abstract}
+Mobile applications routinely access location, microphone, and contact data, yet platform permission interfaces provide limited support for interpreting whether repeated access is proportionate to a declared purpose. This thesis presents and evaluates a prototype GDPR compliance-warning application that translates permission-access counts into explainable risk findings. The implemented React Native/TypeScript prototype contains a modular compliance engine, explicit rule metadata for three sensitive permission categories, a deterministic threshold calculation, local finding persistence, a violation simulator, and an Android user interface for running and reviewing audits.
+
+Evaluation was performed at both the logical and packaged-application layers. An independent-oracle Monte Carlo test and a boundary-stratified test produced 7,000 zero-error observations for the implemented daily-count rule, with a descriptive 95\% Wilson accuracy lower bound of 99.945\%. A release-APK endurance sequence added 1,500 zero-error integration observations, completed without a captured crash or application-not-responding event, and recorded a peak proportional set size of 115.16~MB. These results validate implementation consistency within the specified rule domain.
+
+A second adversarial campaign exposed limits that conventional accuracy did not reveal. Short-term burst and cross-window split attacks each bypassed the detector in all tested scenarios; all 40,000 invalid time windows were accepted; and 83.776\% of 250,000 combined malformed inputs were silently classified as normal. The study therefore distinguishes rule correctness from threat-model completeness. It concludes that the prototype is a reproducible compliance-warning demonstrator, while production deployment requires fail-closed runtime validation, multi-scale temporal features, privileged or system-mediated Android data acquisition, physical-device endurance testing, and legal review of the warning criteria.
+\end{abstract}
+
+\section{Introduction}
+
+\subsection{Background and Motivation}
+
+The General Data Protection Regulation (GDPR) requires personal data to be processed lawfully, transparently, and in a manner limited to what is necessary for the stated purpose. On Android, runtime permission controls make access decisions visible to users, but a grant or denial does not by itself explain whether the frequency of subsequent access is proportionate. A navigation application and a calculator may both request location permission, yet identical access counts can carry very different contextual meanings. Permission frequency is therefore a useful warning signal, but it is not, on its own, a legal determination.
+
+This thesis investigates whether a small, explainable rule engine can turn structured permission-audit observations into reproducible compliance warnings. The work focuses on three sensitive categories represented in the prototype: LOCATION, MICROPHONE, and CONTACTS. For each category, the engine records a baseline, a deviation multiplier, a GDPR mapping, and a plain-language rationale. An observation becomes active when its access count strictly exceeds the calculated threshold. The approach favours transparency: every finding exposes the rule, threshold, excess count, risk level, and regulatory rationale that produced it.
+
+The research is motivated by a practical gap between platform transparency and compliance interpretation. Native privacy dashboards provide useful histories, but users must still interpret whether a pattern is excessive, whether an abnormal record is trustworthy, and whether repeated notifications deserve attention. Conversely, opaque anomaly models may produce a score without an auditable reason. A deterministic prototype provides a controlled setting in which the relationship between an observation and a warning can be examined directly.
+
+\subsection{Problem Statement}
+
+The central problem is not simply to maximise classification accuracy. It is to establish what a warning means, which inputs it trusts, and which behaviours its model can observe. Three related challenges follow.
+
+\begin{enumerate}
+    \item \textbf{Explainable operationalisation.} GDPR principles are contextual legal standards. A software prototype must not claim that a frequency threshold proves illegality. It can, however, identify a pattern that warrants review and show the rule used to reach that conclusion.
+    \item \textbf{Reliable implementation.} The same structured observation must produce the same result across random, boundary, and repeated APK execution. An external test oracle is required to avoid validating the implementation against itself.
+    \item \textbf{Adversarial completeness.} High accuracy over valid count inputs does not establish resistance to burst timing, cross-window splitting, forged timestamps, type confusion, or malformed permission identifiers. These dimensions require separate oracles and metrics.
+\end{enumerate}
+
+This distinction is especially important for a compliance tool. A false assurance can be more harmful than an explicit rejection because it may enter an audit trail as an apparently valid normal result. The framework is therefore evaluated for both incorrect classifications and unsafe acceptance.
+
+\subsection{Research Questions}
+
+The study addresses the following research questions:
+
+\begin{enumerate}
+    \item Can a modular, explainable engine implement permission-specific aggregate-count warning rules consistently across random and boundary inputs?
+    \item Does the packaged Android application preserve this correctness and remain operational during accelerated repeated execution?
+    \item Which previously unmodelled temporal and runtime-input attacks can bypass or destabilise the current prototype?
+    \item What implementation and validation work is required before the prototype can support broader operational claims?
+\end{enumerate}
+
+\subsection{Objectives and Contributions}
+
+The first objective is to produce an auditable prototype rather than an opaque classifier. The TypeScript \texttt{GDPRComplianceEngine} implements the \texttt{IComplianceEngine} interface and uses an explicit rule table. The current thresholds are calculated as the ceiling of a fixed baseline multiplied by 1.5: 36 for LOCATION, 12 for MICROPHONE, and 6 for CONTACTS. Findings retain the permission, package identifier, threshold, excess count, risk level, detection time, GDPR article mapping, and rationale.
+
+The second objective is to connect this logic to a usable Android demonstrator. The React Native application provides experiment, privacy, history, scoring, and settings views. Synthetic configurations are converted into audit observations, evaluated locally, and persisted with AsyncStorage. The repository also contains a native-bridge boundary for future Android acquisition and scheduling functions. Those optional native functions are not treated as validated production capabilities in this thesis.
+
+The third objective is methodological. The evaluation separates independent-oracle logical tests, release-APK integration tests, and adversarial tests. The contribution is not merely a large execution count, but an evidence structure that prevents a correct implementation of a narrow rule from being presented as complete attack detection.
+
+The principal contributions are:
+
+\begin{itemize}
+    \item an explainable and modular compliance-warning rule engine for three sensitive permission categories;
+    \item a locally operated Android demonstrator with reproducible simulation and finding persistence;
+    \item a progressive validation protocol combining independent random sampling, threshold-boundary stratification, APK endurance, and Android event fuzzing;
+    \item a second adversarial protocol that quantifies temporal bypass, invalid-window acceptance, runtime type confusion, permission-key mutation, and combined malformed inputs; and
+    \item an evidence-based set of priorities for fail-closed validation, temporal modelling, UI regression, and future native Android integration.
+\end{itemize}
+
+\subsection{Scope}
+
+The implemented and evaluated scope is deliberately bounded. The engine evaluates structured observations supplied by the simulator or application workflow. The study does not demonstrate unrestricted collection of other applications' permission history on a stock physical device, does not establish 24- or 72-hour WorkManager reliability, and does not measure battery drain. It also does not determine GDPR liability. The output is a warning that supports review, not a binding legal conclusion.
+
+This boundary improves rather than weakens the research claim. It permits the tested logic, APK behaviour, observed vulnerabilities, and untested production assumptions to be stated separately. The resulting account is reproducible and avoids attributing native Android capabilities to code paths that were not exercised.
+
+\subsection{Thesis Structure}
+
+Chapter 2 reviews GDPR principles, privacy-warning design, Android auditing constraints, and security-testing methods. Chapter 3 derives the requirements and presents the architecture of the implemented prototype, including explicit trust boundaries. Chapter 4 explains the TypeScript rule engine, simulator, local repository, bridge boundary, and user-interface integration. Chapter 5 reports both iterative test campaigns and their statistical interpretation. Chapter 6 discusses trade-offs, validity, legal and platform limitations, and repair priorities. Chapter 7 answers the research questions, summarises the supported contributions, and defines the work required for a production-oriented system.

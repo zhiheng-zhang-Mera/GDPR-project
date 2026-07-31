@@ -1,0 +1,112 @@
+% ==================== Chapter 3: Requirements and Architecture (Revision 04) ====================
+\newpage
+\section{System Requirements and Overall Design}
+
+\subsection{System Boundary}
+
+The system is a local compliance-warning demonstrator. Its validated input is a structured \texttt{PermissionAudit} containing a package name, one of three supported permission categories, an access count, and an audit-window start and end. Its validated output is an explainable \texttt{ComplianceFinding}. The framework does not intercept calls, block data transfer, determine legal liability, or prove that consent withdrawal has been enforced by another application.
+
+The Android application is implemented with React Native, Expo, and TypeScript. It contains an optional native-module boundary named \texttt{PrivacyInspector}, but the evaluated build does not establish unrestricted acquisition of other applications' AppOps history. Acquisition and decision are therefore separate trust domains:
+
+\begin{itemize}
+    \item the \textbf{acquisition domain} is responsible for producing authentic, well-formed observations under an Android-supported authority model;
+    \item the \textbf{decision domain} evaluates those observations using transparent rules; and
+    \item the \textbf{presentation domain} stores and displays findings without upgrading a warning into a legal conclusion.
+\end{itemize}
+
+\subsection{Functional Requirements}
+
+The implemented prototype must:
+
+\begin{enumerate}
+    \item evaluate LOCATION, MICROPHONE, and CONTACTS observations through a common engine interface;
+    \item expose the threshold, excess count, risk level, GDPR mapping, rationale, and detection time;
+    \item generate reproducible benign and violating simulation cases;
+    \item persist the latest finding for each package-permission pair locally;
+    \item identify whether a finding changed or escalated;
+    \item display experiment and privacy results in the Android application; and
+    \item permit release-build testing through adb-driven interaction and evidence capture.
+\end{enumerate}
+
+Security requirements derived from the adversarial model are stricter than the initial implementation. Permission values must belong to an explicit whitelist. Counts must be finite, non-negative integers. Window timestamps must be finite integers with a valid ordering and bounded duration. Invalid input must produce a structured rejection and an audit record. These requirements are included in the final architecture even though Chapter 5 shows that the current engine does not yet satisfy them.
+
+\subsection{Non-Functional Requirements}
+
+The principal non-functional requirements are explainability, reproducibility, local operation, and bounded resource use. A fixed seed must reproduce logical test sequences. Findings must be understandable without inspecting source code. Personal audit data should remain on the device unless the user deliberately exports it. The release application should remain responsive and below the provisional 150~MB PSS target during accelerated evaluation.
+
+Battery consumption, multi-day scheduling, and manufacturer-specific background behaviour are not accepted as satisfied requirements because they were not measured. They are validation requirements for a future native acquisition layer.
+
+\subsection{Architecture}
+
+The architecture contains five cooperating components.
+
+\begin{enumerate}
+    \item \textbf{Compliance engine.} \texttt{GDPRComplianceEngine} implements \texttt{IComplianceEngine} and evaluates one structured audit at a time.
+    \item \textbf{Rule configuration.} \texttt{GDPR\_RULES} stores the baseline, deviation multiplier, GDPR mapping, and rationale for each supported permission.
+    \item \textbf{Simulation and evaluation.} \texttt{ViolationSimulator} generates configurations and converts them to audits. Evaluation code records confusion-matrix outcomes.
+    \item \textbf{Finding repository.} \texttt{ViolationRepository} uses AsyncStorage and determines whether a finding is new, changed, or escalated.
+    \item \textbf{Application and bridge boundary.} React Native screens invoke the TypeScript services. \texttt{PrivacyBridge} optionally delegates acquisition, scheduling, and dispatch functions to a native \texttt{PrivacyInspector} module when one is present.
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+node distance=1.2cm and 1.4cm,
+box/.style={draw, rounded corners, align=center, minimum width=3.2cm, minimum height=1cm},
+arrow/.style={->, thick}
+]
+\node[box, fill=bluebox] (source) {Simulation or authorised\\audit source};
+\node[box, fill=orangebox, right=of source] (validation) {Runtime schema\\validation boundary};
+\node[box, fill=greenbox, right=of validation] (engine) {GDPRComplianceEngine\\and explicit rules};
+\node[box, fill=bluebox, below=of engine] (repo) {AsyncStorage\\finding repository};
+\node[box, fill=orangebox, left=of repo] (ui) {React Native\\views and telemetry};
+\draw[arrow] (source) -- (validation);
+\draw[arrow] (validation) -- (engine);
+\draw[arrow] (engine) -- (repo);
+\draw[arrow] (repo) -- (ui);
+\draw[arrow] (ui) |- (source);
+\end{tikzpicture}
+\caption{Prototype architecture and the required input-validation boundary}
+\label{fig:final-architecture}
+\end{figure}
+
+The validation boundary is shown explicitly because it is the highest-priority missing control identified by testing. Its architectural placement ensures that no malformed value reaches threshold lookup or arithmetic.
+
+\subsection{Decision Model}
+
+For each permission $p$, the engine calculates
+
+\begin{equation}
+T_p=\max(1,\lceil B_pM_p\rceil),
+\end{equation}
+
+where $B_p$ is the configured baseline and $M_p=1.5$. The implemented baselines are 24, 8, and 4, yielding thresholds of 36, 12, and 6. The excess and ratio are
+
+\begin{equation}
+E=\max(0,x-T_p),\qquad R=E/T_p.
+\end{equation}
+
+A finding is active when $E>0$. Active findings are mapped to MEDIUM, HIGH, or CRITICAL according to the excess ratio; inactive findings are LOW. These severity labels prioritise review and do not state the severity of a legally adjudicated GDPR violation.
+
+\subsection{Temporal Model and Known Coverage Gap}
+
+The input structure contains trigger times and window fields, but the current decision uses only the aggregate count. Consequently, uniform and burst distributions with the same count receive the same verdict, and adjacent windows do not share cumulative state. The final design therefore specifies a later temporal layer containing peak rate, minute/hour/day windows, and decaying cross-window state. This layer is a repair requirement, not an implemented result.
+
+\subsection{Validation Architecture}
+
+Validation proceeds in layers:
+
+\begin{enumerate}
+    \item deterministic checks for rule and boundary semantics;
+    \item independent-oracle Monte Carlo sampling;
+    \item release-APK workflow and repeated endurance evaluation;
+    \item adversarial temporal, window, type, and key mutation;
+    \item Android random-event testing and replay; and
+    \item future physical-device, native-source, and long-duration testing.
+\end{enumerate}
+
+Each layer has its own oracle. Classification metrics are used only when positive and negative labels are meaningful. Rejection rate, silent-normal rate, non-finite-output rate, bypass rate, process survival, memory, and frame evidence are reported for adversarial and APK stages.
+
+\subsection{Summary}
+
+The final architecture aligns claims with executable artefacts. It treats native permission acquisition as a separate, privilege-sensitive component; defines the TypeScript rule engine as the evaluated core; makes runtime validation an explicit missing security boundary; and preserves a clear path from a generated observation to an explainable stored finding.
