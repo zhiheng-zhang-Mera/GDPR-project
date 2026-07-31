@@ -39,3 +39,25 @@ export function simulationToAudit(
     foregroundCount: 0,
   };
 }
+
+export function createEvaluationConfig(
+  roundIndex: number,
+  now = Date.now(),
+  random: () => number = Math.random,
+): SimulationConfig {
+  const violation = createSimulationConfig(now, random);
+  if ((roundIndex + 1) % 5 !== 0) return violation;
+
+  const threshold = Math.ceil(
+    GDPR_RULES[violation.permissionType].baseline *
+      GDPR_RULES[violation.permissionType].deviationMultiplier,
+  );
+  const totalCalls = Math.max(1, threshold - 1);
+  return {
+    ...violation,
+    id: `${violation.id}-control`,
+    totalCalls,
+    triggerTimes: violation.triggerTimes.slice(0, totalCalls),
+    expectedViolation: false,
+  };
+}

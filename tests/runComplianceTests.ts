@@ -1,6 +1,10 @@
 import { calculateMetrics } from '../src/compliance/Evaluation';
 import { GDPRComplianceEngine } from '../src/compliance/GDPRComplianceEngine';
-import { createSimulationConfig, simulationToAudit } from '../src/compliance/ViolationSimulator';
+import {
+  createEvaluationConfig,
+  createSimulationConfig,
+  simulationToAudit,
+} from '../src/compliance/ViolationSimulator';
 
 function assert(condition: boolean, message: string) {
   if (!condition) throw new Error(message);
@@ -34,6 +38,20 @@ assert(
   simulated.isActive === config.expectedViolation,
   'Simulation ground truth and engine verdict must agree.',
 );
+
+const evaluationSamples = Array.from({ length: 50 }, (_, round) => {
+  const evaluationConfig = createEvaluationConfig(round);
+  const result = engine.evaluate(simulationToAudit(evaluationConfig));
+  return {
+    expectedViolation: evaluationConfig.expectedViolation,
+    detectedViolation: result.isActive,
+  };
+});
+const evaluationMetrics = calculateMetrics(evaluationSamples);
+assert(evaluationMetrics.truePositive === 40, '50-round evaluation must include 40 violations.');
+assert(evaluationMetrics.trueNegative === 10, '50-round evaluation must include 10 controls.');
+assert(evaluationMetrics.precision === 1, '50-round evaluation precision must be 1.');
+assert(evaluationMetrics.recall === 1, '50-round evaluation recall must be 1.');
 
 const metrics = calculateMetrics([
   { expectedViolation: true, detectedViolation: true },
