@@ -1,5 +1,6 @@
 import { calculateMetrics } from '../src/compliance/Evaluation';
 import { GDPRComplianceEngine } from '../src/compliance/GDPRComplianceEngine';
+import { filterFindings, STATUS_PRESENTATION, summarizeFindings } from '../src/compliance/DashboardModel';
 import {
   createEvaluationConfig,
   createSimulationConfig,
@@ -121,3 +122,11 @@ assert(specialCategoryGap.compliance.missingEvidence.includes('Article 9 conditi
 const invalidContext = legalEngine.evaluateSafe({ packageName: 'context.invalid', permissionType: 'LOCATION', accessCount: 1, windowStart: 1, windowEnd: 2, processingContext: { lawfulBasis: 'MADE_UP', retentionDays: -1 } });
 assert(!invalidContext.accepted && invalidContext.code === 'INVALID_CONTEXT', 'Malformed legal context must be rejected.');
 console.log('GDPR accountability and communication tests passed.');
+
+const dashboardFindings = [insufficient, documented, withdrawn];
+const dashboardSummary = summarizeFindings(dashboardFindings);
+assert(dashboardSummary.total === 3 && dashboardSummary.action === 1 && dashboardSummary.evidence === 1 && dashboardSummary.noConcern === 1, 'Dashboard summary must preserve distinct legal states.');
+assert(filterFindings(dashboardFindings, 'ACTION')[0] === withdrawn, 'Action filter must surface likely conflicts.');
+assert(filterFindings(dashboardFindings, 'EVIDENCE')[0] === insufficient, 'Evidence filter must surface missing context.');
+assert(STATUS_PRESENTATION.REVIEW_REQUIRED.label.length > 0, 'Every state requires a non-colour label.');
+console.log('Dashboard presentation and accessibility-state tests passed.');

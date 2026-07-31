@@ -1,0 +1,12 @@
+% Chapter 5 Revision 05
+\input{chapter5-04}
+\subsection{Integrated Cross-Model Functional and Performance Results}
+
+All deterministic compliance, adversarial-boundary, temporal, accountability, communication and dashboard-presentation tests passed. On both Pixel 4 and Pixel 7 profiles, the 50-round controlled evaluation produced 40 true positives, 10 true negatives, zero false positives and zero false negatives. The rendered dashboard reported three permission findings, two action-required findings and no evidence-incomplete findings because the controlled processing context was supplied.
+
+Pixel 4 cold start was 2,432~ms and initial PSS was 116,284~KB. After the evaluated flow and stress activity, PSS was 146,148~KB, an increase of 29,864~KB (25.68\%). For the 56-frame evaluated window, 13 frames were janky (23.21\%); p50, p90, p95 and p99 were 32, 81, 117 and 600~ms. A Google Play service crash interrupted the intended 5,000-event Monkey run near event 3,000, but the application process remained alive.
+
+Pixel 7 cold start was 4,396~ms and initial PSS was 118,072~KB. All 2,000 seeded events were injected without an application-process crash. Post-stress PSS was 136,122~KB, an increase of 18,050~KB (15.29\%). Of 955 rendered frames, 600 were janky (62.83\%); p50, p90, p95 and p99 were 34, 77, 97 and 150~ms. Thus functional correctness and cross-model layout survival were supported, but rendering smoothness was not. The result argues for dedicated trace-based optimisation rather than a claim that the HCI redesign solved performance.
+
+The two frame samples differ in duration and system stability, so no inferential comparison is made. The 100\% controlled classification score validates consistency with synthetic ground truth only; it does not establish real-world prevalence, legal validity or external generalisation.
+

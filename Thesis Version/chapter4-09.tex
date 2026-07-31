@@ -1,0 +1,10 @@
+% Chapter 4 Revision 09
+\input{chapter4-08}
+\subsection{Integrated Accountability Dashboard}
+
+The Privacy destination is now a first-class navigation item. Its presentation model deterministically summarises findings and filters action-required and evidence-incomplete cases without merging their legal meanings. Four non-colour labels are retained: \texttt{LIKELY\_NON\_COMPLIANT}, \texttt{REVIEW\_REQUIRED}, \texttt{INSUFFICIENT\_EVIDENCE}, and \texttt{NO\_TECHNICAL\_CONCERN}. The last phrase deliberately avoids the stronger and unsupported label ``compliant''.
+
+Each card first shows permission, package, status, plain-language summary and next action. Expansion reveals daily, burst and rolling evidence, triggered signals, GDPR references, missing evidence and the legal caveat. Memoised cards, stable list keys, bounded rendering windows and smaller batches reduce avoidable React Native work. The experiment dashboard retains its historical task structure but reduces distractors from nine to five, raises its intervention control to 48~dp, enlarges labels and removes some elevation cost.
+
+The interface implements Android's accessible target recommendation and WCAG's non-colour communication principle \cite{androidaccess,wcag22}. It also avoids overstating platform visibility: the former ``no Root or VPN'' claim is replaced by a disclosure that evidence availability depends on deployment authority and Android access.
+

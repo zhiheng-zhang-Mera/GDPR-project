@@ -1,0 +1,8 @@
+% Chapter 3 Revision 06
+\input{chapter3-05}
+\subsection{Integrated Evaluation Protocol}
+
+The final protocol follows the implementation order used in practice: deterministic logic tests precede release assembly; UIAutomator-derived interactions then validate the complete dashboard; finally, seeded stress inputs measure survival, memory and frame timing on distinct device profiles. The functional ground truth contains 40 violations and 10 controls per run. UI inspection checks that technical risk, legal status, evidence gaps and recommended action remain separately visible.
+
+Two Android 15/API 35 profiles were used: Pixel 4 at 1080x2280 and Pixel 7 at 1080x2400/420~dpi. Cold start was measured with \texttt{am start -W}; memory with \texttt{dumpsys meminfo}; and frames with \texttt{dumpsys gfxinfo}. This is an engineering validation across models, not a statistically representative device sample. The inaccessible API 36 image and an unrelated Google Play service crash are reported as environment limitations rather than silently excluded.
+

@@ -98,7 +98,9 @@ export function DynamicDashboard({ taskId, onInteraction }: Props) {
                 break;
         }
 
-        const shuffledPool = [...DISTRACTOR_POOL].sort(() => 0.5 - Math.random()).slice(0, 9);
+        // Five distractors retain experimental interference without overwhelming
+        // smaller screens or imposing an avoidable visual-search penalty.
+        const shuffledPool = [...DISTRACTOR_POOL].sort(() => 0.5 - Math.random()).slice(0, 5);
         const distractors: FlowData[] = shuffledPool.map((d, index) => ({
             id: `noise_${index}`,
             source: d.source,
@@ -374,9 +376,9 @@ const styles = StyleSheet.create({
     // 【修改点】整体管道容器设为 flex-start 对齐，间距调小
     pipelineContainer: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 },
     // 【修改点】节点固定高度 65px，使得中心点严格位于 Y轴 32.5px 处
-    nodeBox: { width: '28%', height: 65, backgroundColor: '#F5F5F5', padding: 5, borderRadius: 8, borderWidth: 1, borderColor: '#E0E0E0', alignItems: 'center', justifyContent: 'center', elevation: 1 },
+    nodeBox: { width: '28%', minHeight: 76, backgroundColor: '#F5F5F5', padding: 8, borderRadius: 8, borderWidth: 1, borderColor: '#B8C2CC', alignItems: 'center', justifyContent: 'center' },
     nodeDeactivated: { opacity: 0.4 },
-    nodeText: { fontSize: 10, fontWeight: 'bold', color: '#333', textAlign: 'center', lineHeight: 14 },
+    nodeText: { fontSize: 12, fontWeight: 'bold', color: '#24292F', textAlign: 'center', lineHeight: 16 },
 
     flowPath: { flex: 1, alignItems: 'center', paddingHorizontal: 5 },
     // 【修改点】管道中心线绝对定位于顶部 32px 处，精准穿透节点中心
@@ -385,11 +387,11 @@ const styles = StyleSheet.create({
     // 【修改点】柔性列容器：包裹 PEA 按钮和下方文本。
     // marginTop: 14 的作用是让高度为 36 的按钮（18半径）恰好落在 Y轴 32 处 (14+18=32)
     peaWrapper: { alignItems: 'center', zIndex: 1, marginTop: 14 },
-    interceptorBtn: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#fff', elevation: 3 },
-    interceptorText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+    interceptorBtn: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#fff', elevation: 2 },
+    interceptorText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
 
     // 【修改点】废弃所有绝对定位，设置 marginTop 保证始终紧贴按钮正下方
-    statusText: { fontSize: 9, fontWeight: 'bold', textAlign: 'center', lineHeight: 12, marginTop: 6, width: 85 },
+    statusText: { fontSize: 11, fontWeight: 'bold', textAlign: 'center', lineHeight: 15, marginTop: 6, width: 92 },
 
     latencyBox: { marginTop: 15, backgroundColor: '#E8F5E9', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#A5D6A7' },
     latencyText: { color: '#2E7D32', fontSize: 11, fontWeight: 'bold', textAlign: 'center' }

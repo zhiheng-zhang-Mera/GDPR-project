@@ -26,6 +26,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="privacy"
+        options={{
+          title: 'Privacy',
+          tabBarAccessibilityLabel: 'Privacy accountability dashboard',
+          tabBarIcon: ({ color }) => <Ionicons name="shield-checkmark" size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
