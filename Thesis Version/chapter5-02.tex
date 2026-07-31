@@ -1,0 +1,165 @@
+% ==================== Chapter 5: Testing and Evaluation (Revision 02) ====================
+\newpage
+\section{System Testing, Evaluation and Validation}
+
+This chapter evaluates the implemented Android permission-auditing framework at three distinct levels: correctness of the defined threshold rule, stability of the packaged Android application, and robustness against inputs and attack strategies that lie outside the original rule model. This separation is important. A classifier can reproduce its specified rule without error while still failing to recognise a realistic adversarial strategy that the rule does not represent. Consequently, the evaluation does not use a single headline accuracy value to describe the entire system. Instead, each experimental round is reported according to its own sampling process, oracle, and threat assumption.
+
+The experiments were organised as two iterative campaigns. The first campaign established a release-build baseline, enlarged the logical sample, concentrated samples around decision boundaries, and repeated the complete in-application workflow under sustained load. The second campaign did not repeat those conventional classification tests. It targeted previously uncovered dimensions: burst timing, cross-window accumulation, forged audit windows, runtime type confusion, permission-key mutation, compound malformed inputs, and random user-interface events. The resulting evidence therefore supports both a positive conclusion about the implemented daily-count rule and a more cautious conclusion about the security boundary surrounding that rule.
+
+\subsection{Experimental Environment and Evidence Model}
+
+The application was built as a compressed release APK with Hermes, R8, and resource shrinking enabled. The package under test was \texttt{com.anonymous.mymobileapp}, version 1.0.0. Device-level tests were conducted on \texttt{emulator-5554}, an x86\_64 Android emulator running Android 16 (API level 36) at a resolution of $320 \times 640$. The release APK was 28.68~MB, compared with 81.42~MB for the debug APK, representing a 64.8\% reduction. Fixed random seeds were used for the reproducible logical campaigns: \texttt{0x7f31c0de} for the first campaign and \texttt{0x731c02a1} for the second.
+
+Three forms of evidence were collected:
+
+\begin{enumerate}
+    \item \textbf{Independent logical evidence.} Test vectors were generated outside the application simulator and labelled by a separate oracle. This reduces circular validation in which the system under test and the expected result are derived from the same helper function.
+    \item \textbf{APK integration evidence.} The release application was installed and exercised through its user interface. Process survival, Android Runtime exceptions, application-not-responding events, memory use, frame timing, and the rendered audit result were observed.
+    \item \textbf{Adversarial evidence.} Inputs were deliberately constructed to violate assumptions concerning time, numeric types, and permission identifiers. These tests measure rejection, silent acceptance, and attack bypass rather than ordinary classification accuracy.
+\end{enumerate}
+
+For a conventional binary decision, precision, recall, and $F_1$ are calculated as
+
+\begin{equation}
+P=\frac{TP}{TP+FP}, \qquad
+R=\frac{TP}{TP+FN}, \qquad
+F_1=\frac{2PR}{P+R}.
+\end{equation}
+
+Zero observed errors do not prove a zero population error rate. Therefore, each zero-error classification round also reports the lower endpoint of the 95\% Wilson interval for accuracy. For $N$ error-free observations, the ``rule of three'' gives an approximate 95\% upper bound of $3/N$ for the unobserved error probability. Samples produced by different generators or executed at different system layers are not assumed to be identically distributed. Their counts are consequently shown separately and are not pooled into one artificial confidence interval.
+
+\subsection{First Iteration: Progressive Correctness and Stability Testing}
+
+\subsubsection{Release APK Baseline}
+
+The first round exercised 50 structured cases through the release application. Forty cases were expected to produce an active compliance warning and ten were normal controls. The result was $TP=40$, $FP=0$, $TN=10$, and $FN=0$, giving 100\% precision, recall, and $F_1$. The APK cold-start \texttt{TotalTime} was 948~ms. Three post-audit proportional set size (PSS) observations were 87.99, 87.92, and 87.93~MB.
+
+This round verifies that the packaged build can be installed, launched, driven through the simulation and audit workflow, and can render the expected result. However, the 95\% Wilson lower bound for accuracy is only 92.865\% at $N=50$, while the rule-of-three upper bound for an unobserved error is approximately 6\%. The round is therefore treated as a functional baseline rather than strong statistical evidence.
+
+\subsubsection{Independent-Oracle Monte Carlo Test}
+
+The second round generated 1,000 cases covering LOCATION, MICROPHONE, and CONTACTS permissions with access counts between 0 and 100. Ground truth was calculated by an independent oracle and did not invoke the application's \texttt{expectedViolation} helper. The resulting confusion matrix was $TP=930$, $FP=0$, $TN=70$, and $FN=0$. Precision, recall, $F_1$, and descriptive accuracy were all 100\%. The 95\% Wilson accuracy interval was $[99.617\%,100\%]$, and the rule-of-three upper bound on the true error probability was 0.3\%.
+
+The main contribution of this round is not a change in the point estimate, but a change in evidence quality. The sample was twenty times larger than the APK baseline and the oracle was separated from the implementation. The result supports a strong claim of implementation consistency for the rule that was actually specified: a warning is activated when the total access count strictly exceeds the permission-specific threshold.
+
+\subsubsection{Boundary-Stratified Adversarial Test}
+
+Random sampling may under-represent the values closest to a decision boundary. The third round therefore sampled five positions around each permission threshold: $-2$, $-1$, $0$, $+1$, and $+2$. Each position was repeated 400 times, producing 6,000 cases. The result was $TP=2,400$, $FP=0$, $TN=3,600$, and $FN=0$. The 95\% Wilson lower bound reached 99.936\%, with a rule-of-three error upper bound of 0.05\%.
+
+These results show that the implementation does not contain an observable off-by-one defect. A count equal to the threshold remains compliant, whereas a count strictly greater than the threshold activates a warning. Combining only the two independent logical rounds gives 7,000 zero-error observations and a descriptive Wilson lower bound of 99.945\%. This combined figure is useful because both rounds used an external oracle, although their deliberately different sampling distributions must still be acknowledged.
+
+\begin{table}[H]
+\centering
+\caption{First-iteration classification results reported by experimental round}
+\label{tab:ch5-first-iteration}
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Round} & \textbf{$N$} & \textbf{TP} & \textbf{FP} & \textbf{TN} & \textbf{FN} & \textbf{Wilson lower} \\
+\midrule
+Release APK baseline & 50 & 40 & 0 & 10 & 0 & 92.865\% \\
+Independent Monte Carlo & 1,000 & 930 & 0 & 70 & 0 & 99.617\% \\
+Boundary stratification & 6,000 & 2,400 & 0 & 3,600 & 0 & 99.936\% \\
+APK endurance regression & 1,500 & 1,200 & 0 & 300 & 0 & 99.746\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{APK Endurance Regression and Resource Observations}
+
+The fourth round returned to the release APK and executed 30 consecutive batches of 50 cases, for 1,500 integration observations. The aggregate confusion matrix was $TP=1,200$, $FP=0$, $TN=300$, and $FN=0$. The sequence completed in 19.17~s without a captured crash, ANR, or React Native JavaScript exception. Its 95\% Wilson accuracy lower bound was 99.746\%, and the rule-of-three error upper bound was approximately 0.2\%.
+
+PSS was sampled after batches 5, 10, 15, 20, 25, and 30. The observations were 115.16, 99.63, 92.97, 102.09, 99.32, and 112.50~MB, giving a mean of 103.61~MB and a peak of 115.16~MB. The values remained below the design target of 150~MB and did not exhibit monotonic growth during this short accelerated run. This is evidence against an immediate accumulation defect, but it is not equivalent to a long-duration leak analysis.
+
+Android frame statistics recorded 630 rendered frames, of which 66 were classified as janky, giving a jank proportion of 10.48\%. Frame-time percentiles were 21, 31, 34, and 46~ms at P50, P90, P95, and P99 respectively, with 16 missed-vsync events. The workload invoked an audit approximately every 500~ms and was therefore substantially more intensive than an expected daily audit. These figures characterise the accelerated stress condition and should not be interpreted as a normal-use responsiveness benchmark.
+
+\subsubsection{Interpretation of the First Iteration}
+
+The four rounds form an evidence progression. The APK baseline established operability; the independent Monte Carlo round reduced oracle dependence and sampling uncertainty; the boundary round concentrated evidence at the points most likely to expose comparison errors; and the endurance round showed that the same release package remained correct under repeated execution. Across these rounds, 8,550 classification observations were recorded without a false positive or false negative. This total describes coverage scale only. It is not used as one identically distributed sample.
+
+The appropriate positive conclusion is narrow but strong: for the three implemented permission categories, the application consistently implements its daily aggregate threshold rule, including the exact boundary condition. The result does not establish that this rule covers every privacy attack. Exploratory tests in the first campaign already showed that changing the temporal distribution while preserving the total count did not change the verdict, and that malformed time windows were accepted. These observations motivated the distinct adversarial campaign below.
+
+\subsection{Second Iteration: Adversarial Testing of Previously Uncovered Directions}
+
+\subsubsection{Temporal Evasion}
+
+The burst experiment generated 30,000 samples whose total counts remained at or below the relevant daily threshold but whose accesses were compressed into short periods. Of these, 5,741 completed within one second, 20,211 within one to ten seconds, and 4,048 within ten to sixty seconds. None activated a warning. Against an external burst-risk oracle, detection recall was 0\% and attack success was 100\%.
+
+A complementary split-window experiment constructed 10,000 scenarios containing between two and six adjacent audit windows. It executed 89,298 window decisions, while keeping each individual window at or below its threshold. All scenarios bypassed detection, including scenarios whose cumulative count reached 568. The result demonstrates two related omissions: the decision model has no short-term peak-rate feature and preserves no cumulative risk state across windows. Increasing or decreasing a single daily threshold cannot address both forms of evasion.
+
+\subsubsection{Forged Window Semantics}
+
+The next stage submitted 40,000 invalid windows, including reversed intervals, negative timestamps, zero-length intervals, far-future intervals, fractional timestamps, non-finite values, and values near the JavaScript safe-integer boundary. No window was rejected. Of the accepted inputs, 20,000 produced a warning and 20,000 produced a normal result solely according to their access count.
+
+This 0\% rejection rate shows that \texttt{windowStart} and \texttt{windowEnd} currently accompany the result but do not establish a trusted audit interval. Data corruption in storage, deserialisation, or a native bridge could therefore alter the meaning of the audit record without being rejected by the engine. A secure boundary must require finite integer timestamps, enforce $\texttt{windowStart}<\texttt{windowEnd}$, and constrain both interval length and future offset.
+
+\subsubsection{Runtime Type and Permission-Key Mutation}
+
+Static TypeScript declarations do not constrain values after JSON parsing, database retrieval, or native bridging. A 100,000-execution count-fuzzing stage therefore supplied negative numbers, non-finite numbers, fractions, strings, booleans, arrays, objects, custom coercion objects, and other JavaScript values. Only 5\% were rejected by an exception; 65\% were silently classified as normal, 30\% were active, and 25\% produced a non-finite threshold or violation count.
+
+Permission-key mutation covered unknown names, case and whitespace changes, Unicode confusables, null bytes, nullish values, and inherited object-property names such as \texttt{\_\_proto\_\_}, \texttt{constructor}, and \texttt{toString}. Among 50,000 executions, 91.666\% ended in a \texttt{TypeError}, while 8.334\% were silently classified as normal and produced a non-finite value. The mixture of exceptions and silent acceptance indicates the absence of a uniform fail-closed policy. It also shows why a plain JavaScript object is an unsafe rule lookup unless ownership is checked explicitly.
+
+\subsubsection{Compound Inputs and Computational Flood}
+
+The combined stage varied permission keys, counts, and window semantics simultaneously for 250,000 executions. Only 28,572 inputs (11.429\%) were rejected. A further 209,441 (83.776\%) were silently classified as normal, 11,987 (4.795\%) were active, and 65,585 (26.234\%) generated a non-finite intermediate or output value. Categories may overlap; in particular, a silently normal result may also contain a non-finite field.
+
+The dominant security concern is silent normalisation rather than visible failure. An exception is operationally undesirable but observable. By contrast, a malformed input that produces an apparently normal compliance verdict can enter downstream reporting without an obvious indication that its semantics are invalid.
+
+Finally, 5,000,000 mixed evaluations completed in 215.10~ms in the Node.js logical harness, corresponding to approximately 23.25 million evaluations per second. No process exception occurred and the measured heap delta was negative after garbage collection. This result shows that the pure decision function is computationally inexpensive. It does not measure Android bridge, storage, scheduling, or rendering costs, and it does not establish input safety.
+
+\begin{table}[H]
+\centering
+\caption{Second-iteration adversarial results}
+\label{tab:ch5-second-iteration}
+\small
+\begin{tabular}{p{3.0cm}rrp{5.8cm}}
+\toprule
+\textbf{Attack dimension} & \textbf{Samples} & \textbf{Primary result} & \textbf{Interpretation} \\
+\midrule
+Short-term burst & 30,000 & 100\% bypass & Peak access rate is not modelled. \\
+Cross-window split & 10,000 scenarios & 100\% bypass & Risk state is not accumulated across windows. \\
+Invalid windows & 40,000 & 0\% rejected & Window fields do not constrain the verdict. \\
+Count type fuzzing & 100,000 & 65\% silent normal & Runtime numeric validation is incomplete. \\
+Permission-key fuzzing & 50,000 & 91.666\% exception & Unknown and inherited keys lack a safe failure policy. \\
+Combined malformed input & 250,000 & 83.776\% silent normal & Weak validation dimensions compound into misleading output. \\
+Logical flood & 5,000,000 & 23.25 M/s & Computation is inexpensive, but throughput is not safety. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Release APK Random-Event Testing}
+
+The release APK was also subjected to progressively stronger Android Monkey input. An initial unrestricted 10,000-event run encountered a main-thread
+\texttt{IllegalStateException} at event 831:
+
+\begin{quote}
+\texttt{focus search returned a view that wasn't able to take focus!}
+\end{quote}
+
+The stack path involved Android \texttt{TextView} key dispatch and a React Native \texttt{TextInput}. The same run later encountered an emulator permission restriction for a flip input event. After force-stopping and cold-starting the application, a 2,000-event replay with the same seed did not reproduce the focus exception. The incident is therefore classified as a non-deterministic focus-state crash candidate, not as a confirmed deterministic defect.
+
+To remove unsupported flip events while increasing pressure, subsequent runs used an equal distribution of touch and motion events. A 10,000-event sequence completed in 25.80~s without crash or ANR and ended at 82.25~MB PSS. A 50,000-event sequence completed in 35.27~s without crash or ANR; three PSS readings were 86.37, 92.77, and 92.76~MB, with a mean of 90.63~MB.
+
+The corresponding frame samples were too small for a representative performance conclusion: 43 frames were observed during the 10,000-event run and 11 during the 50,000-event run. Many random coordinates landed outside interactive regions. These measurements therefore support process-survival evidence only. A future regression should record the exact page, focus transition, keyboard state, and key sequence that precede the exception and then collect a Perfetto trace on a deterministic interaction path.
+
+\subsection{Cross-Iteration Interpretation}
+
+The two campaigns answer different questions and should not be collapsed into one score. The first campaign asks whether the implementation accurately reproduces the specified daily-count rule. Its answer is positive: 7,000 independent-oracle logical observations and 1,550 APK-level observations contained no classification error, and the boundary test found no off-by-one behaviour. The second campaign asks whether that rule and its runtime boundary resist previously unmodelled attacks. Its answer is negative for several important dimensions.
+
+The apparent contrast between 100\% conventional classification performance and 100\% temporal bypass is not contradictory. The former is measured within the implemented decision domain; the latter changes the ground-truth definition to include temporal concentration and cumulative behaviour. This distinction demonstrates why compliance-warning accuracy must be reported together with attack-surface coverage. High agreement with a limited rule is not evidence that the rule is complete.
+
+The adversarial results also establish an implementation priority. Runtime schema validation is the immediate P0 requirement. Permission identifiers should be checked against an explicit whitelist, and rule retrieval should use a \texttt{Map}, a null-prototype object, or \texttt{Object.hasOwn}. Counts must be finite, non-negative integers. Windows must contain finite integer timestamps with a valid ordering and bounded duration. Invalid inputs should return a structured, auditable rejection rather than an exception or a normal verdict. Once this boundary is fail-closed, P1 work should introduce minute-, hour-, and day-scale windows, peak-rate features, and cross-window cumulative state. The non-deterministic focus crash should be converted into a reproducible UI regression alongside these logic changes.
+
+\subsection{Threats to Validity}
+
+Several limitations constrain the generality of the findings. First, the device-level evidence was obtained from one Android 16 x86\_64 emulator. It does not establish compatibility across Android releases, hardware vendors, ARM devices, screen sizes, or manufacturer-specific background restrictions. Second, the accelerated APK sequences lasted seconds rather than 24 or 72 hours. They cannot validate Doze behaviour, WorkManager scheduling, vendor log retention, battery consumption, or long-term leakage. Third, no real malicious APK generated permission accesses through Android's production audit sources during these campaigns; application-level cases were structured simulations.
+
+Fourth, logical flood timing was measured in a Node.js harness and excludes React Native bridging, AppOpsManager access, database work, background scheduling, and UI rendering. Fifth, repeated fuzz values are useful deterministic stress observations but are not necessarily independent random samples; percentages in those stages describe the exercised corpus rather than population confidence intervals. Finally, the Monkey frame counts are not representative interaction samples. These limitations do not invalidate the observed correctness or vulnerabilities, but they restrict claims to the tested build, environment, and attack definitions.
+
+\subsection{Chapter Summary}
+
+The evaluation provides a two-sided result. Within its specified domain, the framework implements the three-permission daily threshold rule accurately and remains stable during accelerated release-APK regression. The strongest independent logical evidence comprises 7,000 zero-error observations with a descriptive 95\% Wilson accuracy lower bound of 99.945\%. The APK endurance run added 1,500 zero-error observations, no captured crash or ANR, and a peak PSS of 115.16~MB.
+
+The more aggressive campaign demonstrates that correctness within this domain must not be mistaken for adversarial robustness. Short-term burst and cross-window split strategies each achieved a 100\% bypass rate; all 40,000 invalid windows were accepted; and 83.776\% of combined malformed inputs were silently classified as normal. The release APK survived 60,000 controlled touch and motion events, while one non-reproducible focus-state exception remains a regression candidate.
+
+Accordingly, the present prototype is validated as a consistent implementation of a limited aggregate-count detector, not as a complete detector of Android permission misuse. The experimental evidence supports two concrete next steps: establish a fail-closed runtime input boundary and extend the risk model from a single daily total to multiple temporal scales with cumulative state. Physical-device, long-duration, cross-version, and real malicious-application experiments remain necessary before broader operational claims can be made.
