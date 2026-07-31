@@ -1,0 +1,81 @@
+﻿{
+  "reportVersion": 2,
+  "generatedAt": "2026-07-31T04:35:42.540Z",
+  "seed": "0x731c02a1",
+  "scope": "Only previously uncovered attack directions: temporal evasion, window forgery, runtime type confusion, prototype/permission-key mutation, and combined flood.",
+  "stages": {
+    "burst": {
+      "samples": 30000,
+      "detected": 0,
+      "bypassed": 30000,
+      "threw": 0,
+      "durationBuckets": {
+        "0-1s": 5741,
+        "1-10s": 20211,
+        "10-60s": 4048
+      },
+      "recallAgainstBurstOracle": 0,
+      "attackSuccessRate": 1
+    },
+    "splitWindow": {
+      "scenarios": 10000,
+      "windowsEvaluated": 89298,
+      "scenariosFullyBypassed": 10000,
+      "scenariosPartiallyDetected": 0,
+      "maxCumulativeCalls": 568,
+      "attackSuccessRate": 1
+    },
+    "invalidWindows": {
+      "samples": 40000,
+      "rejected": 0,
+      "accepted": 40000,
+      "acceptedAndAlerted": 20000,
+      "acceptedWithoutAlert": 20000,
+      "rejectionRate": 0,
+      "semanticAcceptanceRate": 1
+    },
+    "countFuzz": {
+      "samples": 100000,
+      "rejected": 5000,
+      "silentNormal": 65000,
+      "active": 30000,
+      "nonFiniteOutput": 25000,
+      "errorClasses": {
+        "TypeError": 5000
+      },
+      "rejectionRate": 0.05,
+      "silentNormalRate": 0.65
+    },
+    "permissionFuzz": {
+      "samples": 50000,
+      "rejected": 45833,
+      "silentNormal": 4167,
+      "active": 0,
+      "nonFiniteOutput": 4167,
+      "errorClasses": {
+        "TypeError": 45833
+      },
+      "rejectionRate": 0.91666,
+      "silentNormalRate": 0.08334
+    },
+    "combined": {
+      "samples": 250000,
+      "rejected": 28572,
+      "silentNormal": 209441,
+      "active": 11987,
+      "nonFiniteOutput": 65585,
+      "rejectionRate": 0.114288,
+      "silentNormalRate": 0.837764
+    },
+    "flood": {
+      "evaluations": 5000000,
+      "rejected": 0,
+      "silentNormal": 664399,
+      "active": 4335601,
+      "elapsedMs": 215.09569999999985,
+      "evaluationsPerSecond": 23245467.017704226,
+      "heapDeltaBytes": -1636408
+    }
+  }
+}
+

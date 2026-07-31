@@ -1,0 +1,154 @@
+﻿{
+  "generatedAt": "2026-07-31T04:12:11.985Z",
+  "seed": "0x7f31c0de",
+  "round2": {
+    "name": "Independent-oracle Monte Carlo",
+    "samples": 1000,
+    "metrics": {
+      "tp": 930,
+      "fp": 0,
+      "tn": 70,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "accuracy": 1
+    },
+    "accuracyWilson95": [
+      0.996173241514445,
+      1
+    ],
+    "zeroErrorUpper95RuleOfThree": 0.003
+  },
+  "round3": {
+    "name": "Boundary-stratified adversarial test",
+    "samples": 6000,
+    "metrics": {
+      "tp": 2400,
+      "fp": 0,
+      "tn": 3600,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "accuracy": 1
+    },
+    "accuracyWilson95": [
+      0.9993601665122168,
+      0.9999999999999999
+    ],
+    "zeroErrorUpper95RuleOfThree": 0.0005
+  },
+  "combinedClassification": {
+    "samples": 7000,
+    "metrics": {
+      "tp": 3330,
+      "fp": 0,
+      "tn": 3670,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1,
+      "accuracy": 1
+    },
+    "accuracyWilson95": [
+      0.9994515211625962,
+      0.9999999999999999
+    ],
+    "zeroErrorUpper95RuleOfThree": 0.00042857142857142855
+  },
+  "uncoveredAttackDirections": {
+    "temporalDistribution": {
+      "samples": 3000,
+      "invariantVerdicts": 3000,
+      "interpretation": "The engine verdict is based on aggregate count only and cannot distinguish burst from uniform timing."
+    },
+    "windowTampering": [
+      {
+        "name": "reversed-window",
+        "start": 86400000,
+        "end": 0,
+        "accepted": true,
+        "verdict": true
+      },
+      {
+        "name": "negative-window",
+        "start": -86400000,
+        "end": -1,
+        "accepted": true,
+        "verdict": true
+      },
+      {
+        "name": "zero-window",
+        "start": 0,
+        "end": 0,
+        "accepted": true,
+        "verdict": true
+      },
+      {
+        "name": "far-future-window",
+        "start": 4102444800000,
+        "end": 4102531200000,
+        "accepted": true,
+        "verdict": true
+      }
+    ],
+    "malformedInputs": [
+      {
+        "name": "negative-count",
+        "threw": false,
+        "isActive": false,
+        "threshold": 36,
+        "violationCount": 0
+      },
+      {
+        "name": "fractional-count",
+        "threw": false,
+        "isActive": true,
+        "threshold": 36,
+        "violationCount": 0.5
+      },
+      {
+        "name": "nan-count",
+        "threw": false,
+        "isActive": false,
+        "threshold": 36,
+        "violationCount": "NaN"
+      },
+      {
+        "name": "positive-infinity",
+        "threw": false,
+        "isActive": true,
+        "threshold": 36,
+        "violationCount": "Infinity"
+      },
+      {
+        "name": "numeric-string",
+        "threw": false,
+        "isActive": true,
+        "threshold": 36,
+        "violationCount": 1
+      },
+      {
+        "name": "unknown-permission",
+        "threw": true,
+        "error": "Cannot read properties of undefined (reading 'baseline')"
+      },
+      {
+        "name": "prototype-key",
+        "threw": false,
+        "isActive": false,
+        "threshold": "NaN",
+        "violationCount": "NaN"
+      }
+    ]
+  },
+  "flood": {
+    "evaluations": 1000000,
+    "elapsedMs": 47.318400000000004,
+    "evaluationsPerSecond": 21133428.011090823,
+    "heapDeltaBytes": 942920,
+    "detectedViolations": 936863
+  }
+}
+
