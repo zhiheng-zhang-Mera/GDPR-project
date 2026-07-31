@@ -35,6 +35,8 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+.compliance-test-build/
+.gradle-user-home/
 
 app-example
 

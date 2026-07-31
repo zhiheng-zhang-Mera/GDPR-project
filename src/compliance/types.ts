@@ -9,7 +9,30 @@ export interface PermissionAudit {
   windowEnd: number;
   foregroundCount?: number;
   backgroundCount?: number;
+  accessTimestamps?: number[];
+  source?: 'SIMULATOR' | 'NATIVE_BRIDGE' | 'IMPORTED';
 }
+
+export type ComplianceErrorCode =
+  | 'INVALID_PACKAGE'
+  | 'UNSUPPORTED_PERMISSION'
+  | 'INVALID_COUNT'
+  | 'INVALID_WINDOW'
+  | 'INVALID_TIMESTAMPS';
+
+export interface ComplianceRejection {
+  accepted: false;
+  code: ComplianceErrorCode;
+  message: string;
+  rejectedAt: number;
+}
+
+export interface ComplianceAcceptance {
+  accepted: true;
+  finding: ComplianceFinding;
+}
+
+export type ComplianceEvaluation = ComplianceAcceptance | ComplianceRejection;
 
 export interface ComplianceRule {
   permissionType: SensitivePermission;
@@ -30,6 +53,13 @@ export interface ComplianceFinding {
   gdprArticle: string;
   rationale: string;
   detectedAt: number;
+  signals: ('DAILY_TOTAL' | 'BURST_RATE' | 'CROSS_WINDOW')[];
+  evidence: {
+    dailyCount: number;
+    peakCallsPerMinute: number;
+    rollingCount: number;
+    source: NonNullable<PermissionAudit['source']>;
+  };
 }
 
 export interface SimulationConfig {

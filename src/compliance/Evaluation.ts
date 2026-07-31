@@ -1,7 +1,7 @@
 import { EvaluationMetrics } from './types';
 
 export function calculateMetrics(
-  samples: Array<{ expectedViolation: boolean; detectedViolation: boolean }>,
+  samples: { expectedViolation: boolean; detectedViolation: boolean }[],
 ): EvaluationMetrics {
   let truePositive = 0;
   let falsePositive = 0;

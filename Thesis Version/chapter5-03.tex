@@ -1,0 +1,30 @@
+% Chapter 5 Revision 03
+\input{chapter5-02}
+\subsection{Post-Repair Regression Evaluation}
+The P0 input-boundary controls and initial P1 temporal model were retested after implementation. The original compliance suite continued to pass, including its 50-round baseline. Five malformed classes---unknown permission, \texttt{NaN}, negative count, reversed window, and \texttt{\_\_proto\_\_}---each returned the expected structured rejection rather than an exception, non-finite result, or silent normal verdict.
+
+A 20-call LOCATION trace concentrated into approximately two seconds remained below the daily threshold of 36 but activated \texttt{BURST\_RATE}. Two imported windows containing 20 calls each left the first normal and activated \texttt{CROSS\_WINDOW} on the second. Boundary offsets $-2$ through $+2$ for all three permissions preserved the strict greater-than rule.
+
+\begin{table}[H]
+\centering
+\caption{Post-repair acceptance checks}
+\label{tab:post-repair-checks}
+\begin{tabular}{lll}
+\toprule
+\textbf{Class} & \textbf{Expected} & \textbf{Result} \\
+\midrule
+Malformed values & Structured rejection & Passed \\
+Prototype-chain key & Unsupported permission & Passed \\
+Sub-threshold burst & \texttt{BURST\_RATE} & Passed \\
+Split windows & \texttt{CROSS\_WINDOW} & Passed \\
+Threshold $-2$ to $+2$ & Strict boundary & Passed \\
+Original regression & 40 TP, 10 TN & Passed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These are targeted repair results, not evidence of complete robustness. Large independent adversarial resampling, durable rolling state, threshold calibration, authorised native-source integration, and multi-day physical-device evaluation remain necessary. A Pixel 4 API 35 emulator profile was created for this iteration so device testing does not reuse the preceding Pixel 7 model.
+
+The enhanced x86\_64 Release APK was then installed on the D-drive \texttt{GDPR\_Pixel\_4\_API\_35\_D} profile (API 35, $1080 \times 2280$). Cold launch completed with \texttt{TotalTime}=2,912~ms and an initial PSS of 106,812~KB. A controlled 10,000-event Monkey sequence (50\% touch, 50\% motion, 5~ms throttle, seed 73102) injected all events in 46.651~s without a crash-buffer entry. Immediate post-stress PSS was 170,470~KB (approximately 166.5~MB), falling to 150,823~KB (approximately 147.3~MB) after ten seconds idle.
+
+The same run recorded 503 frames, including 210 janky frames (41.75\%); P50, P90, P95, and P99 were 32, 97, 150, and 200~ms. Monkey is an extreme and non-representative interaction distribution, so this figure is not a normal-use estimate. Nevertheless, the cross-model result does not support an unconditional claim that the application remains below 150~MB under stress, and it identifies deterministic render profiling as a further engineering requirement.

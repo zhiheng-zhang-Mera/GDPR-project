@@ -10,7 +10,7 @@ export function createSimulationConfig(
   const permissionType = PERMISSIONS[Math.floor(random() * PERMISSIONS.length)];
   const totalCalls = 50 + Math.floor(random() * 151);
   const triggerTimes = Array.from({ length: totalCalls }, () =>
-    now + Math.floor(random() * 24 * 60 * 60 * 1000),
+    now - 24 * 60 * 60 * 1000 + Math.floor(random() * 24 * 60 * 60 * 1000),
   ).sort((a, b) => a - b);
   const threshold = Math.ceil(
     GDPR_RULES[permissionType].baseline * GDPR_RULES[permissionType].deviationMultiplier,

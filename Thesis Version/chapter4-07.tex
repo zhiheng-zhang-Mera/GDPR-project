@@ -1,0 +1,15 @@
+% Chapter 4 Revision 07
+\input{chapter4-06}
+\subsection{Security-Hardened Editing Iteration}
+\subsection{Fail-Closed Runtime Boundary}
+The enhanced TypeScript engine adds \texttt{evaluateSafe(unknown)}, returning either an accepted finding or a structured rejection. Package identifiers, permission values, counts, audit windows, and timestamp arrays are validated before rule lookup or arithmetic. Counts must be finite non-negative integers; windows must be finite, ordered, no longer than 24 hours, and not unreasonably future-dated. Timestamp evidence must match the declared count and remain inside the audit interval.
+
+Permission rules are protected by an explicit whitelist and an own-property check. Prototype-chain keys such as \texttt{\_\_proto\_\_} can no longer be interpreted as rule records. Compatibility callers may use \texttt{evaluate}, which raises a typed \texttt{ComplianceInputError}; bridge and import paths use the structured result so rejected evidence can be logged without producing a false normal finding.
+
+\subsection{Multi-Scale Temporal Signals}
+The original daily count is retained as \texttt{DAILY\_TOTAL}. A sliding calculation now measures peak calls in every 60-second interval and emits \texttt{BURST\_RATE} when a permission-specific limit is exceeded. A package-permission keyed \texttt{Map} also accumulates authorised imported or native windows over the preceding 24 hours. Multiple sub-threshold windows can therefore emit \texttt{CROSS\_WINDOW} when their combined count exceeds the daily threshold. Independent simulator samples are excluded from persistent accumulation to prevent experimental cross-contamination.
+
+Each accepted finding contains its contributing signals and an evidence object containing daily count, peak calls per minute, rolling count, and provenance. This converts the engine from a permissive scalar classifier into an explainable, provenance-aware multi-signal detector. The thresholds remain transparent prototype policy values and require future empirical and legal calibration.
+
+\subsection{Remaining Android Delivery Boundary}
+The optional native bridge remains the boundary for future authorised acquisition and WorkManager scheduling. The repository does not claim unrestricted cross-application AppOps access. A production adapter must document its authority model, preserve provenance, encrypt retained audit data, and pass every native or imported record through the same fail-closed validator.

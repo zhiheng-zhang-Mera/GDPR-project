@@ -63,3 +63,32 @@ assert(metrics.precision === 0.5, 'Precision calculation is incorrect.');
 assert(metrics.recall === 0.5, 'Recall calculation is incorrect.');
 
 console.log('Compliance engine tests passed.');
+
+const secureEngine = new GDPRComplianceEngine();
+const invalidInputs: { value: unknown; code: string }[] = [
+  { value: { packageName: 'x', permissionType: 'UNKNOWN', accessCount: 1, windowStart: 0, windowEnd: 1 }, code: 'UNSUPPORTED_PERMISSION' },
+  { value: { packageName: 'x', permissionType: 'LOCATION', accessCount: Number.NaN, windowStart: 0, windowEnd: 1 }, code: 'INVALID_COUNT' },
+  { value: { packageName: 'x', permissionType: 'LOCATION', accessCount: -1, windowStart: 0, windowEnd: 1 }, code: 'INVALID_COUNT' },
+  { value: { packageName: 'x', permissionType: 'LOCATION', accessCount: 1, windowStart: 2, windowEnd: 1 }, code: 'INVALID_WINDOW' },
+  { value: { packageName: 'x', permissionType: '__proto__', accessCount: 1, windowStart: 0, windowEnd: 1 }, code: 'UNSUPPORTED_PERMISSION' },
+];
+for (const sample of invalidInputs) {
+  const result = secureEngine.evaluateSafe(sample.value);
+  assert(!result.accepted && result.code === sample.code, `Expected ${sample.code}.`);
+}
+const burstTimes = Array.from({ length: 20 }, (_, index) => 1_000 + index * 100);
+const burst = secureEngine.evaluate({ packageName: 'burst.app', permissionType: 'LOCATION', accessCount: 20, windowStart: 1_000, windowEnd: 61_000, accessTimestamps: burstTimes, source: 'IMPORTED' });
+assert(burst.isActive && burst.signals.includes('BURST_RATE'), 'Burst must be detected.');
+const splitEngine = new GDPRComplianceEngine();
+const first = splitEngine.evaluate({ packageName: 'split.app', permissionType: 'LOCATION', accessCount: 20, windowStart: 1, windowEnd: 2, source: 'IMPORTED' });
+const second = splitEngine.evaluate({ packageName: 'split.app', permissionType: 'LOCATION', accessCount: 20, windowStart: 3, windowEnd: 4, source: 'IMPORTED' });
+assert(!first.isActive, 'First below-threshold window must remain normal.');
+assert(second.isActive && second.signals.includes('CROSS_WINDOW'), 'Cross-window accumulation must be detected.');
+const boundaryEngine = new GDPRComplianceEngine();
+for (const [permissionType, threshold] of [['LOCATION', 36], ['MICROPHONE', 12], ['CONTACTS', 6]] as const) {
+  for (let offset = -2; offset <= 2; offset += 1) {
+    const result = boundaryEngine.evaluate({ packageName: `boundary.${permissionType}.${offset}`, permissionType, accessCount: threshold + offset, windowStart: 1, windowEnd: 2 });
+    assert(result.isActive === (offset > 0), `Boundary failed for ${permissionType} ${offset}.`);
+  }
+}
+console.log('Security boundary and temporal detection tests passed.');
