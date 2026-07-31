@@ -12,6 +12,7 @@ import {
 const PERMISSIONS = new Set<SensitivePermission>(['LOCATION', 'MICROPHONE', 'CONTACTS']);
 const DAY_MS = 86_400_000;
 const BURST_LIMIT: Record<SensitivePermission, number> = { LOCATION: 12, MICROPHONE: 6, CONTACTS: 4 };
+const LAWFUL_BASES = new Set(['CONSENT', 'CONTRACT', 'LEGAL_OBLIGATION', 'VITAL_INTERESTS', 'PUBLIC_TASK', 'LEGITIMATE_INTERESTS']);
 
 export class ComplianceInputError extends Error {
   constructor(readonly code: ComplianceErrorCode, message: string) {
@@ -36,6 +37,12 @@ function parseAudit(value: unknown): PermissionAudit | ComplianceEvaluation {
   if (x.accessTimestamps !== undefined && (!Array.isArray(x.accessTimestamps) || x.accessTimestamps.length !== x.accessCount ||
       x.accessTimestamps.some((t) => !Number.isFinite(t) || !Number.isInteger(t) || t < (x.windowStart as number) || t > (x.windowEnd as number)))) {
     return reject('INVALID_TIMESTAMPS', 'Timestamps must match the count and window.');
+  }
+  if (x.processingContext !== undefined) {
+    if (!x.processingContext || typeof x.processingContext !== 'object' || Array.isArray(x.processingContext)) return reject('INVALID_CONTEXT', 'processingContext must be an object.');
+    const context = x.processingContext as Record<string, unknown>;
+    if (context.lawfulBasis !== undefined && (typeof context.lawfulBasis !== 'string' || !LAWFUL_BASES.has(context.lawfulBasis))) return reject('INVALID_CONTEXT', 'Unknown Article 6 lawful basis.');
+    if (context.retentionDays !== undefined && (!Number.isInteger(context.retentionDays) || (context.retentionDays as number) < 0)) return reject('INVALID_CONTEXT', 'retentionDays must be a non-negative integer.');
   }
   return x as unknown as PermissionAudit;
 }
@@ -82,6 +89,43 @@ function riskFor(ratio: number): RiskLevel {
   return 'LOW';
 }
 
+function assessCompliance(audit: PermissionAudit, signals: ComplianceFinding['signals']): ComplianceFinding['compliance'] {
+  const context = audit.processingContext;
+  const missingEvidence: string[] = [];
+  if (!context?.purpose?.trim()) missingEvidence.push('specified purpose');
+  if (!context?.lawfulBasis) missingEvidence.push('Article 6 lawful basis');
+  if (!context?.controllerIdentity?.trim()) missingEvidence.push('controller identity');
+  if (!Number.isInteger(context?.retentionDays) || (context?.retentionDays ?? -1) < 0) missingEvidence.push('retention period');
+  if (context?.specialCategoryData && !context.article9Condition?.trim()) missingEvidence.push('Article 9 condition');
+
+  let status: ComplianceFinding['compliance']['status'];
+  if (context?.consentWithdrawn && context.lawfulBasis === 'CONSENT' && audit.accessCount > 0) status = 'LIKELY_NON_COMPLIANT';
+  else if (missingEvidence.length > 0) status = 'INSUFFICIENT_EVIDENCE';
+  else if (signals.length > 0) status = 'REVIEW_REQUIRED';
+  else status = 'NO_TECHNICAL_CONCERN';
+
+  return {
+    status,
+    applicablePrinciples: ['Art. 5(1)(a) transparency', 'Art. 5(1)(b) purpose limitation', 'Art. 5(1)(c) data minimisation', 'Art. 5(2) accountability', 'Art. 6 lawfulness'],
+    missingEvidence,
+    legalCaveat: 'This automated warning supports accountability review and is not a determination of GDPR infringement.',
+  };
+}
+
+function communicate(finding: Pick<ComplianceFinding, 'permissionType' | 'signals' | 'riskLevel' | 'compliance'>): ComplianceFinding['communication'] {
+  const urgent = finding.compliance.status === 'LIKELY_NON_COMPLIANT' || finding.riskLevel === 'CRITICAL';
+  const silent = finding.compliance.status === 'NO_TECHNICAL_CONCERN';
+  const reason = finding.signals.length > 0 ? finding.signals.join(', ') : 'no technical anomaly';
+  return {
+    title: `${finding.permissionType} compliance review`,
+    summary: `${finding.compliance.status.replaceAll('_', ' ')}: ${reason}.`,
+    recommendedAction: finding.compliance.missingEvidence.length > 0
+      ? `Obtain: ${finding.compliance.missingEvidence.join(', ')}.`
+      : urgent ? 'Pause processing where appropriate and request human compliance review.' : 'Review purpose, necessity, and proportionality before taking action.',
+    notificationPriority: urgent ? 'URGENT' : silent ? 'SILENT' : 'STANDARD',
+  };
+}
+
 export class GDPRComplianceEngine implements IComplianceEngine {
   readonly regulation = 'GDPR';
   private readonly history = new Map<string, { at: number; count: number }[]>();
@@ -115,7 +159,8 @@ export class GDPRComplianceEngine implements IComplianceEngine {
     const ratio = Math.max(excess / threshold, peak / BURST_LIMIT[audit.permissionType] - 1, rollingCount / threshold - 1);
     const isActive = signals.length > 0;
 
-    return { accepted: true, finding: {
+    const compliance = assessCompliance(audit, signals);
+    const finding: ComplianceFinding = {
       id: `${audit.packageName}:${audit.permissionType}`,
       packageName: audit.packageName,
       permissionType: audit.permissionType,
@@ -128,6 +173,10 @@ export class GDPRComplianceEngine implements IComplianceEngine {
       detectedAt: audit.windowEnd,
       signals,
       evidence: { dailyCount: audit.accessCount, peakCallsPerMinute: peak, rollingCount, source: audit.source ?? 'SIMULATOR' },
-    } };
+      compliance,
+      communication: undefined as never,
+    };
+    finding.communication = communicate(finding);
+    return { accepted: true, finding };
   }
 }

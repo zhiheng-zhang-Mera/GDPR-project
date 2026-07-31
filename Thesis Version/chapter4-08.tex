@@ -1,0 +1,9 @@
+% Chapter 4 Revision 08
+\input{chapter4-07}
+\subsection{GDPR-Oriented Compliance Context Implementation}
+
+\texttt{PermissionAudit} now accepts a \texttt{ProcessingContext} containing purpose, Article 6 lawful basis, controller identity, retention days, consent-withdrawal state, special-category indication, Article 9 condition, and user-initiation state. Lawful bases are represented as a closed union covering consent, contract, legal obligation, vital interests, public task, and legitimate interests. Unknown values and negative retention periods are rejected as \texttt{INVALID\_CONTEXT}.
+
+Accepted findings contain a compliance assessment with status, applicable principles, missing evidence, and a permanent caveat that the automated result is not a determination of GDPR infringement. Missing purpose, lawful basis, controller identity, retention period, or Article 9 condition produces \texttt{INSUFFICIENT\_EVIDENCE}. Continued access after withdrawal, where consent is the declared lawful basis, produces \texttt{LIKELY\_NON\_COMPLIANT}. A complete context with a technical signal produces \texttt{REVIEW\_REQUIRED}; the absence of a modelled signal produces \texttt{NO\_TECHNICAL\_CONCERN} rather than a claim of compliance.
+
+The communication object is intentionally separate from the legal assessment. It supplies a neutral title, concise summary, recommended action, and silent, standard, or urgent priority. This separation allows wording and progressive disclosure to be user-tested without changing the underlying compliance status.

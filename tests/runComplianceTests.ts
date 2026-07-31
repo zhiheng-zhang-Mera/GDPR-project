@@ -92,3 +92,32 @@ for (const [permissionType, threshold] of [['LOCATION', 36], ['MICROPHONE', 12],
   }
 }
 console.log('Security boundary and temporal detection tests passed.');
+
+const legalEngine = new GDPRComplianceEngine();
+const insufficient = legalEngine.evaluate({ packageName: 'context.missing', permissionType: 'CONTACTS', accessCount: 1, windowStart: 1, windowEnd: 2 });
+assert(insufficient.compliance.status === 'INSUFFICIENT_EVIDENCE', 'Missing legal context must not be labelled compliant.');
+assert(insufficient.communication.notificationPriority === 'STANDARD', 'Evidence gaps require a review notification.');
+
+const documented = legalEngine.evaluate({
+  packageName: 'context.documented', permissionType: 'LOCATION', accessCount: 1, windowStart: 1, windowEnd: 2,
+  processingContext: { purpose: 'Turn-by-turn navigation', lawfulBasis: 'CONTRACT', controllerIdentity: 'Example Controller', retentionDays: 1, userInitiated: true },
+});
+assert(documented.compliance.status === 'NO_TECHNICAL_CONCERN', 'Complete context without anomaly should produce no technical concern.');
+assert(documented.communication.notificationPriority === 'SILENT', 'No-concern findings should be silent.');
+
+const withdrawn = legalEngine.evaluate({
+  packageName: 'context.withdrawn', permissionType: 'MICROPHONE', accessCount: 1, windowStart: 1, windowEnd: 2,
+  processingContext: { purpose: 'Voice diary', lawfulBasis: 'CONSENT', controllerIdentity: 'Example Controller', retentionDays: 30, consentWithdrawn: true, specialCategoryData: true, article9Condition: 'Explicit consent previously recorded' },
+});
+assert(withdrawn.compliance.status === 'LIKELY_NON_COMPLIANT', 'Processing after withdrawal under consent must be escalated.');
+assert(withdrawn.communication.notificationPriority === 'URGENT', 'Likely non-compliance must be urgent.');
+
+const specialCategoryGap = legalEngine.evaluate({
+  packageName: 'context.article9', permissionType: 'MICROPHONE', accessCount: 1, windowStart: 1, windowEnd: 2,
+  processingContext: { purpose: 'Health symptom recording', lawfulBasis: 'CONSENT', controllerIdentity: 'Example Controller', retentionDays: 30, specialCategoryData: true },
+});
+assert(specialCategoryGap.compliance.missingEvidence.includes('Article 9 condition'), 'Special-category processing requires an Article 9 condition.');
+
+const invalidContext = legalEngine.evaluateSafe({ packageName: 'context.invalid', permissionType: 'LOCATION', accessCount: 1, windowStart: 1, windowEnd: 2, processingContext: { lawfulBasis: 'MADE_UP', retentionDays: -1 } });
+assert(!invalidContext.accepted && invalidContext.code === 'INVALID_CONTEXT', 'Malformed legal context must be rejected.');
+console.log('GDPR accountability and communication tests passed.');

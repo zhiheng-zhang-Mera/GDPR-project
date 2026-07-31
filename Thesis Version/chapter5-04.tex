@@ -1,0 +1,9 @@
+% Chapter 5 Revision 04
+\input{chapter5-03}
+\subsection{GDPR Accountability and Communication Regression}
+
+The compliance-context extension was tested with five targeted cases. An observation without declared processing context returned \texttt{INSUFFICIENT\_EVIDENCE} and a standard review notification. A documented, user-initiated navigation observation with a contractual basis, identified controller, and one-day retention returned \texttt{NO\_TECHNICAL\_CONCERN} and silent priority. A microphone observation processed under consent after recorded withdrawal returned \texttt{LIKELY\_NON\_COMPLIANT} and urgent priority.
+
+A special-category health recording without an Article 9 condition identified that condition as missing evidence. Finally, a fabricated lawful basis and negative retention period were rejected as \texttt{INVALID\_CONTEXT}. All earlier correctness, security-boundary, burst, split-window, and threshold tests continued to pass. These tests validate deterministic policy implementation, not the substantive truth of controller declarations or the legal outcome of an investigation.
+
+The testing priority has therefore shifted from maximising a single precision value to preserving decision provenance. Future experiments should measure evidence completeness, reviewer agreement, false reassurance, and whether users distinguish \texttt{NO\_TECHNICAL\_CONCERN} from legal compliance. HCI evaluation remains supportive: its purpose is to test comprehension and calibrated reliance on the compliance evidence.

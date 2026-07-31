@@ -1,0 +1,11 @@
+% Chapter 3 Revision 05
+\input{chapter3-04}
+\subsection{Compliance Evidence and Human Review Architecture}
+
+The final requirements distinguish three layers. The technical layer detects aggregate, burst, and cross-window signals. The compliance layer evaluates whether the audit includes purpose, Article 6 lawful basis, controller identity, retention period, and any required Article 9 condition. The presentation layer communicates the result without collapsing uncertainty into a binary legal label.
+
+Four compliance states are defined: \texttt{INSUFFICIENT\_EVIDENCE}, \texttt{REVIEW\_REQUIRED}, \texttt{LIKELY\_NON\_COMPLIANT}, and \texttt{NO\_TECHNICAL\_CONCERN}. The last state is deliberately narrower than ``compliant''. It only states that the supplied technical observation contains no modelled anomaly and that the declared context is complete enough for this limited check. Final legal responsibility remains with the controller and human reviewer.
+
+The architecture treats evidence completeness as a first-class requirement. Processing based on consent is escalated when consent is recorded as withdrawn and access continues. Special-category processing requires an Article 9 condition in addition to its Article 6 basis. Invalid context values are rejected at the same trust boundary as invalid counts and timestamps.
+
+The secondary HCI requirement is calibrated communication. No-concern observations are silent; evidence gaps and ordinary anomalies receive standard review prompts; likely non-compliance or critical technical risk is urgent. Every message includes a short reason and a recommended human action, preventing the warning system from substituting interface confidence for legal evidence.

@@ -1,5 +1,18 @@
 export type SensitivePermission = 'LOCATION' | 'MICROPHONE' | 'CONTACTS';
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type LawfulBasis = 'CONSENT' | 'CONTRACT' | 'LEGAL_OBLIGATION' | 'VITAL_INTERESTS' | 'PUBLIC_TASK' | 'LEGITIMATE_INTERESTS';
+export type ComplianceStatus = 'INSUFFICIENT_EVIDENCE' | 'REVIEW_REQUIRED' | 'LIKELY_NON_COMPLIANT' | 'NO_TECHNICAL_CONCERN';
+
+export interface ProcessingContext {
+  purpose: string;
+  lawfulBasis: LawfulBasis;
+  controllerIdentity: string;
+  retentionDays: number;
+  consentWithdrawn?: boolean;
+  specialCategoryData?: boolean;
+  article9Condition?: string;
+  userInitiated?: boolean;
+}
 
 export interface PermissionAudit {
   packageName: string;
@@ -11,6 +24,7 @@ export interface PermissionAudit {
   backgroundCount?: number;
   accessTimestamps?: number[];
   source?: 'SIMULATOR' | 'NATIVE_BRIDGE' | 'IMPORTED';
+  processingContext?: ProcessingContext;
 }
 
 export type ComplianceErrorCode =
@@ -18,7 +32,8 @@ export type ComplianceErrorCode =
   | 'UNSUPPORTED_PERMISSION'
   | 'INVALID_COUNT'
   | 'INVALID_WINDOW'
-  | 'INVALID_TIMESTAMPS';
+  | 'INVALID_TIMESTAMPS'
+  | 'INVALID_CONTEXT';
 
 export interface ComplianceRejection {
   accepted: false;
@@ -59,6 +74,18 @@ export interface ComplianceFinding {
     peakCallsPerMinute: number;
     rollingCount: number;
     source: NonNullable<PermissionAudit['source']>;
+  };
+  compliance: {
+    status: ComplianceStatus;
+    applicablePrinciples: string[];
+    missingEvidence: string[];
+    legalCaveat: string;
+  };
+  communication: {
+    title: string;
+    summary: string;
+    recommendedAction: string;
+    notificationPriority: 'SILENT' | 'STANDARD' | 'URGENT';
   };
 }
 
