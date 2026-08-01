@@ -1,0 +1,11 @@
+\newpage
+\section{System Requirements and Overall Design} [Estimated: 4,500 words]
+
+\subsection{System Boundaries and Functional Requirements}
+The proposed framework transitions from an active interception model to a passive compliance monitoring tool. The system explicitly acts as a ``monitoring and analysis'' auditor without interrupting the actual data flows, ensuring zero interference with normal application functionalities.
+
+\subsection{Modular Compliance Engine Architecture}
+The system employs a mountable design pattern, defining an \texttt{IComplianceEngine} interface. The core component, \texttt{GDPRComplianceEngine}, integrates a sensitive permission-to-rule mapping library. For instance, excessive background location access is directly mapped to GDPR Art. 5(1)(c) (Data Minimisation). To optimize Human-Computer Interaction (HCI) and prevent ``alert fatigue,'' a 10-second anti-spam buffer is implemented.
+
+\subsection{Automated Test Environment Design (Violation Simulator)}
+To address the lack of real-world malicious datasets, an independent ``Automated Violation Simulator'' module is designed. This simulator operates in a controlled environment to generate randomized violation logs (varying frequencies and timing), serving as the ``Ground Truth'' for evaluating the system's accuracy.

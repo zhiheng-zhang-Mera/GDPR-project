@@ -1,0 +1,17 @@
+\section{Introduction}
+
+\subsection{The mHealth Privacy Landscape and GDPR Mandates}
+The mobile health (mHealth) sector has witnessed exponential growth, driven by the ubiquitous adoption of smartphone-integrated biosensors. These applications continuously collect highly sensitive physiological and behavioral data. While overarching regulatory frameworks such as the General Data Protection Regulation (GDPR) in the European Union mandate strict adherence to principles like ``data minimization'' (Article 5) and ``user autonomy,'' a significant technical disconnect remains between these legal requirements and practical application execution. 
+
+\subsection{Problem Statement: The Transparency Paradox and Technical Disconnect}
+A primary issue in contemporary mHealth ecosystems is the ``Control Paradox.'' Users are unable to verify the actual frequency and backend invocation of sensitive data by applications. Traditional permission management tools fail to intuitively display the ``invocation frequency,'' leaving users in a blind spot regarding data leakage.
+
+Initial phases of this research explored active intervention architectures, such as kernel-level API blockades and local differential privacy (LDP) noise injection. However, extensive technical evaluation revealed that active interception introduces severe systemic risks. The highly fragmented nature of the Android ecosystem means that kernel-level hooking frequently leads to application crashes. Furthermore, continuous background processing for LDP significantly degrades battery life and monopolizes CPU resources. Crucially, these aggressive technical interventions contradict the GDPR's spirit of minimizing impact on the data subject. Therefore, transitioning from ``confrontational active blocking'' to ``transparent passive auditing'' is a deliberate, usability-driven architectural decision.
+
+\subsection{Research Objectives and Scope}
+Recognizing the structural limitations of active interception, this thesis proposes a non-invasive, low-energy Privacy Enhancing Architecture (PEA). The core objectives are threefold:
+\begin{enumerate}
+    \item \textbf{Lightweight Background Periodic Auditing (No Root/VPN):} To architect an event-driven auditing mechanism that operates without Root access or VPN requirements, achieving zero continuous background energy consumption.
+    \item \textbf{Automated Legal Mapping Engine:} To construct a semantic compliance engine capable of mapping raw API access frequencies directly to legal frameworks (e.g., GDPR Articles).
+    \item \textbf{Robustness Validation via Automated Simulation:} To introduce a novel ``Automated Violation Simulator'' that generates randomized violation logs in a controlled environment, scientifically validating the system's detection accuracy (Precision and Recall).
+\end{enumerate}
