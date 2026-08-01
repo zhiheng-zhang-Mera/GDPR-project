@@ -1,5 +1,71 @@
 # GDPR Android Permission Audit
 
+[English](#english) · [中文](#中文)
+
+## English
+
+GDPR Android Permission Audit is a mobile-health privacy-accountability research prototype. It converts Android permission evidence into explainable GDPR risk notices and includes controlled simulation, compliance-rule evaluation, research tasks, and a sample health dashboard.
+
+> It reports technical risk signals, not legal compliance conclusions. Cross-app visibility depends on Android, OEM policy, and device-owner or research-firmware privileges.
+
+### Download
+
+The root APK is `GDPR-Permission-Audit-1.0.0-x86_64.apk` (package `com.anonymous.mymobileapp`, API 24 minimum/API 36 target, x86_64, demo/debug signing). SHA-256: `E4BF799D6654A03067BB5A5995560DF4C60FDB666DCD6D8E592A69558008A14C`.
+
+```bash
+adb install -r GDPR-Permission-Audit-1.0.0-x86_64.apk
+```
+
+See the bilingual [User Guide](User-Guide.md).
+
+### Screenshots
+
+![Health dashboard](assets/screenshots/home-dashboard.png)
+
+![Privacy accountability dashboard](assets/screenshots/privacy-evaluation.png)
+
+![Research task](assets/screenshots/research-task.png)
+
+### Main capabilities
+
+- Daily and on-demand WorkManager permission audits.
+- Explainable location, microphone, and contacts rules with GDPR mappings.
+- Controlled simulation of 50–100 synthetic events without real sensor or personal-data access.
+- A 50-round evaluation with 40 violation samples and 10 controls, reporting TP, FP, FN, precision, and recall.
+- Explicit evidence levels, local persistence, and six bilingual research tasks across three experimental groups.
+
+### Navigation
+
+| Page | Purpose |
+| --- | --- |
+| Today / History | Current and historical sample health data |
+| Projects | Research project management |
+| Privacy | Audits, evaluations, and evidence |
+| Settings | Privacy and app settings |
+| Task (RQ) / Survey | Research tasks and feedback |
+
+### Technology and build
+
+Expo 54, React Native 0.81, TypeScript, Kotlin, WorkManager, AsyncStorage, and Android SDK 36.
+
+```bash
+npm install
+cd android
+gradlew.bat :app:assembleRelease -PreactNativeArchitectures=x86_64 --no-daemon --console=plain
+```
+
+### Verified status and limitations
+
+The x86_64 release APK was built, installed, and launched offline on `emulator-5554`; Today, Privacy, and Task (RQ) were inspected. The controlled evaluation reports TP 40, FP 0, FN 0, precision 100%, and recall 100%. This confirms controlled-label agreement, not real-world legal accuracy.
+
+The APK does not support typical ARM64 phones and is not store-ready. Android privileges limit cross-app AppOps visibility, and WorkManager may be delayed. This project is for research and education; it is not legal advice or compliance certification.
+
+---
+
+<a id="中文"></a>
+
+## 中文
+
 一款面向移动健康场景的 Android 隐私问责与研究原型。应用将权限访问记录转换为可解释的 GDPR 风险提示，并提供受控模拟、合规规则验证、研究任务和健康数据界面。
 
 > 本应用提供技术风险提示，不作出法律合规结论。跨应用权限历史的完整可见性取决于 Android 版本、OEM 策略以及设备所有者或研究固件权限。

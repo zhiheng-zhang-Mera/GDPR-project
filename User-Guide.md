@@ -1,4 +1,79 @@
-# User Guide
+# User Guide / 用户指南
+
+[English](#english) · [中文](#中文)
+
+## English
+
+This guide explains how to install and use GDPR Android Permission Audit.
+
+### 1. Requirements
+
+Use Android 7.0/API 24 or later, an x86_64 Android Virtual Device (API 35 or 36 recommended), and Android SDK Platform Tools. Confirm connectivity with `adb devices`; the device status must be `device`.
+
+### 2. Install and launch
+
+```bash
+adb install -r GDPR-Permission-Audit-1.0.0-x86_64.apk
+adb shell am start -n com.anonymous.mymobileapp/.MainActivity
+```
+
+If a differently signed build is installed, run `adb uninstall com.anonymous.mymobileapp` first. Uninstalling clears local app data.
+
+### 3. Navigation
+
+1. **Today** — sample health data and trends.
+2. **History** — historical health data.
+3. **Projects** — research projects and data requirements.
+4. **Privacy** — permission audits, controlled evaluation, and evidence.
+5. **Settings** — privacy and app settings.
+6. **Task (RQ)** — research tasks.
+7. **Survey** — research feedback.
+
+### 4. Privacy dashboard
+
+**Needs action** identifies findings requiring review; **Evidence gaps** indicates missing compliance context; **No concern** means the current rule found no technical anomaly, not that legal compliance is proven.
+
+Select **Run audit now** to examine available AppOps signals for this app's location, microphone, and contacts permissions. Results remain local. Complete cross-app history depends on deployment privileges, and the audit never changes other apps' permissions.
+
+Select **Run 50-round evaluation** to evaluate 40 violation samples and 10 controls. Review TP, FP, FN, precision, and recall; filter with **All**, **Action**, or **Evidence**, then open cards for technical evidence, GDPR mappings, missing context, and recommendations.
+
+![50-round evaluation](assets/screenshots/privacy-evaluation.png)
+
+The evaluation measures agreement with controlled labels, not real-world legal accuracy.
+
+### 5. Research tasks
+
+Open **Task (RQ)**, use the researcher-assigned Group A, B, or C, read the scenario, select **Start Task**, perform the requested action, and confirm the result. After all six tasks, continue to the rating or survey page. Participants should not switch experimental groups themselves.
+
+![Research task](assets/screenshots/research-task.png)
+
+### 6. Simulator, data, and privacy
+
+The controlled simulator creates 50–100 synthetic LOCATION, MICROPHONE, or CONTACTS events over 24 hours. WorkManager records planned and actual execution times but may be delayed by Android. It never accesses real sensors, contacts, or personal data.
+
+Audit results, simulation progress, and research state remain on the device. Do not enter real patient data, and inspect screenshots or logs for identifiers before sharing.
+
+### 7. Troubleshooting
+
+- `INSTALL_FAILED_NO_MATCHING_ABIS`: use an x86_64 emulator or build ARM64 from source.
+- No results: open **Privacy** and run an audit or evaluation.
+- Empty cross-app counts: Android sandboxing normally requires device-owner, system, or research-firmware privileges.
+- Delayed background work: Doze, battery state, background limits, and OEM policy can defer WorkManager.
+- Store publication: the bundled APK is not publishable because it uses demo/debug signing and contains only x86_64 code.
+
+### 8. Verify the APK
+
+```powershell
+Get-FileHash -Algorithm SHA256 .\GDPR-Permission-Audit-1.0.0-x86_64.apk
+```
+
+Expected SHA-256: `E4BF799D6654A03067BB5A5995560DF4C60FDB666DCD6D8E592A69558008A14C`
+
+---
+
+<a id="中文"></a>
+
+## 中文
 
 本指南说明如何安装和使用 GDPR Android Permission Audit 的主要功能。
 
