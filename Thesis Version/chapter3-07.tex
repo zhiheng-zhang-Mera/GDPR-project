@@ -1,0 +1,7 @@
+% Chapter 3 Revision 07
+\input{chapter3-06}
+\subsection{Implemented Simulator and Evidence Requirements}
+
+The native test harness consists of an orchestration worker and synthetic event workers. The orchestrator accepts a validated configuration or creates a random configuration, rejects unsupported permission keys, limits a run to 200 events, bounds all trigger times to the next 24 hours, and schedules one delayed WorkManager request per event. Each child records its planned and actual timestamps, permission key, run identifier and event index.
+
+The acceptance criteria are: deterministic engine tests pass; a 50-round corpus contains both positive and negative controls; precision and recall are computed from explicit ground truth; malformed configurations fail closed; and the bridge can retrieve audit capability evidence plus simulation progress. Synthetic storage is intentionally local. A future Room migration is required before long-duration or concurrent research deployment.

@@ -1,0 +1,7 @@
+% Chapter 4 Revision 10
+\input{chapter4-09}
+\subsection{Completed Native Simulation Pipeline}
+
+The earlier placeholder worker only stored a supplied JSON string. The completed pipeline now normalises the configuration, creates a random 50--200-call configuration when none is supplied, sorts and bounds trigger times, and enqueues delayed child work. The child worker records synthetic events without invoking location, microphone or contacts APIs. This separation prevents a test harness from collecting personal data merely to demonstrate a privacy control.
+
+The React Native bridge now exposes commands for configured and random runs and asynchronous reads for the latest capability audit and simulation progress. WorkManager remains responsible for persistence across process death and Doze-aware deferral. Trigger timestamps are targets rather than exact execution guarantees, which is consistent with WorkManager semantics and must be considered when interpreting temporal experiments.

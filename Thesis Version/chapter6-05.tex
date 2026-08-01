@@ -1,0 +1,7 @@
+% Chapter 6 Revision 05
+\input{chapter6-04}
+\subsection{Residual Engineering and Validity Limits}
+
+Scheduling up to 200 one-time requests provides traceable event-level evidence but is not the most resource-efficient long-term design. WorkManager can defer jobs, SharedPreferences serialisation is unsuitable for large concurrent histories, and process-local locking does not replace transactional persistence. A production research build should use Room, indexed run and event tables, retention limits, and batched scheduling while preserving the same ground-truth fields.
+
+The acquisition boundary remains the dominant external-validity limitation. Capability checks for the host package do not demonstrate complete visibility into third-party applications. Any future study must document device-owner or research-firmware authority, Android/OEM versions, missing events, scheduling drift and the legal basis for collecting test data.

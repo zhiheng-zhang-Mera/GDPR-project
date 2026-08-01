@@ -21,6 +21,20 @@ export const PrivacyBridge = {
   runAuditNow: () => PrivacyInspector?.runAuditNow?.(),
   scheduleSimulation: (config: SimulationConfig) =>
     PrivacyInspector?.scheduleSimulation?.(JSON.stringify(config)),
+  scheduleRandomSimulation: () => PrivacyInspector?.scheduleRandomSimulation?.(),
+  getLatestAudit: async (): Promise<unknown[]> => {
+    const value = await PrivacyInspector?.getLatestAudit?.();
+    return typeof value === 'string' ? JSON.parse(value) : [];
+  },
+  getLatestSimulation: async () => {
+    const value = await PrivacyInspector?.getLatestSimulation?.();
+    return {
+      config: value?.config ? JSON.parse(value.config) : null,
+      events: value?.events ? JSON.parse(value.events) : [],
+      completedCalls: value?.completedCalls ?? 0,
+      totalCalls: value?.totalCalls ?? 0,
+    };
+  },
 
   // Backwards-compatible entry point used by the existing experiment UI.
   invokeInterceptor: async (

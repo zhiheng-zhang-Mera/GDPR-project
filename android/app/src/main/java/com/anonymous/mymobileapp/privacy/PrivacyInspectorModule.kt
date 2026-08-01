@@ -7,6 +7,7 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.Promise
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
 class PrivacyInspectorModule(
@@ -27,6 +28,30 @@ class PrivacyInspectorModule(
             .setInputData(data)
             .build()
         WorkManager.getInstance(reactContext).enqueue(request)
+    }
+
+    @ReactMethod
+    fun scheduleRandomSimulation() {
+        WorkManager.getInstance(reactContext)
+            .enqueue(OneTimeWorkRequestBuilder<ViolationSimulatorWorker>().build())
+    }
+
+    @ReactMethod
+    fun getLatestAudit(promise: Promise) {
+        val preferences = reactContext.getSharedPreferences("gdpr_audit", 0)
+        promise.resolve(preferences.getString("latest_capability_audit", "[]"))
+    }
+
+    @ReactMethod
+    fun getLatestSimulation(promise: Promise) {
+        val preferences = reactContext.getSharedPreferences("gdpr_audit", 0)
+        val result = Arguments.createMap().apply {
+            putString("config", preferences.getString("latest_simulation", "{}"))
+            putString("events", preferences.getString("simulation_events", "[]"))
+            putInt("completedCalls", preferences.getInt("latest_simulation_completed", 0))
+            putInt("totalCalls", preferences.getInt("latest_simulation_total", 0))
+        }
+        promise.resolve(result)
     }
 
     @ReactMethod
