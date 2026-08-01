@@ -1,0 +1,22 @@
+\newpage
+\section{System Detailed Design and Implementation} [Estimated: 7,000 words]
+
+\subsection{Permission History Statistics (Root-Free, VPN-Free Core)}
+The system leverages the native \texttt{AppOpsManager.getHistoricalOps()} API to extract historical permission usage data without requiring elevated privileges. 
+
+\subsection{Low-Frequency Audit Scheduling}
+To minimize battery consumption, the architecture abandons persistent background services. Instead, it utilizes \texttt{androidx.work.WorkManager} with a \texttt{PeriodicWorkRequest} to execute the audit asynchronously every 24 hours. The native \texttt{PrivacyInspectorModule} dispatches events seamlessly and releases memory immediately upon completion.
+
+\subsection{Baseline-Driven Compliance Evaluation Logic}
+\begin{itemize}
+    \item \textbf{Behavioral Baseline Analysis:} By statistically analyzing the top 50 mainstream applications, the system establishes a ``normal behavioral baseline'' for different app categories (e.g., \texttt{BURST\_LIMIT}).
+    \item \textbf{Dynamic Threshold Evaluation:} A ``Baseline + Deviation'' dynamic threshold model determines violations, identifying anomalies such as \texttt{EXCESSIVE\_COLLECTION} or \texttt{UNAUTHORIZED\_CROSS\_BORDER}.
+\end{itemize}
+
+\subsection{Automated Violation Simulator Implementation}
+The simulator encompasses three core modules:
+\begin{itemize}
+    \item \textbf{Randomized Frequency Module:} Generates target invocation counts randomly within a predefined range (e.g., 50-200 times).
+    \item \textbf{Randomized Timing Module:} Utilizes \texttt{OneTimeWorkRequest} to distribute trigger points randomly across a 24-hour window, mimicking the ``heartbeat'' behavior of malicious software.
+    \item \textbf{Randomized Behavior Module:} Randomly selects target permissions (GPS, Microphone, Contacts) from the sensitive list for simulated invocation.
+\end{itemize}
