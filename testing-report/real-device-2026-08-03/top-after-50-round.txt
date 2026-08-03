@@ -1,0 +1,6 @@
+﻿Tasks: 1 total,   0 running,   1 sleeping,   0 stopped,   0 zombie
+  Mem:  5677812K total,  5376284K used,   301528K free,     2488K buffers
+ Swap:  3145724K total,  1835260K used,  1310464K free,  1671936K cached
+800%cpu  89%user  22%nice  44%sys 633%idle   4%iow   0%irq   7%sirq   0%host
+  PID USER         PR  NI VIRT  RES  SHR S[%CPU] %MEM     TIME+ ARGS
+ 8353 u0_a256      10 -10  10G 271M 168M S  114   4.8   0:37.07 com.anonymous.mymobileapp
