@@ -41,6 +41,12 @@ function parseAudit(value: unknown): PermissionAudit | ComplianceEvaluation {
   if (x.processingContext !== undefined) {
     if (!x.processingContext || typeof x.processingContext !== 'object' || Array.isArray(x.processingContext)) return reject('INVALID_CONTEXT', 'processingContext must be an object.');
     const context = x.processingContext as Record<string, unknown>;
+    for (const field of ['purpose', 'controllerIdentity', 'article9Condition'] as const) {
+      if (context[field] !== undefined && typeof context[field] !== 'string') return reject('INVALID_CONTEXT', `${field} must be a string.`);
+    }
+    for (const field of ['consentWithdrawn', 'specialCategoryData', 'userInitiated'] as const) {
+      if (context[field] !== undefined && typeof context[field] !== 'boolean') return reject('INVALID_CONTEXT', `${field} must be a boolean.`);
+    }
     if (context.lawfulBasis !== undefined && (typeof context.lawfulBasis !== 'string' || !LAWFUL_BASES.has(context.lawfulBasis))) return reject('INVALID_CONTEXT', 'Unknown Article 6 lawful basis.');
     if (context.retentionDays !== undefined && (!Number.isInteger(context.retentionDays) || (context.retentionDays as number) < 0)) return reject('INVALID_CONTEXT', 'retentionDays must be a non-negative integer.');
   }

@@ -29,12 +29,14 @@ export function simulationToAudit(
   config: SimulationConfig,
   packageName = 'com.gdpr.audit.simulator',
 ): PermissionAudit {
+  const firstTrigger = config.triggerTimes[0] ?? Date.now();
+  const lastTrigger = config.triggerTimes.at(-1) ?? firstTrigger;
   return {
     packageName,
     permissionType: config.permissionType,
     accessCount: config.totalCalls,
-    windowStart: config.triggerTimes[0] ?? Date.now(),
-    windowEnd: config.triggerTimes.at(-1) ?? Date.now(),
+    windowStart: firstTrigger,
+    windowEnd: Math.max(firstTrigger + 1, lastTrigger),
     backgroundCount: config.totalCalls,
     foregroundCount: 0,
   };

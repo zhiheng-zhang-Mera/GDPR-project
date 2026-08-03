@@ -15,6 +15,7 @@
     "src/compliance/ViolationSimulator.ts",
     "src/compliance/Evaluation.ts",
     "src/compliance/DashboardModel.ts",
-    "tests/runComplianceTests.ts"
+    "tests/runComplianceTests.ts",
+    "tests/runExtendedComplianceTests.ts"
   ]
 }

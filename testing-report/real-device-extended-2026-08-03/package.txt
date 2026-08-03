@@ -1,0 +1,401 @@
+﻿Activity Resolver Table:
+  Schemes:
+      mymobileapp:
+        eea183a com.anonymous.mymobileapp/.MainActivity filter d26ea48
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Category: "android.intent.category.BROWSABLE"
+          Scheme: "mymobileapp"
+
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        eea183a com.anonymous.mymobileapp/.MainActivity filter 3ea2ceb
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      android.intent.action.BATTERY_OKAY:
+        cbcacc7 com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy filter 1e462f4
+          Action: "android.intent.action.BATTERY_OKAY"
+          Action: "android.intent.action.BATTERY_LOW"
+      android.intent.action.ACTION_POWER_DISCONNECTED:
+        a3e0e1 com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy filter 3517e06
+          Action: "android.intent.action.ACTION_POWER_CONNECTED"
+          Action: "android.intent.action.ACTION_POWER_DISCONNECTED"
+      androidx.profileinstaller.action.SAVE_PROFILE:
+        dd426db com.anonymous.mymobileapp/androidx.profileinstaller.ProfileInstallReceiver filter 37b74b6
+          Action: "androidx.profileinstaller.action.SAVE_PROFILE"
+      android.intent.action.DEVICE_STORAGE_LOW:
+        11caa1d com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy filter 4777492
+          Action: "android.intent.action.DEVICE_STORAGE_LOW"
+          Action: "android.intent.action.DEVICE_STORAGE_OK"
+      android.net.conn.CONNECTIVITY_CHANGE:
+        74d4e63 com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy filter d5eba60
+          Action: "android.net.conn.CONNECTIVITY_CHANGE"
+      android.intent.action.DEVICE_STORAGE_OK:
+        11caa1d com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy filter 4777492
+          Action: "android.intent.action.DEVICE_STORAGE_LOW"
+          Action: "android.intent.action.DEVICE_STORAGE_OK"
+      androidx.profileinstaller.action.INSTALL_PROFILE:
+        dd426db com.anonymous.mymobileapp/androidx.profileinstaller.ProfileInstallReceiver filter f8d7578
+          Action: "androidx.profileinstaller.action.INSTALL_PROFILE"
+      android.intent.action.BATTERY_LOW:
+        cbcacc7 com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy filter 1e462f4
+          Action: "android.intent.action.BATTERY_OKAY"
+          Action: "android.intent.action.BATTERY_LOW"
+      android.intent.action.TIMEZONE_CHANGED:
+        45ecb19 com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.RescheduleReceiver filter c9447de
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+      android.intent.action.TIME_SET:
+        45ecb19 com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.RescheduleReceiver filter c9447de
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+      androidx.profileinstaller.action.SKIP_FILE:
+        dd426db com.anonymous.mymobileapp/androidx.profileinstaller.ProfileInstallReceiver filter bd5c451
+          Action: "androidx.profileinstaller.action.SKIP_FILE"
+      androidx.profileinstaller.action.BENCHMARK_OPERATION:
+        dd426db com.anonymous.mymobileapp/androidx.profileinstaller.ProfileInstallReceiver filter 3e455b7
+          Action: "androidx.profileinstaller.action.BENCHMARK_OPERATION"
+      android.intent.action.BOOT_COMPLETED:
+        45ecb19 com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.RescheduleReceiver filter c9447de
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+      android.intent.action.ACTION_POWER_CONNECTED:
+        a3e0e1 com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy filter 3517e06
+          Action: "android.intent.action.ACTION_POWER_CONNECTED"
+          Action: "android.intent.action.ACTION_POWER_DISCONNECTED"
+      androidx.work.diagnostics.REQUEST_DIAGNOSTICS:
+        807ffd5 com.anonymous.mymobileapp/androidx.work.impl.diagnostics.DiagnosticsReceiver filter f1903ea
+          Action: "androidx.work.diagnostics.REQUEST_DIAGNOSTICS"
+      androidx.work.impl.background.systemalarm.UpdateProxies:
+        cbc6dbf com.anonymous.mymobileapp/androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver filter 6651c8c
+          Action: "androidx.work.impl.background.systemalarm.UpdateProxies"
+
+Domain verification status:
+
+Permissions:
+  Permission [com.anonymous.mymobileapp.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] (9a8702):
+    sourcePackage=com.anonymous.mymobileapp
+    uid=10256 gids=[] type=0 prot=signature
+    perm=PermissionInfo{4a51159 com.anonymous.mymobileapp.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}
+
+Registered ContentProviders:
+  com.anonymous.mymobileapp/androidx.startup.InitializationProvider:
+    Provider{967b11e com.anonymous.mymobileapp/androidx.startup.InitializationProvider}
+  com.anonymous.mymobileapp/expo.modules.filesystem.FileSystemFileProvider:
+    Provider{451bdff com.anonymous.mymobileapp/expo.modules.filesystem.FileSystemFileProvider}
+
+ContentProvider Authorities:
+  [com.anonymous.mymobileapp.FileSystemFileProvider]:
+    Provider{451bdff com.anonymous.mymobileapp/expo.modules.filesystem.FileSystemFileProvider}
+      applicationInfo=ApplicationInfo{47a4813 com.anonymous.mymobileapp}
+  [com.anonymous.mymobileapp.androidx-startup]:
+    Provider{967b11e com.anonymous.mymobileapp/androidx.startup.InitializationProvider}
+      applicationInfo=ApplicationInfo{bb8aa50 com.anonymous.mymobileapp}
+
+Key Set Manager:
+  [com.anonymous.mymobileapp]
+      Signing KeySets: 52
+
+Packages:
+  Package [com.anonymous.mymobileapp] (1d9c12a):
+    userId=10256
+    pkg=Package{30e3b1b com.anonymous.mymobileapp}
+    codePath=/data/app/~~scl40lOewIJrvDOUjI31GA==/com.anonymous.mymobileapp-4c25r_yodksSLqIUoB6fZw==
+    resourcePath=/data/app/~~scl40lOewIJrvDOUjI31GA==/com.anonymous.mymobileapp-4c25r_yodksSLqIUoB6fZw==
+    legacyNativeLibraryDir=/data/app/~~scl40lOewIJrvDOUjI31GA==/com.anonymous.mymobileapp-4c25r_yodksSLqIUoB6fZw==/lib
+    extractNativeLibs=false
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=1 minSdk=24 targetSdk=36
+    minExtensionVersions=[]
+    versionName=1.0.0
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=2
+    applicationInfo=PackageImpl{30e3b1b com.anonymous.mymobileapp}
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    queriesPackages=[]
+    queriesIntents=[Intent { act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https:///... }, Intent { act=android.intent.action.OPEN_DOCUMENT_TREE }, Intent { act=android.support.customtabs.action.CustomTabsService }]
+    dataDir=/data/user/0/com.anonymous.mymobileapp
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2026-08-03 20:01:30
+    firstInstallTime=2026-08-03 19:50:53
+    lastUpdateTime=2026-08-03 20:01:30
+    installerPackageName=pc
+    signatures=PackageSignatures{4f394b8 version:2, signatures:[51ed3f60], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    declared permissions:
+      com.anonymous.mymobileapp.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature, INSTALLED
+    requested permissions:
+      android.permission.INTERNET
+      android.permission.READ_EXTERNAL_STORAGE
+      android.permission.SYSTEM_ALERT_WINDOW
+      android.permission.VIBRATE
+      android.permission.WRITE_EXTERNAL_STORAGE
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.ACCESS_WIFI_STATE
+      android.permission.WAKE_LOCK
+      android.permission.RECEIVE_BOOT_COMPLETED
+      android.permission.FOREGROUND_SERVICE
+      android.permission.USE_BIOMETRIC
+      android.permission.USE_FINGERPRINT
+      com.anonymous.mymobileapp.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    install permissions:
+      android.permission.SYSTEM_ALERT_WINDOW: granted=false
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+      android.permission.INTERNET: granted=true
+      com.anonymous.mymobileapp.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      android.permission.USE_FINGERPRINT: granted=true
+      android.permission.VIBRATE: granted=true
+      android.permission.ACCESS_WIFI_STATE: granted=true
+      android.permission.USE_BIOMETRIC: granted=true
+      android.permission.WAKE_LOCK: granted=true
+    User 0: ceDataInode=26482 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 ofs=0 pdm=false instant=false virtual=false
+      overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+      legacy overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+      gids=[3003]
+      runtime permissions:
+        android.permission.READ_EXTERNAL_STORAGE: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+        android.permission.WRITE_EXTERNAL_STORAGE: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+      enabledComponents:
+        androidx.work.impl.background.systemalarm.RescheduleReceiver
+        androidx.work.impl.background.systemjob.SystemJobService
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+    com.heytap.market:
+      com.anonymous.mymobileapp
+    com.heytap.speechassist:
+      com.anonymous.mymobileapp
+    com.heytap.themestore:
+      com.anonymous.mymobileapp
+    com.oplus.vip:
+      com.anonymous.mymobileapp
+    com.coloros.oshare:
+      com.anonymous.mymobileapp
+    com.oplus.screenshot:
+      com.anonymous.mymobileapp
+    com.baidu.input_oppo:
+      com.anonymous.mymobileapp
+    com.finshell.wallet:
+      com.anonymous.mymobileapp
+    [com.heytap.xgame,com.nearme.instant.platform]:
+      com.anonymous.mymobileapp
+    com.oplus.pay:
+      com.anonymous.mymobileapp
+    com.heytap.browser:
+      com.anonymous.mymobileapp
+    com.heytap.music:
+      com.anonymous.mymobileapp
+    com.heytap.cloud:
+      com.anonymous.mymobileapp
+    com.heytap.htms:
+      com.anonymous.mymobileapp
+    com.heytap.pictorial:
+      com.anonymous.mymobileapp
+    com.android.systemui:
+      com.anonymous.mymobileapp
+    com.coloros.assistantscreen:
+      com.anonymous.mymobileapp
+    com.nearme.gamecenter:
+      com.anonymous.mymobileapp
+    com.oppo.store:
+      com.anonymous.mymobileapp
+    com.heytap.health:
+      com.anonymous.mymobileapp
+    com.oppo.community:
+      com.anonymous.mymobileapp
+    com.heytap.reader:
+      com.anonymous.mymobileapp
+    com.redteamobile.roaming:
+      com.anonymous.mymobileapp
+    com.sankuai.meituan:
+      com.anonymous.mymobileapp
+    com.anonymous.mymobileapp:
+      com.google.android.documentsui
+      com.heytap.browser
+      com.microsoft.emmx
+  queryable via interaction:
+    User 0:
+      [com.oplus.customize.coreapp,com.android.providers.settings,com.oplus.athena,com.heytap.mcs,com.android.keychain,com.android.server.telecom,com.oplus.obrain,com.oplus.appplatform,com.oplus.subsys,com.oplus.powermonitor,com.oplus.exsystemservice,android,com.oplus.wifibackuprestore,com.oplus.safecenter,com.oplus.engineercamera,com.android.location.fused,com.android.dynsystem,com.oplus.crashbox,com.oplus.sauhelper,com.oplus.postmanservice,com.tencent.soter.soterserver,com.oplus.logkit,com.oplus.lfeh,com.oplus.qualityprotect,com.trustonic.teeservice,com.android.settings,com.fido.fido2client,com.oplus.sau,com.oplus.vdc,com.oplus.healthservice,com.oplus.engineermode,com.oplus.securitypermission,com.mediatek.location.lppe.main,com.oplus.engineernetwork,com.oplus.trafficmonitor,com.oplus.audio.effectcenter,com.oplus.battery,com.oplus.atlas,com.android.wallpaperbackup,com.wapi.wapicertmanager,com.android.localtransport,com.oplus.olc,com.oplus.onetrace,com.android.inputdevices,com.oplus.notificationmanager,com.oplus.wirelesssettings,com.mediatek,oplus]:
+        com.anonymous.mymobileapp
+      com.baidu.input_oppo:
+        com.anonymous.mymobileapp
+      [com.google.android.gsf,com.google.android.gms]:
+        com.anonymous.mymobileapp
+      com.anonymous.mymobileapp:
+        [com.oplus.customize.coreapp,com.android.providers.settings,com.oplus.athena,com.heytap.mcs,com.android.keychain,com.android.server.telecom,com.oplus.obrain,com.oplus.appplatform,com.oplus.subsys,com.oplus.powermonitor,com.oplus.exsystemservice,android,com.oplus.wifibackuprestore,com.oplus.safecenter,com.oplus.engineercamera,com.android.location.fused,com.android.dynsystem,com.oplus.crashbox,com.oplus.sauhelper,com.oplus.postmanservice,com.tencent.soter.soterserver,com.oplus.logkit,com.oplus.lfeh,com.oplus.qualityprotect,com.trustonic.teeservice,com.android.settings,com.fido.fido2client,com.oplus.sau,com.oplus.vdc,com.oplus.healthservice,com.oplus.engineermode,com.oplus.securitypermission,com.mediatek.location.lppe.main,com.oplus.engineernetwork,com.oplus.trafficmonitor,com.oplus.audio.effectcenter,com.oplus.battery,com.oplus.atlas,com.android.wallpaperbackup,com.wapi.wapicertmanager,com.android.localtransport,com.oplus.olc,com.oplus.onetrace,com.android.inputdevices,com.oplus.notificationmanager,com.oplus.wirelesssettings,com.mediatek,oplus]
+  queryable via uses-library:
+
+Package Changes:
+  Sequence number=766
+  User 0:
+    seq=0, package=com.oplus.logkit
+    seq=5, package=com.oplus.linker
+    seq=6, package=com.oplus.customize.coreapp
+    seq=7, package=com.oplus.exsystemservice
+    seq=8, package=com.android.permissioncontroller
+    seq=10, package=com.android.systemui
+    seq=14, package=com.coloros.alarmclock
+    seq=20, package=com.android.launcher
+    seq=55, package=com.android.wallpaper.livepicker
+    seq=58, package=com.oplus.cosa
+    seq=60, package=com.android.stk
+    seq=61, package=com.oplus.battery
+    seq=62, package=com.google.android.cellbroadcastreceiver
+    seq=68, package=com.google.android.documentsui
+    seq=75, package=com.android.contacts
+    seq=77, package=com.android.statementservice
+    seq=78, package=com.oplus.safecenter
+    seq=87, package=com.coloros.codebook
+    seq=101, package=com.android.vending
+    seq=146, package=com.google.android.syncadapters.contacts
+    seq=347, package=com.google.android.gsf
+    seq=414, package=com.coloros.bootreg
+    seq=418, package=com.coloros.activation
+    seq=420, package=com.android.mms.service
+    seq=428, package=com.coloros.ocs.opencapabilityservice
+    seq=433, package=cn.wps.moffice.lite
+    seq=436, package=com.coloros.familyguard
+    seq=439, package=com.coloros.backuprestore
+    seq=442, package=com.coloros.favorite
+    seq=445, package=com.heytap.xgame
+    seq=533, package=com.unionpay.tsmservice
+    seq=540, package=com.coloros.findphone.client2
+    seq=542, package=com.coloros.findmyphone
+    seq=549, package=com.android.email
+    seq=552, package=com.finshell.wallet
+    seq=555, package=com.heytap.smarthome
+    seq=559, package=com.heytap.reader
+    seq=576, package=com.oplus.uiengine
+    seq=604, package=com.coloros.securityguard
+    seq=609, package=com.coloros.phonemanager
+    seq=623, package=com.heytap.market
+    seq=625, package=com.oplus.crashbox
+    seq=628, package=com.heytap.themestore
+    seq=630, package=com.android.mms
+    seq=633, package=com.coloros.translate.engine
+    seq=634, package=com.heytap.cloud
+    seq=637, package=com.baidu.input_oppo
+    seq=638, package=com.coloros.gallery3d
+    seq=641, package=com.heytap.health
+    seq=646, package=com.heytap.quicksearchbox
+    seq=651, package=com.nearme.instant.platform
+    seq=652, package=com.heytap.yoli
+    seq=654, package=com.oplus.pay
+    seq=658, package=com.oplus.sos
+    seq=659, package=com.oplus.games
+    seq=662, package=com.oplus.statistics.rom
+    seq=663, package=com.oplus.vip
+    seq=664, package=com.oppo.community
+    seq=668, package=com.heytap.htms
+    seq=673, package=com.coloros.focusmode
+    seq=678, package=com.coloros.calendar
+    seq=679, package=com.heytap.speechassist
+    seq=684, package=com.oplus.sauhelper
+    seq=685, package=com.oppo.instant.local.service
+    seq=686, package=com.coloros.sceneservice
+    seq=687, package=com.oplus.ocar
+    seq=690, package=com.google.android.ext.services
+    seq=719, package=com.android.carrierdefaultapp
+    seq=720, package=com.coloros.childrenspace
+    seq=721, package=com.heytap.mcs
+    seq=722, package=com.microsoft.emmx
+    seq=726, package=com.sankuai.meituan
+    seq=729, package=com.coloros.assistantscreen
+    seq=730, package=com.oppo.store
+    seq=731, package=com.coloros.weather.service
+    seq=734, package=com.coloros.weather2
+    seq=737, package=com.heytap.browser
+    seq=738, package=com.heytap.pictorial
+    seq=739, package=com.oplus.appdetail
+    seq=740, package=com.nearme.gamecenter
+    seq=743, package=com.oplus.melody
+    seq=746, package=com.oplus.play
+    seq=749, package=com.android.shell
+    seq=750, package=com.android.settings
+    seq=752, package=com.android.bluetooth
+    seq=754, package=com.heytap.music
+    seq=755, package=com.android.traceur
+    seq=757, package=com.google.android.gms
+    seq=763, package=com.coloros.securepay
+    seq=765, package=com.anonymous.mymobileapp
+
+
+Dexopt state:
+  [com.anonymous.mymobileapp]
+    path: /data/app/~~scl40lOewIJrvDOUjI31GA==/com.anonymous.mymobileapp-4c25r_yodksSLqIUoB6fZw==/base.apk
+      arm64: [status=verify] [reason=install]
+
+
+Compiler stats:
+  [com.anonymous.mymobileapp]
+     base.apk - 2067
+
+APEX session state:
+
+Active APEX packages:
+
+
+Inactive APEX packages:
+
+
+Factory APEX packages:
+
+
+Snapshot statistics
+   Unrecorded-hits: 754  Cork-level: 0
+   Summary stats               TotBlds     TotUsed     TotCork     BigBlds    ShortLvd     TotTime     MaxTime
+          0:56         now           0           0           0           0           0           0           0
+          1:56        0:56          24       10255           0           0           2          20           4
+          2:56        1:56          23        8420           0           0           1          20           1
+          3:56        2:56           2        1523           0           0           0           2           1
+          4:56        3:56           2       23656           0           0           0           2           1
+          5:56        4:56           0           0           0           0           0           0           0
+          6:56        5:56           0           0           0           0           0           0           0
+          7:56        6:56           0           0           0           0           0           0           0
+          8:56        7:56           0           0           0           0           0           0           0
+          9:56        8:56           0           0           0           0           0           0           0
+   18:04:53:47         now        3842     8236692          56          58         886        4069          30
+
+   Build times                  <= 1ms      <= 2ms      <= 5ms     <= 10ms     <= 20ms     <= 50ms    <= 100ms     > 100ms
+          0:56         now           0           0           0           0           0           0           0           0
+          1:56        0:56          23           0           1           0           0           0           0           0
+          2:56        1:56          23           0           0           0           0           0           0           0
+          3:56        2:56           2           0           0           0           0           0           0           0
+          4:56        3:56           2           0           0           0           0           0           0           0
+          5:56        4:56           0           0           0           0           0           0           0           0
+          6:56        5:56           0           0           0           0           0           0           0           0
+          7:56        6:56           0           0           0           0           0           0           0           0
+          8:56        7:56           0           0           0           0           0           0           0           0
+          9:56        8:56           0           0           0           0           0           0           0           0
+   18:04:53:47         now        3560         140          56          34          44           8           0           0
+
+   Use counters                   <= 1        <= 2        <= 5       <= 10       <= 20       <= 50      <= 100       > 100
+          0:56         now           0           0           0           0           0           0           0           0
+          1:56        0:56           2           0           0           0           0           0           1          21
+          2:56        1:56           1           0           0           0           0           0           0          22
+          3:56        2:56           0           0           0           0           0           0           0           2
+          4:56        3:56           0           0           0           0           0           0           0           2
+          5:56        4:56           0           0           0           0           0           0           0           0
+          6:56        5:56           0           0           0           0           0           0           0           0
+          7:56        6:56           0           0           0           0           0           0           0           0
+          8:56        7:56           0           0           0           0           0           0           0           0
+          9:56        8:56           0           0           0           0           0           0           0           0
+   18:04:53:47         now         563          92         230         236         336         283         441        1660
