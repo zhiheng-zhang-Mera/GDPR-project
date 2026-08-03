@@ -54,6 +54,30 @@ assert(evaluationMetrics.trueNegative === 10, '50-round evaluation must include 
 assert(evaluationMetrics.precision === 1, '50-round evaluation precision must be 1.');
 assert(evaluationMetrics.recall === 1, '50-round evaluation recall must be 1.');
 
+let seed = 0x5eed1234;
+const seededRandom = () => {
+  seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+  return seed / 0x1_0000_0000;
+};
+const monteCarloSamples = Array.from({ length: 1_000 }, (_, round) => {
+  const evaluationConfig = createEvaluationConfig(round, 1_700_000_000_000 + round, seededRandom);
+  const result = new GDPRComplianceEngine().evaluate(simulationToAudit(evaluationConfig));
+  return {
+    expectedViolation: evaluationConfig.expectedViolation,
+    detectedViolation: result.isActive,
+  };
+});
+const monteCarloMetrics = calculateMetrics(monteCarloSamples);
+assert(monteCarloMetrics.truePositive === 800, '1000-round evaluation must include 800 violations.');
+assert(monteCarloMetrics.trueNegative === 200, '1000-round evaluation must include 200 controls.');
+assert(monteCarloMetrics.falsePositive === 0, '1000-round evaluation must have no false positives against its oracle.');
+assert(monteCarloMetrics.falseNegative === 0, '1000-round evaluation must have no false negatives against its oracle.');
+console.log(
+  `1000-round seeded logical evaluation: TP=${monteCarloMetrics.truePositive}, TN=${monteCarloMetrics.trueNegative}, ` +
+    `FP=${monteCarloMetrics.falsePositive}, FN=${monteCarloMetrics.falseNegative}, ` +
+    `precision=${monteCarloMetrics.precision.toFixed(4)}, recall=${monteCarloMetrics.recall.toFixed(4)}.`,
+);
+
 const metrics = calculateMetrics([
   { expectedViolation: true, detectedViolation: true },
   { expectedViolation: true, detectedViolation: false },
