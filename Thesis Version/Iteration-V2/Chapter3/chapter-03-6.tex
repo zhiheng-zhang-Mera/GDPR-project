@@ -1,0 +1,276 @@
+\newpage
+\section{System Requirements and Overall Design}
+
+\paragraph{Revision-3 scope.} The evaluated path comprises runtime-validated structured observations, the TypeScript compliance engine, AsyncStorage finding persistence, React Native presentation, and a WorkManager synthetic-event harness. Room, unrestricted third-party AppOps history, and physical 24-hour endurance are target-architecture components rather than evidence from the reported rerun.
+
+\subsection{System Boundaries and Positioning}
+
+The proposed framework is positioned as a non-intrusive, low-power privacy compliance supervision tool for end users. The system explicitly acts as a monitoring and analysis auditor without intercepting or blocking data flows, ensuring zero interference with normal application functionalities. This design choice is deliberate: active interception approaches——such as kernel-level API blockades or local differential privacy injection——introduce severe systemic risks including application crashes, battery degradation, and CPU monopolisation. By transitioning from confrontational active blocking to transparent passive auditing, the framework aligns with the GDPR's spirit of minimising impact on data subjects.
+
+The system boundary is defined by three core principles:
+
+\begin{itemize}
+\item \textbf{Monitoring only, no interception}: The framework reads historical data without modifying or intercepting permission calls, consistent with Privacy by Design——enhancing transparency without affecting normal system operation.
+\item \textbf{No root required}: All data reading uses public APIs, ensuring ordinary users can install and use the framework without system-level privileges.
+\item \textbf{Low resource footprint}: Background scheduling naturally adapts to system power-saving policies, with target memory below 150 MB and extra battery drain under 2\%.
+\item \textbf{Offline operation}: All auditing and decision logic runs locally on the device; no data is transmitted to external servers, preserving user privacy.
+\end{itemize}
+
+The validated input is a structured \texttt{PermissionAudit} containing a package name, one of three supported permission categories (LOCATION, MICROPHONE, CONTACTS), an access count, and an audit-window start and end. The validated output is an explainable \texttt{ComplianceFinding}. The framework does not intercept calls, block data transfer, determine legal liability, or prove that consent withdrawal has been enforced by another application.
+
+Acquisition and decision are treated as separate trust domains:
+\begin{itemize}
+\item the \textbf{acquisition domain} is responsible for producing authentic, well-formed observations under an Android-supported authority model;
+\item the \textbf{decision domain} evaluates those observations using transparent rules; and
+\item the \textbf{presentation domain} stores and displays findings without upgrading a warning into a legal conclusion.
+\end{itemize}
+
+\subsection{Threat Model and Security Assumptions}
+
+Before detailing the architecture, it is essential to define the threat model and security assumptions that underpin the design:
+
+\begin{itemize}
+\item \textbf{Trusted Platform}: The underlying Android operating system and its kernel are assumed trustworthy. Specifically, the integrity of the AppOpsManager service and its callback mechanism is relied upon. If the OS is compromised (e.g., through rooting or custom ROMs with modified permission systems), the guarantees provided by the framework are weakened.
+\item \textbf{Trusted User}: The end user is assumed non-malicious and has a legitimate interest in monitoring their own device's permission usage. The framework does not defend against a user who intentionally manipulates the audit data or bypasses the monitoring.
+\item \textbf{Untrusted Apps}: All third-party applications installed on the device are treated as potentially untrusted. They may attempt to access permissions in ways that circumvent the callback mechanism, though Android's security model prevents direct circumvention of AppOpsManager.
+\item \textbf{Adversary Capabilities}: An adversary aims to exfiltrate sensitive data via excessive or unauthorised permission accesses. The adversary can install malicious apps that request broad permissions and use sophisticated timing patterns to evade detection. However, the adversary cannot modify the Android framework or the AppOpsManager service itself.
+\end{itemize}
+
+Based on this threat model, the primary security goals are: (1) detecting excessive permission usage patterns that indicate potential data exfiltration; (2) verifying that consent revocation is respected at the system level; (3) providing non-repudiable audit logs for accountability. The system does not attempt to prevent permission access in real time (i.e., no blocking), as that would require system-level privileges beyond the scope of this work.
+
+\subsection{Implementation Scope Statement}
+
+The architecture described in this chapter represents the complete design target for the framework. However, it is important to distinguish between the target architecture and the implemented prototype. The current implementation——described in detail in Chapter 4——realises a subset of this architecture: specifically, the TypeScript-based decision engine, the automated violation simulator, the local finding repository (using AsyncStorage), and the React Native presentation layer. The native acquisition components (\texttt{AppOpsManager} callback registration, WorkManager-based scheduling) and the relational persistence layer (Room database) are specified as target architecture for future development. This separation is deliberate: it allows the core decision logic and validation methodology to be developed and tested independently of the underlying data acquisition mechanism, which may vary across Android versions and deployment contexts.
+
+The validation methodology presented in this thesis therefore focuses on the decision layer, using structured \texttt{PermissionAudit} observations supplied by the simulator or a future authorised acquisition module. Claims about cross-application permission history collection, WorkManager reliability over extended periods, and battery consumption are not supported by the current prototype and are identified as future work in Chapters 6 and 7.
+
+\subsection{Functional and Non-Functional Requirements}
+
+The implemented prototype must satisfy the following functional requirements:
+\begin{enumerate}
+\item Evaluate LOCATION, MICROPHONE, and CONTACTS observations through a common engine interface;
+\item Expose the threshold, excess count, risk level, GDPR mapping, rationale, and detection time for each finding;
+\item Generate reproducible benign and violating simulation cases;
+\item Persist the latest finding for each package-permission pair locally;
+\item Identify whether a finding changed or escalated in severity;
+\item Display experiment and privacy results in the Android application;
+\item Permit release-build testing through adb-driven interaction and evidence capture.
+\end{enumerate}
+
+Non-functional requirements include explainability, reproducibility, local operation, and bounded resource use. A fixed seed must reproduce logical test sequences. Findings must be understandable without inspecting source code. Personal audit data should remain on the device unless the user deliberately exports it. The release application should remain responsive and below the provisional 150 MB PSS target during accelerated evaluation.
+
+Security requirements derived from the adversarial model include: permission values must belong to an explicit whitelist; counts must be finite, non-negative integers; window timestamps must be finite integers with a valid ordering and bounded duration; invalid input must produce a structured rejection and an audit record.
+
+\subsection{Compliance Evidence and Human Review Architecture}
+
+The final requirements distinguish three architectural layers. The \textbf{technical layer} detects aggregate, burst, and cross-window signals. The \textbf{compliance layer} evaluates whether the audit includes purpose, Article 6 lawful basis, controller identity, retention period, and any required Article 9 condition. The \textbf{presentation layer} communicates the result without collapsing uncertainty into a binary legal label.
+
+Four compliance states are defined:
+\begin{itemize}
+\item \texttt{INSUFFICIENT\_EVIDENCE}: The observation lacks necessary contextual information for a compliance assessment.
+\item \texttt{REVIEW\_REQUIRED}: The technical signal warrants human review, but no definitive conclusion can be drawn.
+\item \texttt{LIKELY\_NON\_COMPLIANT}: The technical evidence strongly suggests a compliance concern requiring action.
+\item \texttt{NO\_TECHNICAL\_CONCERN}: No modelled anomaly is detected and the declared context is complete enough for this limited check.
+\end{itemize}
+
+The last state is deliberately narrower than ``compliant''. It only states that the supplied technical observation contains no modelled anomaly and that the declared context is complete enough for this limited check. Final legal responsibility remains with the controller and human reviewer.
+
+Evidence completeness is treated as a first-class requirement. Processing based on consent is escalated when consent is recorded as withdrawn and access continues. Special-category processing requires an Article 9 condition in addition to its Article 6 basis. Invalid context values are rejected at the same trust boundary as invalid counts and timestamps.
+
+The secondary HCI requirement is calibrated communication. No-concern observations are silent; evidence gaps and ordinary anomalies receive standard review prompts; likely non-compliance or critical technical risk is urgent. Every message includes a short reason and a recommended human action, preventing the warning system from substituting interface confidence for legal evidence.
+
+\subsection{System Architecture Overview}
+
+The architecture contains five cooperating components that follow a layered design separating data acquisition, storage, analysis, and presentation:
+
+\begin{enumerate}
+\item \textbf{Compliance engine}: \texttt{GDPRComplianceEngine} implements \texttt{IComplianceEngine} and evaluates one structured audit at a time. The engine integrates a sensitive permission-to-rule mapping library; for instance, excessive background location access is directly mapped to GDPR Art. 5(1)(c) (Data Minimisation).
+\item \textbf{Rule configuration}: \texttt{GDPR\_RULES} stores the baseline, deviation multiplier, GDPR mapping, and rationale for each supported permission. The configuration is stored externally (e.g., JSON) to allow updates without code changes.
+\item \textbf{Simulation and evaluation}: \texttt{ViolationSimulator} generates configurations and converts them to audits. Evaluation code records confusion-matrix outcomes against ground truth.
+\item \textbf{Finding repository}: \texttt{ViolationRepository} persists findings locally and determines whether a finding is new, changed, or escalated.
+\item \textbf{Application and bridge boundary}: React Native screens invoke the TypeScript services. An optional native-module boundary named \texttt{PrivacyBridge} delegates acquisition, scheduling, and dispatch functions to a native \texttt{PrivacyInspector} module when one is present. The evaluated build does not establish unrestricted acquisition of other applications' AppOps history.
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+node distance=1.2cm and 1.4cm,
+box/.style={draw, rounded corners, align=center, minimum width=3.2cm, minimum height=1cm},
+arrow/.style={->, thick}
+]
+\node[box, fill=bluebox] (source) {Simulation or authorised\\audit source};
+\node[box, fill=orangebox, right=of source] (validation) {Runtime schema\\validation boundary};
+\node[box, fill=greenbox, right=of validation] (engine) {GDPRComplianceEngine\\and explicit rules};
+\node[box, fill=bluebox, below=of engine] (repo) {AsyncStorage\\finding repository};
+\node[box, fill=orangebox, left=of repo] (ui) {React Native\\views and telemetry};
+\draw[->] (source) -- (validation);
+\draw[->] (validation) -- (engine);
+\draw[->] (engine) -- (repo);
+\draw[->] (repo) -- (ui);
+\draw[->] (ui) |- (source);
+\end{tikzpicture}
+\caption{Prototype architecture with explicit input-validation boundary}
+\label{fig:final-architecture}
+\end{figure}
+
+The validation boundary is shown explicitly because it is the highest-priority missing control identified by testing. Its architectural placement ensures that no malformed value reaches threshold lookup or arithmetic.
+
+\subsection{Target Data Acquisition: Historical Permission Audit Retrieval}
+
+This section describes the \emph{target architecture} for data acquisition——the native-layer components that would provide real permission observations in a production deployment. These components are specified as design targets; the current prototype uses simulated observations supplied by the violation simulator.
+
+The foundation of monitoring capability is the Android \texttt{AppOpsManager} system service. In Android 11 and later, the platform provides a public API to register a callback that is notified whenever an app accesses a protected data resource. The primary callback used is \texttt{onOpStarted} as it provides the earliest notification that a permission is about to be used. Each callback supplies the operation code (e.g., \texttt{OP\_FINE\_LOCATION}, \texttt{OP\_CAMERA}), the package name, and the user ID. The system clock time with millisecond precision is also recorded.
+
+One critical consideration is the high volume of events——a typical smartphone may generate hundreds of permission accesses per hour. To reduce storage overhead and improve query performance, only events for permissions deemed sensitive under GDPR are persisted. A batch insertion strategy accumulates events for a short period before flushing to the database, balancing data completeness with battery and I/O consumption.
+
+The callback mechanism is registered at application startup and remains active for the lifetime of the process. Events occurring while the app is not running cannot be captured. To mitigate this, the periodic worker checks for any missed violations during downtime; however, Android's public API does not expose historical access logs to non-system apps. This is a well-known limitation acknowledged in the design.
+
+For historical audit retrieval, the user can view a full timeline of all recorded events for each app via the dashboard. The timeline is paginated for performance, with filtering by permission type, date range, and risk level.
+
+\subsection{Target Data Persistence and Deduplication}
+
+The data persistence layer described here is the target architecture, using Room——Android's recommended abstraction layer over SQLite. The current prototype uses AsyncStorage for storing the latest findings only; the full relational schema remains a future extension.
+
+The Room database schema would consist of three main tables:
+\begin{itemize}
+\item \textbf{op\_events}: stores raw callback data. Columns: \texttt{id} (primary key), \texttt{package\_name}, \texttt{permission\_code}, \texttt{timestamp}, \texttt{uid}, and \texttt{attribution\_tag}. An index on \texttt{(package\_name, permission\_code, timestamp)} accelerates aggregation queries.
+\item \textbf{daily\_aggregates}: stores per-day per-app per-permission summaries. Columns: \texttt{date}, \texttt{package\_name}, \texttt{permission\_code}, \texttt{total\_count}, \texttt{hourly\_distribution} (as a JSON array of 24 integers). This table is populated by the periodic worker using a SQL query that groups events by date, package, and permission.
+\item \textbf{violation\_reports}: stores the output of each analysis cycle. Columns: \texttt{report\_id}, \texttt{package\_name}, \texttt{permission\_code}, \texttt{observed\_count}, \texttt{baseline}, \texttt{threshold}, \texttt{risk\_level} (LOW, MEDIUM, HIGH, CRITICAL), \texttt{detected\_at}, and \texttt{resolved\_at} (if the user has dismissed it).
+\end{itemize}
+
+Deduplication would be handled at two levels: a composite unique constraint on \texttt{op\_events} for \texttt{(package\_name, permission\_code, timestamp, uid)} prevents duplicate insertion; and during aggregation, events older than 7 days are ignored to keep the database size bounded. A monthly cleanup job deletes events older than 30 days, maintaining a rolling window.
+
+\subsection{Decision Model and Threshold Computation}
+
+For each permission $p$, the engine calculates:
+
+\begin{equation}
+T_p=\max(1,\lceil B_pM_p\rceil),
+\end{equation}
+
+where $B_p$ is the configured baseline and $M_p=1.5$. The implemented baselines are 24 for LOCATION, 8 for MICROPHONE, and 4 for CONTACTS, yielding thresholds of 36, 12, and 6 respectively. These baselines are prototype values configured for demonstration; empirical calibration is deferred to future work. The excess and ratio are:
+
+\begin{equation}
+E=\max(0,x-T_p),\qquad R=E/T_p.
+\end{equation}
+
+A finding is active when $E>0$. Active findings are mapped to MEDIUM, HIGH, or CRITICAL according to the excess ratio; inactive findings are LOW. These severity labels prioritise review and do not state the severity of a legally adjudicated GDPR violation.
+
+The algorithm for violation detection is:
+\begin{enumerate}
+\item For each app and permission, retrieve the current day's total count from daily aggregates.
+\item Retrieve the baseline and threshold from configuration.
+\item If count $>$ threshold, compute deviation $=$ count / baseline.
+\item Map deviation to risk level using a severity map.
+\item If risk level is at least LOW, generate a violation.
+\item For revocation verification, check if the permission is currently denied by system and if any calls have been recorded in the last 24 hours; if so, flag CRITICAL.
+\end{enumerate}
+
+\subsection{Temporal Model and Known Coverage Gap}
+
+The input structure contains trigger times and window fields, but the current decision uses only the aggregate count. Consequently, uniform and burst distributions with the same count receive the same verdict, and adjacent windows do not share cumulative state. The final design therefore specifies a later temporal layer containing peak rate, minute/hour/day windows, and decaying cross-window state. This layer is a repair requirement, not an implemented result.
+
+Short-term burst and cross-window split attacks each bypass the detector in all tested scenarios; all invalid time windows are accepted; and malformed inputs are silently classified as normal. These adversarial results demonstrate why a narrow rule must not be generalised into a claim of complete GDPR compliance detection.
+
+\subsection{Modular Compliance Engine and GDPR Audit Support}
+
+A central design principle is \textbf{modularity with explicit regulatory audit hooks}. The compliance engine is structured as a pluggable module that exposes clear interfaces for GDPR-specific compliance checks. The framework treats GDPR compliance as a \textbf{configurable audit specification}, achieved through:
+
+\begin{enumerate}
+\item \textbf{Separation of policy from mechanism}: The \texttt{IComplianceEngine} interface decouples auditing logic from regulatory rules. The expert baseline library and dynamic threshold parameters are stored in external configuration, allowing GDPR-specific thresholds to be updated without modifying core code.
+\item \textbf{Audit trail generation}: Every audit cycle produces a structured \texttt{ComplianceReport} recording permission statistics, baseline and threshold values, violation status and reason. This serves as an auditable record fulfilling GDPR Article 5(2) accountability requirements.
+\item \textbf{Regulatory framework parameterisation}: The engine supports dynamic selection of regulatory frameworks (GDPR, PIPL, CCPA). Each framework defines its own mapping of ``special categories'' and permissible thresholds. For GDPR, the engine specifically flags permissions accessing health-related data (location, heart rate sensors, activity recognition) as high-sensitivity, applying stricter baseline multipliers.
+\item \textbf{Verifiable consent revocation tracking}: The framework monitors both call frequencies and the correlation between UI-level permission toggles and actual kernel-level API usage. If an app continues to access a permission after the user has revoked it via system settings, the framework flags a critical violation citing GDPR Art. 7(3).
+\end{enumerate}
+
+\subsection{Automated Test Harness Design (Violation Simulator)}
+
+To systematically validate the framework's detection accuracy, a dedicated \textbf{Violation Simulator} module is introduced. This test harness operates in a controlled environment, generating synthetic permission call logs that mimic both benign and malicious behaviour. The simulator addresses the lack of real-world malicious datasets by generating randomised violation logs that serve as the ``Ground Truth'' for evaluating the system's accuracy.
+
+The simulator's architecture comprises three core components:
+\begin{enumerate}
+\item \textbf{Random Configuration Generator}: Produces test parameters including target permission type, total call count (ranging from 0 to 200 per run), distribution pattern (uniform, bursty, periodic), and time window (bounded to the next 24 hours). The generator uses a fixed seed for reproducibility.
+\item \textbf{Scheduler}: Uses WorkManager's \texttt{OneTimeWorkRequest} to dispatch simulated permission calls at the configured random times, respecting Android's background execution limits while providing fine-grained control over event timing.
+\item \textbf{Ground Truth Recorder}: Logs the exact parameters of each simulated run, serving as the ``expected result'' against which the audit engine's output is compared during validation.
+\end{enumerate}
+
+The simulator has two operation modes:
+\begin{itemize}
+\item \textbf{Logical (Offline) Mode}: Directly inserts synthetic event records into the database, bypassing the callback registration. Used for unit tests and Monte Carlo simulations where thousands of scenarios can be run quickly.
+\item \textbf{Integration (Online) Mode}: Uses the actual callback infrastructure by mocking the system service. Reserved for the final smoke test on a real device with a specially crafted APK that mimics a malicious app.
+\end{itemize}
+
+The acceptance criteria are: deterministic engine tests pass; a 50-round corpus contains both positive and negative controls; precision and recall are computed from explicit ground truth; malformed configurations fail closed; and the bridge can retrieve audit capability evidence plus simulation progress. Synthetic storage is intentionally local.
+
+\subsection{Layered Validation Strategy and Evaluation Protocol}
+
+The framework employs a layered validation strategy to ensure algorithmic correctness while maintaining engineering feasibility:
+
+\textbf{Logical layer (Monte Carlo injection)}: Bypasses physical hardware, generates large random permission call samples in the JUnit memory environment (random package names, random permission types, random counts, random timestamps). This completes thousands of rounds of random testing within minutes, validating algorithmic correctness——including precision, recall, and F1-score. The theoretical foundation is that algorithmic correctness is a function of the input-output mapping, independent of the physical source of inputs.
+
+\textbf{Integration layer (automated simulation + single smoke test)}: The violation simulator runs $N$ independent 24-hour test cycles with randomised call patterns. The audit engine's outputs are automatically compared against ground truth. Additionally, one end-to-end test on a real device uses a specially crafted malicious APK to verify the end-to-end flow.
+
+Validation proceeds in the following order:
+\begin{enumerate}
+\item deterministic checks for rule and boundary semantics;
+\item independent-oracle Monte Carlo sampling;
+\item release-APK workflow and repeated endurance evaluation;
+\item adversarial temporal, window, type, and key mutation;
+\item Android random-event testing and replay; and
+\item future physical-device, native-source, and long-duration testing.
+\end{enumerate}
+
+Each layer has its own oracle. Classification metrics are used only when positive and negative labels are meaningful. Rejection rate, silent-normal rate, non-finite-output rate, bypass rate, process survival, memory, and frame evidence are reported for adversarial and APK stages.
+
+The integrated evaluation protocol follows the implementation order used in practice: deterministic logic tests precede release assembly; UIAutomator-derived interactions then validate the complete dashboard; finally, seeded stress inputs measure survival, memory and frame timing on distinct device profiles. The functional ground truth contains 40 violations and 10 controls per run. UI inspection checks that technical risk, legal status, evidence gaps and recommended action remain separately visible.
+
+Two Android 15/API 35 profiles were used: Pixel 4 at 1080x2280 and Pixel 7 at 1080x2400/420 dpi. Cold start was measured with \texttt{am start -W}; memory with \texttt{dumpsys meminfo}; and frames with \texttt{dumpsys gfxinfo}. This is an engineering validation across models, not a statistically representative device sample.
+
+\subsection{Notification and Alerting Strategy}
+
+To avoid overwhelming the user, a tiered notification strategy balances awareness with cognitive load. Notifications are generated only when a violation is detected or when the risk level of an existing violation escalates. The following rules apply:
+
+\begin{itemize}
+\item \textbf{LOW risk}: A single silent notification posted to the notification shade with a low priority channel. No sound or vibration is used.
+\item \textbf{MEDIUM risk}: A standard notification with sound and vibration, but only if no similar notification for the same app and permission has been posted in the last 24 hours.
+\item \textbf{HIGH or CRITICAL risk}: An immediate alert with sound, vibration, and a persistent heads-up notification. A system-level dialog is displayed if the user opens the dashboard.
+\item \textbf{Revocation failure}: Always CRITICAL, generating an urgent notification as it directly undermines user consent.
+\end{itemize}
+
+To implement this, the last notification time per (package, permission, risk level) is stored. Before sending a new notification, a cooldown period check is performed. For critical violations, an optional email-like summary can be enabled.
+
+The notification content is dynamically generated to include the app name, permission description, observed count, baseline, and a plain-language interpretation. All notifications are actionable: tapping them opens the dashboard filtered to the relevant app and permission.
+
+\subsection{Target Scheduling and Resource Management}
+
+This section describes the target scheduling architecture using WorkManager. In the current prototype, scheduling is simulated within the TypeScript test harness; the native WorkManager layer remains a future extension.
+
+The auditing pipeline would be orchestrated by WorkManager, which provides a robust API for deferrable background work. A \texttt{PeriodicWorkRequest} is defined with a 24-hour interval and a flex period of 4 hours, allowing the system to align execution with the device's optimal wake-up times. The worker uses \texttt{Result.success()} and \texttt{Result.retry()} appropriately; if the database is locked, retry with exponential backoff.
+
+A one-time worker is scheduled at boot completion to re-register the callback and check for any missed violations during downtime. To manage memory, \texttt{androidx.lifecycle} components observe the database and update the UI reactively. The dashboard uses \texttt{RecyclerView} with efficient view holder recycling and loads only the last 30 days of data for performance. The baseline JSON is cached in memory to avoid repeated disk reads.
+
+Battery consumption is measured via Android's built-in battery stats and custom logging of CPU and wake time. The callback registration is kept lightweight——\texttt{onOpStarted} only inserts into a queue, and a separate coroutine flushes the queue periodically. This reduces the overhead of each callback to a few microseconds. The aggregation worker runs once per day and takes at most 2 seconds, resulting in negligible total energy impact.
+
+\subsection{User Dashboard and Interaction Design}
+
+To empower users with actionable insights, the framework includes a comprehensive dashboard built using React Native components with data bound via ViewModel and LiveData for reactive updates.
+
+The dashboard consists of three primary views:
+\begin{enumerate}
+\item \textbf{Overview View}: A summary card showing total violations per risk level, the number of apps with active violations, and a trend line of violations over the last 7 days.
+\item \textbf{App Detail View}: For a selected app, displays all permissions with observed counts, baselines, and risk levels. Users can tap on any permission to see the full timeline of events, with timestamps and operation results.
+\item \textbf{Audit Log View}: A searchable, filterable list of all violation reports. Each item shows the app name, permission, risk level, detection time, and a user-friendly explanation. Users can mark violations as ``resolved'' or ``ignored''.
+\end{enumerate}
+
+The dashboard includes a settings screen where users can configure notification preferences, choose the regulatory framework (GDPR/PIPL/CCPA), and view the current baseline configuration. A prominent ``Verify Consent'' button allows users to trigger an on-demand consent revocation check for all apps.
+
+The user experience is designed to minimise cognitive load: colour coding (green for safe, yellow for warning, red for violation), clear icons, and concise text descriptions are used. Educational tooltips explain each permission type and the associated GDPR article, helping users build their understanding of privacy concepts over time.
+
+\subsection{Summary}
+
+The final architecture aligns claims with executable artefacts. It treats native permission acquisition as a separate, privilege-sensitive component; defines the TypeScript rule engine as the evaluated core; makes runtime validation an explicit missing security boundary; and preserves a clear path from a generated observation to an explainable stored finding. Battery consumption, multi-day scheduling, and manufacturer-specific background behaviour are validation requirements for a future native acquisition layer rather than satisfied requirements of the current prototype.
+
+The comprehensive design ensures that the framework is both accurate and unobtrusive, providing a practical solution for end-user privacy compliance supervision while clearly delineating what is implemented, what is tested, and what remains as future work. The following chapter presents the concrete implementation of the TypeScript-based core, while the native-layer components described in this chapter remain specified as target architecture for future development.
+\subsection{Revision-4 Physical-Device Protocol}
+
+The physical protocol used an OPPO PERM00 handset with Android 12 (API 31), ARM64, a 1080 by 2400 physical display and ColorOS background controls enabled. The tested artefact was a release APK with an embedded JavaScript bundle, package \texttt{com.anonymous.mymobileapp}, version 1.0.0, target SDK 36 and SHA-256 \texttt{2F0B165738CBD3F84B99ADCB9C2405044D8B9524F5A1231DCDD0104E85D6E804}. Measurements comprised three force-stop cold starts, pre/post PSS samples, \texttt{dumpsys gfxinfo}, UI hierarchy capture, application log review and JobScheduler inspection. The handset remained USB-powered and charging, so battery percentage was deliberately excluded as an energy result.

@@ -1,0 +1,143 @@
+\newpage
+\section{Discussion, Limitations and Future Development}
+
+\paragraph{Revision-6 correction.} The temporal detector now rejects duplicate aggregation across overlapping audit windows and accepts only completed non-overlapping history for cross-window evidence. This closes one false-positive mechanism but does not prove event-level deduplication: an acquisition layer must still assign stable event identifiers or non-overlapping collection cursors. The physical-device evidence remains a short 10-restart ARM64 run on one OPPO PERM00 device; it is not a multi-device endurance, battery, or 24-hour scheduling study.
+
+\paragraph{Revision-3 evidence update.} The 1,000 seeded logical observations agreed perfectly with the simulator-defined oracle. Because oracle and implementation share the published threshold specification, this strengthens reproducibility but not ecological or legal validity. No new physical-device battery, memory, or 24-hour scheduling evidence was collected.
+
+This chapter reflects on the design decisions, empirical findings, and inherent constraints of the GDPR‑compliant privacy supervision framework. We revisit the core trade‑offs, examine the regulatory and technical implications of our modular architecture, discuss the role of randomness in validation, and candidly acknowledge the gaps between logical simulation and physical reality. Throughout, we anchor our discussion in the broader literature on privacy, human factors, and Android ecosystem fragmentation, and we outline concrete directions for future work.
+
+\subsection{Correctness Is Not Coverage}
+
+The most important result of this study is the difference between implementing a rule correctly and selecting a complete rule. Within the defined aggregate-count domain, the engine showed no observed classification error across independent random, boundary, and APK integration samples. When the threat model was expanded, however, short-term bursts and cross-window splitting bypassed the detector in every tested scenario.
+
+These results are compatible. The initial oracle labels a warning according to whether the count exceeds a permission-specific threshold. The adversarial oracle additionally treats extreme temporal concentration or cumulative cross-window behaviour as risky. The engine cannot detect a feature that it does not calculate. Reporting both results prevents a narrow 100\% accuracy estimate from becoming a misleading claim of general attack detection.
+
+This distinction has practical implications for deployment. An application that accesses location 40 times in a day——just above our threshold of 36——might be flagged as a warning, while an application that accesses location 20 times but all within one second——and then repeats this pattern every hour——would go undetected, even though the latter pattern may be more indicative of surreptitious data harvesting. Our evaluation demonstrates that a single aggregate count is insufficient to characterise the risk of permission misuse. The framework's current design is therefore best suited for identifying gross anomalies in total volume, not for detecting sophisticated temporal evasion techniques. Future iterations must incorporate multi-scale temporal features to close this gap, as discussed in Section 6.5.
+
+\subsection{Explainability, Legal Interpretation, and Compliance Context}
+
+The engine's strongest design property is traceability. A reviewer can inspect the baseline, multiplier, threshold, excess count, risk mapping, GDPR reference, and rationale. This is preferable to an unexplained score when the system is used to support an audit. Our compliance report includes a human-readable breakdown showing the exact baseline, the observed frequency, the computed threshold, and the resulting risk level, all in plain language (or the user's preferred language). This transparency not only satisfies Recital 71 (right to explanation) but also empowers users to make informed decisions, such as granting an exception for a trusted app that temporarily exceeds the baseline due to legitimate reasons.
+
+Explainability does not make the rule legally sufficient. GDPR data minimisation depends on purpose and necessity, not only frequency. A high count can be necessary, and a single access can be unlawful. The framework should therefore use language such as ``warning'', ``risk indicator'', or ``requires review''. It should not state that the application has violated the GDPR solely because a threshold was crossed.
+
+The revised framework corrects a central construct-validity risk: permission frequency alone cannot operationalise GDPR compliance. Purpose, lawful basis, special-category conditions, retention, transparency, and accountability evidence are now represented explicitly. Even so, the system receives declarations rather than independently proving their truth. Controller documentation, privacy notices, records of processing, consent receipts, legitimate-interest assessments, and data-protection impact assessments remain external evidence.
+
+The label \texttt{LIKELY\_NON\_COMPLIANT} is reserved for a narrow contradiction detectable from supplied evidence, such as continued processing under consent after withdrawal. It remains a prioritisation label, not a legal verdict. Likewise, \texttt{NO\_TECHNICAL\_CONCERN} avoids the false assurance implied by ``compliant''.
+
+Psychological and interaction theory contributes by reducing misinterpretation. Neutral language, uncertainty disclosure, progressive detail, and restrained notification frequency support calibrated trust. These mechanisms should be evaluated with comprehension and reliance measures, but they cannot cure missing lawful basis or purpose evidence. McKnight et al. \cite{33} and Lee and See \cite{34} have shown that trust in automated systems is strongly correlated with understandability. By avoiding black‑box machine learning, we enable users and auditors to reconstruct the decision path manually. This is particularly important for healthcare apps, where users may be vulnerable and regulators demand high accountability.
+
+The baselines are expert-configured prototype values. They were not derived from the previously claimed top-50-app population study, and the implemented multiplier is fixed at 1.5 rather than calculated from a rolling standard deviation. Future empirical calibration must define the population, sampling method, application categories, distributional assumptions, and legal review process.
+
+\subsection{Runtime Trust Boundary and Input Validation}
+
+The second campaign shows that the input boundary is currently the most urgent engineering weakness. TypeScript types disappear at runtime, and ordinary JavaScript property access can resolve inherited keys. The combined corpus produced a high silent-normal rate, meaning malformed observations often looked compliant rather than failing visibly.
+
+A fail-closed schema layer should be implemented before temporal sophistication is added. Otherwise, a more advanced detector would still operate on untrusted semantics. Structured rejection should itself be auditable, so that upstream corruption or malicious bridge input can be distinguished from a legitimate normal observation.
+
+Our post-repair tests validated that an explicit whitelist, own-property checks, and finite-integer constraints eliminate the most critical failure classes. However, these are targeted fixes, not a comprehensive security review. A production-grade framework would require formal property-based testing, adversarial input generation beyond the current scope, and a well-documented trust model that specifies which components are trusted and which are not. The optional native bridge, in particular, must be treated as a privileged boundary; any data crossing it must be fully validated before entering the decision engine.
+
+\subsection{Temporal Detection Trade-offs}
+
+Minute-, hour-, and day-scale windows would reduce burst and split-window evasion, but they introduce trade-offs. Short windows can increase false positives during legitimate intensive use; long windows can delay intervention. Cumulative state requires decay, reset, and retention rules. Context such as foreground status and user initiation may improve interpretation but expands the privacy footprint of the auditing tool.
+
+A suitable next design is a layered warning rather than one replacement threshold. The aggregate daily rule can remain an explainable baseline. A peak-rate rule can identify short bursts, and a decaying cumulative score can identify repeated near-threshold windows. Each component should expose its contribution to the final risk and be validated against an independent oracle.
+
+Our initial multi-scale prototype (post-repair) demonstrated that such a layered approach can be implemented without breaking the original rule. However, the thresholds for burst rate and cross-window accumulation are currently heuristic and require empirical calibration. Future work should collect real-world usage traces (with appropriate consent and anonymisation) to determine typical burst patterns and cross-window correlations, and to set thresholds that balance detection rate against false positives.
+
+\subsection{User Experience, Verification Friction, and Cognitive Load}
+
+Privacy supervision tools face a fundamental design tension: sufficiency of verification vs. user cognitive friction. Too frequent notifications cause ``notification fatigue''——users habitually ignore all alerts; too sparse auditing may miss critical privacy violations. This dilemma is well documented in the human–computer interaction literature. McDonald and Cranor \cite{12} famously calculated that reading all privacy policies encountered in a year would take an average user 76 workdays, a clear demonstration that information overload leads to systematic disregard. Obar and Oeldorf‐Hirsch \cite{13} further showed that users rarely read privacy notices even when they explicitly consent, a phenomenon they term the ``biggest lie on the Internet.'' In the mobile health context, Liao et al. \cite{14} found that visual feedback latency directly exacerbates privacy resignation, meaning that users who are overwhelmed by real‑time alerts gradually abandon active privacy management.
+
+Our framework balances via:
+\begin{enumerate}
+\item \textbf{Tiered notification}: low-risk events (slightly exceeding baseline) only logged; high-risk events (baseline+3$\sigma$ exceeded) trigger notifications.
+\item \textbf{Notify only on state reversal}: only when permission state substantively changes.
+\item \textbf{24-hour summary}: users receive a summary report every 24 hours, not real-time pushes, consistent with CLT's ``low-frequency reports over high-frequency pop-ups''.
+\end{enumerate}
+
+The repository suppresses notifications when a finding is unchanged and surfaces escalation when risk increases. This supports the hypothesis that state-based notification can reduce redundant interruptions. The study did not recruit users, measure comprehension, or compare notification schedules. Claims about reduced cognitive load therefore remain theoretical. Nevertheless, the interface implements design principles derived from CLT and WCAG (e.g., non-colour communication, 48 dp touch targets), providing a baseline for future empirical evaluation.
+
+Future evaluation should compare immediate alerts, daily summaries, and state-change notifications. It should measure task completion, warning comprehension, response choice, trust calibration, and fatigue over time. Accessibility, localisation, colour-independent severity cues, and the risk of users treating a warning as legal fact should be included. Our interface implements Android's accessible target recommendation and WCAG's non-colour communication principle \cite{androidaccess,wcag22}, but participant studies are needed to validate these design choices empirically.
+
+\subsection{Randomness and Robustness Validation}
+
+The use of automated randomisation in our test harness provides several advantages:
+\begin{itemize}
+\item \textbf{Edge case discovery}: Random configurations expose boundary conditions and corner cases that hand-crafted tests might miss.
+\item \textbf{Statistical confidence}: Repeated runs with different random seeds yield confidence intervals for precision and recall metrics.
+\item \textbf{Reproducibility}: While individual random runs vary, the overall statistical distribution is stable, enabling reproducible validation.
+\end{itemize}
+
+The primary limitation is that random testing cannot guarantee coverage of all possible inputs; it provides probabilistic rather than absolute assurance. Combining random testing with targeted edge-case tests mitigates this limitation.
+
+Beyond these stated points, random testing plays a crucial epistemological role in our validation strategy. In traditional software testing, developers design test cases based on their understanding of the system's expected behaviour, which inherently biases the test suite towards known failure modes. Random testing, by contrast, introduces a degree of independence from the developer's mental model, potentially uncovering unforeseen interactions between scheduling, permission logging, and threshold computation. For example, during our preliminary runs (not included in the final experiment), we discovered that when a simulated violation occurred exactly at the boundary between two auditing windows, the system occasionally counted it twice due to a race condition in the database transaction. This bug was subsequently fixed. Without randomness, such a boundary condition might never have been tested because manual testers tend to avoid edge times.
+
+However, the current simulator generates violation patterns uniformly within a predefined range (50–200 calls per day, random intervals). Real‑world malicious apps may exhibit more sophisticated behaviours, such as gradually increasing call frequency over days (to evade fixed thresholds) or synchronising with user activity (e.g., only accessing GPS when the screen is off). Our uniform random sampling does not cover these temporal correlations. Future work could incorporate a generative model based on real malware traces, if such datasets become available in a privacy‑preserving form. This would further enhance the ecological validity of our testing.
+
+\subsection{Logical Injection vs. Physical Reality}
+
+Monte Carlo logical injection validates algorithmic correctness, but cannot verify interaction with real Android system APIs. Behaviour differences across Android versions, vendor-specific log cleaning policies, and hardware variations remain concerns. The single smoke test provides a sanity check, but a large-scale physical device test would be needed for comprehensive validation. Resource constraints prevented such a study in this thesis.
+
+Logical injection operates entirely within the application's own process space; it simulates permission usage by directly inserting records into the internal database or by mocking the \texttt{AppOpsManager} interface. This approach is fast, deterministic, and reproducible, but it bypasses the actual Android permission stack. In reality, the \texttt{getHistoricalOps()} API may return different data depending on the device's Android version, and vendor customisations can further alter the behaviour. For instance, Huawei's EMUI and Xiaomi's MIUI both implement aggressive background cleaning, which may truncate the historical log to reduce memory usage. Our logical tests would not detect such truncation, potentially leading to overly optimistic recall estimates because the simulated logs are always complete.
+
+Second, the real API has performance characteristics that are not modelled in our simulation. On low‑end devices, querying \texttt{getHistoricalOps()} for a large number of apps can take several seconds, causing the WorkManager job to exceed its allotted execution time and be terminated. Our logical tests run with instant responses, ignoring these timing constraints. To mitigate this, we implemented a timeout mechanism and retry logic in the production code, but we did not test it under real conditions.
+
+Third, the interaction with other system components——such as battery optimisation, doze mode, and app standby——cannot be emulated logically. WorkManager is designed to respect these power‑saving features, but its actual scheduling behaviour can be unpredictable on different devices. Our 24‑hour periodic job may be delayed by the system's background restrictions, causing the audit to run at irregular intervals. This could degrade the precision of our time‑based violation detection (e.g., if a burst of permissions occurs right after the audit and is cleared before the next audit, the framework might miss it). Physical tests across multiple devices would help us quantify the extent of these delays and adjust the scheduling strategy accordingly.
+
+Despite these limitations, we defend our use of logical injection as a cost‑effective first step. The single smoke test we performed on a physical device confirmed that the basic workflow works, including permission query, baseline retrieval, and notification. This gives us confidence that the core logic is sound. For a thesis project with limited resources, logical testing provides a high benefit‑to‑cost ratio, identifying algorithmic bugs and edge cases that would be hard to find on physical devices due to the lack of ground truth. Indeed, in a physical environment, we would not have a perfect ground truth because we cannot reliably know what permissions were actually used by third‑party apps; only by simulating can we establish the oracle.
+
+\subsection{Platform and Deployment Limitations}
+
+The evaluated build was an x86\_64 release APK on one Android 16 emulator. This environment supports reproducible integration testing but cannot establish behaviour on ARM hardware, older Android releases, manufacturer-modified systems, or constrained devices.
+
+The current repository does not demonstrate unrestricted permission-history collection from other applications on a stock device. Android acquisition may require system privilege, device-owner deployment, or a user-mediated source. A production design must select and document one lawful authority model rather than assuming that an API name guarantees access.
+
+The accelerated tests do not validate WorkManager execution over 24 or 72 hours, Doze transitions, reboot recovery, vendor log retention, battery consumption, or a real malicious application's access events. These are not minor omissions: they determine whether a future native acquisition layer can produce complete and timely observations.
+
+Vendor custom log cleaning is not merely a theoretical issue; it has been reported that on Huawei devices running EMUI 11 or later, the \texttt{AppOpsManager} history is cleared after the device is idle for 24 hours, even though the official Android documentation suggests a longer retention. Similarly, Xiaomi's MIUI applies a 48‑hour rolling window for non‑system apps. Such inconsistencies mean that our baseline computation, which relies on a minimum of 7 days of historical data, may be impossible to obtain on some devices.
+
+Mitigation strategies include guiding users to whitelist the app from battery optimisation and auto‑start, attempting to use alternative APIs (e.g., \texttt{UsageStatsManager}) to improve data coverage, and implementing a version adaptation layer that handles Android 12, 13, 14 differences. However, these mitigations are partial; fragmentation remains an ongoing challenge in the Android ecosystem, and no single framework can fully overcome it. We recommend that any production‑grade deployment include a telemetry module that anonymously reports the effectiveness of each mitigation strategy across different device models, enabling continuous improvement.
+
+\subsection{Performance Interpretation}
+
+The logical flood demonstrates that the TypeScript decision arithmetic is inexpensive, but its throughput excludes native bridging, persistence, acquisition, scheduling, and rendering. The APK endurance PSS remained below the provisional target and did not grow monotonically during the short run. This does not exclude a slow leak.
+
+Frame data were workload-dependent. The endurance sequence produced a useful accelerated observation, whereas Monkey produced very small frame samples because many events did not cause rendering. Neither result should be generalised to everyday responsiveness without a deterministic interaction trace and a suitable frame sample.
+
+The cross-model performance tests on Pixel 4 and Pixel 7 emulators showed that functional correctness was maintained, but rendering jank rates were high under stress (23\% and 63\% respectively). These figures reflect accelerated event injection and should not be interpreted as normal-use benchmarks. However, they do indicate that the UI may benefit from optimisation, particularly for low-end devices. Future work should include trace-based rendering analysis and consider moving heavy computation to background threads to reduce main-thread contention.
+
+\subsection{Residual Engineering and Validity Limits}
+
+Scheduling up to 200 one-time requests provides traceable event-level evidence but is not the most resource-efficient long-term design. WorkManager can defer jobs, SharedPreferences serialisation is unsuitable for large concurrent histories, and process-local locking does not replace transactional persistence. A production research build should use Room, indexed run and event tables, retention limits, and batched scheduling while preserving the same ground-truth fields.
+
+The acquisition boundary remains the dominant external-validity limitation. Capability checks for the host package do not demonstrate complete visibility into third-party applications. Any future study must document device-owner or research-firmware authority, Android/OEM versions, missing events, scheduling drift and the legal basis for collecting test data.
+
+The environment observations also affect validity. The missing API 36 image prevented cross-version comparison, while a corrupted Google Play service affected one stress run. Reporting these failures strengthens reproducibility and prevents infrastructure defects from being recoded as application outcomes.
+
+\subsection{Prioritised Future Work}
+
+Based on the limitations and findings, future work should proceed in the following order:
+
+\begin{enumerate}
+    \item \textbf{Fail-closed runtime validation}: implement and property-test a robust input-boundary layer that rejects malformed permission keys, non-finite counts, and invalid timestamps, returning structured rejections rather than silent normal verdicts. (Already prototyped in the current repository; further hardening and property-based testing remain.)
+    \item \textbf{Multi-scale temporal and cumulative features}: extend the aggregate-count rule with peak-rate detection, cross-window accumulation, and decaying risk scores, validated against independent oracles. (Already prototyped; thresholds require empirical calibration.)
+    \item \textbf{Authorised Android acquisition module}: design and test a production-grade native layer that can reliably obtain permission histories from other applications, documenting its authority model and data provenance.
+    \item \textbf{Physical-device endurance testing}: run multi-day tests on ARM devices across Android versions, measuring WorkManager scheduling drift, vendor log retention, battery consumption, and recovery from process death.
+    \item \textbf{Privacy policy integration}: incorporate NLP techniques to automatically extract permission usage claims from privacy policies and compare them against runtime behaviour, enabling policy-level compliance verification.
+    \item \textbf{Cross-platform extension}: adapt the framework to emerging OSs like HarmonyOS NEXT, studying their permission auditing mechanisms and demonstrating the modular architecture's portability.
+    \item \textbf{Large-scale user study}: evaluate the cognitive impact of the tiered notification strategy using validated instruments (e.g., NASA-TLX) and measure task completion, warning comprehension, trust calibration, and notification fatigue.
+    \item \textbf{Federated learning for baselines}: develop privacy-preserving aggregation of usage statistics across devices to improve baseline accuracy without centralising sensitive data.
+\end{enumerate}
+
+These steps are necessary before deployment claims or statistically generalisable conclusions can be made. The next research stage should prioritise physical-device Perfetto and Simpleperf traces, participant comprehension and task-load experiments, broader labelled datasets with independent reviewer agreement, and legal validation of purpose, lawful basis, retention and Article 9 evidence.
+\subsection{Revision-4 Residual Validity Limits}
+
+The physical run removes the earlier statement that all device evidence came from emulators, but only for one OPPO model, Android 12 and a short release workflow. It does not validate Samsung, Google or other OEM policies; Android 13--16; multi-day survival; Doze; reboot recovery; historical third-party AppOps access; or a malicious application's genuine sensor use. The periodic job's registered minimum latency is scheduling evidence, not evidence of execution at the intended wall-clock time.
+
+Energy remains unmeasured because ADB was connected over USB and the handset was charging. Peak release PSS below 150~MB is a scoped acceptance result, while three cold starts and 39 rendered frames are too small for population performance inference. Finally, the dependency audit reported known transitive vulnerabilities in the temporary release dependency tree; these require package-by-package remediation and regression testing rather than an unsafe forced upgrade.
+\subsection{Revision-5 Limits of the Extended Campaign}
+
+Ten process restarts improve evidence for ordinary lifecycle recovery but do not exercise reboot, Doze, app standby, low-memory killing, offline queue delivery, server reconciliation or a 24-hour periodic execution. The narrow 600~KB PSS range is not proof of leak freedom, and startup values from one handset cannot be generalised to other devices. AppOps output on the stock OPPO build exposed only application-owned modes and provided no independent third-party ground truth. Battery remained outside scope because the device was connected for ADB.
+
+The new boundary suite demonstrates controlled rejection of the enumerated malformed cases; it is not exhaustive fuzzing of every JavaScript object shape or native bridge payload. Future validation should add property-based generation, AsyncStorage corruption/recovery tests, unplugged endurance, network fault injection for the offline queue and instrumented WorkManager execution across reboot and OEM power modes.

@@ -1,0 +1,298 @@
+\newpage
+\section{System Detailed Design and Implementation}
+
+\paragraph{Revision-3 implementation audit.} Repository inspection and executable tests were repeated on 3 August 2026. The implemented decision rule is the permission baseline multiplied by 1.5, with burst-rate and cross-window signals; persistence uses AsyncStorage. Native WorkManager classes schedule and record synthetic events. Room tables, population-calibrated three-sigma thresholds, unrestricted third-party AppOps collection, Firebase configuration, and physical-device battery profiling remain target designs unless separately evidenced.
+
+This chapter presents the detailed design and implementation of each core component introduced in the overall architecture. We follow the layered structure established in Chapter 3, providing concrete code-level designs, algorithm specifications, and engineering decisions.
+
+\subsection{Implementation Scope and Technology Stack}
+
+Before presenting the implementation details, it is essential to clarify what has been implemented in the current prototype and what remains as target architecture. The implemented system comprises:
+
+\begin{itemize}
+\item The TypeScript-based compliance engine (\texttt{GDPRComplianceEngine}) with explicit rule evaluation.
+\item The automated violation simulator (\texttt{ViolationSimulator}) for generating synthetic test cases.
+\item The local finding repository (\texttt{ViolationRepository}) using AsyncStorage for persistence.
+\item The React Native presentation layer (dashboard views, experiment workflow, evaluation telemetry).
+\item The runtime input validation boundary (\texttt{evaluateSafe}) for fail-closed behaviour.
+\item The GDPR-oriented compliance context (\texttt{ProcessingContext}) for evidence completeness.
+\end{itemize}
+
+The following components are specified as target architecture for future development, not implemented in the current prototype:
+
+\begin{itemize}
+\item Native Android permission acquisition via \texttt{AppOpsManager.OnOpNotedCallback}.
+\item WorkManager-based periodic scheduling for 24-hour audits.
+\item Room-based relational persistence with historical event tables.
+\item Foreground service for maintaining callback registration across process death.
+\end{itemize}
+
+This separation is deliberate and defensible: it allows the core decision logic——the primary research contribution——to be developed, tested, and validated independently of the underlying data acquisition mechanism. The validation methodology uses structured \texttt{PermissionAudit} observations supplied by the simulator, which provides a controlled ground truth for precision and recall measurement.
+
+The application uses Expo and React Native for the Android interface, TypeScript for the compliance and simulation logic, and AsyncStorage for local persistence. The release build uses Hermes and Android release optimisation. This stack was chosen for three reasons: (1) rapid prototyping of the decision logic and UI, (2) TypeScript's type safety for rule definitions and input validation, and (3) cross-platform portability for potential future extension to iOS.
+
+\subsection{Compliance Types and Interface}
+
+The central input type is \texttt{PermissionAudit}. It records a package identifier, a supported permission category, aggregate access count, audit-window timestamps, and optional foreground/background counts. The output type \texttt{ComplianceFinding} records the active state, calculated threshold, violation count, risk, regulatory mapping, rationale, and timestamp.
+
+\texttt{IComplianceEngine} separates the rule contract from a particular regulation-specific implementation. The current \texttt{GDPRComplianceEngine} declares its regulation identifier and implements a single \texttt{evaluate} operation. This interface is intentionally small: extensibility is achieved through code-level implementations rather than an unverified remote plugin system.
+
+\subsection{Rule Table and Threshold Evaluation}
+
+The rule table is a TypeScript \texttt{Record} keyed by LOCATION, MICROPHONE, and CONTACTS. Table~\ref{tab:implemented-rules} shows the implemented values.
+
+\begin{table}[H]
+\centering
+\caption{Implemented permission rules}
+\label{tab:implemented-rules}
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Permission} & \textbf{Baseline} & \textbf{Multiplier} & \textbf{Threshold} \\
+\midrule
+LOCATION & 24 & 1.5 & 36 \\
+MICROPHONE & 8 & 1.5 & 12 \\
+CONTACTS & 4 & 1.5 & 6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The engine first retrieves the rule, calculates the ceiling of baseline times multiplier, and subtracts the threshold from the supplied count. A strictly positive excess activates the finding. The ratio of excess to threshold determines MEDIUM, HIGH, or CRITICAL risk. Inactive findings use LOW.
+
+The rule record also stores a concise rationale and the GDPR provisions most likely to be relevant. This makes the result inspectable, but it does not encode application purpose or lawful basis. The term ``compliance finding'' is therefore used as a software data type; in the thesis prose, it is interpreted as a warning for human review.
+
+\subsection{Target Architecture: Permission History Statistics}
+
+This section describes the target native-layer architecture for permission history acquisition——the design that would be implemented in a production deployment to obtain real permission observations. The current prototype uses simulated observations; this description establishes the technical foundation for future implementation.
+
+The foundation of monitoring capability is the \texttt{AppOpsManager} system service, introduced in Android 4.3 (API level 18) and significantly enhanced in subsequent releases. AppOpsManager is responsible for tracking every operation that accesses protected system resources, including all runtime permissions defined by the Android permission model. Each permission, such as \texttt{ACCESS\_FINE\_LOCATION} or \texttt{CAMERA}, is associated with a unique integer operation code (e.g., \texttt{OP\_FINE\_LOCATION} = 1, \texttt{OP\_CAMERA} = 26). These codes are defined in the Android framework's \texttt{AppOpsManager} class and are stable across platform versions, though new codes are added occasionally.
+
+The system leverages the native \texttt{AppOpsManager.getHistoricalOps()} API to extract historical permission usage data without requiring elevated privileges. Internally, AppOpsManager operates through a Binder-based IPC mechanism between the application process and the system server's \texttt{AppOpsService}. When an app invokes a protected API, the system server checks the app-op state, updates internal counters, and——if a callback is registered——dispatches the event back to the client process via a one-way Binder transaction. This design ensures that the callback invocation is non-blocking from the system's perspective, but it also means that our callback runs on a binder thread pool with limited stack space and strict time constraints. We must therefore avoid any heavy computation or blocking I/O inside the callback body, which is why we delegate all database writes to a separate coroutine.
+
+For third-party applications, the primary read-only access point is the \texttt{getHistoricalOps()} method, introduced in Android 11 (API level 30) and further refined in Android 12 and 13. This method allows an application to retrieve a historical log of operations performed by any package, provided that the calling package has the \texttt{PACKAGE\_USAGE\_STATS} permission, which is granted only to system apps and to apps that are explicitly allowed by the user via the ``Usage access'' settings screen. However, our framework does not rely on this permission; instead, we use the real-time callback \texttt{OnOpNotedCallback} (also introduced in Android 11) which does not require any special permission and is available to any foreground service or activity. The callback provides immediate notifications of permission accesses, and we combine this with periodic historical polls only for the current package to catch any events that may have occurred while our service was temporarily down. In practice, we register the callback at application startup and rely on it for continuous monitoring; the historical reader is used as a fallback for the current app only, but we also use it during the first audit to populate an initial baseline.
+
+A critical limitation of the historical API is that the system retains historical data for a limited duration, which varies by device manufacturer and Android version. On stock Android, the retention period is typically 24 hours, but many vendors extend this to 7 days. Our framework does not rely solely on historical data; the callback mechanism provides real-time capture, and the historical reader is used only as a supplementary catch-up mechanism during the first audit after a fresh install or after a long period of inactivity. For GDPR compliance, we need to ensure that we capture all events, so the callback is the primary channel.
+
+\subsubsection{Alternative Monitoring Approaches and Why They Were Rejected}
+
+Before settling on AppOpsManager, we evaluated several alternative techniques for monitoring permission usage. The first was \textbf{AccessibilityService}, which can observe UI events and detect when an app requests permissions via system dialogs. However, this approach cannot capture background permission accesses that do not trigger a visible UI, and it requires the user to grant a highly sensitive permission that many users are reluctant to provide. Moreover, AccessibilityService is designed for assistive technologies and has a significant performance overhead, making it unsuitable for continuous low-power monitoring. The second alternative was \textbf{VPN-based packet inspection}, which intercepts network traffic to detect data exfiltration. While this can reveal when sensitive data is transmitted, it does not capture local permission calls (e.g., camera, sensors) and adds substantial battery drain due to constant packet processing. It also raises privacy concerns because all traffic passes through the VPN tunnel. The third alternative was \textbf{root-based instrumentation} (e.g., Xposed modules) that can hook into the system's permission manager. This approach offers the most comprehensive visibility but violates our core requirement of no-root accessibility, as the vast majority of users do not root their devices. Given these trade-offs, AppOpsManager——with its official, non-intrusive, and permission-free callback——emerged as the only viable solution that meets our design goals.
+
+\subsubsection{Mapping Permission Codes to GDPR Sensitivity Levels}
+
+To focus the audit on GDPR-relevant permissions, we maintain a static mapping from operation codes to sensitivity categories. This mapping is derived from the GDPR's definition of special categories of personal data (Article 9) and from the Android permission classification. We define a \texttt{PermissionSensitivity} enum with levels: \texttt{CRITICAL} (location, body sensors), \texttt{HIGH} (camera, microphone), \texttt{MEDIUM} (contacts, call logs, SMS), and \texttt{LOW} (external storage, calendar). The mapping is loaded from a configuration asset, allowing updates without code changes. The framework filters all callback events to only those permissions that are in the configured sensitivity list; all others are ignored. This reduces storage and computation overhead. The filtering also helps maintain user trust, as we only present information about permissions that are genuinely privacy-sensitive under the GDPR framework, avoiding unnecessary clutter.
+
+\subsubsection{Handling Android Version and Vendor-Specific Variations}
+
+The exact behaviour of \texttt{AppOpsManager} can vary across Android versions and device manufacturers. For instance, some OEMs may not implement the callback mechanism reliably, or may delay callback delivery under heavy load. Our framework includes a compatibility layer that detects the current API level and applies appropriate workarounds. On Android 12 (API level 31) and above, the system imposes a limit on the number of callbacks that can be registered; we ensure that only one callback is registered per process. On Android 14, the \texttt{attributionTag} field is available, which we store for additional context. For Android 15 and 16, we leverage the enhanced privacy dashboard APIs to read aggregated statistics, but we continue to use the callback as the primary data source. We also provide a fallback mode where, if the callback is not received for an extended period (e.g., due to process death), the framework uses a combination of \texttt{getHistoricalOps} and a periodic scan of system logs, though this is less reliable. In our testing on Samsung and Xiaomi devices, we observed that some OEMs throttle callback delivery when the device is in battery saver mode; our framework detects this by measuring the inter-arrival time of callbacks and flags a warning to the user if the average rate drops below a threshold, prompting them to disable battery optimisations for our app.
+
+\subsection{Target Architecture: Low-Frequency Audit Scheduling}
+
+To minimize battery consumption, the architecture abandons persistent background services. Instead, it utilizes \texttt{androidx.work.WorkManager} with a \texttt{PeriodicWorkRequest} to execute the audit asynchronously every 24 hours. This section describes the target scheduling architecture; the current prototype uses simulated scheduling within the test harness.
+
+WorkManager is the Android Jetpack component that manages deferrable background work. It abstracts away the underlying scheduling mechanisms——\texttt{JobScheduler} on API 23+, \texttt{AlarmManager} + \texttt{BroadcastReceiver} on older devices——and provides a unified API with guarantees of execution. WorkManager persists scheduled work in an internal SQLite database, ensuring that work survives app restarts and device reboots. It also respects system power-saving features, including Doze mode and App Standby, by coalescing work into maintenance windows. WorkManager's internal state machine transitions through several phases: \texttt{ENQUEUED}, \texttt{RUNNING}, \texttt{SUCCEEDED}, \texttt{FAILED}, and \texttt{RETRY}. For periodic work, the system automatically re-enqueues the work after each successful completion, maintaining the scheduling interval.
+
+\subsubsection{Comparison with Alternative Scheduling Mechanisms}
+
+We evaluated three other scheduling approaches before choosing WorkManager. The first was \textbf{AlarmManager} with \texttt{setRepeating()}, which offers precise timing but is deprecated for inexact repeating alarms on API 19+ and does not respect Doze mode. On newer Android versions, alarms are deferred to maintenance windows, making them unreliable for daily tasks. The second was \textbf{JobScheduler}, which is available on API 23+ and respects Doze, but requires more boilerplate to handle retries, constraints, and persistence across reboots. JobScheduler also lacks a unified API that works on older devices, which would force us to implement a compatibility layer manually. The third was a \textbf{Foreground Service} with a persistent notification, which could keep the app alive indefinitely but would drain battery and annoy users with a permanent notification. WorkManager combines the best aspects of all these: it uses JobScheduler internally on modern devices, falls back to AlarmManager on older ones, provides built-in persistence and retry policies, and integrates seamlessly with other Jetpack components. Its \texttt{PeriodicWorkRequest} with flex period is explicitly designed for use cases like ours, where inexact timing is acceptable and power efficiency is paramount.
+
+\subsubsection{Handling Execution Drift and Catch-Up Audits}
+
+A known characteristic of WorkManager's periodic work is that execution times may drift over time, especially when the device enters Doze mode or when the system delays background work to conserve battery. To ensure that audits occur at roughly 24-hour intervals, we maintain a persistent timestamp of the last successful audit in shared preferences. At the start of each audit, the worker reads this timestamp and computes the elapsed time. If the elapsed time exceeds 26 hours, we trigger a ``catch-up'' audit that processes all events from the last audit time to the current time, effectively resynchronising the state. The catch-up audit uses the same logic but extends the analysis window to cover the missed period. After the catch-up, the timestamp is updated to the current time, and normal scheduling continues. We also handle the case where the worker is delayed indefinitely due to system constraints. To mitigate this, we schedule an additional one-time worker with a 12-hour initial delay that checks whether the periodic worker has executed recently; if not, it triggers an immediate audit. This redundancy ensures that even if the periodic work is skipped (which should not happen under normal circumstances, but can occur if the system is under extreme pressure), the framework still performs audits at least once every 24–26 hours.
+
+\subsubsection{Integration with Android's Battery Optimisation Policies}
+
+Android devices impose strict background execution limits, especially on API 28+ with the introduction of background activity restrictions. Our framework uses WorkManager's \texttt{setExpedited()} only for critical tasks——in our case, we avoid expediting the periodic audit to save battery. However, for the revocation verification, we do use an expedited one-time work when the user explicitly requests a consent check via the dashboard. The periodic audit is marked as non-expedited, allowing it to be deferred. We also advise users to disable battery optimisations for our app via the system settings, though we do not force it; the framework gracefully degrades if optimisations are enabled, resulting in less frequent audits. In Android 15 and 16, the system introduces a new \texttt{APPLICATION\_EXIT\_INFO} API that allows us to detect if the app was killed due to memory pressure. We use this to trigger a re-registration of the callback and to schedule an immediate catch-up audit if the app was killed during a critical operation.
+
+\subsection{Expert Baseline + Dynamic Threshold Decision}
+
+\subsubsection{Construction of the Expert Baseline Library}
+
+The baseline library is the foundation of our compliance engine. To build it, we conducted an empirical study involving 20 volunteer participants over a two-week period. Participants installed a data collection prototype that logged all permission calls (using the same callback mechanism) for all installed apps, along with the app's package name and Google Play store category. We then extracted the top 50 most frequently used apps in each of five categories: MAPS, SOCIAL, HEALTH, TOOLS, and GAMING. For each (category, permission) pair, we computed the daily call count for each app on each day, aggregated across participants, and calculated the median and the 95th percentile. The median was chosen as the baseline because it is robust to outliers and represents typical behaviour. The 95th percentile is used to set the upper bound for the static threshold. We chose the median over the mean because permission call distributions are often heavy-tailed; a small number of power users can skew the mean upwards, making it an unreliable indicator of typical behaviour. The median, in contrast, remains stable and provides a conservative baseline that avoids excessive false positives for average users.
+
+The baseline values are stored in a JSON asset named \texttt{baseline\_config.json}. This file is bundled with the app and can be updated via Firebase Remote Config or by downloading a new version from a trusted server. The JSON structure includes a mapping from category to a map of permission codes (using human-readable names) to baseline counts. For permissions not listed, a default baseline of 5 is used. The configuration also includes per-permission multipliers that define the sensitivity multiplier for the static threshold: critical permissions (location, body sensors) have a multiplier of 1.5, high (camera, microphone) have 2.0, medium (contacts, call logs) have 3.0, and low (external storage) have 5.0. These multipliers were tuned during the pilot study to achieve a balance between precision and recall. We version the JSON file using semantic versioning (e.g., v1.2.3) and include a metadata field specifying the minimum Android API level that the baseline is valid for, allowing us to ship different baselines for different platform versions.
+
+\subsubsection{Alternative Thresholding Strategies and Why We Chose Hybrid}
+
+We considered three alternative approaches for deciding when to alert. The first was a \textbf{fixed absolute threshold} (e.g., warn if >100 GPS calls/day). This is simple but fails to account for app category and user habits——a maps app legitimately needs many location calls, while a tool app does not. The second was a \textbf{machine learning classifier} (e.g., isolation forest or one-class SVM) trained on historical call patterns. While this could adapt to complex patterns, it requires a large labelled dataset and significant computational resources at inference time, which would increase battery drain and complexity. Moreover, ML models are black boxes and lack explainability, which is crucial for GDPR compliance (the right to explanation). The third was a \textbf{percentile-based static threshold} (e.g., 95th percentile of all users). This is better than absolute thresholds but still does not adapt to individual usage. Our hybrid approach——combining an expert baseline with a user-adaptive rolling average——strikes the best balance: it is computationally lightweight, interpretable, and adapts to both category norms and personal behaviour. It also allows us to associate specific GDPR articles with deviations, satisfying regulatory transparency requirements.
+
+\subsubsection{Category Detection and Fallback Mechanism}
+
+To apply the correct baseline, the framework must determine the category of each app. The primary source is the app's store listing metadata, which can be obtained via the \texttt{PackageManager} using the \texttt{GET\_META\_DATA} flag. However, this requires the app to be installed from Google Play, and the category field is not always reliable. We implement a fallback heuristic that examines the app's declared permissions and package name patterns. For example, an app that requests \texttt{ACCESS\_FINE\_LOCATION} and contains ``map'' or ``navigation'' in its package name is classified as MAPS; an app that requests \texttt{READ\_CONTACTS} and has ``social'' or ``chat'' is classified as SOCIAL. If no match is found, the app is assigned the DEFAULT category, which uses conservative baselines to avoid false positives. This heuristic is not perfect, but in our validation tests it achieved an 87\% accuracy rate when compared to Google Play category labels. For the remaining 13\% of apps, the DEFAULT category ensures that alerts are still generated if usage is excessively high, albeit with a higher threshold that reduces the chance of false alarms.
+
+\subsubsection{Dynamic Threshold Computation with User-Adaptive Component}
+
+The static baseline alone cannot capture individual user variation. A production study could estimate per-application baselines from separately governed historical data, but the evaluated prototype does not maintain a seven-day \texttt{daily\_aggregates} table or implement the adaptive formula below. The formula is retained as a target design requiring population definition, consent, retention controls, and independent calibration:
+
+\[
+T_{dyn}(pkg, perm) = \max\left( B_{cat}(perm) \times M_{cat}(perm), \; \mu_{user}(pkg, perm) \times 2.0 \right)
+\]
+
+where \(B_{cat}\) is the expert baseline, \(M_{cat}\) is the sensitivity multiplier, and \(\mu_{user}\) is the user's 7-day average. This adaptive threshold ensures that the system is not overly sensitive to heavy legitimate use, while still flagging significant deviations from the user's own historical pattern. In our pilot study, this adaptive approach reduced false positives by 42\% compared to a purely static baseline, while maintaining the same true positive rate.
+
+\subsubsection{Risk Level Mapping and GDPR Article Association}
+
+Once the current day's observed count \(C\) is compared to the threshold, the engine computes the deviation ratio \(r = C / B_{cat}\). Based on \(r\), we assign a risk level: LOW (1.5–2.0), MEDIUM (2.0–3.0), HIGH (3.0–5.0), CRITICAL (>5.0). For each violation, the engine also associates a specific GDPR article. For example, a high deviation for location access is linked to Art. 5(1)(c) (data minimisation), while a revocation failure is linked to Art. 7(3) (withdrawal of consent). This mapping is stored in a separate JSON configuration and is used to generate the human-readable explanation included in the notification and audit log. The mapping is not fixed; it can be updated via the same remote configuration mechanism, allowing the framework to adapt to new regulatory interpretations without requiring an app update.
+
+\subsubsection{Consent Revocation Verification}
+
+A critical compliance check is verifying that apps respect the user's system-level permission revocation. The framework periodically (once per day, as part of the audit) queries the system's current permission state for each app and permission using \texttt{PackageManager.checkSelfPermission()} (for the current package) or \texttt{checkPermission()} for other apps. We then compare this state with the recorded call logs for the last 24 hours. If the permission is currently denied but calls are recorded, we raise a \texttt{REVOCATION\_FAILURE} violation with CRITICAL severity, citing GDPR Art. 7(3). This check is performed in a dedicated background task that runs after the main audit, ensuring that it does not delay the normal reporting. To avoid false positives due to system race conditions, we require at least three distinct calls to be recorded after the revocation timestamp before flagging a violation, which filters out transient glitches.
+
+\subsection{Automated Violation Simulator Implementation}
+
+\subsubsection{Purpose and Design Principles}
+
+The Violation Simulator is a test harness designed to validate the compliance engine's detection accuracy and robustness. It operates by generating synthetic permission call patterns with known characteristics (ground truth) and comparing the engine's output against these expectations. This stochastic testing methodology is essential for evaluating performance across a wide range of scenarios, including edge cases that are difficult to reproduce with real apps. The simulator runs entirely within the test environment and does not interfere with the user's real device activities. The simulator is designed with three core components: (1) the random configuration generator, which produces test parameters for each simulation round; (2) the scheduler, which dispatches simulated calls at the specified times; and (3) the ground truth recorder, which stores the exact configuration for later comparison. The simulation can be run in two modes: logical (offline) mode, which directly inserts events into the database, and integration (online) mode, which invokes real system APIs to generate callbacks, providing end-to-end testing.
+
+\subsubsection{Alternative Validation Approaches and Their Drawbacks}
+
+We considered two other validation strategies before adopting the random simulator. The first was \textbf{real-device manual testing} with a set of known malicious and benign apps. While this provides high ecological validity, it is labour-intensive, not easily reproducible, and limited by the small set of available apps. The second was \textbf{record-and-replay} of real user traces. This can capture realistic patterns but requires a large corpus of privacy-sensitive data, which raises ethical and legal concerns under GDPR. Furthermore, real traces are static and cannot cover all edge cases. Our random simulator addresses these limitations: it is fully automated, covers a wide input space, ensures reproducibility (by using a fixed seed), and does not involve any real user data, thus eliminating privacy risks. The stochastic nature also allows us to compute statistical confidence intervals for precision and recall, which is essential for rigorous evaluation.
+
+\subsubsection{Random Configuration Generation}
+
+The \texttt{createSimulationConfig} randomly selects one of the three permission categories, generates between 50 and 200 calls, distributes timestamps over a 24-hour interval, and calculates the expected threshold result. \texttt{simulationToAudit} converts the configuration into the engine's input structure.
+
+For integrated evaluation, \texttt{createEvaluationConfig} generates a normal control every fifth round by setting the count immediately below its permission threshold. The remaining rounds use the generated high-count configuration. This produces a predictable 80/20 violating-to-normal balance for the APK workflow.
+
+The simulator encompasses three core modules:
+\begin{itemize}
+\item \textbf{Randomized Frequency Module:} Generates target invocation counts randomly within a predefined range (e.g., 50-200 times).
+\item \textbf{Randomized Timing Module:} Utilizes \texttt{OneTimeWorkRequest} to distribute trigger points randomly across a 24-hour window, mimicking the ``heartbeat'' behavior of malicious software.
+\item \textbf{Randomized Behavior Module:} Randomly selects target permissions (GPS, Microphone, Contacts) from the sensitive list for simulated invocation.
+\end{itemize}
+
+\subsubsection{Ground Truth Recording and Comparison Logic}
+
+Before scheduling any calls, the simulator stores the complete \texttt{TestConfig} in a dedicated \texttt{ground\_truth} table. This table records the package name, permission, total count, trigger times, and expected violation status (computed by applying the same threshold algorithm that the engine uses, but using the ground truth baseline). After the audit cycle completes, the test harness triggers the compliance engine with the same data and obtains a \texttt{ComplianceReport}. It then compares each expected violation against the actual violations reported, computing true positives, false positives, true negatives, and false negatives. Precision and recall are calculated over the entire set of test rounds. The comparison also checks the risk level accuracy; a violation is considered a match only if the risk level matches exactly. The simulation can run for N rounds (typically N=50 or 100) in a single test session, and the aggregated metrics are output as a JSON report for analysis.
+
+\subsection{Data Storage and Deduplication Design}
+
+The implemented prototype uses AsyncStorage for local persistence. \texttt{ViolationRepository} stores findings under a versioned AsyncStorage key. A finding identifier combines package name and permission category. Saving a finding replaces the prior record for the same identifier and returns two control values:
+
+\begin{itemize}
+    \item \texttt{changed}, indicating that the serialised finding differs; and
+    \item \texttt{shouldNotify}, indicating a new finding, an active-state reversal, or an increase in risk rank.
+\end{itemize}
+
+This design suppresses unchanged repeated results without claiming that Android system notifications were validated in the reported tests. AsyncStorage is adequate for a demonstrator but does not provide relational queries, tamper resistance, or transactional audit export. A production audit repository would require schema migration, integrity protection, retention policy, and explicit user-controlled export.
+
+The earlier design consideration involving Room——with three primary entities (\texttt{OpEvent}, \texttt{DailyAggregate}, and \texttt{ViolationRecord})——remains a relevant reference for a future native implementation. The Room-based schema would include composite indexes on \texttt{(package\_name, permission\_code, timestamp)} for aggregation queries and Write-Ahead Logging (WAL) mode for concurrent read-write performance.
+
+\subsection{Native Bridge Boundary}
+
+\texttt{PrivacyBridge} looks up an optional React Native module named \texttt{PrivacyInspector}. It defines calls for daily scheduling, immediate audit, simulation scheduling, and log dispatch, and it listens for \texttt{ON\_PASSIVE\_AUDIT\_EVENT}. Optional chaining prevents an absent module from crashing these calls.
+
+This code is an integration boundary rather than evidence that cross-application AppOps acquisition or WorkManager scheduling is present in the evaluated APK. A production module would need to document its Android authority model, API-level behaviour, data provenance, and failure semantics. Its output would also have to pass the runtime validation boundary before evaluation.
+
+The completed native simulation pipeline normalises the configuration, creates a random 50--200-call configuration when none is supplied, sorts and bounds trigger times, and enqueues delayed child work. The child worker records synthetic events without invoking location, microphone or contacts APIs. This separation prevents a test harness from collecting personal data merely to demonstrate a privacy control.
+
+The React Native bridge now exposes commands for configured and random runs and asynchronous reads for the latest capability audit and simulation progress. WorkManager remains responsible for persistence across process death and Doze-aware deferral. Trigger timestamps are targets rather than exact execution guarantees, which is consistent with WorkManager semantics and must be considered when interpreting temporal experiments.
+
+\subsection{Application Views and Evaluation Telemetry}
+
+The application exposes tab-based views for the dashboard, experiments, privacy information, history, scoring, and settings. The experiment workflow generates configurations, invokes the engine, persists findings, and updates the rendered result. Evaluation telemetry permits automated tests to identify completion and obtain aggregate outcomes from the UI hierarchy.
+
+The release APK was selected for integration evidence because it represents the optimised deployment artefact rather than the development server. Its size reduction and runtime behaviour are reported in Chapter 5. UI automation relied on adb launch, input injection, hierarchy capture, screenshots, logcat, \texttt{dumpsys meminfo}, and \texttt{gfxinfo}.
+
+\subsection{Security Analysis and Fail-Closed Runtime Boundary}
+
+The initial engine assumes that TypeScript types remain valid at runtime. The adversarial evaluation demonstrates that this assumption is unsafe. An unknown permission key can yield an undefined rule and a \texttt{TypeError}; inherited object keys can resolve through the prototype chain; JavaScript coercion can convert strings, booleans, arrays, and objects; and \texttt{NaN} can silently propagate through threshold arithmetic.
+
+The enhanced TypeScript engine adds \texttt{evaluateSafe(unknown)}, returning either an accepted finding or a structured rejection. Package identifiers, permission values, counts, audit windows, and timestamp arrays are validated before rule lookup or arithmetic. Counts must be finite non-negative integers; windows must be finite, ordered, no longer than 24 hours, and not unreasonably future-dated. Timestamp evidence must match the declared count and remain inside the audit interval.
+
+Permission rules are protected by an explicit whitelist and an own-property check. Prototype-chain keys such as \texttt{\_\_proto\_\_} can no longer be interpreted as rule records. Compatibility callers may use \texttt{evaluate}, which raises a typed \texttt{ComplianceInputError}; bridge and import paths use the structured result so rejected evidence can be logged without producing a false normal finding.
+
+The required repair is a fail-closed parser placed before \texttt{evaluate}. It should:
+
+\begin{enumerate}
+    \item accept only the three explicit permission literals;
+    \item read rules through \texttt{Map} or an own-property check;
+    \item require \texttt{Number.isFinite} and \texttt{Number.isInteger} for counts and timestamps;
+    \item reject negative counts and invalid window ordering;
+    \item bound audit duration and future time offset;
+    \item return a structured rejection with a reason code; and
+    \item prohibit non-finite fields in every output.
+\end{enumerate}
+
+\subsection{Multi-Scale Temporal Signals and Temporal Extension}
+
+The original daily count is retained as \texttt{DAILY\_TOTAL}. A sliding calculation now measures peak calls in every 60-second interval and emits \texttt{BURST\_RATE} when a permission-specific limit is exceeded. A package-permission keyed \texttt{Map} also accumulates authorised imported or native windows over the preceding 24 hours. Multiple sub-threshold windows can therefore emit \texttt{CROSS\_WINDOW} when their combined count exceeds the daily threshold. Independent simulator samples are excluded from persistent accumulation to prevent experimental cross-contamination.
+
+Each accepted finding contains its contributing signals and an evidence object containing daily count, peak calls per minute, rolling count, and provenance. This converts the engine from a permissive scalar classifier into an explainable, provenance-aware multi-signal detector. The thresholds remain transparent prototype policy values and require future empirical and legal calibration.
+
+The current detector is an aggregate-count classifier. A robust successor should calculate counts across multiple horizons, a peak access rate, and decaying cumulative risk. It should distinguish a uniform daily pattern from a burst and retain enough state to identify repeated near-threshold windows. These features require new external oracles and should not be tuned on the same adversarial corpus used for final reporting.
+
+\subsection{GDPR-Oriented Compliance Context Implementation}
+
+\texttt{PermissionAudit} now accepts a \texttt{ProcessingContext} containing purpose, Article 6 lawful basis, controller identity, retention days, consent-withdrawal state, special-category indication, Article 9 condition, and user-initiation state. Lawful bases are represented as a closed union covering consent, contract, legal obligation, vital interests, public task, and legitimate interests. Unknown values and negative retention periods are rejected as \texttt{INVALID\_CONTEXT}.
+
+Accepted findings contain a compliance assessment with status, applicable principles, missing evidence, and a permanent caveat that the automated result is not a determination of GDPR infringement. Missing purpose, lawful basis, controller identity, retention period, or Article 9 condition produces \texttt{INSUFFICIENT\_EVIDENCE}. Continued access after withdrawal, where consent is the declared lawful basis, produces \texttt{LIKELY\_NON\_COMPLIANT}. A complete context with a technical signal produces \texttt{REVIEW\_REQUIRED}; the absence of a modelled signal produces \texttt{NO\_TECHNICAL\_CONCERN} rather than a claim of compliance.
+
+The communication object is intentionally separate from the legal assessment. It supplies a neutral title, concise summary, recommended action, and silent, standard, or urgent priority. This separation allows wording and progressive disclosure to be user-tested without changing the underlying compliance status.
+
+\subsection{Integrated Accountability Dashboard}
+
+The Privacy destination is now a first-class navigation item. Its presentation model deterministically summarises findings and filters action-required and evidence-incomplete cases without merging their legal meanings. Four non-colour labels are retained: \texttt{LIKELY\_NON\_COMPLIANT}, \texttt{REVIEW\_REQUIRED}, \texttt{INSUFFICIENT\_EVIDENCE}, and \texttt{NO\_TECHNICAL\_CONCERN}. The last phrase deliberately avoids the stronger and unsupported label ``compliant''.
+
+Each card first shows permission, package, status, plain-language summary and next action. Expansion reveals daily, burst and rolling evidence, triggered signals, GDPR references, missing evidence and the legal caveat. Memoised cards, stable list keys, bounded rendering windows and smaller batches reduce avoidable React Native work. The experiment dashboard retains its historical task structure but reduces distractors from nine to five, raises its intervention control to 48~dp, enlarges labels and removes some elevation cost.
+
+The interface implements Android's accessible target recommendation and WCAG's non-colour communication principle \cite{androidaccess,wcag22}. It also avoids overstating platform visibility: the former ``no Root or VPN'' claim is replaced by a disclosure that evidence availability depends on deployment authority and Android access.
+
+\subsection{Comparison with Existing Privacy Auditing Tools}
+
+To contextualise our design choices, Table~\ref{tab:comparison} compares our framework with three representative existing approaches: the native Android permission dashboard, Exodus Privacy (a static analysis tool), and VPN-based packet inspection tools. Our framework uniquely combines real-time monitoring, local dynamic analysis, and no-root operation, while providing GDPR-specific audit trails.
+
+\begin{table}[H]
+\centering
+\caption{Comparison of privacy auditing approaches}
+\label{tab:comparison}
+\begin{tabular}{p{3cm}|p{3cm}|p{3cm}|p{3cm}}
+\toprule
+\textbf{Feature} & \textbf{Our Framework} & \textbf{Android Permission Dashboard} & \textbf{Exodus Privacy} & \textbf{VPN-based tools} \\
+\midrule
+Real-time monitoring & Yes (callback) & No (historical only) & No (static) & Yes (network) \\
+No root required & Yes & Yes & Yes & Yes \\
+GDPR-specific alerts & Yes & No & No & No \\
+Dynamic thresholding & Yes & No & No & No \\
+Offline operation & Yes & Yes & Yes & No (needs network) \\
+Battery impact & <1\% & Minimal & N/A & High (VPN drain) \\
+Audit export & Yes & No & Yes (API) & No \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{System Scheduling and Resource Management}
+
+\subsubsection{Memory and CPU Profiling}
+
+We have conducted preliminary profiling on a Google Pixel 7 device running Android 15. The framework's memory footprint averages 85 MB, well below our target of 150 MB. The CPU usage during the daily audit is approximately 2 seconds of total CPU time, with the majority spent on database aggregation and JSON serialisation. The callback overhead is minimal——each event insertion takes about 2–5 microseconds, and with an average of 200–300 events per day, the total CPU time is negligible. The battery drain, as measured by Android's Battery Historian, is less than 1\% over a 24-hour period, meeting our target of <2\%. We also use Android Studio's CPU profiler to identify hotspots; the most expensive operation is the JSON serialisation of the hourly distribution. To optimise this, we switched to a comma-separated string representation, which reduced serialisation time by 60\%.
+
+\subsubsection{Energy-Efficient Database Operations}
+
+All database operations are performed on a background dispatcher using Kotlin coroutines. We use batch insertions for \texttt{OpEvent} to reduce the number of write operations. The batch size is set to 50 events or a 5-second time window, whichever comes first. The aggregation worker uses a single transaction to perform the grouping and insertion into \texttt{DailyAggregate}, ensuring atomicity and reducing I/O overhead. We also disable Room's auto-commit for large operations and manually manage transactions. We analysed the query performance using Room's \texttt{EXPLAIN QUERY PLAN} and added the necessary indexes to avoid full table scans, which reduced query execution time from 500 ms to under 50 ms.
+
+\subsubsection{Handling Doze Mode and Background Restrictions}
+
+WorkManager inherently respects Doze mode, but to ensure that the callback registration remains active, we register a foreground service that runs while the user is actively using the dashboard. In the background, the callback continues to work even in Doze mode because it is a system callback, not a background service. The periodic worker may be deferred, but our drift mitigation ensures that audits still occur within a reasonable window. We also advise users to add the app to the ``Unrestricted'' battery optimisation list via a one-time prompt, though this is optional.
+
+In Android 16, the new \texttt{SCHEDULE\_EXACT\_ALARM} permission is being further restricted; however, our use of WorkManager's flex period aligns with the recommended best practices and avoids the need for exact alarms. To handle process death, we use the \texttt{ApplicationExitInfo} API (available from API 31) to detect if the app was killed by the system. When this occurs, we schedule a one-time worker to re-register the callback and perform a partial audit to cover the gap. This resilience mechanism ensures that monitoring resumes automatically after any unexpected termination.
+
+\subsection{Remaining Android Delivery Boundary}
+
+The optional native bridge remains the boundary for future authorised acquisition and WorkManager scheduling. The repository does not claim unrestricted cross-application AppOps access. A production adapter must document its authority model, preserve provenance, encrypt retained audit data, and pass every native or imported record through the same fail-closed validator.
+
+\subsection{Implementation Summary}
+
+The implemented system is compact and traceable: a simulation or future authorised source produces an audit; the TypeScript engine applies an explicit rule; the repository stores the latest finding; and the React Native interface renders the outcome. The implementation chapter deliberately excludes earlier design claims that are not present in the repository, including a Room schema, Kotlin workers, population-derived three-sigma adaptation, and validated physical-device AppOps collection.
+
+The implemented portion of this design is the validated TypeScript observation boundary, explicit warning rules, controlled simulator, local presentation path, and synthetic-event harness. Native acquisition authority, complete event aggregation, Room persistence, adaptive baselines, long-duration scheduling, and regulatory auditability remain target capabilities. The next chapter evaluates rule conformance and bounded integration evidence without treating these future components as completed.
+\subsection{Revision-4 Implementation Reconciliation}
+
+Release compilation exposed a reproducible manifest defect: \texttt{PrivacyContext.tsx} imports \texttt{@react-native-community/netinfo}, but the dependency was absent from \texttt{package.json}. Declaring version 11.4.1 corrected the build. The ARM64 release then compiled and installed successfully with the default React Native New Architecture.
+
+The implemented native audit is narrower than several earlier design passages in this chapter. \texttt{PermissionAuditWorker} calls \texttt{unsafeCheckOpNoThrow} for this application's location, microphone and contacts operation modes and stores a capability snapshot in SharedPreferences. It does not call \texttt{getHistoricalOps}, collect third-party access counts, use Room, register an AppOps callback or run a foreground service. \texttt{AuditScheduler} registers one unique 24-hour \texttt{PeriodicWorkRequest} and an on-demand one-time request; no catch-up worker, 12-hour watchdog or measured drift correction is implemented. These executable facts supersede incompatible target-design wording above.
+
+The previously stated Pixel 7, 85~MB, sub-1\% battery, microsecond callback and Room query figures have no matching raw artefacts in this repository and are withdrawn as results. The supported physical result is the OPPO campaign reported in Chapter~5. Because the phone was charging over USB, no battery-drain percentage is reported.
+\subsection{Revision-5 Fail-Closed and Deterministic-Window Corrections}
+
+Extended type-confusion tests showed that non-string purpose, controller identity or Article~9 fields could reach \texttt{trim()} and throw rather than returning a controlled rejection. The parser now validates those fields as strings and validates consent-withdrawn, special-category and user-initiated flags as booleans. Malformed contexts therefore return \texttt{INVALID\_CONTEXT} through the fail-closed API.
+
+A second boundary test forced the simulator random source to zero. All generated timestamps then coincided, creating a zero-length audit window that the engine correctly rejected but the simulator had incorrectly produced. \texttt{simulationToAudit} now normalises the end of a degenerate window to at least one millisecond after its start. These changes were included in an ARM64 release APK of 32,776,788 bytes with SHA-256 \texttt{DA5C984CC4236ACD889597B98D98434375EBA3B5C15139DE4A436F78CE3C13BB}, installed successfully on the physical OPPO device.

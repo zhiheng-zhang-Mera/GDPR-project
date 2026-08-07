@@ -44,6 +44,14 @@ for (const accessTimestamps of timestampCases) {
   assert(!result.accepted && result.code === 'INVALID_TIMESTAMPS', 'Invalid timestamp evidence must fail closed.');
 }
 
+for (const invalidNumber of [Number.MAX_SAFE_INTEGER + 1, Number.POSITIVE_INFINITY]) {
+  const invalidCount = new GDPRComplianceEngine().evaluateSafe({
+    packageName: 'extended.numeric', permissionType: 'LOCATION', accessCount: invalidNumber,
+    windowStart: now - 1_000, windowEnd: now,
+  });
+  assert(!invalidCount.accepted && invalidCount.code === 'INVALID_COUNT', 'Unsafe counts must fail closed.');
+}
+
 for (const [permissionType, limit] of [['LOCATION', 12], ['MICROPHONE', 6], ['CONTACTS', 4]] as const) {
   const atLimit = Array.from({ length: limit }, (_, index) => now - 10_000 + index);
   const aboveLimit = Array.from({ length: limit + 1 }, (_, index) => now - 10_000 + index);
@@ -66,6 +74,18 @@ const simulatorHistory = new GDPRComplianceEngine();
 simulatorHistory.evaluate({ packageName: 'history.sim', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 2_000, windowEnd: now - 1_000, source: 'SIMULATOR' });
 const simulatorSecond = simulatorHistory.evaluate({ packageName: 'history.sim', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 500, windowEnd: now, source: 'SIMULATOR' });
 assert(!simulatorSecond.signals.includes('CROSS_WINDOW'), 'Simulator history must not be presented as imported temporal evidence.');
+
+const overlapEngine = new GDPRComplianceEngine();
+overlapEngine.evaluate({ packageName: 'history.overlap', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 60_000, windowEnd: now - 20_000, source: 'IMPORTED' });
+const overlapping = overlapEngine.evaluate({ packageName: 'history.overlap', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 30_000, windowEnd: now, source: 'IMPORTED' });
+assert(!overlapping.signals.includes('CROSS_WINDOW'), 'Overlapping windows must not be double-counted as cross-window evidence.');
+assert(overlapping.evidence.rollingCount === 20, 'Overlapping history must be excluded from the rolling count.');
+
+const adjacentEngine = new GDPRComplianceEngine();
+adjacentEngine.evaluate({ packageName: 'history.adjacent', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 60_000, windowEnd: now - 30_000, source: 'IMPORTED' });
+const adjacent = adjacentEngine.evaluate({ packageName: 'history.adjacent', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 30_000, windowEnd: now, source: 'IMPORTED' });
+assert(adjacent.signals.includes('CROSS_WINDOW'), 'Adjacent completed windows must remain eligible for cross-window evidence.');
+assert(adjacent.evidence.rollingCount === 40, 'Adjacent completed windows must contribute to the rolling count.');
 
 for (const randomValue of [0, 0.999_999_999]) {
   const config = createSimulationConfig(now, () => randomValue);

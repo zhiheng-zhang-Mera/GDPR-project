@@ -30,12 +30,12 @@ function parseAudit(value: unknown): PermissionAudit | ComplianceEvaluation {
   const x = value as Record<string, unknown>;
   if (typeof x.packageName !== 'string' || !/^[A-Za-z0-9_.-]{1,255}$/.test(x.packageName)) return reject('INVALID_PACKAGE', 'Invalid packageName.');
   if (typeof x.permissionType !== 'string' || !PERMISSIONS.has(x.permissionType as SensitivePermission)) return reject('UNSUPPORTED_PERMISSION', 'Permission is not whitelisted.');
-  if (!Number.isFinite(x.accessCount) || !Number.isInteger(x.accessCount) || (x.accessCount as number) < 0) return reject('INVALID_COUNT', 'accessCount must be a finite non-negative integer.');
-  if (!Number.isFinite(x.windowStart) || !Number.isInteger(x.windowStart) || !Number.isFinite(x.windowEnd) || !Number.isInteger(x.windowEnd) ||
+  if (!Number.isSafeInteger(x.accessCount) || (x.accessCount as number) < 0) return reject('INVALID_COUNT', 'accessCount must be a safe non-negative integer.');
+  if (!Number.isSafeInteger(x.windowStart) || !Number.isSafeInteger(x.windowEnd) ||
       (x.windowStart as number) >= (x.windowEnd as number) || (x.windowEnd as number) - (x.windowStart as number) > DAY_MS ||
       (x.windowEnd as number) > Date.now() + 300_000) return reject('INVALID_WINDOW', 'Invalid audit window.');
   if (x.accessTimestamps !== undefined && (!Array.isArray(x.accessTimestamps) || x.accessTimestamps.length !== x.accessCount ||
-      x.accessTimestamps.some((t) => !Number.isFinite(t) || !Number.isInteger(t) || t < (x.windowStart as number) || t > (x.windowEnd as number)))) {
+      x.accessTimestamps.some((t) => !Number.isSafeInteger(t) || t < (x.windowStart as number) || t > (x.windowEnd as number)))) {
     return reject('INVALID_TIMESTAMPS', 'Timestamps must match the count and window.');
   }
   if (x.processingContext !== undefined) {
@@ -48,7 +48,7 @@ function parseAudit(value: unknown): PermissionAudit | ComplianceEvaluation {
       if (context[field] !== undefined && typeof context[field] !== 'boolean') return reject('INVALID_CONTEXT', `${field} must be a boolean.`);
     }
     if (context.lawfulBasis !== undefined && (typeof context.lawfulBasis !== 'string' || !LAWFUL_BASES.has(context.lawfulBasis))) return reject('INVALID_CONTEXT', 'Unknown Article 6 lawful basis.');
-    if (context.retentionDays !== undefined && (!Number.isInteger(context.retentionDays) || (context.retentionDays as number) < 0)) return reject('INVALID_CONTEXT', 'retentionDays must be a non-negative integer.');
+    if (context.retentionDays !== undefined && (!Number.isSafeInteger(context.retentionDays) || (context.retentionDays as number) < 0)) return reject('INVALID_CONTEXT', 'retentionDays must be a safe non-negative integer.');
   }
   return x as unknown as PermissionAudit;
 }
@@ -134,7 +134,7 @@ function communicate(finding: Pick<ComplianceFinding, 'permissionType' | 'signal
 
 export class GDPRComplianceEngine implements IComplianceEngine {
   readonly regulation = 'GDPR';
-  private readonly history = new Map<string, { at: number; count: number }[]>();
+  private readonly history = new Map<string, { start: number; end: number; count: number }[]>();
 
   constructor(private readonly rules = GDPR_RULES) {}
 
@@ -154,14 +154,15 @@ export class GDPRComplianceEngine implements IComplianceEngine {
     const excess = Math.max(0, audit.accessCount - threshold);
     const peak = peakPerMinute(audit.accessTimestamps);
     const key = `${audit.packageName}:${audit.permissionType}`;
-    const entries = (this.history.get(key) ?? []).filter((entry) => entry.at > audit.windowEnd - DAY_MS);
-    entries.push({ at: audit.windowEnd, count: audit.accessCount });
+    const entries = (this.history.get(key) ?? []).filter((entry) => entry.end > audit.windowEnd - DAY_MS);
+    const completedNonOverlapping = entries.filter((entry) => entry.end <= audit.windowStart);
+    entries.push({ start: audit.windowStart, end: audit.windowEnd, count: audit.accessCount });
     this.history.set(key, entries);
-    const rollingCount = entries.reduce((sum, entry) => sum + entry.count, 0);
+    const rollingCount = completedNonOverlapping.reduce((sum, entry) => sum + entry.count, audit.accessCount);
     const signals: ComplianceFinding['signals'] = [];
     if (excess > 0) signals.push('DAILY_TOTAL');
     if (peak > BURST_LIMIT[audit.permissionType]) signals.push('BURST_RATE');
-    if ((audit.source ?? 'SIMULATOR') !== 'SIMULATOR' && entries.length > 1 && rollingCount > threshold) signals.push('CROSS_WINDOW');
+    if ((audit.source ?? 'SIMULATOR') !== 'SIMULATOR' && completedNonOverlapping.length > 0 && rollingCount > threshold) signals.push('CROSS_WINDOW');
     const ratio = Math.max(excess / threshold, peak / BURST_LIMIT[audit.permissionType] - 1, rollingCount / threshold - 1);
     const isActive = signals.length > 0;
 
