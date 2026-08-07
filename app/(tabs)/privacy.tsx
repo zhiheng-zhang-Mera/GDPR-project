@@ -23,6 +23,12 @@ const STATUS_STYLE = {
 
 const SIGNAL_LABEL = { DAILY_TOTAL: 'daily total', BURST_RATE: 'burst rate', CROSS_WINDOW: 'cross-window' } as const;
 
+const METRIC_STYLE = {
+  action: { icon: 'alert-circle-outline', color: '#9F2D20', backgroundColor: '#FFF1EF' },
+  evidence: { icon: 'document-text-outline', color: '#8A6100', backgroundColor: '#FFF8E1' },
+  noConcern: { icon: 'checkmark-circle-outline', color: '#237A43', backgroundColor: '#EDF8F1' },
+} as const;
+
 const FindingCard = memo(function FindingCard({ finding }: { finding: ComplianceFinding }) {
   const [expanded, setExpanded] = useState(false);
   const status = STATUS_PRESENTATION[finding.compliance.status];
@@ -110,6 +116,10 @@ export default function PrivacyDashboard() {
   const header = (
     <View>
       <View style={styles.header}>
+        <View style={styles.eyebrowRow}>
+          <View style={styles.heroIcon}><Ionicons name="shield-checkmark" size={20} color="#D9F3EE" /></View>
+          <Text style={styles.eyebrow}>ON-DEVICE PRIVACY REVIEW</Text>
+        </View>
         <Text accessibilityRole="header" style={styles.title}>Privacy accountability</Text>
         <Text style={styles.subtitle}>Local technical evidence with human-review safeguards</Text>
       </View>
@@ -118,15 +128,17 @@ export default function PrivacyDashboard() {
         <Text style={styles.noticeText}>A warning is not a legal verdict. Data availability depends on deployment authority and Android platform access.</Text>
       </View>
       <View style={styles.metrics}>
-        <View style={styles.metric}><Text style={styles.metricValue}>{summary.action}</Text><Text style={styles.metricLabel}>Needs action</Text></View>
-        <View style={styles.metric}><Text style={styles.metricValue}>{summary.evidence}</Text><Text style={styles.metricLabel}>Evidence gaps</Text></View>
-        <View style={styles.metric}><Text style={styles.metricValue}>{summary.noConcern}</Text><Text style={styles.metricLabel}>No concern</Text></View>
+        <View style={styles.metric}><View style={[styles.metricIcon, { backgroundColor: METRIC_STYLE.action.backgroundColor }]}><Ionicons name={METRIC_STYLE.action.icon} size={18} color={METRIC_STYLE.action.color} /></View><Text style={styles.metricValue}>{summary.action}</Text><Text style={styles.metricLabel}>Needs action</Text></View>
+        <View style={styles.metric}><View style={[styles.metricIcon, { backgroundColor: METRIC_STYLE.evidence.backgroundColor }]}><Ionicons name={METRIC_STYLE.evidence.icon} size={18} color={METRIC_STYLE.evidence.color} /></View><Text style={styles.metricValue}>{summary.evidence}</Text><Text style={styles.metricLabel}>Evidence gaps</Text></View>
+        <View style={styles.metric}><View style={[styles.metricIcon, { backgroundColor: METRIC_STYLE.noConcern.backgroundColor }]}><Ionicons name={METRIC_STYLE.noConcern.icon} size={18} color={METRIC_STYLE.noConcern.color} /></View><Text style={styles.metricValue}>{summary.noConcern}</Text><Text style={styles.metricLabel}>No concern</Text></View>
       </View>
       <View style={styles.actions}>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Run permission audit now" style={styles.secondaryButton} onPress={PrivacyBridge.runAuditNow}>
+          <Ionicons name="scan-outline" size={20} color="#084B63" />
           <Text style={styles.secondaryButtonText}>Run audit now</Text>
         </TouchableOpacity>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Run 50-round controlled evaluation" accessibilityState={{ disabled: isSimulating }} disabled={isSimulating} style={[styles.primaryButton, isSimulating && styles.disabledButton]} onPress={runEvaluation}>
+          <Ionicons name="flask-outline" size={20} color="#FFFFFF" />
           <Text style={styles.primaryButtonText}>{isSimulating ? 'Running 50 rounds…' : 'Run 50-round evaluation'}</Text>
         </TouchableOpacity>
         {simulationSummary && <Text accessibilityLiveRegion="polite" style={styles.evaluationSummary}>{simulationSummary}</Text>}
@@ -144,22 +156,23 @@ export default function PrivacyDashboard() {
   return (
     <FlatList style={styles.container} contentContainerStyle={styles.content} data={visibleFindings}
       keyExtractor={(item) => `${item.id}:${item.detectedAt}`} renderItem={renderFinding}
-      ListHeaderComponent={header} ListEmptyComponent={<Text style={styles.empty}>No findings in this view. Run an audit or controlled evaluation.</Text>}
+      ListHeaderComponent={header} ListEmptyComponent={<View style={styles.empty}><View style={styles.emptyIcon}><Ionicons name="shield-checkmark-outline" size={30} color="#0B5D7A" /></View><Text style={styles.emptyTitle}>Ready for a local review</Text><Text style={styles.emptyText}>Run an audit or controlled evaluation to populate this evidence view.</Text></View>}
       initialNumToRender={6} maxToRenderPerBatch={6} windowSize={5} removeClippedSubviews />
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F4F7FA' }, content: { paddingBottom: 32 },
-  header: { paddingHorizontal: 20, paddingTop: 22, paddingBottom: 18, backgroundColor: '#123B5D' },
+  header: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 22, backgroundColor: '#123B5D' },
+  eyebrowRow: { flexDirection: 'row', alignItems: 'center', gap: 9, marginBottom: 12 }, heroIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(217,243,238,0.14)' }, eyebrow: { color: '#BFDDE7', fontSize: 11, lineHeight: 16, fontWeight: '800', letterSpacing: 1.1 },
   title: { color: '#FFFFFF', fontSize: 26, lineHeight: 32, fontWeight: '800' }, subtitle: { color: '#E4F0F7', marginTop: 6, fontSize: 15, lineHeight: 21 },
   notice: { margin: 14, marginBottom: 8, padding: 14, borderRadius: 12, backgroundColor: '#E8EEFF', flexDirection: 'row', gap: 10 }, noticeText: { flex: 1, color: '#173B7A', lineHeight: 20 },
-  metrics: { marginHorizontal: 14, marginVertical: 6, flexDirection: 'row', gap: 8 }, metric: { flex: 1, minHeight: 74, justifyContent: 'center', padding: 10, borderRadius: 12, backgroundColor: '#FFFFFF' },
+  metrics: { marginHorizontal: 14, marginVertical: 6, flexDirection: 'row', gap: 8 }, metric: { flex: 1, minHeight: 104, justifyContent: 'center', padding: 10, borderRadius: 14, backgroundColor: '#FFFFFF', elevation: 1, shadowColor: '#0A2B3D', shadowOpacity: 0.07, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }, metricIcon: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginBottom: 7 },
   metricValue: { color: '#12212E', fontSize: 24, fontWeight: '800' }, metricLabel: { color: '#465B6B', fontSize: 12, marginTop: 3 },
-  actions: { margin: 14, gap: 10 }, primaryButton: { minHeight: 52, paddingHorizontal: 16, borderRadius: 12, backgroundColor: '#0B5D7A', alignItems: 'center', justifyContent: 'center' }, primaryButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
-  secondaryButton: { minHeight: 52, paddingHorizontal: 16, borderRadius: 12, borderWidth: 2, borderColor: '#0B5D7A', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }, secondaryButtonText: { color: '#084B63', fontSize: 16, fontWeight: '700' }, disabledButton: { opacity: 0.55 }, evaluationSummary: { color: '#263B4A', lineHeight: 21 },
+  actions: { margin: 14, gap: 10 }, primaryButton: { minHeight: 54, paddingHorizontal: 16, borderRadius: 14, backgroundColor: '#0B5D7A', flexDirection: 'row', gap: 9, alignItems: 'center', justifyContent: 'center', elevation: 2 }, primaryButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+  secondaryButton: { minHeight: 54, paddingHorizontal: 16, borderRadius: 14, borderWidth: 2, borderColor: '#0B5D7A', flexDirection: 'row', gap: 9, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }, secondaryButtonText: { color: '#084B63', fontSize: 16, fontWeight: '700' }, disabledButton: { opacity: 0.55 }, evaluationSummary: { color: '#263B4A', lineHeight: 21 },
   filters: { paddingHorizontal: 14, paddingBottom: 6, flexDirection: 'row', gap: 8 }, filterButton: { flex: 1, minHeight: 48, borderRadius: 24, borderWidth: 1, borderColor: '#7B8D9A', justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }, filterSelected: { backgroundColor: '#123B5D', borderColor: '#123B5D' }, filterText: { color: '#314A5B', fontWeight: '700', fontSize: 13 }, filterTextSelected: { color: '#FFFFFF' },
-  empty: { textAlign: 'center', color: '#526776', margin: 28, lineHeight: 22 }, card: { marginHorizontal: 14, marginTop: 12, minHeight: 120, padding: 16, borderRadius: 14, borderLeftWidth: 6, backgroundColor: '#FFFFFF' },
+  empty: { alignItems: 'center', marginHorizontal: 28, marginTop: 34, padding: 22, borderRadius: 18, borderWidth: 1, borderColor: '#DCE6EC', backgroundColor: '#FFFFFF' }, emptyIcon: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center', backgroundColor: '#E6F3F6', marginBottom: 12 }, emptyTitle: { color: '#12212E', fontSize: 17, fontWeight: '800' }, emptyText: { textAlign: 'center', color: '#526776', marginTop: 6, lineHeight: 21 }, card: { marginHorizontal: 14, marginTop: 12, minHeight: 120, padding: 16, borderRadius: 14, borderLeftWidth: 6, backgroundColor: '#FFFFFF' },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 }, cardHeading: { flex: 1 }, cardTitle: { color: '#12212E', fontSize: 17, fontWeight: '800' }, packageName: { color: '#526776', marginTop: 3 }, statusBadge: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: 16 }, statusText: { fontSize: 12, fontWeight: '800' },
   summaryText: { color: '#253A49', lineHeight: 21, marginTop: 12 }, actionText: { color: '#12212E', fontWeight: '600', lineHeight: 21, marginTop: 8 }, details: { marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#D7E0E6' }, detailTitle: { color: '#12212E', fontWeight: '800', marginTop: 6, marginBottom: 3 }, detailText: { color: '#405766', lineHeight: 20 }, caveat: { color: '#5A4A18', lineHeight: 20, marginTop: 9, fontStyle: 'italic' }, expandText: { color: '#075A78', fontWeight: '800', marginTop: 12 },
 });

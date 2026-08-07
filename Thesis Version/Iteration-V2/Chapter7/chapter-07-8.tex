@@ -1,0 +1,77 @@
+\newpage
+\section{Conclusion and Future Work}
+
+\paragraph{Revision-8 conclusion.} The interface source has a clearer evidence hierarchy, but the build blockade prevents device-level acceptance of the new pixels. This distinction is intentionally retained: source review and lint are engineering evidence, whereas visual quality requires a rendered, installed build.
+
+\paragraph{Revision-7 conclusion.} The runtime trust boundary now validates provenance labels and defines bounded replay retention. Together with the claim-to-evidence matrix, this makes the implemented guarantees auditable without expanding them into acquisition authenticity, field accuracy, legal validity, or endurance claims.
+
+\paragraph{Revision-6 conclusion.} Source-rebuilt regression tests confirm fail-closed numeric validation and non-overlapping cross-window aggregation. The contribution remains a bounded technical-warning pipeline. Controlled-label agreement, short-run device startup evidence, and a memory snapshot must not be interpreted as legal accuracy, long-duration reliability, battery performance, or unrestricted cross-application acquisition.
+
+\paragraph{Revision-3 conclusion.} The confirmed contribution is a bounded, explainable warning and validation pipeline. The 1,000-case seeded logical rerun produced TP=800, TN=200, FP=0, and FN=0, with precision and recall of 1.0000 against its simulator-defined oracle. Room persistence, unrestricted third-party AppOps acquisition, population-derived thresholds, physical-device 24-hour reliability, battery impact, and legal-classification accuracy were not established and remain future work. This statement supersedes incompatible legacy claims below.
+
+\subsection{Summary of the Study}
+
+This thesis designed, implemented, and evaluated an Android compliance-warning prototype for structured permission-audit observations. The implemented core is a React Native and TypeScript application containing explicit rules for LOCATION, MICROPHONE, and CONTACTS, a modular evaluation interface, local finding persistence, a violation simulator, and an Android interface for running and reviewing audits. The research deliberately separates a warning from a legal conclusion. The engine asks whether an observed aggregate count exceeds an explicit threshold and explains the result. It does not determine whether processing is legally necessary, nor does it establish unrestricted access to other applications' permission histories on a stock device.
+
+The work responds to a critical gap between stringent regulatory mandates——embodied by the GDPR's data minimisation principle (Article 5) and the requirement for transparent processing (Articles 7 and 9)——and the practical reality of Android's permission ecosystem. While mobile health (mHealth) applications offer transformative benefits, their unchecked access to sensitive data poses profound privacy risks, exacerbated by the ``control paradox'' where users are granted theoretical consent authority but lack the means to verify actual background behaviour. Our framework bridges this gap through a non‑intrusive, low‑energy, and auditable compliance supervision architecture.
+
+\subsection{Answers to the Research Questions}
+
+The first research question concerned implementation consistency. The answer is positive within the specified domain. Independent-oracle Monte Carlo and boundary-stratified testing produced 7,000 zero-error logical observations. The descriptive 95\% Wilson accuracy lower bound was 99.945\%, and the boundary corpus found no off-by-one error.
+
+The second question concerned packaged-application behaviour. The release APK completed a 1,500-observation endurance sequence without a captured crash or ANR. Peak PSS was 115.16~MB. Controlled Monkey runs completed a further 60,000 touch and motion events without crash or ANR, although an earlier unrestricted run produced one non-reproducible focus-state exception.
+
+The third question concerned adversarial coverage. The answer is that the present rule is incomplete. All tested short-term burst and cross-window split scenarios bypassed detection. All 40,000 invalid windows were accepted. Runtime count and permission-key mutations produced exceptions, non-finite values, and silent normal verdicts; 83.776\% of the combined malformed corpus was classified as normal.
+
+The fourth question concerned readiness for broader deployment. The prototype is not production-ready. Fail-closed runtime validation, safe rule lookup, temporal features, deterministic UI regression, an authorised Android acquisition layer, physical-device endurance, battery measurement, cross-version testing, and legal calibration are required.
+
+\subsection{Contributions}
+
+The thesis makes five evidence-bounded contributions:
+
+\begin{itemize}
+    \item A runtime-validated TypeScript warning engine for LOCATION, MICROPHONE, and CONTACTS observations, with explicit daily-total, burst-rate, and cross-window signals.
+    \item A deterministic controlled simulator and reproducible regression corpus whose labels test conformance to the published rule; the reported precision and recall apply only to that controlled oracle.
+    \item A fail-closed observation boundary covering malformed package, permission, count, time-window, timestamp, and processing-context values, including unsafe numeric values.
+    \item A temporal aggregation rule that separates packages and permissions and excludes overlapping audit windows from cross-window accumulation, with regression evidence for overlapping and adjacent windows.
+    \item A research prototype and short-run ARM64 device evidence package that records its acquisition, scheduling, persistence, legal, and external-validity limitations rather than presenting them as completed capabilities.
+\end{itemize}
+
+The negative findings are also part of the contribution. They identify concrete failure modes and establish a defensible repair order instead of concealing uncovered behaviour behind a single accuracy percentage.
+
+\subsection{Compliance-Focused Final Position}
+
+The principal contribution is now an auditable GDPR-oriented review pipeline rather than a frequency detector with legal labels. Technical signals are combined with declared purpose, Article 6 basis, Article 9 condition, retention, controller identity, and consent state. The output reports evidence insufficiency, review need, or a narrow likely contradiction while preserving human legal responsibility.
+
+Human-computer interaction is a secondary contribution that makes this compliance evidence usable. The system provides calibrated notification priority and recommended actions while avoiding a binary ``compliant'' claim. The design follows cognitive load theory and accessibility principles, but user studies are required to validate these design choices empirically.
+
+The framework now connects Android permission evidence, GDPR accountability context, calibrated human review, accessible presentation and reproducible performance measurement. Cross-model tests support deterministic functional correctness and layout operability, while the measured jank, memory growth, API 36 image gap and emulator-service failure bound the strength of the claims.
+
+\subsection{Future Work}
+
+Based on the findings and limitations, future work should proceed in the following priority order:
+
+\begin{enumerate}
+    \item \textbf{Fail-closed runtime validation}: implement and property-test a robust input-boundary layer that rejects malformed permission keys, non-finite counts, and invalid timestamps, returning structured rejections rather than silent normal verdicts.
+    \item \textbf{Multi-scale temporal and cumulative features}: extend the aggregate-count rule with peak-rate detection, cross-window accumulation, and decaying risk scores, validated against independent oracles.
+    \item \textbf{Authorised Android acquisition module}: design and test a production-grade native layer that can reliably obtain permission histories from other applications, documenting its authority model and data provenance.
+    \item \textbf{Physical-device endurance testing}: run multi-day tests on ARM devices across Android versions, measuring WorkManager scheduling drift, vendor log retention, battery consumption, and recovery from process death.
+    \item \textbf{Privacy policy integration}: incorporate NLP techniques to automatically extract permission usage claims from privacy policies and compare them against runtime behaviour, enabling policy-level compliance verification.
+    \item \textbf{Cross-platform extension}: adapt the framework to emerging OSs like HarmonyOS NEXT, studying their permission auditing mechanisms and demonstrating the modular architecture's portability.
+    \item \textbf{Large-scale user study}: evaluate the cognitive impact of the tiered notification strategy using validated instruments (e.g., NASA-TLX) and measure task completion, warning comprehension, trust calibration, and notification fatigue.
+    \item \textbf{Federated learning for baselines}: develop privacy-preserving aggregation of usage statistics across devices to improve baseline accuracy without centralising sensitive data.
+\end{enumerate}
+
+These steps are necessary before deployment claims or statistically generalisable conclusions can be made. The next research stage should prioritise physical-device Perfetto and Simpleperf traces, participant comprehension and task-load experiments, broader labelled datasets with independent reviewer agreement, and legal validation of purpose, lawful basis, retention and Article 9 evidence.
+
+\subsection{Revision-4 Conclusion from Physical Evidence}
+
+The completed ARM64 campaign demonstrates that the release application can start, render the warning dashboard, execute the 50-round controlled evaluation and register its WorkManager audit on an OPPO Android 12 device. Median cold start was 995~ms, controlled precision and recall were 100\% against the simulator oracle, and sampled peak PSS was approximately 138.35~MiB. Release compilation also led directly to correction of an undeclared NetInfo dependency.
+
+The evidence narrows rather than removes the research boundary. The implemented AppOps worker observes capability modes for its own package; it does not establish comprehensive third-party access histories or legal infringement. A valid completion of the remaining research agenda therefore requires an unplugged battery campaign, 24--72-hour scheduling and reboot tests, multiple OEM/API configurations and an authorised acquisition source with independent real-event ground truth.
+
+\subsection{Final Conclusion}
+
+The study demonstrates that abstract privacy principles can inform transparent technical warnings, provided that their scope is stated precisely. The prototype consistently implements its defined aggregate-count rule and remains operational under accelerated emulator testing. At the same time, temporal bypass and malformed-input acceptance show that a correct rule can still be an incomplete security control——the 100\% bypass rate for burst patterns and the 83.776\% silent-normal rate for malformed inputs demonstrate that frequency alone is insufficient as a sole indicator of privacy risk.
+
+The final conclusion is therefore calibrated: the framework is a reproducible research prototype for explainable GDPR-oriented permission warnings, not a complete or legally determinative compliance monitor. Its strongest path forward is to retain explicit reasoning while adding a fail-closed input boundary, multiple temporal scales, trustworthy Android data provenance, and physical-device evidence. By keeping the system explainable, auditable, and modular, we hope to encourage further research that puts user agency at the centre of the mobile ecosystem, addressing the evolving challenges of digital privacy in the mHealth domain and beyond.
