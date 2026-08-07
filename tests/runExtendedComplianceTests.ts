@@ -52,6 +52,12 @@ for (const invalidNumber of [Number.MAX_SAFE_INTEGER + 1, Number.POSITIVE_INFINI
   assert(!invalidCount.accepted && invalidCount.code === 'INVALID_COUNT', 'Unsafe counts must fail closed.');
 }
 
+const invalidSource = new GDPRComplianceEngine().evaluateSafe({
+  packageName: 'extended.source', permissionType: 'LOCATION', accessCount: 1,
+  windowStart: now - 1_000, windowEnd: now, source: 'FORGED',
+});
+assert(!invalidSource.accepted && invalidSource.code === 'INVALID_SOURCE', 'Unknown sources must fail closed.');
+
 for (const [permissionType, limit] of [['LOCATION', 12], ['MICROPHONE', 6], ['CONTACTS', 4]] as const) {
   const atLimit = Array.from({ length: limit }, (_, index) => now - 10_000 + index);
   const aboveLimit = Array.from({ length: limit + 1 }, (_, index) => now - 10_000 + index);
@@ -86,6 +92,13 @@ adjacentEngine.evaluate({ packageName: 'history.adjacent', permissionType: 'LOCA
 const adjacent = adjacentEngine.evaluate({ packageName: 'history.adjacent', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 30_000, windowEnd: now, source: 'IMPORTED' });
 assert(adjacent.signals.includes('CROSS_WINDOW'), 'Adjacent completed windows must remain eligible for cross-window evidence.');
 assert(adjacent.evidence.rollingCount === 40, 'Adjacent completed windows must contribute to the rolling count.');
+
+const replayEngine = new GDPRComplianceEngine();
+const replayAudit = { packageName: 'history.replay', permissionType: 'LOCATION' as const, accessCount: 20, windowStart: now - 60_000, windowEnd: now - 30_000, source: 'IMPORTED' as const };
+replayEngine.evaluate(replayAudit);
+replayEngine.evaluate(replayAudit);
+const afterReplay = replayEngine.evaluate({ ...replayAudit, windowStart: now - 30_000, windowEnd: now });
+assert(afterReplay.evidence.rollingCount === 40, 'An identical replay must replace, not duplicate, stored window evidence.');
 
 for (const randomValue of [0, 0.999_999_999]) {
   const config = createSimulationConfig(now, () => randomValue);

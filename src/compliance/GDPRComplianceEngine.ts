@@ -13,6 +13,8 @@ const PERMISSIONS = new Set<SensitivePermission>(['LOCATION', 'MICROPHONE', 'CON
 const DAY_MS = 86_400_000;
 const BURST_LIMIT: Record<SensitivePermission, number> = { LOCATION: 12, MICROPHONE: 6, CONTACTS: 4 };
 const LAWFUL_BASES = new Set(['CONSENT', 'CONTRACT', 'LEGAL_OBLIGATION', 'VITAL_INTERESTS', 'PUBLIC_TASK', 'LEGITIMATE_INTERESTS']);
+const SOURCES = new Set(['SIMULATOR', 'NATIVE_BRIDGE', 'IMPORTED']);
+const MAX_HISTORY_ENTRIES = 4_096;
 
 export class ComplianceInputError extends Error {
   constructor(readonly code: ComplianceErrorCode, message: string) {
@@ -30,6 +32,7 @@ function parseAudit(value: unknown): PermissionAudit | ComplianceEvaluation {
   const x = value as Record<string, unknown>;
   if (typeof x.packageName !== 'string' || !/^[A-Za-z0-9_.-]{1,255}$/.test(x.packageName)) return reject('INVALID_PACKAGE', 'Invalid packageName.');
   if (typeof x.permissionType !== 'string' || !PERMISSIONS.has(x.permissionType as SensitivePermission)) return reject('UNSUPPORTED_PERMISSION', 'Permission is not whitelisted.');
+  if (x.source !== undefined && (typeof x.source !== 'string' || !SOURCES.has(x.source))) return reject('INVALID_SOURCE', 'Unknown audit source.');
   if (!Number.isSafeInteger(x.accessCount) || (x.accessCount as number) < 0) return reject('INVALID_COUNT', 'accessCount must be a safe non-negative integer.');
   if (!Number.isSafeInteger(x.windowStart) || !Number.isSafeInteger(x.windowEnd) ||
       (x.windowStart as number) >= (x.windowEnd as number) || (x.windowEnd as number) - (x.windowStart as number) > DAY_MS ||
@@ -154,10 +157,14 @@ export class GDPRComplianceEngine implements IComplianceEngine {
     const excess = Math.max(0, audit.accessCount - threshold);
     const peak = peakPerMinute(audit.accessTimestamps);
     const key = `${audit.packageName}:${audit.permissionType}`;
-    const entries = (this.history.get(key) ?? []).filter((entry) => entry.end > audit.windowEnd - DAY_MS);
+    const previous = this.history.get(key) ?? [];
+    const watermark = Math.max(audit.windowEnd, ...previous.map((entry) => entry.end));
+    const entries = previous.filter((entry) => entry.end > watermark - DAY_MS &&
+      !(entry.start === audit.windowStart && entry.end === audit.windowEnd));
     const completedNonOverlapping = entries.filter((entry) => entry.end <= audit.windowStart);
     entries.push({ start: audit.windowStart, end: audit.windowEnd, count: audit.accessCount });
-    this.history.set(key, entries);
+    entries.sort((a, b) => a.end - b.end || a.start - b.start);
+    this.history.set(key, entries.slice(-MAX_HISTORY_ENTRIES));
     const rollingCount = completedNonOverlapping.reduce((sum, entry) => sum + entry.count, audit.accessCount);
     const signals: ComplianceFinding['signals'] = [];
     if (excess > 0) signals.push('DAILY_TOTAL');
