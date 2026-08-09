@@ -1,0 +1,46 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
+\usepackage{lmodern,microtype,setspace}
+\usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+\usepackage[hidelinks]{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.15em}
+\hypersetup{
+  pdftitle={Privacy Lens: An Evidence-Bounded Android Privacy Review Framework, Revision 11},
+  pdfauthor={Zhiheng Zhang}
+}
+\title{Privacy Lens: An Evidence-Bounded Android Privacy Review Framework with Replaceable Regulation Packs (Revision 11)}
+\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
+\date{August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Mobile privacy-review tools face an evidence-to-decision gap: a permission observation can indicate activity, but it cannot by itself establish purpose, necessity, lawful basis, acquisition completeness, or legal compliance. When an interface suppresses these missing facts, a technically correct calculation can still produce an unreliable conclusion. This thesis addresses that gap through Privacy Lens, a local-first Android prototype that converts bounded permission-audit summaries into traceable prompts for human review.
+
+Rather than treating a count as a legal verdict, the architecture treats provenance, temporal scope, missing context, and uncertainty as first-class evidence. A fail-closed engine rejects malformed records, prevents unsafe aggregation of overlapping windows, isolates simulator data, and records the exact rule and regulation-pack version applied to each finding. The European Union General Data Protection Regulation provides the evaluated legal objective; jurisdiction-specific mappings remain outside the Android, repository, and interface layers through a replaceable regulation-pack contract.
+
+The implemented product organises the review journey around Overview, Findings, and Settings. Findings remain on the device, Android backup is disabled, no sensitive runtime permission is requested, and users can clear local evidence directly. This information architecture is intended to support calibrated trust: warnings, evidence gaps, synthetic demonstrations, and no-technical-concern states remain distinguishable without implying automated adjudication.
+
+Evaluation separates rule conformance, adversarial admission, temporal behaviour, pack identity, release packaging, manifest facts, physical installation, and rendered usability evidence. In a fixed-seed 1,000-case corpus, the engine produced 800 true positives and 200 true negatives with no observed disagreement against the specified threshold oracle. Extended suites covered malformed inputs, replay, overlap, source isolation, missing context, and regulation-pack switching. Release APK and Android App Bundle builds targeting SDK 36 succeeded, and the APK installed and launched on one OPPO PERM00 device.
+
+These results establish an initial store-submission engineering candidate within the recorded scope. They do not establish legal compliance, unrestricted Android visibility, population detection accuracy, accessibility conformance, long-run reliability, or store approval. The principal contribution is therefore not an automated compliance label, but an evidence-bounded architecture in which every product claim remains tied to an identifiable source, rule, test, artefact, or explicit limitation.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{Iteration-V2/Chapter1/chapter-01-11}
+\input{Iteration-V2/Chapter2/chapter-02-11}
+\input{Iteration-V2/Chapter3/chapter-03-11}
+\input{Iteration-V2/Chapter4/chapter-04-11}
+\input{Iteration-V2/Chapter5/chapter-05-11}
+\input{Iteration-V2/Chapter6/chapter-06-11}
+\input{Iteration-V2/Chapter7/chapter-07-11}
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+\end{document}

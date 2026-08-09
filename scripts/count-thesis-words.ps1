@@ -1,5 +1,5 @@
 param(
-    [string]$MainFile = "Thesis Version\main-13.tex",
+    [string]$MainFile = "Thesis Version\main-14.tex",
     [string]$TexCountPath = "D:\Tools\TinyTeX\TinyTeX\bin\windows\texcount.exe",
     [int]$MinimumWords = 25000
 )
