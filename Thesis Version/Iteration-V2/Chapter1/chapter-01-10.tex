@@ -1,0 +1,86 @@
+\section{Introduction}
+
+\subsection{Problem Context}
+
+Mobile applications ask users to make privacy decisions while the evidence needed to evaluate those decisions remains fragmented. A permission declaration states capability, not necessarily use; a runtime observation can indicate activity, but not purpose, lawful basis, necessity, or proportionality. This distinction is especially important for health-related applications, where personal data can fall within the GDPR's special-category regime. The Regulation requires legal and organisational analysis in addition to technical safeguards, including the principles in Article 5 and data protection by design and by default in Article 25 \cite{eurlex2016,edpb2019}.
+
+Privacy Lens addresses a narrower engineering problem: how can an ordinary Android application present available permission-audit evidence without transforming incomplete telemetry into a false legal conclusion? The application collects no remote evidence, has no account or advertising layer, and stores findings locally. It exposes whether a finding came from device-visible observations or a synthetic demonstration, displays missing-evidence limitations, and prepares questions for human review.
+
+The work began as a GDPR-oriented prototype. Revision 9 retains GDPR as the evaluated legal objective but removes GDPR from the core decision mechanism. Legal mappings are loaded through replaceable regulation packs. This separation makes regional extension possible while preventing the interface, repository, and Android bridge from silently inheriting one jurisdiction's terminology.
+
+\subsection{Why Mobile Permission Evidence Matters}
+
+Mobile privacy is difficult to reason about because a handheld device combines intimate data, continuous availability, and many independent software actors. A user may encounter an application as a single icon, yet that application can depend on operating-system services, embedded libraries, cloud endpoints, analytics components, advertising identifiers, and background tasks. The apparent simplicity of a permission prompt therefore hides a larger processing system. The prompt may describe access to a sensor or data category, but it does not normally explain every purpose, recipient, retention period, inference, or downstream combination. Contextual integrity theory is useful here because it treats privacy as the appropriateness of information flows within a social context rather than as secrecy alone \cite{5}. A technically permitted flow can still be surprising or inappropriate when its purpose, recipient, or persistence differs from the context understood by the user.
+
+Health-related applications make that mismatch especially consequential. Digital health systems may process symptoms, medication routines, reproductive information, movement patterns, sleep, location, or communications. The IQVIA review of digital-health development describes a field moving toward more specialised and evidence-oriented interventions \cite{9}. Parker and colleagues, studying Android health applications, found extensive data-sharing and transparency problems \cite{11}. These studies do not imply that every permission access is harmful, nor that every health application is governed identically. They establish that mobile-health privacy cannot be reduced to a one-time installation choice and that users, developers, researchers, and reviewers need better evidence about what a system can observe.
+
+Android's permission model provides necessary protection, but permission state and processing purpose are different constructs. A granted permission indicates that an application may invoke a protected capability under specified platform conditions. It does not state whether the capability was invoked, why an invocation occurred, whether derived data were retained, or whether the processing satisfied a legal obligation. Conversely, a denied or absent permission does not prove the absence of all related data because an application may receive information through another service, user input, previously collected records, or a less sensitive signal from which attributes can be inferred. The prototype therefore treats permission observations as one evidence family within a broader review, not as a complete representation of processing.
+
+\subsection{The Evidence-to-Decision Gap}
+
+The central research problem can be described as an evidence-to-decision gap. At one end of the gap are platform facts: a package identifier, permission category, access count, observation window, acquisition source, and timestamp. At the other end are questions that matter to a person or regulator: Was processing expected? Was it necessary for the stated purpose? Was a valid lawful basis available? Were special-category conditions satisfied? Were recipients and retention disclosed? Was the data subject able to exercise meaningful control? No deterministic transformation can recover answers that were never present in the input.
+
+Two common design errors follow from ignoring this gap. The first is semantic inflation, in which a technical event is labelled as a legal violation. This gives a small signal the authority of a much broader assessment. The second is evidential silence, in which an empty or unavailable audit is displayed as a reassuring green state. On stock Android, ordinary applications often lack authority to inspect unrestricted cross-application history. Treating an empty result as absence of activity would therefore reward the system precisely when its visibility is weakest.
+
+Privacy Lens introduces an intermediate output: a review finding. A finding can say that the available count crossed a research threshold, that evidence is unavailable, or that no technical concern was identified within the observed window. It can also state which contextual facts are missing. This format preserves utility without claiming certainty. The distinction is comparable to the difference between a screening instrument and a diagnosis: screening can identify cases that deserve attention, but its result must be interpreted in context and by an appropriately qualified actor.
+
+The design also recognises that explanation is not an optional layer added after computation. Explanation begins with data modelling. If the repository stores only a severity colour and a message, the interface cannot later reconstruct the source, rule version, temporal scope, or missing context. Revision 10 consequently defines provenance fields as part of the decision object. The interface is a view of that object rather than a separate narrative that can drift away from it.
+
+\subsection{Consent, Attention, and Interface Burden}
+
+Privacy interfaces operate under severe attention constraints. McDonald and Cranor quantified the impractical time cost of reading the privacy policies encountered by an ordinary user \cite{12}. Obar and Oeldorf-Hirsch demonstrated how readily people accept online terms without substantive engagement \cite{13}. These findings should not be interpreted as evidence that users are careless. They show that notice-and-choice systems frequently demand more time and legal comprehension than a routine interaction can support.
+
+A warning application can reproduce this failure if it presents a wall of legal text, asks the user to interpret raw telemetry, or interrupts every time a count changes. More information is not automatically more usable transparency. Information must be staged according to the decision a user can reasonably make. Privacy Lens therefore begins with three questions: what requires attention, what evidence is missing, and what can be done next. Rule references and technical details remain available, but they follow the status and action rather than preceding them.
+
+This approach also affects notification strategy. Repeated alerts for an unchanged state can teach users to ignore the product. A review system should distinguish new evidence, a material escalation, and a stable finding. Although the present candidate does not claim a longitudinal notification study, its repository retains enough state to support transition-based notification in future work. The architectural principle is that attention is a limited resource and should be consumed only when evidence meaningfully changes.
+
+\subsection{Accountability Rather Than Automated Adjudication}
+
+The GDPR's accountability principle requires a controller not only to comply with the Regulation but also to be able to demonstrate compliance \cite{eurlex2016}. A consumer-facing application cannot fulfil the controller's entire accountability obligation, because it does not possess the controller's records of processing, contracts, purposes, retention decisions, risk assessments, or organisational measures. It can nevertheless support accountability by making a narrow technical observation reproducible and by showing which questions remain unanswered.
+
+This positioning changes the desired failure mode. A conventional classifier may optimise for a single label and treat rejected input as an implementation inconvenience. An accountability tool should prefer an explicit hold or evidence gap to a falsely reassuring result. Unsafe types, unrecognised sources, impossible windows, and missing context therefore fail closed. The system does not invent a value to keep the pipeline moving. This behaviour is especially important at a native bridge, where JavaScript assumptions can be violated by malformed, stale, or unexpected platform data.
+
+Accountability also requires version knowledge. A finding that says only GDPR is not reproducible if rules or interpretations later change. Privacy Lens records a pack identifier and version, an official source, and a particular rule reference. Historical findings are not silently reinterpreted when the active pack changes. This creates a minimal audit trail: a reviewer can identify which data were available, which pack was applied, and why a particular message appeared.
+
+\subsection{Regional Extensibility as a Governance Problem}
+
+The request for regional switching creates both an architectural opportunity and a governance risk. It is straightforward to define a common software interface for multiple packs. It is much harder to ensure that each pack represents its jurisdiction accurately. Legal systems differ in scope, terminology, actors, exemptions, enforcement, and the relationship between national and sectoral rules. A design that assumes every jurisdiction can be translated into GDPR article equivalents would merely hide legal coupling behind a new file format.
+
+Revision 10 therefore separates software extensibility from legal validity. The registry proves that the application can discover, select, persist, and apply different pack objects. It does not certify the content of every possible pack. The EU GDPR pack is the evaluated legal objective. The Research Baseline pack is deliberately non-legal and demonstrates the mechanism without suggesting that another jurisdiction has been reviewed. A future regional pack must identify its authority, effective date, scope, official source, reviewer, localisation status, fixtures, migration policy, and limitations.
+
+This distinction is central to the thesis contribution. Decoupling is valuable not because it makes law interchangeable, but because it makes jurisdiction-dependent assumptions visible and reviewable. When a legal mapping is isolated, it can be versioned, challenged, replaced, and tested without changing the Android bridge or product shell. The architecture therefore supports expansion while making the cost of responsible expansion explicit.
+
+\subsection{Research Method}
+
+The work follows an iterative design-and-evaluation method. First, legal and platform constraints are translated into claim boundaries. Second, these boundaries become data and interface requirements. Third, the requirements are implemented across TypeScript, React Native, Kotlin, storage, and Android build configuration. Fourth, each layer is evaluated with evidence appropriate to that layer. Finally, contradictions between intended claims and observed behaviour are used to revise both code and thesis.
+
+The method combines constructive and empirical elements. The constructive element is the artefact: the rule-pack contract, compliance engine, repository, Android bridge, and interface. The empirical element consists of deterministic test vectors, adversarial boundary cases, build outputs, merged-manifest inspection, installed-package inspection, ADB interaction, UI hierarchies, screenshots, and filtered runtime logs. The method does not include a controlled participant experiment or independent legal assessment; those omissions are recorded as limitations rather than replaced with speculative conclusions.
+
+An important methodological rule is that evidence is not pooled across incompatible layers. A thousand logical cases do not become a thousand device trials. A successful installation does not validate every WorkManager schedule. A well-rendered warning does not prove comprehension. A rule reference does not prove infringement. Maintaining these separations allows the final evaluation to be positive about what worked without obscuring what remains unknown.
+
+\subsection{Research Questions}
+
+The thesis answers four questions:
+
+\begin{enumerate}
+    \item How can Android permission-audit signals be transformed into deterministic, explainable review findings while unsafe or incomplete inputs fail closed?
+    \item How can evidence provenance, temporal scope, and missing legal context be communicated so that a technical warning is not mistaken for a legal verdict?
+    \item How can jurisdiction-specific rules be isolated behind a stable regulation-pack contract without weakening traceability?
+    \item What claims are supported by deterministic tests, release builds, and bounded physical-device evaluation, and which claims remain unverified?
+\end{enumerate}
+
+\subsection{Objectives and Contributions}
+
+The first objective is a reproducible decision pipeline. Every finding retains its permission category, observed count, time window, source, regulation-pack identifier, rule reference, risk level, rationale, and missing-context fields. The second objective is calibrated communication. The interface distinguishes \emph{needs review}, \emph{evidence gap}, and \emph{no technical concern}; none is labelled compliant or non-compliant. The third objective is architectural replaceability. A registry loads immutable rule-pack definitions and the compliance engine consumes their shared contract. The fourth objective is deployable engineering: a stable Android package name, target SDK 36, release APK and Android App Bundle, explicit privacy policy, owner-action checklist, branded assets, and physical-device evidence.
+
+The contribution is therefore not an automated GDPR judge. It is an accountability-support prototype that makes a bounded technical inference reconstructable and leaves legal conclusions to an appropriately authorised human reviewer.
+
+\subsection{Scope and Claim Boundary}
+
+The evaluated data path covers permission summary records available to the application or generated by its controlled simulator. Stock Android restricts ordinary applications from reading unrestricted activity belonging to other applications. Absence of an observation is consequently an evidence gap, not proof that an access did not occur. The current rule thresholds are research baselines; they are not statutory limits. The included EU GDPR pack is a traceable mapping aid, not legal advice.
+
+Evaluation covers source compilation, deterministic logical tests, adversarial boundary tests, release assembly, manifest inspection, installation, launch, interaction, and short-run observation on one OPPO PERM00 device. It does not establish multi-OEM compatibility, 24-hour scheduler reliability, battery performance, population accuracy, accessibility conformance, independent legal validity, or application-store approval.
+
+\subsection{Thesis Structure}
+
+Chapter 2 establishes the legal, Android, HCI, and software-architecture foundations. Chapter 3 derives requirements and the evidence-bounded architecture. Chapter 4 documents the implemented application and regulation-pack mechanism. Chapter 5 reports reproducible evaluation evidence. Chapter 6 analyses validity, usability, deployment, and legal limitations. Chapter 7 answers the research questions and defines the next validation programme.

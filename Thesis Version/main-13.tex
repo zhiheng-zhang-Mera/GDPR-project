@@ -1,0 +1,40 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
+\usepackage{lmodern,microtype,setspace}
+\usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+\usepackage[hidelinks]{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.15em}
+\hypersetup{
+  pdftitle={Privacy Lens: An Evidence-Bounded Android Privacy Review Framework},
+  pdfauthor={Zhiheng Zhang}
+}
+\title{Privacy Lens: An Evidence-Bounded Android Privacy Review Framework with Replaceable Regulation Packs (Revision 10)}
+\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
+\date{August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+This thesis presents Privacy Lens, a local-first Android prototype that converts bounded permission-audit summaries into explainable prompts for human privacy review. The research addresses a recurring problem in mobile privacy tooling: technical observations are frequently presented with more authority than their acquisition scope, semantics, or legal relevance can support. Privacy Lens therefore treats provenance, temporal scope, missing context, and uncertainty as first-class data. Its compliance engine rejects malformed or unsafe records, isolates overlapping evidence windows, preserves synthetic-source labels, and records the exact regulation pack and rule version applied to every finding. The evaluated legal objective is the European Union General Data Protection Regulation, but jurisdiction-specific mappings are loaded through a replaceable pack contract rather than embedded in the Android, storage, or interface layers.
+
+The implemented product uses a three-destination information architecture comprising Overview, Findings, and Settings. It stores findings on the device, requests no sensitive runtime permission, disables Android backup, and provides explicit controls for clearing local evidence. Evaluation separates deterministic rule conformance, adversarial boundary behaviour, package integration, manifest facts, and physical-device rendering. A fixed-seed 1,000-case campaign produced 800 true positives, 200 true negatives, and no observed disagreement with the specified oracle; extended tests covered malformed inputs, temporal overlap, replay, source isolation, and regulation-pack identity. Release APK and Android App Bundle builds targeting SDK 36 succeeded, and the release APK installed and launched on an OPPO PERM00 device. These results establish a bounded engineering candidate, not legal compliance, unrestricted Android visibility, population accuracy, accessibility conformance, or application-store approval. The principal contribution is a claim-to-evidence discipline that is maintained consistently across architecture, interface, evaluation, and deployment documentation.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{Iteration-V2/Chapter1/chapter-01-10}
+\input{Iteration-V2/Chapter2/chapter-02-10}
+\input{Iteration-V2/Chapter3/chapter-03-10}
+\input{Iteration-V2/Chapter4/chapter-04-10}
+\input{Iteration-V2/Chapter5/chapter-05-10}
+\input{Iteration-V2/Chapter6/chapter-06-10}
+\input{Iteration-V2/Chapter7/chapter-07-10}
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+\end{document}

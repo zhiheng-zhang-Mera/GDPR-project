@@ -1,0 +1,145 @@
+\section{Implementation}
+
+\subsection{Application Identity and Delivery Configuration}
+
+Revision 9 presents the prototype as \emph{Privacy Lens}, version 1.1.0 (version code 2), under the Android application identifier \texttt{com.zhihengzhang.privacylens}. The Android configuration uses minimum SDK 24 and target SDK 36. Release builds generate both an APK for controlled installation and an Android App Bundle for store delivery. The Gradle signing configuration accepts upload-key values through environment variables; when they are absent, local quality-assurance builds use the debug signing fallback and are not represented as production-signed artefacts.
+
+Android backup is disabled. The manifest explicitly removes legacy external-storage permissions. The merged release manifest contains Internet access for official-source links and the operational permissions introduced by WorkManager for wake locks, network state, boot rescheduling, and foreground-service compatibility. It requests no sensitive runtime permission.
+
+\subsection{Rule-Pack Engine}
+
+The generic rule-pack engine implements validation and threshold evaluation against a supplied regulation definition. The earlier GDPR-named engine remains as a compatibility wrapper that delegates to the EU pack; it no longer owns the rule table. The registry exports only recognised packs and rejects an unregistered identifier.
+
+The EU pack maps supported permission signals to review rationales and official GDPR references. Its caveat states that output is a technical review aid. The Research Baseline pack uses deliberately non-legal terminology. Both conform to the same interface, allowing the Settings screen to change the active pack without changing bridge, repository, dashboard, or navigation code. Pack identity is persisted with every finding, so switching the active selection does not relabel historical evidence.
+
+\subsection{Validation and Temporal Isolation}
+
+The engine validates package name, permission key, source, count, window, timestamp, and context before evaluation. JavaScript unsafe integers, negative counts, reversed windows, unknown sources, and malformed identifiers fail closed. Simulator provenance is an enumerated source rather than a boolean UI decoration.
+
+The repository uses a versioned local schema and migrates earlier records. Exact replay windows replace prior values. Overlapping aggregate windows cannot be summed; adjacent completed windows remain eligible for a bounded rolling signal. Records are partitioned by package and permission and capped per partition. These constraints make the decision reconstructable while acknowledging that aggregate summaries lack event identifiers.
+
+\subsection{Native Android Boundary}
+
+Kotlin components implement the React Native bridge, scheduling, permission-audit worker, and controlled violation simulator. The bridge exposes capability status so that the interface can report whether native audit support is present. The product does not claim unrestricted access to other applications' AppOps history. A blank audit is displayed alongside an evidence-reach warning, because stock Android visibility depends on deployment authority and OEM behaviour.
+
+The simulator produces synthetic records for demonstration and regression. Its data source remains explicitly labelled through storage and presentation. This enables a user to inspect a populated workflow without confusing the output with observations collected from the device.
+
+\subsection{Information Architecture and Visual Design}
+
+The interface was reduced to three primary destinations:
+
+\begin{itemize}
+    \item \textbf{Overview} explains the product purpose, initiates an audit, summarises finding classes, and states the evidence-reach boundary;
+    \item \textbf{Findings} separates review signals, evidence gaps, and no-concern results, with source and pack labels on each card;
+    \item \textbf{Settings} selects a registered rule pack, explains its caveat and official source, runs the synthetic demonstration, and clears local findings.
+\end{itemize}
+
+A custom bottom navigation component replaced the earlier crowded tab structure. The visual system uses deep evergreen, teal, mint, off-white, restrained risk accents, rounded cards, and generous whitespace. The icon combines a shield and lens aperture without text. Status is carried by words and icons as well as colour. Buttons and navigation targets use large touch areas and meaningful accessibility labels, following Android and WCAG design guidance \cite{androidaccess,wcag22}.
+
+\subsection{Privacy and User-Control Implementation}
+
+Findings and active-pack choice use app-private local storage. There is no account, analytics SDK, advertising SDK, remote evidence database, or upload workflow. Settings provides a direct clear-local-findings action. The repository includes a bilingual privacy-policy draft and a store-readiness checklist. The policy distinguishes application behaviour from owner actions still required before public release, including a stable HTTPS policy URL and support contact.
+
+\subsection{Codebase Reconciliation}
+
+Legacy health-dashboard, project, scoring, experiment, charting, duplicate compliance-service, and unused template components were removed. Dependencies for removed features were also deleted. This cleanup reduces navigation ambiguity and prevents unsupported research screens from appearing to be finished product functions. The resulting codebase has one compliance engine path, one privacy context, one navigation model, and one current user guide.
+
+\subsection{Technology Stack and Module Boundaries}
+
+The application uses Expo and React Native for the interface, TypeScript for the decision and state layers, AsyncStorage for app-private persistence, and Kotlin for the Android bridge and workers. Expo Router supplies route composition, while React Navigation primitives support the custom bottom navigation. AndroidX WorkManager represents deferrable background work. The release build uses the Android Gradle Plugin, Hermes JavaScript engine, and standard Android packaging tasks.
+
+The stack was selected to separate concerns rather than to maximise the number of frameworks. TypeScript provides shared types for evidence, findings, and packs. Kotlin is limited to capabilities that require Android APIs or native scheduling. The interface does not import Kotlin details; it calls a typed service that reports capability and results. The compliance engine does not import React Native, storage, or Android modules. This makes deterministic tests runnable under Node after TypeScript compilation.
+
+At the source-tree level, regulation definitions reside under the regulation directory, generic decision logic under compliance, application state under context, the bridge adapter under services, and reusable presentation components under a privacy-specific component directory. Theme constants are centralised. This organisation replaces earlier duplicate compliance services and prevents a screen from becoming the authoritative home of a rule.
+
+\subsection{Regulation-Pack Implementation}
+
+The EU pack is an immutable TypeScript object identified as \texttt{EU\_GDPR}. It declares the European Union and EEA as its jurisdiction label, cites Regulation (EU) 2016/679 as its version label, and links to the consolidated EUR-Lex source. The pack includes a legal caveat that the automated warning supports accountability review and does not determine infringement.
+
+Three permission families are implemented. Location has a research baseline of 24, microphone a baseline of 8, and contacts a baseline of 4. Each baseline uses a multiplier of 1.5, producing prompt thresholds of 36, 12, and 6 respectively. These values are prototype parameters. They are not extracted from GDPR text, not population estimates, and not represented as legal limits. Their purpose is to exercise an explainable evaluation path and provide deterministic boundaries for testing.
+
+The EU pack supplies a rationale and reference for every permission family. Location directs review toward necessity, proportionality, and documented lawful basis under Articles 5 and 6. Microphone review includes the possibility that special-category material may require Article 9 analysis. Contacts review emphasises purpose limitation, minimisation, and lawful basis. The reference is intentionally a prompt rather than an assertion that the cited provision applies to every record.
+
+Missing-evidence logic is also pack-owned. The EU pack asks for specified purpose, Article 6 lawful basis, controller identity, retention period, and, when special-category processing is marked, an Article 9 condition. If processing relies on consent, consent has been withdrawn, and a positive access count remains, the pack returns its most urgent review status. If required context is missing, it returns insufficient evidence. Otherwise a threshold signal produces review required, while the absence of a signal produces no technical concern for the admitted check.
+
+The Research Baseline pack uses higher prototype baselines of 36, 12, and 6 before applying the same multiplier. It uses region-neutral principles and does not require an Article 6 or Article 9 field. Its caveat explicitly states that it is not law or legal advice. The difference demonstrates that the engine can consume pack-owned rules and missing-evidence logic without embedding GDPR branches in generic code.
+
+\subsection{Runtime Validation Pipeline}
+
+The safe evaluation entry point accepts an unknown value rather than trusting its compile-time annotation. The first check requires a non-array object. The package identifier must be a string between one and 255 characters using a conservative character set. Permission type must belong to the owned set of location, microphone, and contacts. Source, if present, must be simulator, native bridge, or imported. This sequence prevents later operations from assuming properties that have not been established.
+
+The access count must be a non-negative safe integer. The window start and end must also be safe integers, the start must precede the end, duration cannot exceed one day, and the end cannot be implausibly far in the future. When event timestamps are supplied, their array length must equal the access count and every timestamp must lie within the audit window. These conditions ensure that peak-rate calculations do not operate on inconsistent evidence.
+
+Processing context is validated field by field. Purpose, controller identity, and Article 9 condition are optional strings. Consent-withdrawn, special-category, and user-initiated values are optional Booleans. Lawful basis must belong to the Article 6 enumeration used by the prototype. Retention days must be a non-negative safe integer. Values are rejected rather than coerced because coercion can change meaning at a trust boundary.
+
+Every rejection returns an explicit code and message with a rejection timestamp. The throwing evaluation method is retained for callers that require an exception, but the application can use the safe result to display a controlled evidence gap. This dual interface allows strict internal use without forcing the UI to recover from an untyped exception.
+
+\subsection{Signal Computation}
+
+After admission, the engine loads the rule for the active pack and computes the prompt threshold
+
+\begin{equation}
+T_p=\max\left(1,\left\lceil B_pM_p\right\rceil\right),
+\end{equation}
+
+where \(B_p\) is the pack baseline and \(M_p\) is the deviation multiplier. Daily excess is \(\max(0,x-T_p)\), where \(x\) is the admitted count. A daily-total signal is emitted only when excess is positive, so equality with the threshold remains below the signal boundary.
+
+When event timestamps are present, the engine sorts them and evaluates a sliding sixty-second interval. Two indices move monotonically through the sorted array, so peak calculation is linear after sorting. Permission-specific burst limits are 12 for location, 6 for microphone, and 4 for contacts. A burst signal is emitted when the observed peak is strictly greater than the configured limit.
+
+The history key combines package and permission. Previous entries outside the one-day watermark are discarded. An entry with the same start and end is treated as replay and replaced. Only entries ending no later than the current start contribute to the completed rolling total. Overlapping entries stay in bounded history but do not contribute to that total. A cross-window signal is disabled for simulator evidence and requires at least one compatible completed window.
+
+Risk derives from the greatest normalised excess across daily, burst, and rolling dimensions. Ratios below the first threshold remain low; larger ratios map through medium, high, and critical bands. Risk controls presentation and notification priority, while the pack separately controls the compliance-review status. Keeping these concepts distinct prevents a large technical deviation from bypassing missing legal context.
+
+\subsection{Finding Construction and Communication}
+
+The finding identifier combines package and permission so the repository can update a stable subject. Evidence fields contain daily count, peak calls per minute, rolling count, and source. Decision fields contain threshold, excess count, active signals, risk, detection time, regulation identifier and name, legal or research reference, and rationale. Compliance fields contain status, applicable principles, missing evidence, and caveat.
+
+Communication is derived after the finding exists. The title identifies the permission review. The summary translates status and signal identifiers into human-readable language. The recommended action first requests missing evidence; an urgent result suggests pausing processing where appropriate and obtaining human review; other results recommend examining purpose, necessity, and proportionality. Notification priority is urgent only for the strongest status or critical risk, silent for no technical concern, and standard otherwise.
+
+This construction ensures that UI wording is based on stored decision state. A card is not permitted to infer a legal label merely from colour or excess count. It receives the pack name, source, caveat, and missing context that were produced with the finding.
+
+\subsection{Repository Behaviour}
+
+The repository uses a versioned AsyncStorage key. Listing parses the stored array, replacement writes at most the bounded presentation set, clearing removes the key, and saving updates an existing package-permission finding or appends a new one. The latest application context also normalises records created by earlier schemas so that pack identity and evidence fields remain available where they can be reconstructed safely.
+
+Notification state is based on change. A new finding can notify; a reversal of active state can notify; an increase in risk rank can notify. A byte-for-byte identical record is not treated as changed. This policy prepares the product for attention-aware notification without claiming that a longitudinal notification campaign has been conducted.
+
+The decision engine's internal temporal history and the persistent finding repository serve different purposes. Engine history supports signal computation within a running context. Repository findings support user review across sessions. Conflating them would either store unnecessary event aggregates indefinitely or make visible findings disappear whenever the process restarts.
+
+\subsection{Android Bridge and Scheduling}
+
+The Kotlin module reports whether the native privacy inspector is available and exposes bounded audit and demonstration operations to React Native. WorkManager workers are registered for periodic or one-time tasks according to Android's scheduling model. WorkManager is deferrable: the operating system may delay work according to battery, idle state, quotas, and vendor policy. The implementation therefore does not describe a registered interval as proof of exact execution time.
+
+The audit worker reads only evidence available under the application's deployment authority. On the tested ColorOS device, that authority did not expose unrestricted third-party history. The bridge returns capability and available summaries rather than fabricating other-package events. The simulator worker follows a controlled path and marks every generated record as simulator source.
+
+Native package declarations were moved from the anonymous template namespace to the stable Privacy Lens namespace. Activity, application, bridge, package, and worker source files use the same identifier as Gradle and the manifest. This reconciliation matters for release upgrades, signing continuity, deep links, provider authorities, and store identity.
+
+\subsection{Interface Implementation}
+
+The Overview screen has four layers. A brand header establishes identity and provides a direct Settings entry. A high-contrast hero panel explains the evidence-before-conclusions proposition and presents the primary review action. A current-review section summarises needs-review, evidence-gap, and no-concern counts. An evidence-reach card explains whether the native bridge is available and why an empty result is not proof of no access.
+
+The Findings screen is designed for both empty and populated states. The empty state explains what will appear and directs the user back to a review or demonstration. The populated state renders reusable finding cards. Each card shows status, permission, package, source, regulation pack, detected signals, rationale, and missing context. Source and regulation are placed near the result because they alter how the result should be interpreted.
+
+The Settings screen separates preference, explanation, demonstration, and deletion. Pack selection is restricted to registry entries. Selecting a pack displays its jurisdiction, version, description, caveat, and official source. The controlled demonstration is visibly separated from device review. Clearing findings uses a destructive visual treatment and explanatory copy.
+
+The custom bottom navigation uses three equally weighted targets with icon, label, accessibility role, selected state, and sufficient touch area. It replaced the platform tab implementation after physical coordinate and hierarchy evidence revealed ambiguity in the previous navigation setup. Navigation semantics no longer depend on obsolete routes.
+
+\subsection{Brand and Accessibility Implementation}
+
+The visual language uses evergreen for trust and stability, teal for actions, mint for supportive surfaces, warm off-white for the application background, and restrained red and blue accents for review and evidence states. Rounded panels group related information without relying on heavy separators. Typography uses strong size contrast between product proposition, section heading, count, label, and explanatory copy.
+
+The application icon combines a shield with a lens aperture. The shield suggests protection while the aperture suggests inspection; neither implies surveillance of a person. Adaptive foreground and monochrome assets support launcher contexts. Splash imagery, application icon, colours, and product name are generated consistently across Android densities.
+
+Accessibility labels are supplied for navigation and important actions. Icons do not carry status alone. Buttons use text and large target areas. Cards maintain text contrast against their surfaces. These implementation facts support an accessibility-oriented design claim, while screen-reader traversal, large-font reflow, and assistive-technology user testing remain future acceptance work.
+
+\subsection{Build, Permission, and Signing Configuration}
+
+The Android build sets minimum SDK 24, compile and target SDK 36, version code 2, and version name 1.1.0. Release tasks produce an APK for controlled device installation and an AAB for Play delivery. The build reads upload-store path, passwords, and alias from environment variables. If they are absent, a local QA fallback signs with the debug configuration. The build can therefore be tested without placing secrets in source, while its output remains clearly distinguished from a production upload artefact.
+
+The source manifest requests Internet access and explicitly removes inherited legacy external-storage permissions using manifest-merger directives. The final merged manifest also contains operational declarations contributed by WorkManager and AndroidX. Android backup and data extraction are disabled for the application. Inspection of the installed release package confirms that no sensitive runtime permission is requested.
+
+Package reduction was part of implementation. Dependencies used only by removed charts, health views, haptics, image helpers, secure storage, web browser wrappers, gestures, SVG rendering, and network-status features were removed when no longer needed. Generated build and cache directories remain ignored. This reduces attack surface and maintenance burden, although transitive dependencies are still reviewed through the lock file and final manifest.
+
+\subsection{Implementation Summary}
+
+The implemented system realises the Chapter 3 contracts: inputs fail closed, evidence provenance survives the pipeline, packs are replaceable through a registry, the interface avoids legal verdict language, and Android delivery artefacts use a stable identity. Chapter 5 evaluates these properties at source, rule, build, manifest, and physical-device layers.

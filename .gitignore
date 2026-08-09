@@ -41,6 +41,7 @@ yarn-error.*
 .gradle-real-device/
 .pnpm-store/
 .codex-tmp/
+tmp/pdfs/
 node_modules.pnpm-backup/
 
 app-example
