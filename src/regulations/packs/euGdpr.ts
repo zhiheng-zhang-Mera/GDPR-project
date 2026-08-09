@@ -9,6 +9,21 @@ export const EU_GDPR_PACK: RegulationPack = {
   versionLabel: 'Regulation (EU) 2016/679',
   sourceUrl: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj',
   description: 'Technical prompts for necessity, lawful-basis and accountability review.',
+  governance: {
+    schemaVersion: 1,
+    state: 'TECHNICAL_CANDIDATE',
+    authoredAt: '2026-08-09',
+    lastReviewedAt: '2026-08-09',
+    effectiveFrom: '2018-05-25',
+    reviewAuthority: {
+      kind: 'PROJECT_ENGINEERING',
+      reviewer: 'Privacy Lens project author',
+      scope: 'Technical traceability against official GDPR and final EDPB sources; not independent legal approval.',
+    },
+    releaseScope: 'CONTROLLED_EVALUATION',
+    locales: ['en'],
+    changeTriggers: ['GDPR amendment', 'authoritative interpretation', 'mapping correction', 'review expiry', 'localisation change'],
+  },
   rules: {
     LOCATION: {
       permissionType: 'LOCATION',

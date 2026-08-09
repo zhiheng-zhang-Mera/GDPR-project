@@ -8,6 +8,20 @@ export const GLOBAL_RESEARCH_BASELINE_PACK: RegulationPack = {
   kind: 'RESEARCH_BASELINE',
   versionLabel: 'Prototype baseline 1.0',
   description: 'A non-legal rule pack for demonstrating regional policy switching without implying local-law coverage.',
+  governance: {
+    schemaVersion: 1,
+    state: 'NON_LEGAL_DEMONSTRATOR',
+    authoredAt: '2026-08-09',
+    lastReviewedAt: '2026-08-09',
+    reviewAuthority: {
+      kind: 'PROJECT_ENGINEERING',
+      reviewer: 'Privacy Lens project author',
+      scope: 'Non-legal research demonstration and pack-switching verification.',
+    },
+    releaseScope: 'CONTROLLED_EVALUATION',
+    locales: ['en'],
+    changeTriggers: ['research parameter change', 'schema change', 'fixture correction', 'localisation change'],
+  },
   rules: {
     LOCATION: { permissionType: 'LOCATION', baseline: 36, deviationMultiplier: 1.5, legalReference: 'Research baseline: necessity and proportionality', rationale: 'Frequent location access warrants a purpose and necessity review.' },
     MICROPHONE: { permissionType: 'MICROPHONE', baseline: 12, deviationMultiplier: 1.5, legalReference: 'Research baseline: sensitive sensor access', rationale: 'Repeated microphone access warrants a human review of purpose and user expectation.' },

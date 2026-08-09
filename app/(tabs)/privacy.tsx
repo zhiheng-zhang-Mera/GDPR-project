@@ -39,7 +39,7 @@ export default function FindingsScreen() {
               {filters.map((item) => {
                 const selected = item.key === filter;
                 return (
-                  <TouchableOpacity key={item.key} accessibilityRole="tab" accessibilityState={{ selected }} onPress={() => setFilter(item.key)} style={[styles.filter, selected && styles.filterSelected]}>
+                  <TouchableOpacity key={item.key} accessibilityRole="tab" accessibilityLabel={`${item.label}, ${item.count} findings`} accessibilityState={{ selected }} onPress={() => setFilter(item.key)} style={[styles.filter, selected && styles.filterSelected]}>
                     <Text style={[styles.filterText, selected && styles.filterTextSelected]}>{item.label}</Text>
                     <View style={[styles.count, selected && styles.countSelected]}><Text style={[styles.countText, selected && styles.countTextSelected]}>{item.count}</Text></View>
                   </TouchableOpacity>

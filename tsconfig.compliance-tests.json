@@ -18,6 +18,7 @@
     "src/compliance/Evaluation.ts",
     "src/compliance/DashboardModel.ts",
     "tests/runComplianceTests.ts",
-    "tests/runExtendedComplianceTests.ts"
+    "tests/runExtendedComplianceTests.ts",
+    "tests/runGovernanceAndPropertyTests.ts"
   ]
 }
