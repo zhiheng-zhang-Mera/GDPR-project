@@ -1,0 +1,65 @@
+\section{Requirements and System Design}
+
+\subsection{Design Position}
+
+Privacy Lens is designed as a local review instrument. Its output is a structured prompt for investigation, not a legal decision and not a security-enforcement action. The system accepts bounded permission summaries, validates their shape and temporal relationships, applies the active regulation pack, stores the resulting findings locally, and presents the result with its provenance and limitations.
+
+\subsection{Requirements}
+
+Table~\ref{tab:r9-requirements} defines the requirements used for implementation and evaluation.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Revision 9 requirements and acceptance evidence}
+\label{tab:r9-requirements}
+\begin{tabular}{p{0.13\textwidth}p{0.50\textwidth}p{0.27\textwidth}}
+\toprule
+ID & Requirement & Evidence \ 
+\midrule
+F1 & Evaluate supported permission summaries deterministically. & Seeded and boundary suites \ 
+F2 & Preserve source, time window, pack, rule, and missing context. & Type and repository tests \ 
+F3 & Reject unsafe identifiers, numbers, sources, timestamps, windows, and contexts. & Adversarial tests \ 
+F4 & Switch only among registered, versioned regulation packs. & Pack registry tests and Settings UI \ 
+F5 & Separate synthetic demonstrations from device-visible evidence. & Source labels and simulator tests \ 
+U1 & Provide overview, findings, and settings through stable navigation. & Physical screenshots and UI trees \ 
+U2 & Communicate severity without colour alone and disclose evidence limits. & Source inspection and physical rendering \ 
+P1 & Keep findings local, disable Android backup, and request no sensitive runtime permission. & Manifest and installed package inspection \ 
+D1 & Build a versioned release APK and AAB with a stable package identity. & Release build and device install \ 
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Evidence Contract}
+
+An input record contains package identifier, permission category, count, start and end timestamps, source, and contextual metadata. Validation occurs before rule evaluation. Identifiers must match conservative formats; counts and timestamps must be finite safe integers; the window must be ordered; the source must be enumerated; and simulator-labelled records cannot be promoted to observed-device evidence. Invalid inputs produce a review-hold result rather than a permissive ``no concern'' result.
+
+Temporal aggregation is bounded by package, permission, and non-overlapping window. Exact replay replaces the previous record, overlapping windows are excluded, adjacent completed windows may be aggregated, retention follows the latest observed end time, and history is capped. These rules reduce double counting and memory-exhaustion risk but cannot reconstruct event-level truth from aggregate windows.
+
+\subsection{Regulation-Pack Contract}
+
+A regulation pack is immutable application data with the following elements: pack identifier, display name, jurisdiction label, version, official source URL, legal caveat, supported permission rules, thresholds, risk level, reference label, rationale template, and missing-context questions. A registry exposes only known packs. The generic engine receives the pack explicitly and writes the pack identifier and version into each finding. Consequently, historical findings remain interpretable if the active selection later changes.
+
+The initial registry contains an EU GDPR accountability-review pack and a non-legal Research Baseline pack. The latter proves architectural switching only. A future regional pack must be treated as a governed artefact: obtain qualified interpretation, record legal version and effective date, add jurisdiction-specific fixtures, review translations, and define migration behaviour.
+
+\subsection{Layered Architecture}
+
+The system has five layers:
+
+\begin{enumerate}
+    \item the Android bridge and WorkManager components expose bounded audit and simulator capabilities;
+    \item validation and temporal isolation establish admissible evidence;
+    \item the rule-pack engine produces explainable findings;
+    \item the repository stores findings and persisted pack selection in app-private storage;
+    \item the React Native interface renders overview, findings, and settings with explicit claim boundaries.
+\end{enumerate}
+
+The dependency direction is inward: interface and bridge code do not implement legal thresholds, and rule packs do not access Android or storage. This structure supports testing the engine independently and replacing a pack without reconstructing the application shell.
+
+\subsection{Threat Model}
+
+The model includes malformed bridge values, forged simulator provenance, unsafe numbers, replayed windows, overlapping summaries, unbounded history, misleading empty results, and user over-reliance on authoritative language. It does not defend against a compromised operating system, a maliciously modified application binary, falsified system telemetry, or a legally incorrect pack supplied by a trusted maintainer. Those risks require platform integrity, signing governance, and independent legal review.
+
+\subsection{Evaluation Strategy}
+
+Evaluation is deliberately layered. Source-level checks establish type and lint conformance. Deterministic tests establish consistency with the published rule specification and adversarial rejection behaviour. Android builds establish package integration. Manifest and package inspection establish requested-permission facts. ADB interaction and screenshots establish bounded physical rendering and launch behaviour. Each result is reported at its own layer; no result is extrapolated into legal compliance or population effectiveness.

@@ -1,0 +1,73 @@
+\section{Evaluation and Results}
+
+\subsection{Evidence Model}
+
+The evaluation separates five evidence layers: source conformance, deterministic rule behaviour, adversarial boundary behaviour, Android package integration, and physical-device usability evidence. This separation prevents a passed unit test from being reported as device reliability or legal validity. The final acceptance record is stored in \texttt{testing-report/release-candidate-2026-08-09.md}; screenshots and UI hierarchies are retained in the adjacent dated folder.
+
+\subsection{Source and Rule Verification}
+
+The complete application passed \texttt{tsc --noEmit} and ESLint. The compliance sources were compiled before execution, preventing stale generated JavaScript from being treated as current evidence.
+
+A fixed-seed logical campaign generated 1,000 cases. Eight hundred were expected review signals and 200 were below-threshold controls. The observed confusion matrix was
+
+\begin{equation}
+(TP,TN,FP,FN)=(800,200,0,0),
+\end{equation}
+
+which gives precision and recall of 1.0000 against the specified oracle. The oracle and engine implement the same published threshold model; this is a conformance and regression result, not an independent estimate of real-world infringement detection. Zero observed errors do not establish a zero population error rate.
+
+Extended suites passed for unsafe types and integers, malformed context, unknown source, permission-key mutation, temporal overlap, adjacency, replay, retention, simulator isolation, dashboard presentation, missing-context disclosure, and regulation-pack identity. The tests confirm the enumerated boundaries. They cannot establish correctness for telemetry the application never receives or for legal interpretation outside the fixtures.
+
+\subsection{Release Build and Manifest Verification}
+
+Gradle completed \texttt{assembleRelease} and \texttt{bundleRelease} with target SDK 36. Table~\ref{tab:r9-artifacts} records the generated artefacts.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Revision 9 Android release artefacts}
+\label{tab:r9-artifacts}
+\begin{tabular}{p{0.31\textwidth}r p{0.42\textwidth}}
+\toprule
+Artefact & Bytes & SHA-256 \ 
+\midrule
+\texttt{app-release.apk} & 62,762,819 & \texttt{4A5BCED7FBF6A7A5A0E337BFAADB003A3C7FE89FDAFBF9BADCBE6BC4CBFF51B5} \ 
+\texttt{app-release.aab} & 31,700,025 & \texttt{E4090FEEF4EFBD0B697F863D80D28F289C3554BA89394A1435EACA2C226ACF78} \ 
+\bottomrule
+\end{tabular}
+\end{table}
+
+The merged release manifest contained Internet, wake-lock, network-state, boot-rescheduling, foreground-service, and app-scoped signature declarations. External-storage read and write permissions were absent. Inspection of the installed package confirmed the same requested-permission set and no runtime permissions. Android backup was disabled in the application declaration.
+
+\subsection{Physical-Device Evaluation}
+
+The release APK was installed by ADB on one OPPO PERM00 ARM64 device. The installed package reported \texttt{com.zhihengzhang.privacylens}, versionName 1.1.0, versionCode 2, minSdk 24, and targetSdk 36. Launcher cold start succeeded. A filtered scan of recent \texttt{AndroidRuntime} and \texttt{ReactNativeJS} error channels returned no fatal match during the acceptance run.
+
+The three primary destinations rendered at the device's captured application resolution. Coordinate-driven exploration initially appeared to show a navigation-target problem because the physical display and captured application coordinate spaces differed. A bounded coordinate sweep and UI-tree inspection identified the offset; subsequent navigation and custom bottom-bar interaction succeeded. This calibration episode is retained because it demonstrates why raw ADB coordinates must not be interpreted without the target's current window geometry.
+
+The controlled demonstration completed a 50-record synthetic workflow. The populated overview displayed four review items, zero evidence gaps, two no-concern items, and descriptive precision and recall of 100\% for the simulator's known labels. The Findings screen marked the source as synthetic and displayed the EU GDPR pack. These values validate the demonstration path only; they are not device-observation accuracy.
+
+\subsection{Usability and Trust Assessment}
+
+The product was assessed against three release-candidate questions.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Bounded product assessment}
+\begin{tabular}{p{0.19\textwidth}p{0.32\textwidth}p{0.37\textwidth}}
+\toprule
+Criterion & Supporting evidence & Boundary \ 
+\midrule
+Visually coherent & consistent brand, hierarchy, spacing, cards, iconography, and three-destination navigation on the tested device & one device; no participant preference study \ 
+Trustworthy & local-first disclosure, source and pack labels, explicit missing evidence, no legal-verdict language & not a legal audit or security certification \ 
+Willing to use & clear first action, concise summaries, optional details, demonstration, and direct data clearing & evaluator judgement; no longitudinal adoption measure \ 
+\bottomrule
+\end{tabular}
+\end{table}
+
+The evaluator judged the candidate to meet the project's ``beautiful, trustworthy, and willing to use'' gate for an initial submission candidate. This is a structured expert judgement supported by rendered evidence, not a statistically generalisable user study.
+
+\subsection{Result Boundary}
+
+The evidence supports the claim that the specified code compiles, the rule engine conforms to its fixtures, the Android artefacts build, the final package installs and launches, the main interface renders coherently, and provenance remains visible in the tested workflows. It does not support claims about 24-hour execution, battery cost, memory leaks, unrestricted third-party observation, multiple OEMs, legal compliance, accessibility conformance, production signing, or store acceptance.

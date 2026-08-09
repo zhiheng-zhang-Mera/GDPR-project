@@ -1,0 +1,33 @@
+\section{Literature Review and Foundations}
+
+\subsection{Regulatory Principles and Technical Signals}
+
+The GDPR regulates processing rather than permission counts. Article 5 establishes principles including lawfulness, transparency, purpose limitation, data minimisation, accuracy, storage limitation, integrity, confidentiality, and accountability. Articles 6 and 9 concern lawful bases and special-category data; Article 25 requires data protection by design and by default \cite{eurlex2016}. EDPB guidance describes Article 25 as a continuing obligation implemented through appropriate technical and organisational measures \cite{edpb2019}. A technical observation may support an accountability inquiry, but cannot by itself demonstrate whether these legal conditions are satisfied.
+
+This distinction determines the framework's vocabulary. A threshold exceedance is a \emph{review signal}. Missing purpose, lawful-basis, necessity, data-subject, controller, retention, and sharing evidence is shown explicitly. The UI never derives a finding labelled ``GDPR violation'' or ``compliant''. Regulation-pack references provide a reason to investigate and a link to an official source; they do not replace legal interpretation.
+
+\subsection{Android Visibility and Permission Semantics}
+
+Android permissions are part of a layered security model. Manifest declarations, runtime grants, AppOps state, operating-system services, and OEM behaviour do not expose one universal event stream to an ordinary third-party application. Android's permission guidance emphasises minimising permission requests and using platform-supported workflows \cite{androidpermissions2026}. Therefore, a credible review tool must state its acquisition authority and must not equate an empty result with absence of processing.
+
+Static manifest analysis and dynamic monitoring answer different questions. Static tools can identify declared capabilities and embedded components; dynamic or taint-based systems can observe selected flows but may require instrumentation, system modification, a VPN, or elevated authority. PiOS illustrates the value and complexity of static data-flow analysis \cite{49}. Privacy Lens deliberately occupies a lighter position: it evaluates bounded audit summaries and communicates their coverage rather than claiming universal enforcement or surveillance.
+
+\subsection{Human Factors and Calibrated Trust}
+
+Privacy notices impose substantial reading and comprehension costs \cite{12,13}. Adding another dense dashboard can reproduce the problem it intends to solve. Trustworthy warning design should therefore support quick orientation while preserving access to rationale and provenance. ISO 9241-11 frames usability through effectiveness, efficiency, and satisfaction in a specified context of use \cite{iso924111}. WCAG 2.2 and Android accessibility guidance further motivate non-colour status cues, meaningful labels, and sufficiently large touch targets \cite{wcag22,androidaccess}.
+
+These sources support four design choices. First, the overview leads with the current evidence boundary. Second, colour is paired with iconography and text. Third, details are progressively disclosed through finding cards. Fourth, destructive actions such as clearing local findings are separated from routine navigation. These are conformance-oriented design decisions, not proof of usability; participant studies remain necessary.
+
+\subsection{Replaceable Rule Systems}
+
+Hard-coding statutory names into a decision engine creates maintenance and validity risks. A legal text may change, another jurisdiction may use different concepts, and a translated label may not preserve the same meaning. The appropriate software pattern is a stable engine contract with versioned, independently reviewable rule data. A pack should declare its jurisdiction, version, official source, caveat, supported signals, thresholds, references, and explanatory text. The engine should reject unknown packs and preserve the selected pack identifier in every finding.
+
+Replaceability does not mean equivalence. Two packs cannot be treated as interchangeable simply because they implement the same TypeScript interface. Each requires independent legal review, localisation, validation fixtures, and governance over updates. The included ``Research Baseline'' pack demonstrates switching without representing a second jurisdictional legal interpretation.
+
+\subsection{Store Delivery as a Trust Boundary}
+
+Application-store readiness includes more than a successful APK. Google Play uses Android App Bundles for new application delivery, requires current target API levels, and requires developers to complete a Data safety declaration \cite{androidbundle2026,playtarget2026,playdatasafety2026}. Signing identity, a public privacy-policy URL, support contact, screenshots, listing text, and console review remain owner-controlled steps. A research build can be an initial submission candidate while still being unpublishable until these external obligations are completed.
+
+\subsection{Synthesis}
+
+The literature yields four gaps addressed by the prototype: permission signals are easily over-interpreted; acquisition coverage is often hidden; legal mappings are commonly coupled to product code; and engineering success is frequently conflated with deployment or legal validity. The following chapter converts these gaps into explicit system requirements and evidence contracts.

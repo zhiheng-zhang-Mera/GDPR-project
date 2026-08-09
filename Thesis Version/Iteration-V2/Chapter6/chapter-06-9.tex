@@ -1,0 +1,48 @@
+\section{Discussion and Limitations}
+
+\subsection{What the Prototype Establishes}
+
+Privacy Lens demonstrates that a permission-review product can be useful without claiming complete visibility or automated legality. The core value is not the threshold alone; it is the evidence contract surrounding the threshold. Source, window, pack, rule reference, and missing context make the decision traceable. Fail-closed validation prevents malformed evidence from becoming a reassuring result. The interface then communicates the distinction between an observed signal, a synthetic example, and an evidence gap.
+
+The replacement of a GDPR-specific engine with regulation packs also improves scientific clarity. It reveals which statements belong to generic software and which depend on a jurisdictional interpretation. This supports future extension while making clear that interface compatibility is not legal equivalence.
+
+\subsection{Construct and Internal Validity}
+
+The deterministic confusion matrix measures agreement with a defined threshold oracle. It does not measure whether that threshold identifies unlawful processing. Because test fixtures and implementation share the same conceptual specification, correlated defects remain possible. Boundary suites reduce but do not eliminate this risk. Independent implementation review, mutation testing, and event-level reference traces would strengthen internal validity.
+
+The simulator is intentionally useful for reproducible demonstration, but it can inflate perceived confidence if its labels are mistaken for field ground truth. Revision 9 mitigates this by preserving synthetic provenance through the repository and interface. The remaining risk is user over-reliance on any precise metric; future builds should consider hiding precision and recall outside an explicitly labelled research panel.
+
+\subsection{External and Ecological Validity}
+
+Physical evaluation used one OPPO PERM00 device and a short acceptance window. OEM process management, Android versions, accessibility settings, screen sizes, font scaling, languages, network states, and long-run scheduling can change behaviour. No claim is made for 24-hour WorkManager reliability, battery impact, memory leak freedom, or multi-device stability. A release-candidate status at this layer means the tested artefact is coherent enough for controlled store submission work, not that broad compatibility is established.
+
+The ADB coordinate calibration problem also illustrates a methodological limitation: automated interaction evidence depends on the relationship between physical display coordinates, application-window bounds, navigation bars, and screenshots. Future UI automation should anchor actions to accessibility nodes or resource identifiers and record window geometry with every run.
+
+\subsection{Legal and Regional Validity}
+
+The GDPR pack maps technical signals to questions motivated by official provisions \cite{eurlex2016}. It cannot determine controller identity, processing purpose, lawful basis, Article 9 condition, necessity, proportionality, consent validity, data-subject expectations, retention, recipients, safeguards, or jurisdiction. The application's output is therefore an accountability aid. A qualified reviewer must examine the underlying processing and applicable law.
+
+Adding another regional pack requires more than translation. The maintainer must identify scope, legal authority, effective date, regulated actors, exceptions, remedies, and concepts that have no GDPR analogue. Each pack needs independent legal sign-off, versioned fixtures, source preservation, localisation review, and an update policy. The current Research Baseline pack is not evidence that a second legal regime has been validated.
+
+\subsection{Usability and Accessibility}
+
+The redesigned interface applies recognised accessibility and usability principles \cite{wcag22,androidaccess,iso924111}, and the rendered evidence supports a positive expert assessment. However, conformance-oriented inspection cannot establish comprehension, efficiency, satisfaction, trust calibration, or willingness to continue using the product. No screen-reader campaign, switch-access test, colour-vision simulation, large-font matrix, or participant study was completed. These are required before making an accessibility-conformance or user-adoption claim.
+
+\subsection{Store and Operational Readiness}
+
+The repository contains target-SDK configuration, AAB output, privacy-policy content, a stable package identifier, branded assets, and a store checklist. Google Play nevertheless requires owner-controlled signing and console information, including a Data safety declaration and current policy compliance \cite{playdatasafety2026,playtarget2026}. The present AAB uses a QA signing fallback when no upload-key environment is provided. Public submission therefore remains blocked on an upload key, HTTPS privacy-policy publication, support contact, final listing content, screenshots selected for the listing, console declarations, internal-track testing, and store review.
+
+\subsection{Prioritised Next Work}
+
+The next programme should proceed in this order:
+
+\begin{enumerate}
+    \item obtain independent GDPR-pack review and define pack-update governance;
+    \item provision production signing and complete Play Console privacy and Data safety declarations;
+    \item run accessibility and localisation matrices, followed by task-based participant evaluation;
+    \item execute multi-OEM, multi-version, 24-hour scheduling, battery, memory, and recovery tests;
+    \item replace aggregate-only acquisition where authorised event-level evidence is available;
+    \item design and independently validate one additional regional pack before claiming multi-jurisdiction support.
+\end{enumerate}
+
+This order prioritises validity and operational trust over adding more visible features.

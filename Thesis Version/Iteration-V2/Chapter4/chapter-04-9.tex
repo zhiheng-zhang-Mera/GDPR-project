@@ -1,0 +1,49 @@
+\section{Implementation}
+
+\subsection{Application Identity and Delivery Configuration}
+
+Revision 9 presents the prototype as \emph{Privacy Lens}, version 1.1.0 (version code 2), under the Android application identifier \texttt{com.zhihengzhang.privacylens}. The Android configuration uses minimum SDK 24 and target SDK 36. Release builds generate both an APK for controlled installation and an Android App Bundle for store delivery. The Gradle signing configuration accepts upload-key values through environment variables; when they are absent, local quality-assurance builds use the debug signing fallback and are not represented as production-signed artefacts.
+
+Android backup is disabled. The manifest explicitly removes legacy external-storage permissions. The merged release manifest contains Internet access for official-source links and the operational permissions introduced by WorkManager for wake locks, network state, boot rescheduling, and foreground-service compatibility. It requests no sensitive runtime permission.
+
+\subsection{Rule-Pack Engine}
+
+\texttt{RulePackComplianceEngine} implements validation and threshold evaluation against a supplied \texttt{RegulationPack}. The earlier \texttt{GDPRComplianceEngine} remains as a compatibility wrapper that delegates to the EU pack; it no longer owns the rule table. The registry exports only recognised packs and rejects an unregistered identifier.
+
+The EU pack maps supported permission signals to review rationales and official GDPR references. Its caveat states that output is a technical review aid. The Research Baseline pack uses deliberately non-legal terminology. Both conform to the same interface, allowing the Settings screen to change the active pack without changing bridge, repository, dashboard, or navigation code. Pack identity is persisted with every finding, so switching the active selection does not relabel historical evidence.
+
+\subsection{Validation and Temporal Isolation}
+
+The engine validates package name, permission key, source, count, window, timestamp, and context before evaluation. JavaScript unsafe integers, negative counts, reversed windows, unknown sources, and malformed identifiers fail closed. Simulator provenance is an enumerated source rather than a boolean UI decoration.
+
+The repository uses a versioned local schema and migrates earlier records. Exact replay windows replace prior values. Overlapping aggregate windows cannot be summed; adjacent completed windows remain eligible for a bounded rolling signal. Records are partitioned by package and permission and capped per partition. These constraints make the decision reconstructable while acknowledging that aggregate summaries lack event identifiers.
+
+\subsection{Native Android Boundary}
+
+Kotlin components implement the React Native bridge, scheduling, permission-audit worker, and controlled violation simulator. The bridge exposes capability status so that the interface can report whether native audit support is present. The product does not claim unrestricted access to other applications' AppOps history. A blank audit is displayed alongside an evidence-reach warning, because stock Android visibility depends on deployment authority and OEM behaviour.
+
+The simulator produces synthetic records for demonstration and regression. Its data source remains explicitly labelled through storage and presentation. This enables a user to inspect a populated workflow without confusing the output with observations collected from the device.
+
+\subsection{Information Architecture and Visual Design}
+
+The interface was reduced to three primary destinations:
+
+\begin{itemize}
+    \item \textbf{Overview} explains the product purpose, initiates an audit, summarises finding classes, and states the evidence-reach boundary;
+    \item \textbf{Findings} separates review signals, evidence gaps, and no-concern results, with source and pack labels on each card;
+    \item \textbf{Settings} selects a registered rule pack, explains its caveat and official source, runs the synthetic demonstration, and clears local findings.
+\end{itemize}
+
+A custom bottom navigation component replaced the earlier crowded tab structure. The visual system uses deep evergreen, teal, mint, off-white, restrained risk accents, rounded cards, and generous whitespace. The icon combines a shield and lens aperture without text. Status is carried by words and icons as well as colour. Buttons and navigation targets use large touch areas and meaningful accessibility labels, following Android and WCAG design guidance \cite{androidaccess,wcag22}.
+
+\subsection{Privacy and User-Control Implementation}
+
+Findings and active-pack choice use app-private local storage. There is no account, analytics SDK, advertising SDK, remote evidence database, or upload workflow. Settings provides a direct clear-local-findings action. The repository includes a bilingual privacy-policy draft and a store-readiness checklist. The policy distinguishes application behaviour from owner actions still required before public release, including a stable HTTPS policy URL and support contact.
+
+\subsection{Codebase Reconciliation}
+
+Legacy health-dashboard, project, scoring, experiment, charting, duplicate compliance-service, and unused template components were removed. Dependencies for removed features were also deleted. This cleanup reduces navigation ambiguity and prevents unsupported research screens from appearing to be finished product functions. The resulting codebase has one compliance engine path, one privacy context, one navigation model, and one current user guide.
+
+\subsection{Implementation Summary}
+
+The implemented system realises the Chapter 3 contracts: inputs fail closed, evidence provenance survives the pipeline, packs are replaceable through a registry, the interface avoids legal verdict language, and Android delivery artefacts use a stable identity. Chapter 5 evaluates these properties at source, rule, build, manifest, and physical-device layers.
