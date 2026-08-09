@@ -1,6 +1,6 @@
 param(
   [Parameter(Mandatory = $true)][string]$Serial,
-  [string]$Package = 'com.anonymous.mymobileapp',
+  [string]$Package = 'com.zhihengzhang.privacylens',
   [string]$Activity = '.MainActivity',
   [int]$RestartRounds = 10,
   [string]$ArtifactDir = (Join-Path $PSScriptRoot '..\testing-report\real-device-extended-latest')

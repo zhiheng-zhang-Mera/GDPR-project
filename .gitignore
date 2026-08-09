@@ -37,6 +37,11 @@ yarn-error.*
 *.tsbuildinfo
 .compliance-test-build/
 .gradle-user-home/
+.gradle-user/
+.gradle-real-device/
+.pnpm-store/
+.codex-tmp/
+node_modules.pnpm-backup/
 
 app-example
 

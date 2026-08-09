@@ -1,0 +1,22 @@
+export const PrivacyTheme = {
+  colors: {
+    canvas: '#F3F6F4',
+    surface: '#FFFFFF',
+    ink: '#102A2A',
+    muted: '#58706D',
+    primary: '#0B5C55',
+    primaryDark: '#073E3A',
+    mint: '#DDF2EA',
+    mintStrong: '#B9E3D4',
+    line: '#D8E2DE',
+    danger: '#A43A32',
+    dangerSoft: '#FBEAE8',
+    warning: '#865D12',
+    warningSoft: '#FFF4D8',
+    info: '#315D86',
+    infoSoft: '#E8F0F8',
+    success: '#286648',
+    successSoft: '#E5F3EA',
+  },
+  radius: { small: 12, medium: 18, large: 26, pill: 999 },
+} as const;

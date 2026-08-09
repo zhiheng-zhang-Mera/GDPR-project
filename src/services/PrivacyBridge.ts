@@ -12,13 +12,18 @@ export interface AuditEvent extends PermissionAudit {
 }
 
 export const PrivacyBridge = {
+  isNativeAvailable: () => Platform.OS === 'android' && typeof PrivacyInspector?.runAuditNow === 'function',
   initializePassiveAuditing: (onEventReceived: (event: AuditEvent) => void) => {
     if (Platform.OS !== 'android') return null;
     return DeviceEventEmitter.addListener('ON_PASSIVE_AUDIT_EVENT', onEventReceived);
   },
 
   scheduleDailyAudit: () => PrivacyInspector?.scheduleDailyAudit?.(),
-  runAuditNow: () => PrivacyInspector?.runAuditNow?.(),
+  runAuditNow: async (): Promise<boolean> => {
+    if (Platform.OS !== 'android' || typeof PrivacyInspector?.runAuditNow !== 'function') return false;
+    await PrivacyInspector.runAuditNow();
+    return true;
+  },
   scheduleSimulation: (config: SimulationConfig) =>
     PrivacyInspector?.scheduleSimulation?.(JSON.stringify(config)),
   scheduleRandomSimulation: () => PrivacyInspector?.scheduleRandomSimulation?.(),

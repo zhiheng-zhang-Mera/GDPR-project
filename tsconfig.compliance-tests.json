@@ -12,6 +12,8 @@
     "src/compliance/IComplianceEngine.ts",
     "src/compliance/types.ts",
     "src/compliance/GDPRComplianceEngine.ts",
+    "src/compliance/RulePackComplianceEngine.ts",
+    "src/regulations/**/*.ts",
     "src/compliance/ViolationSimulator.ts",
     "src/compliance/Evaluation.ts",
     "src/compliance/DashboardModel.ts",

@@ -2,6 +2,7 @@ export type SensitivePermission = 'LOCATION' | 'MICROPHONE' | 'CONTACTS';
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type LawfulBasis = 'CONSENT' | 'CONTRACT' | 'LEGAL_OBLIGATION' | 'VITAL_INTERESTS' | 'PUBLIC_TASK' | 'LEGITIMATE_INTERESTS';
 export type ComplianceStatus = 'INSUFFICIENT_EVIDENCE' | 'REVIEW_REQUIRED' | 'LIKELY_NON_COMPLIANT' | 'NO_TECHNICAL_CONCERN';
+export type RegulationId = 'EU_GDPR' | 'GLOBAL_RESEARCH_BASELINE';
 
 export interface ProcessingContext {
   purpose: string;
@@ -54,7 +55,7 @@ export interface ComplianceRule {
   permissionType: SensitivePermission;
   baseline: number;
   deviationMultiplier: number;
-  gdprArticle: string;
+  legalReference: string;
   rationale: string;
 }
 
@@ -66,6 +67,10 @@ export interface ComplianceFinding {
   threshold: number;
   riskLevel: RiskLevel;
   isActive: boolean;
+  regulationId: RegulationId;
+  regulationName: string;
+  legalReference: string;
+  /** @deprecated Compatibility alias for pre-1.1 stored findings. */
   gdprArticle: string;
   rationale: string;
   detectedAt: number;

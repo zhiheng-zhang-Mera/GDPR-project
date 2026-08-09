@@ -1,6 +1,8 @@
 import { GDPRComplianceEngine } from '../src/compliance/GDPRComplianceEngine';
 import { calculateMetrics } from '../src/compliance/Evaluation';
 import { STATUS_PRESENTATION } from '../src/compliance/DashboardModel';
+import { RulePackComplianceEngine } from '../src/compliance/RulePackComplianceEngine';
+import { getRegulationPack, isRegulationId, listRegulationPacks } from '../src/regulations/registry';
 import { createEvaluationConfig, createSimulationConfig, simulationToAudit } from '../src/compliance/ViolationSimulator';
 import { ProcessingContext, SensitivePermission } from '../src/compliance/types';
 
@@ -120,4 +122,17 @@ for (const presentation of Object.values(STATUS_PRESENTATION)) {
   assert(presentation.label.trim().length > 0 && presentation.marker.trim().length > 0, 'Every status requires text and a marker.');
 }
 
-console.log('Extended input, temporal-isolation, simulator-boundary, metric, and presentation tests passed.');
+const packs = listRegulationPacks();
+assert(packs.length >= 2, 'The registry must expose more than one switchable rule pack.');
+assert(isRegulationId('EU_GDPR') && isRegulationId('GLOBAL_RESEARCH_BASELINE') && !isRegulationId('FORGED'), 'Regulation IDs must be allowlisted.');
+const packAudit = {
+  packageName: 'pack.switch', permissionType: 'LOCATION' as const, accessCount: 40,
+  windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED' as const, processingContext: validContext,
+};
+const gdprFinding = new RulePackComplianceEngine(getRegulationPack('EU_GDPR')).evaluate(packAudit);
+const baselineFinding = new RulePackComplianceEngine(getRegulationPack('GLOBAL_RESEARCH_BASELINE')).evaluate(packAudit);
+assert(gdprFinding.regulationId === 'EU_GDPR' && baselineFinding.regulationId === 'GLOBAL_RESEARCH_BASELINE', 'Findings must retain their producing rule-pack identity.');
+assert(gdprFinding.threshold !== baselineFinding.threshold, 'Independent packs must load their own thresholds.');
+assert(baselineFinding.compliance.legalCaveat.includes('not law'), 'The research baseline must disclose that it is non-legal.');
+
+console.log('Extended input, temporal-isolation, simulator-boundary, metric, presentation, and regulation-pack tests passed.');

@@ -1,233 +1,45 @@
-# User Guide / 用户指南
+# Privacy Lens User Guide / 用户指南
 
-[English](#english) · [中文](#中文)
+## Quick start
 
-## English
+1. Open **Overview** and read the evidence-reach limitation.
+2. Tap **Review device activity** to request an on-device audit.
+3. Open **Findings** to inspect saved evidence. Expand a card before acting.
+4. Open **Settings** to change the rule pack, open its official source, or clear local findings.
+5. To explore without claiming real observation, scroll to **Safe demonstration** and run the labelled 50-round demo.
 
-This guide explains how to install and use GDPR Android Permission Audit.
+## Reading a finding
 
-### 1. Requirements
+- **Observed device** means the native bridge supplied the audit summary; Android visibility may still be incomplete.
+- **Synthetic demo** means generated test data, never device observation.
+- **Review required** is a technical prompt, not a legal conclusion.
+- **Evidence gap** means required context such as purpose, lawful basis, controller identity, or retention period was missing.
+- **No technical concern** means no configured signal was observed in that input; it does not prove compliance.
 
-Use Android 7.0/API 24 or later, an x86_64 Android Virtual Device (API 35 or 36 recommended), and Android SDK Platform Tools. Confirm connectivity with `adb devices`; the device status must be `device`.
+Every card retains its source, active rule pack at creation time, threshold evidence, legal or research reference, rationale, missing evidence, recommended action, and caveat.
 
-### 2. Install and launch
+## Rule-pack switching
 
-```bash
-adb install -r GDPR-Permission-Audit-1.0.0-x86_64.apk
-adb shell am start -n com.anonymous.mymobileapp/.MainActivity
-```
+Changing the pack affects new reviews only. Existing findings keep their original pack label. **EU GDPR** is a legal-framework prompt pack; **Research baseline** is explicitly non-legal.
 
-If a differently signed build is installed, run `adb uninstall com.anonymous.mymobileapp` first. Uninstalling clears local app data.
+## Data handling
 
-### 3. Navigation
+Privacy Lens has no account, advertising, analytics SDK, or evidence upload. Findings and the active pack are stored locally in app-private storage. Android backup is disabled. **Clear local findings** deletes the ledger stored by this app.
 
-1. **Today** — sample health data and trends.
-2. **History** — historical health data.
-3. **Projects** — research projects and data requirements.
-4. **Privacy** — permission audits, controlled evaluation, and evidence.
-5. **Settings** — privacy and app settings.
-6. **Task (RQ)** — research tasks.
-7. **Survey** — research feedback.
+## Known limits
 
-### 4. Privacy dashboard
-
-**Needs action** identifies findings requiring review; **Evidence gaps** indicates missing compliance context; **No concern** means the current rule found no technical anomaly, not that legal compliance is proven.
-
-Select **Run audit now** to examine available AppOps signals for this app's location, microphone, and contacts permissions. Results remain local. Complete cross-app history depends on deployment privileges, and the audit never changes other apps' permissions.
-
-Select **Run 50-round evaluation** to evaluate 40 violation samples and 10 controls. Review TP, FP, FN, precision, and recall; filter with **All**, **Action**, or **Evidence**, then open cards for technical evidence, GDPR mappings, missing context, and recommendations.
-
-![50-round evaluation](assets/screenshots/privacy-evaluation.png)
-
-The evaluation measures agreement with controlled labels, not real-world legal accuracy.
-
-### 5. Research tasks
-
-Open **Task (RQ)**, use the researcher-assigned Group A, B, or C, read the scenario, select **Start Task**, perform the requested action, and confirm the result. After all six tasks, continue to the rating or survey page. Participants should not switch experimental groups themselves.
-
-![Research task](assets/screenshots/research-task.png)
-
-### 6. Simulator, data, and privacy
-
-The controlled simulator creates 50–100 synthetic LOCATION, MICROPHONE, or CONTACTS events over 24 hours. WorkManager records planned and actual execution times but may be delayed by Android. It never accesses real sensors, contacts, or personal data.
-
-Audit results, simulation progress, and research state remain on the device. Do not enter real patient data, and inspect screenshots or logs for identifiers before sharing.
-
-### 7. Troubleshooting
-
-- `INSTALL_FAILED_NO_MATCHING_ABIS`: use an x86_64 emulator or build ARM64 from source.
-- No results: open **Privacy** and run an audit or evaluation.
-- Empty cross-app counts: Android sandboxing normally requires device-owner, system, or research-firmware privileges.
-- Delayed background work: Doze, battery state, background limits, and OEM policy can defer WorkManager.
-- Store publication: the bundled APK is not publishable because it uses demo/debug signing and contains only x86_64 code.
-
-### 8. Verify the APK
-
-```powershell
-Get-FileHash -Algorithm SHA256 .\GDPR-Permission-Audit-1.0.0-x86_64.apk
-```
-
-Expected SHA-256: `E4BF799D6654A03067BB5A5995560DF4C60FDB666DCD6D8E592A69558008A14C`
+Ordinary apps cannot reliably inspect unrestricted activity from other applications. WorkManager is deferrable. OEM behavior differs. The product supports research and accountability review and is not legal advice or compliance certification.
 
 ---
 
-<a id="中文"></a>
+## 快速使用
 
-## 中文
+1. 在**概览**页先阅读“证据可达范围”限制。
+2. 点击 **Review device activity** 请求设备审查。
+3. 在 **Findings** 中查看本地证据，采取行动前先展开卡片。
+4. 在 **Settings** 中切换法规包、打开官方来源或清空本地发现。
+5. 如需体验流程而不声称真实观测，请运行明确标注的 50 轮合成演示。
 
-本指南说明如何安装和使用 GDPR Android Permission Audit 的主要功能。
+“Observed device”仅表示数据来自原生桥接，不代表 Android 提供了完整跨应用历史；“Synthetic demo”始终是合成数据；“Review required”是人工复核提示，不是法律结论；“No technical concern”也不等于证明合规。
 
-## 1. 安装前准备
-
-根目录 APK 为 `x86_64` 架构，建议安装到 Android Studio Emulator：
-
-- Android 7.0 / API 24 或更高版本；
-- 推荐 API 35 或 API 36；
-- AVD 架构必须为 `x86_64`；
-- 电脑已安装 Android SDK Platform Tools。
-
-确认设备已连接：
-
-```bash
-adb devices
-```
-
-输出中应显示状态为 `device`，例如：
-
-```text
-emulator-5554    device
-```
-
-## 2. 安装 APK
-
-在仓库根目录运行：
-
-```bash
-adb install -r GDPR-Permission-Audit-1.0.0-x86_64.apk
-```
-
-出现 `Success` 即安装完成。若设备中存在不同签名的同包名应用，需要先卸载旧版本；卸载会清除该应用的本地数据：
-
-```bash
-adb uninstall com.anonymous.mymobileapp
-adb install GDPR-Permission-Audit-1.0.0-x86_64.apk
-```
-
-启动应用：
-
-```bash
-adb shell am start -n com.anonymous.mymobileapp/.MainActivity
-```
-
-## 3. 页面导航
-
-底部导航包含七个入口：
-
-1. **Today**：查看示例健康数据和趋势。
-2. **History**：查看历史健康数据。
-3. **Projects**：管理研究项目及数据需求。
-4. **Privacy**：运行权限审计、执行 50 轮评估并查看合规证据。
-5. **Settings**：调整隐私和应用设置。
-6. **Task (RQ)**：执行研究任务。
-7. **Survey**：填写研究反馈。
-
-## 4. 使用隐私问责仪表盘
-
-进入 **Privacy** 页面后，顶部摘要显示：
-
-- **Needs action**：存在可能需要人工处理的结果；
-- **Evidence gaps**：缺少目的、合法基础、控制者或保留期等合规上下文；
-- **No concern**：当前规则未发现技术异常，不等于法律上的“合规”。
-
-### 4.1 手动权限审计
-
-点击 **Run audit now**：
-
-1. Android 原生 Worker 检查本应用的位置、麦克风和联系人 AppOps 能力；
-2. 结果保存于本地；
-3. 完整跨应用历史是否可用取决于 Android 部署权限；
-4. 审计不会拦截其他应用，也不会修改权限。
-
-### 4.2 运行 50 轮受控评估
-
-点击 **Run 50-round evaluation**：
-
-1. 系统生成 40 个违规样本和 10 个控制样本；
-2. 合规引擎逐一计算结果；
-3. 页面显示 TP、FP、FN、Precision 和 Recall；
-4. 下方结果卡片可按 **All / Action / Evidence** 筛选；
-5. 点击卡片可展开技术证据、GDPR 条款、缺失信息和建议动作。
-
-![50 轮评估结果](assets/screenshots/privacy-evaluation.png)
-
-评估结果只说明规则实现是否符合受控标签，不能证明真实世界的法律准确性。
-
-## 5. 使用研究任务
-
-进入 **Task (RQ)**：
-
-1. 研究人员选择 **Group A、Group B 或 Group C**；
-2. 阅读当前场景与操作要求；
-3. 点击蓝色 **Start Task** 按钮；
-4. 在展示的交互界面中完成指定动作；
-5. 点击确认按钮进入下一任务；
-6. 六个任务完成后进入评分或问卷页面。
-
-![研究任务入口](assets/screenshots/research-task.png)
-
-三组界面代表不同研究条件，应由研究方案预先分组，不建议参与者自行切换组别。
-
-## 6. 随机模拟器说明
-
-原生随机模拟器用于后台验证：
-
-- 从 LOCATION、MICROPHONE、CONTACTS 中随机选择权限；
-- 生成 50–200 个合成事件；
-- 将计划时间分布在 24 小时窗口内；
-- 使用 WorkManager 安排任务并记录计划时间与实际执行时间；
-- 不访问真实传感器，不读取真实联系人，也不生成真实个人数据。
-
-Android 可能延迟 WorkManager 任务，因此计划时间不应被解释为精确触发时间。
-
-## 7. 数据与隐私
-
-- 审计结果、模拟进度和研究状态保存在设备本地。
-- 卸载应用会清除本地应用数据。
-- 演示前请勿在生产设备或含真实患者资料的环境中输入敏感信息。
-- 分享截图或日志前，应检查其中的软件包名、研究标识和其他可识别信息。
-
-## 8. 常见问题
-
-### 安装时出现 `INSTALL_FAILED_NO_MATCHING_ABIS`
-
-设备不是 x86_64 架构。请使用 x86_64 Android Emulator，或从源码构建 ARM64 APK。
-
-### 页面提示没有审计结果
-
-进入 **Privacy** 后点击 **Run audit now** 或 **Run 50-round evaluation**。首次启动不会自动伪造结果。
-
-### 其他应用的权限次数为空
-
-这是 Android 沙箱限制。普通应用通常不能读取其他应用的完整历史，需要获得授权的 device-owner、系统权限或研究固件。
-
-### 后台模拟未按计划时间立即执行
-
-WorkManager 会受到 Doze、电量、后台限制和 OEM 策略影响；它保证可延迟执行，不保证精确闹钟语义。
-
-### APK 能否直接发布到应用商店
-
-不能。当前包使用演示调试签名且只包含 x86_64。发布前需要生成受保护的正式签名、构建 ARM64/App Bundle、完成隐私披露和真实设备测试。
-
-## 9. 校验 APK
-
-Windows PowerShell：
-
-```powershell
-Get-FileHash -Algorithm SHA256 .\GDPR-Permission-Audit-1.0.0-x86_64.apk
-```
-
-预期 SHA-256：
-
-```text
-E4BF799D6654A03067BB5A5995560DF4C60FDB666DCD6D8E592A69558008A14C
-```
+切换法规包只影响新审查，历史发现保留产生它的法规包。应用无账户、广告、分析 SDK 或证据上传，数据保存在应用私有空间，Android 备份已关闭。
