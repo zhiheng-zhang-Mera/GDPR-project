@@ -26,9 +26,11 @@ export function BottomNav({ active }: { active: NavKey }) {
               accessibilityState={{ selected }}
               activeOpacity={0.7}
               onPress={() => { if (!selected) router.replace(item.route); }}
-              style={styles.item}
+              style={[styles.item, selected && styles.itemSelected]}
             >
-              <Ionicons name={selected ? item.activeIcon : item.icon} size={24} color={selected ? T.colors.primary : '#70827F'} />
+              <View style={[styles.iconWrap, selected && styles.iconWrapSelected]}>
+                <Ionicons name={selected ? item.activeIcon : item.icon} size={22} color={selected ? T.colors.primary : '#70827F'} />
+              </View>
               <Text style={[styles.label, selected && styles.labelSelected]}>{item.label}</Text>
             </TouchableOpacity>
           );
@@ -39,9 +41,12 @@ export function BottomNav({ active }: { active: NavKey }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { height: 80, flexShrink: 0, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: T.colors.line },
-  bar: { flex: 1, flexDirection: 'row', alignItems: 'stretch' },
-  item: { flex: 1, minHeight: 56, alignItems: 'center', justifyContent: 'center', gap: 3 },
-  label: { color: '#70827F', fontSize: 12, lineHeight: 16, fontWeight: '700' },
-  labelSelected: { color: T.colors.primary },
+  safe: { minHeight: 82, flexShrink: 0, backgroundColor: T.colors.canvas },
+  bar: { minHeight: 68, marginHorizontal: 12, marginTop: 5, marginBottom: 7, padding: 5, flexDirection: 'row', alignItems: 'stretch', borderRadius: 24, borderWidth: 1, borderColor: T.colors.line, backgroundColor: '#FFFFFF', ...T.shadow.floating },
+  item: { flex: 1, minHeight: 56, alignItems: 'center', justifyContent: 'center', gap: 1, borderRadius: 18 },
+  itemSelected: { backgroundColor: T.colors.mint },
+  iconWrap: { width: 34, height: 29, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
+  iconWrapSelected: { backgroundColor: 'rgba(255,255,255,0.68)' },
+  label: { color: '#70827F', fontSize: 11, lineHeight: 15, fontWeight: '700' },
+  labelSelected: { color: T.colors.primaryDark, fontWeight: '900' },
 });

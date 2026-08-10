@@ -37,5 +37,10 @@ const navigation = sources.find((item) => item.relative === 'components/privacy/
 assert(navigation.includes('accessibilityRole="tablist"') && navigation.includes('accessibilityState={{ selected }}'), 'Bottom navigation must expose tab semantics and selection state.');
 const findingCard = sources.find((item) => item.relative === 'components/privacy/FindingCard.tsx').text;
 assert(findingCard.includes('accessibilityState={{ expanded }}') && findingCard.includes('accessibilityHint='), 'Expandable findings must expose expansion state and a hint.');
+assert(findingCard.includes('presentation.marker') && findingCard.includes('statusRail'), 'Finding status must use a text marker and structural rail in addition to colour.');
+assert(findingCard.includes('minHeight: 44'), 'The dedicated evidence disclosure control must retain a 44-pixel minimum target.');
+const settings = sources.find((item) => item.relative === 'app/(tabs)/settings.tsx').text;
+assert(settings.includes('selectedPack.sources.map') && settings.includes("BINDING_LAW: 'Binding law'") && settings.includes("CONSULTATION_MATERIAL: 'Consultation'"), 'Settings must render source-authority status without treating consultation material as final guidance.');
+assert(navigation.includes('itemSelected') && navigation.includes('iconWrapSelected'), 'Bottom navigation must provide a structural selected state in addition to colour.');
 
 console.log(`Accessibility source contracts passed for ${sourceFiles.length} files and ${sources.reduce((sum, item) => sum + [...item.text.matchAll(/<TouchableOpacity\b[\s\S]*?>/g)].length, 0)} interactive touchables.`);
