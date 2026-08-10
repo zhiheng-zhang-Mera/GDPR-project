@@ -123,25 +123,56 @@ const insufficient = legalEngine.evaluate({ packageName: 'context.missing', perm
 assert(insufficient.compliance.status === 'INSUFFICIENT_EVIDENCE', 'Missing legal context must not be labelled compliant.');
 assert(insufficient.communication.notificationPriority === 'STANDARD', 'Evidence gaps require a review notification.');
 
+const commonLegalEvidence = {
+  purpose: 'Turn-by-turn navigation',
+  controllerIdentity: 'Example Controller',
+  retentionDays: 1,
+  transparencyNoticeReference: 'privacy-notice-v3',
+  dataMinimisationAssessmentReference: 'necessity-review-17',
+  retentionJustification: 'Delete precise route evidence after one day',
+  dpiaRequired: false,
+};
 const documented = legalEngine.evaluate({
   packageName: 'context.documented', permissionType: 'LOCATION', accessCount: 1, windowStart: 1, windowEnd: 2,
-  processingContext: { purpose: 'Turn-by-turn navigation', lawfulBasis: 'CONTRACT', controllerIdentity: 'Example Controller', retentionDays: 1, userInitiated: true },
+  processingContext: { ...commonLegalEvidence, lawfulBasis: 'CONTRACT', contractNecessityReference: 'service-core-necessity-4', userInitiated: true },
 });
 assert(documented.compliance.status === 'NO_TECHNICAL_CONCERN', 'Complete context without anomaly should produce no technical concern.');
 assert(documented.communication.notificationPriority === 'SILENT', 'No-concern findings should be silent.');
 
 const withdrawn = legalEngine.evaluate({
   packageName: 'context.withdrawn', permissionType: 'MICROPHONE', accessCount: 1, windowStart: 1, windowEnd: 2,
-  processingContext: { purpose: 'Voice diary', lawfulBasis: 'CONSENT', controllerIdentity: 'Example Controller', retentionDays: 30, consentWithdrawn: true, specialCategoryData: true, article9Condition: 'Explicit consent previously recorded' },
+  processingContext: { ...commonLegalEvidence, purpose: 'Voice diary', lawfulBasis: 'CONSENT', consentEvidenceReference: 'consent-ledger-9', consentWithdrawn: true, specialCategoryData: true, article9Condition: 'Explicit consent previously recorded' },
 });
-assert(withdrawn.compliance.status === 'LIKELY_NON_COMPLIANT', 'Processing after withdrawal under consent must be escalated.');
-assert(withdrawn.communication.notificationPriority === 'URGENT', 'Likely non-compliance must be urgent.');
+assert(withdrawn.compliance.status === 'POTENTIAL_CONFLICT', 'Processing after withdrawal under consent must be escalated without declaring an infringement.');
+assert(withdrawn.communication.notificationPriority === 'URGENT', 'A potential legal conflict must be urgent.');
 
 const specialCategoryGap = legalEngine.evaluate({
   packageName: 'context.article9', permissionType: 'MICROPHONE', accessCount: 1, windowStart: 1, windowEnd: 2,
-  processingContext: { purpose: 'Health symptom recording', lawfulBasis: 'CONSENT', controllerIdentity: 'Example Controller', retentionDays: 30, specialCategoryData: true },
+  processingContext: { ...commonLegalEvidence, purpose: 'Health symptom recording', lawfulBasis: 'CONSENT', specialCategoryData: true },
 });
 assert(specialCategoryGap.compliance.missingEvidence.includes('Article 9 condition'), 'Special-category processing requires an Article 9 condition.');
+
+const basisEvidenceCases = [
+  ['CONSENT', 'Article 7 consent evidence'],
+  ['CONTRACT', 'Article 6(1)(b) contractual necessity assessment'],
+  ['LEGAL_OBLIGATION', 'Article 6(3) legal mandate reference'],
+  ['PUBLIC_TASK', 'Article 6(3) legal mandate reference'],
+  ['VITAL_INTERESTS', 'Article 6(1)(d) vital-interests necessity assessment'],
+  ['LEGITIMATE_INTERESTS', 'Article 6(1)(f) legitimate-interests three-part assessment'],
+] as const;
+for (const [lawfulBasis, expectedGap] of basisEvidenceCases) {
+  const finding = legalEngine.evaluate({
+    packageName: `context.basis.${lawfulBasis.toLowerCase()}`,
+    permissionType: 'LOCATION', accessCount: 1, windowStart: 1, windowEnd: 2,
+    processingContext: { ...commonLegalEvidence, lawfulBasis },
+  });
+  assert(finding.compliance.missingEvidence.includes(expectedGap), `${lawfulBasis} must require its basis-specific evidence.`);
+}
+const dpiaGap = legalEngine.evaluate({
+  packageName: 'context.dpia', permissionType: 'LOCATION', accessCount: 1, windowStart: 1, windowEnd: 2,
+  processingContext: { ...commonLegalEvidence, lawfulBasis: 'CONTRACT', contractNecessityReference: 'contract-test', dpiaRequired: true },
+});
+assert(dpiaGap.compliance.missingEvidence.includes('Article 35 DPIA reference'), 'A positive DPIA screening must require a DPIA reference.');
 
 const invalidContext = legalEngine.evaluateSafe({ packageName: 'context.invalid', permissionType: 'LOCATION', accessCount: 1, windowStart: 1, windowEnd: 2, processingContext: { lawfulBasis: 'MADE_UP', retentionDays: -1 } });
 assert(!invalidContext.accepted && invalidContext.code === 'INVALID_CONTEXT', 'Malformed legal context must be rejected.');

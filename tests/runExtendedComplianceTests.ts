@@ -14,15 +14,23 @@ const now = 1_700_000_000_000;
 const validContext: ProcessingContext = {
   purpose: 'Deliver a requested feature', lawfulBasis: 'CONTRACT',
   controllerIdentity: 'Example Controller', retentionDays: 1, userInitiated: true,
+  transparencyNoticeReference: 'notice-test',
+  dataMinimisationAssessmentReference: 'minimisation-test',
+  retentionJustification: 'one-day test window',
+  contractNecessityReference: 'contract-test',
+  dpiaRequired: false,
 };
 
 const malformedContexts: Record<string, unknown>[] = [
   { ...validContext, purpose: 7 },
   { ...validContext, controllerIdentity: [] },
   { ...validContext, article9Condition: {} },
+  { ...validContext, transparencyNoticeReference: 7 },
+  { ...validContext, legitimateInterestsAssessmentReference: [] },
   { ...validContext, consentWithdrawn: 'false' },
   { ...validContext, specialCategoryData: 1 },
   { ...validContext, userInitiated: 'true' },
+  { ...validContext, dpiaRequired: 'false' },
 ];
 for (const processingContext of malformedContexts) {
   const result = new GDPRComplianceEngine().evaluateSafe({

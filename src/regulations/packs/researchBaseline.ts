@@ -7,12 +7,13 @@ export const GLOBAL_RESEARCH_BASELINE_PACK: RegulationPack = {
   jurisdiction: 'Region-neutral demonstration',
   kind: 'RESEARCH_BASELINE',
   versionLabel: 'Prototype baseline 1.0',
+  sources: [],
   description: 'A non-legal rule pack for demonstrating regional policy switching without implying local-law coverage.',
   governance: {
-    schemaVersion: 1,
+    schemaVersion: 2,
     state: 'NON_LEGAL_DEMONSTRATOR',
     authoredAt: '2026-08-09',
-    lastReviewedAt: '2026-08-09',
+    lastReviewedAt: '2026-08-10',
     reviewAuthority: {
       kind: 'PROJECT_ENGINEERING',
       reviewer: 'Privacy Lens project author',

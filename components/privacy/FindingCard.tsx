@@ -6,6 +6,7 @@ import { STATUS_PRESENTATION } from '../../src/compliance/DashboardModel';
 import { ComplianceFinding } from '../../src/compliance/types';
 
 const TONES = {
+  POTENTIAL_CONFLICT: { background: T.colors.dangerSoft, foreground: T.colors.danger, icon: 'alert-circle' },
   LIKELY_NON_COMPLIANT: { background: T.colors.dangerSoft, foreground: T.colors.danger, icon: 'alert-circle' },
   REVIEW_REQUIRED: { background: T.colors.warningSoft, foreground: T.colors.warning, icon: 'eye' },
   INSUFFICIENT_EVIDENCE: { background: T.colors.infoSoft, foreground: T.colors.info, icon: 'document-text' },

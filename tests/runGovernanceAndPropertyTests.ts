@@ -29,6 +29,11 @@ const validContext = {
   lawfulBasis: 'CONTRACT' as const,
   controllerIdentity: 'Property-test controller',
   retentionDays: 1,
+  transparencyNoticeReference: 'property-notice',
+  dataMinimisationAssessmentReference: 'property-minimisation',
+  retentionJustification: 'one-day property-test evidence',
+  contractNecessityReference: 'property-contract-necessity',
+  dpiaRequired: false,
 };
 
 for (const pack of listRegulationPacks()) {
@@ -85,6 +90,21 @@ assert(validateRegulationPack(illegalApproval).some((error) => error.includes('q
 
 const missingSource: RegulationPack = { ...getRegulationPack('EU_GDPR'), sourceUrl: 'http://example.invalid' };
 assert(validateRegulationPack(missingSource).some((error) => error.includes('HTTPS official source')), 'Governance validator must reject a non-HTTPS legal source mutation.');
+
+const invalidDate: RegulationPack = {
+  ...getRegulationPack('EU_GDPR'),
+  governance: { ...getRegulationPack('EU_GDPR').governance, lastReviewedAt: '2026-02-30' },
+};
+assert(validateRegulationPack(invalidDate).some((error) => error.includes('valid YYYY-MM-DD')), 'Governance validator must reject impossible calendar dates.');
+
+const missingBindingLaw: RegulationPack = {
+  ...getRegulationPack('EU_GDPR'),
+  sources: getRegulationPack('EU_GDPR').sources.map((source) => ({ ...source, status: 'FINAL_GUIDANCE' as const })),
+};
+assert(validateRegulationPack(missingBindingLaw).some((error) => error.includes('binding-law source')), 'A legal pack must retain a binding-law source rather than guidance alone.');
+
+const euSources = getRegulationPack('EU_GDPR').sources;
+assert(euSources.some(({ status }) => status === 'CONSULTATION_MATERIAL'), 'Non-final EDPB materials must remain explicitly labelled as consultation material.');
 
 let unknownRejected = false;
 try {

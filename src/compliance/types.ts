@@ -1,7 +1,12 @@
 export type SensitivePermission = 'LOCATION' | 'MICROPHONE' | 'CONTACTS';
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type LawfulBasis = 'CONSENT' | 'CONTRACT' | 'LEGAL_OBLIGATION' | 'VITAL_INTERESTS' | 'PUBLIC_TASK' | 'LEGITIMATE_INTERESTS';
-export type ComplianceStatus = 'INSUFFICIENT_EVIDENCE' | 'REVIEW_REQUIRED' | 'LIKELY_NON_COMPLIANT' | 'NO_TECHNICAL_CONCERN';
+export type ComplianceStatus =
+  | 'INSUFFICIENT_EVIDENCE'
+  | 'REVIEW_REQUIRED'
+  | 'POTENTIAL_CONFLICT'
+  | 'LIKELY_NON_COMPLIANT'
+  | 'NO_TECHNICAL_CONCERN';
 export type RegulationId = 'EU_GDPR' | 'GLOBAL_RESEARCH_BASELINE';
 
 export interface ProcessingContext {
@@ -9,6 +14,16 @@ export interface ProcessingContext {
   lawfulBasis: LawfulBasis;
   controllerIdentity: string;
   retentionDays: number;
+  transparencyNoticeReference?: string;
+  dataMinimisationAssessmentReference?: string;
+  retentionJustification?: string;
+  consentEvidenceReference?: string;
+  contractNecessityReference?: string;
+  legalMandateReference?: string;
+  vitalInterestsAssessmentReference?: string;
+  legitimateInterestsAssessmentReference?: string;
+  dpiaRequired?: boolean;
+  dpiaReference?: string;
   consentWithdrawn?: boolean;
   specialCategoryData?: boolean;
   article9Condition?: string;

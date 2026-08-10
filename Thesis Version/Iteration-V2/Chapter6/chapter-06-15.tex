@@ -1,0 +1,206 @@
+\section{Discussion and Limitations}
+
+This chapter interprets the results through the same bounded-claim discipline used in evaluation. It first states what the prototype establishes, then examines technical, legal, human, and operational validity. The discussion does not repeat the result tables; it explains why each remaining limitation changes the authority of the conclusion and which future evidence would be capable of resolving it.
+
+\subsection{Interpretation of Findings}
+
+\subsubsection{What the Prototype Establishes}
+
+Privacy Lens demonstrates that a permission-review product can be useful without claiming complete visibility or automated legality. The core value is not the threshold alone; it is the evidence contract surrounding the threshold. Source, window, pack, rule reference, and missing context make the decision traceable. Fail-closed validation prevents malformed evidence from becoming a reassuring result. The interface then communicates the distinction between an observed signal, a synthetic example, and an evidence gap.
+
+The replacement of a GDPR-specific engine with regulation packs also improves scientific clarity. It reveals which statements belong to generic software and which depend on a jurisdictional interpretation. This supports future extension while making clear that interface compatibility is not legal equivalence.
+
+\subsubsection{Construct and Internal Validity}
+
+The deterministic confusion matrix measures agreement with a defined threshold oracle. It does not measure whether that threshold identifies unlawful processing. Because test fixtures and implementation share the same conceptual specification, correlated defects remain possible. Boundary suites reduce but do not eliminate this risk. Independent implementation review, mutation testing, and event-level reference traces would strengthen internal validity.
+
+The simulator is intentionally useful for reproducible demonstration, but it can inflate perceived confidence if its labels are mistaken for field ground truth. Revision 14 mitigates this by preserving synthetic provenance through the repository and interface. The remaining risk is user over-reliance on any precise metric; future builds should consider hiding precision and recall outside an explicitly labelled research panel.
+
+\subsubsection{External and Ecological Validity}
+
+Physical evaluation used one OPPO PERM00 device and a short acceptance window. Ten cold-start rounds produced a median 1,690 ms launch and a sampled PSS range of 95,844--96,719 KB without a package-specific crash-buffer entry. OEM process management, Android versions, accessibility settings, screen sizes, font scaling, languages, and long-run scheduling can change behaviour. These samples are an anomaly check, not evidence of a startup objective, 24-hour WorkManager reliability, battery impact, leak freedom, or multi-device stability.
+
+The ADB coordinate calibration problem also illustrates a methodological limitation: automated interaction evidence depends on the relationship between physical display coordinates, application-window bounds, navigation bars, and screenshots. Future UI automation should anchor actions to accessibility nodes or resource identifiers and record window geometry with every run.
+
+\subsubsection{Legal and Regional Validity}
+
+The GDPR pack maps technical signals to questions motivated by official provisions \cite{eurlex2016}. Revision 15 makes more of the missing legal work explicit by asking for basis-specific support, transparency, minimisation, retention justification, Article 9 context, and a DPIA screening outcome. A supplied reference is evidence that a record exists in the input; it is not proof that the record is accurate, applicable, current, or legally persuasive. The engine cannot determine controller identity, processing purpose, lawful-basis validity, necessity, proportionality, consent validity, data-subject expectations, recipients, safeguards, or jurisdiction. Its output remains an accountability aid, and a qualified reviewer must examine the underlying processing and applicable law.
+
+Adding another regional pack requires more than translation. The maintainer must identify scope, legal authority, effective date, regulated actors, exceptions, remedies, and concepts that have no GDPR analogue. Each pack needs independent legal sign-off, versioned fixtures, source preservation, localisation review, and an update policy. The current Research Baseline pack is not evidence that a second legal regime has been validated.
+
+\subsubsection{Usability and Accessibility}
+
+The redesigned interface applies recognised accessibility and usability principles \cite{wcag22,androidaccess,iso924111}, and the rendered evidence supports a positive expert assessment. However, conformance-oriented inspection cannot establish comprehension, efficiency, satisfaction, trust calibration, or willingness to continue using the product. No screen-reader campaign, switch-access test, colour-vision simulation, large-font matrix, or participant study was completed. These are required before making an accessibility-conformance or user-adoption claim.
+
+\subsubsection{Interpreting the Engineering Result}
+
+The evaluation is strongest when it is read as a chain of bounded claims rather than as a single pass or fail judgement. At the innermost layer, unit and integration tests establish that a specified input produces the specified state transition. At the next layer, release assembly and manifest inspection establish that the tested TypeScript is incorporated into an installable Android artefact with the recorded package properties. Physical-device interaction then establishes that selected routes render and selected controls respond on one hardware and operating-system combination. None of these layers automatically establishes the next one. A correct function may be absent from a package, an installable package may render poorly, and a coherent interface may still be misunderstood by users.
+
+This layered reading prevents a common reporting error in prototype research: promoting evidence because several individually positive checks appear together. Ten successful checks are not equivalent to one check of a broader proposition. For example, a passing threshold test and a successful device launch do not jointly prove that the threshold represents unlawful processing. They establish two different facts, one logical and one operational. Privacy Lens therefore records evidence by claim type. The resulting report may look more cautious than a conventional demonstration, but it is more useful to a maintainer because it shows exactly which additional study could change a conclusion.
+
+The phrase ``initial store-submission engineering candidate'' is deliberately narrow. It means that the repository can produce the expected release formats, that the product has a coherent user journey and disclosures, and that no known in-scope engineering defect makes controlled submission work irrational. It does not mean that the application is signed with the owner's production key, that a store has reviewed its declarations, or that the legal mappings have been approved by counsel. Separating these meanings is particularly important for privacy software because a polished security or compliance interface can borrow authority from the domain even when its evidence is limited.
+
+There is also a difference between absence of an observed failure and affirmative evidence of a desirable property. No crash during a short device session is evidence about that session; it is not positive evidence of long-term stability. A small memory range across a few restarts is a useful anomaly check; it is not a leak proof. No sensitive runtime permission in the merged manifest is a strong package fact, but it does not by itself prove that every future acquisition connector will remain privacy preserving. The evaluation uses explicit negative claims to preserve these distinctions.
+
+The result should therefore be understood as a reproducible decision point. A future reviewer can rebuild the same revision, inspect the same rules and fixtures, and ask whether later evidence warrants promotion from one claim class to another. That property is more durable than a one-time declaration of readiness. It converts the thesis from a retrospective narrative into a maintainable assurance record.
+
+\subsection{Technical Validity Boundaries}
+
+The central technical limitations concern the authority of acquisition, the meaning of prototype thresholds, temporal aggregation, and the governance of rule data. These issues are grouped because each can make a deterministic output reproducible while still leaving its real-world interpretation uncertain.
+
+\subsubsection{Acquisition Authority and Observation Quality}
+
+The largest external-validity constraint is not the visual interface or the threshold arithmetic; it is the authority and completeness of the observation source. Android deliberately limits one ordinary application's access to sensitive information about other applications. Privacy Lens does not bypass that security model. The current native bridge and imported-record contracts can carry observations when an authorised deployment supplies them, while the simulator supports deterministic explanation and testing. The prototype must not imply that installing it from a public store grants unrestricted historical visibility.
+
+This constraint affects every downstream conclusion. An apparently quiet history may mean that accesses did not occur, that the selected API does not expose them, that an OEM shortened retention, that the collection job was delayed, or that the current deployment lacks authority. These explanations are not interchangeable. The evidence schema therefore includes source and time-window fields, and an evidence-gap state is preferred when acquisition sufficiency is unknown. A ``no technical concern'' result refers only to accepted records, not to all activity on the device.
+
+Observation quality has at least five dimensions. Coverage asks which applications, operations, and time intervals are visible. Resolution asks whether records are event-level or aggregated. Timeliness asks how long after an event a record becomes available. Integrity asks whether records can be altered, replayed, or reordered. Semantic fidelity asks whether the operation label actually corresponds to the personal-data behaviour under review. A future connector should publish a capability document addressing all five dimensions. Merely conforming to the TypeScript shape is insufficient.
+
+Aggregate records are attractive because they reduce storage and may reduce the privacy footprint of the reviewing application. They also erase context. Ten accesses could represent ten user-requested map refreshes or repeated background tracking; a total cannot distinguish them. Conversely, event-level traces can support better interpretation but may themselves reveal sensitive routines, application use, or location-related behaviour. The acquisition design must therefore minimise collected fields, bound retention, protect local storage, and explain who is authorised to inspect the evidence. More data is not automatically a more privacy-preserving audit.
+
+An authorised enterprise or research deployment could improve coverage through device-owner controls, instrumented test applications, or controlled firmware. Each option changes the population to which the findings apply. Device-owner evidence may be relevant to managed fleets but not to ordinary consumers. Instrumented application evidence can establish ground truth for that application but not for unrelated packages. Research firmware may provide high-resolution traces but changes the operating environment. Evaluation reports should name the authority model rather than treating all Android evidence as equivalent.
+
+Future acquisition validation should pair the connector output with an independent event generator. The generator should produce timestamped, permission-specific actions under known foreground and background conditions. The study should compare generated and acquired events, report missing and duplicate records, measure timestamp error, and repeat the process across Android versions and OEMs. This would create an empirical coverage statement. Until then, the architecture supports authorised evidence, but the public-store product remains primarily a review and demonstration layer.
+
+\subsubsection{Threshold Meaning, Calibration, and Decision Error}
+
+The implemented baselines and multipliers are transparent prototype parameters. Transparency makes the rule reproducible; it does not make the parameters representative. A location threshold of thirty-six accesses in a twenty-four-hour record can be inspected and tested exactly, but its normative meaning depends on application category, user action, service duration, and declared purpose. A navigation application and a static calculator cannot be judged by the same behavioural expectation merely because both run on Android.
+
+False positives and false negatives also have asymmetric consequences. A false positive may alarm a user, damage confidence in a legitimate application, and contribute to warning fatigue. A false negative may reassure the user or reviewer despite activity that deserves investigation. The appropriate balance is not a purely mathematical optimisation because the costs depend on use context. The current design therefore avoids converting a below-threshold result into a compliance statement and avoids converting an exceedance into a violation verdict.
+
+Empirical calibration would require a sampling frame, not simply a large collection of counts. Applications should be stratified by category, operating mode, permission purpose, foreground status, and user task. Collection periods should capture weekdays, weekends, intermittent use, and long sessions. The study should document missing observations and OEM-specific retention. Independent reviewers would need an annotation protocol for deciding which cases warrant investigation, and disagreement should be reported rather than removed through silent consensus.
+
+The calibration target should also be explicit. Optimising agreement with human reviewers is different from predicting store-policy enforcement, detecting malware, or identifying GDPR accountability questions. Each target requires different labels and evidence. Privacy Lens targets review prioritisation: the desired output is a defensible prompt for further examination. That target supports conservative wording and structured missing-context questions rather than a binary compliance classifier.
+
+Multi-scale features improve coverage but add parameters. The daily excess rule identifies sustained volume, the burst rule identifies concentrated activity, and cross-window logic identifies repeated near-threshold behaviour. These signals may correlate, so simply summing them could exaggerate risk. A future scoring design should explain whether each signal contributes independently, whether one supersedes another, and how uncertainty changes when source resolution is coarse. It should also preserve the raw contributing values so a reviewer can reconstruct the decision.
+
+Parameter governance is as important as parameter selection. Every released pack should identify its effective version, parameter owner, change rationale, fixtures, and compatibility requirements. A threshold change can alter stored findings without any change in observed activity. The application should therefore retain the pack version used for a historical decision and should not silently relabel old evidence when a new pack becomes active. Re-evaluation, if offered, should create a new result linked to the prior one.
+
+A responsible calibration programme would begin with controlled application traces and explicit scenarios, progress to a consented multi-device observational study, and only then consider population thresholds. Performance should be reported by category and source capability, with confidence intervals and error analysis. Even strong empirical performance would support prioritisation accuracy, not legal adjudication. That claim boundary should remain invariant as the data set grows.
+
+\subsubsection{Temporal Evidence and Replay Semantics}
+
+Time-windowed evidence introduces failure modes that are easy to overlook in static test cases. Two records can describe the same underlying accesses, adjacent periods, partially overlapping periods, or unrelated periods with identical totals. If overlapping aggregates are added, one event may be counted twice. If late records move a retention watermark backwards, replayed evidence can alter later decisions. If future timestamps are accepted without tolerance, clock errors can create impossible histories.
+
+The current engine addresses these risks with safe integer checks, a maximum window duration, bounded future tolerance, replacement of identical windows, a finite per-key history, and non-overlap requirements for cross-window evidence. These are meaningful controls because they specify how the repository behaves under replay. They do not create event-level identity where none exists. Partially overlapping aggregates cannot always be reconciled without access to their constituent events.
+
+The conservative response is to decline cumulative interpretation when independence cannot be established. This may reduce sensitivity, but it avoids manufacturing precision. A future event-level connector could attach stable event identifiers or monotonic collection cursors. A future aggregate connector could publish disjoint collection intervals and a watermark signed or otherwise protected by the producer. Both designs would strengthen deduplication, but each must account for device clock changes and interrupted collection.
+
+Retention limits deserve separate scrutiny. Keeping only the most recent records bounds memory and reduces local exposure, yet an arbitrary truncation point can remove context needed for a decision. The history limit of 4,096 entries is an engineering safeguard, not a legal retention determination. Production policy should relate retention to the stated review purpose, source frequency, device capacity, and user deletion expectations. The Settings clear action should remove review data predictably, while audit exports or externally managed evidence require their own lifecycle.
+
+Temporal testing should cover more than threshold boundaries. Useful properties include idempotence under exact replay, invariance to arrival order for independent windows, rejection of unsafe durations, monotonic retention watermarks, bounded storage, and stable decisions after process restart. Tests should also inject clock rollback, daylight-saving changes, long device sleep, and records delivered after the active pack changes. These cases would reveal whether the implementation depends on wall-clock assumptions that are not documented.
+
+The broader lesson is that time is part of the evidence contract, not metadata attached after classification. A risk statement about repeated behaviour is only as defensible as the window relationships used to compute it. Making those relationships visible helps reviewers distinguish sustained behaviour from an artefact of aggregation.
+
+\subsubsection{Regulation-Pack Governance Beyond Software Modularity}
+
+The replaceable pack contract solves a software architecture problem: it prevents jurisdiction-specific references, prompts, and thresholds from being scattered across screens, storage, and native integration code. It does not solve the institutional problem of deciding what a pack should say. A pack can be syntactically valid and legally misleading. Consequently, extensibility must be paired with admission and maintenance governance.
+
+Admission should begin with scope. The pack must name the jurisdiction, regulated context, legal instruments, effective date, intended users, and exclusions. It should distinguish binding provisions from regulator guidance and from research heuristics. Every rule should link a technical condition to a review question and explain the missing facts that prevent automated legal determination. A reviewer should be able to trace displayed wording to the pack source and from the source to the governing material.
+
+Revision 15 operationalises part of this distinction by recording each source as binding law, final guidance, or consultation material. This prevents the 2026 EDPB DPIA template and Article 6(1)(f) consultation text from silently acquiring the same status as the Regulation or final guidance \cite{edpblia2024draft,edpbdpia2026consultation}. The status is still maintainer-authored metadata. Without signed provenance, source retrieval, content hashing, and qualified review, the validator can enforce consistency but cannot establish authenticity or legal correctness.
+
+Legal review should be independent of the developer who encoded the rule. The reviewer should assess citation accuracy, applicability, exceptions, terminology, translations, and the risk that interface wording implies a verdict. Approval should apply to a specific pack version and date. Where the law or guidance changes, the registry should deprecate the old version, explain the transition, and preserve historical identity for prior findings.
+
+Technical admission should then validate identifiers, semantic versions, rule uniqueness, supported evidence fields, bounded numerical parameters, localisation completeness, and fixture coverage. The application should reject an unknown or malformed pack rather than fall back silently to a default. If a selected pack is unavailable after an update, the interface should present an explicit blocked state and retain the user's selection for recovery.
+
+Regional variation is not merely a change of article numbers. Concepts such as controller, covered business, sensitive information, consent, sale, sharing, child, or data localisation may not map one-to-one. Enforcement actors and private rights may differ. A common interface model should therefore contain generic evidence and review primitives while allowing packs to declare jurisdiction-specific questions. Forcing every regime into GDPR terminology would create superficial flexibility and substantive error.
+
+Localisation also requires more than translating strings. Legal terms may have authoritative language versions, while plain-language prompts need comprehension testing in the user's locale. Text length affects layout, and right-to-left scripts affect navigation and icon direction. A pack release should therefore combine legal-language review, plain-language review, and rendered interface testing. The interface should identify both the selected region and pack version so the user understands which framework generated the prompt.
+
+Distribution is another trust boundary. If packs are ever downloaded, the system will need authenticity, integrity, rollback, and availability controls. Signed manifests, pinned publisher identities, checksum verification, and an offline last-known-good version are plausible mechanisms. Remote updates should not introduce executable code; the contract should remain declarative and narrowly validated. The present bundled registry avoids network update risk, which is appropriate for the current candidate.
+
+The Research Baseline pack illustrates an important disclosure pattern. It proves that the product can switch rule sets and preserve identity, but it intentionally does not masquerade as a validated regional law. Its name and explanatory text should remain visibly non-legal. A future second jurisdiction should only be advertised after completing the same source, review, fixture, localisation, and update-governance process as the GDPR pack.
+
+\subsection{Human, Ethical, and Operational Trust}
+
+The product's credibility depends on more than a correct rule. Users must understand the status, the reviewing application must minimise its own privacy and security risks, research evidence must be collected responsibly, and release claims must match the package that is actually distributed.
+
+\subsubsection{Trust, Comprehension, and Willingness to Use}
+
+Visual coherence is necessary because users make rapid judgements about whether a privacy tool is maintained and safe. Consistent typography, restrained colour, stable navigation, and plain-language hierarchy reduce avoidable friction. They are not sufficient for trustworthiness. A visually polished product can be more dangerous if polish causes users to accept unsupported conclusions. Privacy Lens therefore treats calibrated trust, rather than maximum trust, as the design objective.
+
+Calibrated trust means that confidence changes with evidence quality. A native or authorised imported observation can be described according to its documented capability. A simulator record must remain labelled synthetic. Missing purpose or lawful-basis context must remain visible even when the numerical signal is normal. The interface should make the most important limitation available at the decision point, not bury it exclusively in a policy page.
+
+Willingness to use has several components. Initial adoption depends on a credible value proposition and low setup burden. Continued use depends on whether findings arrive at useful times, whether repeated alerts are suppressed, whether explanations support action, and whether local data controls behave predictably. Recommendation to others may depend on institutional endorsement, independent review, and evidence that the tool does not create new privacy risks. A short expert inspection can assess obvious barriers but cannot establish these behavioural outcomes.
+
+A participant study should therefore use realistic tasks rather than preference ratings alone. Participants could identify the source of a finding, compare two risk states, explain why a low-count record is not a compliance certificate, switch regulation packs, clear local evidence, and decide what follow-up information is needed. Measures should include completion, error, time, comprehension, perceived workload, appropriate reliance, and confidence. Interviews can reveal whether terms such as evidence gap or technical concern match users' mental models.
+
+The sample should include ordinary Android users, privacy-aware users, accessibility participants, and professional reviewers. Their goals differ. Ordinary users may need a concise decision path; professionals may need exportable provenance and exact rule details. Accessibility participants may expose focus order, verbosity, contrast, magnification, or motor-control barriers that visual review misses. The study should avoid treating one group's preference as universal.
+
+Longitudinal testing is necessary for notification design. A single session cannot reproduce fatigue or habituation. A multi-week study could compare immediate alerts, daily summaries, and state-change-only notifications. It should record dismissals and follow-up actions while avoiding collection of unnecessary behavioural telemetry. The hypothesis is not that fewer notifications are always better, but that each interruption should correspond to a meaningful change.
+
+Trust measures also need a correct-answer component. Asking whether participants trust the application can reward unjustified confidence. Better evaluation presents cases with strong evidence, synthetic evidence, missing context, and malformed input, then tests whether confidence tracks those differences. An effective design should sometimes cause the user to withhold judgement. That is a successful outcome for an evidence-bounded review tool.
+
+\subsubsection{Privacy and Security of the Reviewing Application}
+
+A privacy-review application can itself become a source of sensitive data. Permission histories may reveal health routines, mobility, communication, or working patterns even when they contain no content. Application identifiers can expose relationships or interests. Findings and notification text may be visible to other people with physical access to the device. The product's local-first design reduces network disclosure, but local processing is not automatically risk free.
+
+The current package requests no sensitive runtime permission and disables Android backup. These are valuable minimisation facts for the evaluated build. The application also provides a clear-data control and does not require an account. Future connectors could change this profile. Every new acquisition or synchronisation feature should therefore trigger a new data-flow inventory, manifest reconciliation, threat review, privacy notice update, and store declaration review.
+
+At-rest protection should be proportionate to the threat model. Platform sandboxing protects data from ordinary applications, while device compromise, debug builds, rooted environments, and unlocked backups present different risks. If future deployments store event-level histories or legal annotations, encryption and key lifecycle may become appropriate. Encryption does not eliminate exposure through rendered screens, notifications, logs, or exported files, so those channels also require controls.
+
+Logging is a frequent source of accidental disclosure. Production builds should avoid writing raw evidence, application inventories, or legal-context notes to Logcat. Crash reports, if introduced, should be opt-in where required, minimise payloads, document processors and retention, and avoid attaching the evidence database. Analytics should not be added merely to measure engagement; a privacy tool carries a higher burden to justify behavioural tracking.
+
+Pack supply-chain risk must also be considered. A malicious or compromised pack could present alarming text, suppress review, or direct users to unsafe resources even without executable code. Declarative schema restrictions, signed distribution, trusted publisher identities, URL allow-lists where appropriate, and human review reduce this risk. Bundled packs should be covered by the same source-control and release-review process as application code.
+
+Abuse scenarios include importing fabricated evidence to defame an application, replaying old records as current, selecting a misleading jurisdiction, and showing a screenshot without its source label. Privacy Lens addresses some of these risks through provenance, timestamps, pack identity, and replay controls. It cannot authenticate every external producer in the current prototype. Export formats should preserve those fields and should state that the document is a review artefact rather than a regulator finding.
+
+Security maintenance is part of store readiness. Revision 14 removed inherited Internet and network-state permissions and reduced npm audit results from 30 findings including two critical items to 20 findings with no critical item. The remainder is concentrated in Expo/Metro build-time image parsing and Apple configuration dependency paths, for which npm proposes a breaking framework transition. The absence of application networking limits on-device reachability but does not erase supply-chain exposure during development. Dependencies, Android target requirements, signing keys, build provenance, and vulnerability disclosures therefore require continuing ownership and a separately validated Expo upgrade.
+
+\subsubsection{Research Ethics and Responsible Evaluation}
+
+The safest current evaluation uses synthetic or controlled evidence because real permission histories can expose third-party and participant behaviour. Synthetic data provides precise ground truth and repeatability, but it must be labelled so screenshots and metrics are not mistaken for field evidence. The simulator label is therefore an ethical as well as methodological control.
+
+A future participant or device study would require informed consent describing what is collected, why it is needed, how long it is retained, who can access it, and how withdrawal operates. Researchers should avoid collecting unrelated application inventories or fine-grained histories when controlled test applications can answer the research question. Test accounts and scripted actions should be preferred for validation of acquisition correctness.
+
+The legal subject matter creates an additional risk of participant misunderstanding. Study materials should explain that findings are prompts and that the research team is not providing individual legal advice. Participants should not be encouraged to confront application developers or change essential device settings solely because of a synthetic warning. Debriefing should clarify which cases were fabricated and how the evidence boundaries work.
+
+Reporting should include failed runs, missing observations, exclusions, and changes made after pilot testing. Selectively presenting only coherent screenshots would exaggerate maturity. The repository's separation of logical, package, physical, and visual evidence provides a structure for ethical reporting because each claim can be tied to its acquisition method.
+
+If external legal experts annotate cases, their independence, jurisdiction, instructions, and disagreement process should be recorded. A single expert opinion is valuable but should not be transformed into universal ground truth. Where reasonable interpretations differ, the pack can present the ambiguity as a question rather than forcing a binary label.
+
+Finally, public release creates responsibilities to people who were not research participants. Store text and onboarding must not imply regulatory endorsement. Support channels should handle correction and deletion questions. Pack updates should communicate material interpretation changes. Responsible deployment is therefore a continuing governance activity, not the final administrative step after technical acceptance.
+
+\subsubsection{Store and Operational Readiness}
+
+The repository contains target-SDK configuration, AAB output, privacy-policy content, a stable package identifier, branded assets, and a store checklist. Google Play nevertheless requires owner-controlled signing and console information, including a Data safety declaration and current policy compliance \cite{playdatasafety2026,playtarget2026}. The present AAB uses a QA signing fallback when no upload-key environment is provided. Public submission therefore remains blocked on an upload key, HTTPS privacy-policy publication, support contact, final listing content, screenshots selected for the listing, console declarations, internal-track testing, and store review.
+
+\subsection{Cross-Disciplinary Assurance Case}
+
+A high-quality privacy-engineering thesis must remain coherent when read by different expert communities. Table~\ref{tab:assurance-case} summarises the strongest claim each discipline can accept from the current evidence, the residual weakness, and the evidence needed to advance it. This prevents one discipline's success from compensating rhetorically for another discipline's missing validation.
+
+\begin{table}[H]
+\centering
+\caption{Cross-disciplinary assurance case and next evidence}
+\label{tab:assurance-case}
+\scriptsize
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.12\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.23\textwidth}>{\raggedright\arraybackslash}p{0.23\textwidth}}
+\toprule
+Perspective & Supported claim & Residual weakness & Evidence required next \\
+\midrule
+Algorithms & The engine deterministically implements the stated admission, threshold, burst, replay, and pack rules & Oracle and implementation share the same threshold specification; parameters are not field-calibrated & Independent oracle, mutation/property tests, and a labelled external dataset \\
+Software engineering & Source, release artefacts, manifest, package identity, hashes, and one device path are traceable & One OEM and short duration do not establish operational reliability & Multi-device matrix, 24-hour scheduling, performance, and upgrade/migration tests \\
+Human-computer interaction & The interface implements progressive disclosure, non-colour cues, provenance, caveats, and direct actions & Expert inspection cannot establish comprehension, efficiency, satisfaction, or calibrated reliance & Task-based participant study, baseline comparison, and assistive-technology campaign \\
+Law and governance & The EU pack exposes official anchors and missing legal facts while prohibiting automated infringement claims & Numerical prompts are engineering heuristics and the pack has no independent legal approval record & Qualified review, provision-level decision records, reviewer identity, effective date, and controlled update process \\
+Research integrity & Evidence classes and negative claims are separated; historical versions and failures are retained & Evaluation was led within the project and does not provide full evaluator independence & External replication, preregistered protocol, and archived immutable evidence bundle \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The table also clarifies what a high thesis score cannot legitimately mean. A polished architecture and a clean release can justify strong software-engineering marks, but they cannot manufacture participant data or legal authority. Conversely, explicit limitations are not a weakness when they are connected to a concrete validation programme; they become a weakness only when the central contribution depends on evidence that is entirely absent.
+
+\subsection{Prioritised Next Work}
+
+The next programme should proceed in this order:
+
+\begin{enumerate}
+    \item obtain independent GDPR-pack review and define pack-update governance;
+    \item provision production signing and complete Play Console privacy and Data safety declarations;
+    \item run accessibility and localisation matrices, followed by task-based participant evaluation;
+    \item execute multi-OEM, multi-version, 24-hour scheduling, battery, memory, and recovery tests;
+    \item replace aggregate-only acquisition where authorised event-level evidence is available;
+    \item design and independently validate one additional regional pack before claiming multi-jurisdiction support.
+\end{enumerate}
+
+This order prioritises validity and operational trust over adding more visible features.

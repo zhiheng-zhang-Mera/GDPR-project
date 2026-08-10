@@ -15,6 +15,11 @@ const TEST_CONTEXT: ProcessingContext = {
   lawfulBasis: 'LEGITIMATE_INTERESTS',
   controllerIdentity: 'Prototype operator',
   retentionDays: 1,
+  transparencyNoticeReference: 'Controlled evaluation protocol notice',
+  dataMinimisationAssessmentReference: 'Synthetic events only; three permission categories',
+  retentionJustification: 'One-day bounded local evaluation evidence',
+  legitimateInterestsAssessmentReference: 'Prototype evaluation three-part assessment',
+  dpiaRequired: false,
   userInitiated: true,
 };
 
@@ -47,12 +52,14 @@ interface PrivacyContextValue {
 const PrivacyContext = createContext<PrivacyContextValue | undefined>(undefined);
 
 function migrateFinding(finding: ComplianceFinding): ComplianceFinding {
-  if (finding.regulationId && finding.legalReference) return finding;
+  const status = finding.compliance.status === 'LIKELY_NON_COMPLIANT' ? 'POTENTIAL_CONFLICT' : finding.compliance.status;
+  if (finding.regulationId && finding.legalReference && status === finding.compliance.status) return finding;
   return {
     ...finding,
     regulationId: 'EU_GDPR',
     regulationName: 'EU GDPR',
     legalReference: finding.gdprArticle,
+    compliance: { ...finding.compliance, status },
   };
 }
 

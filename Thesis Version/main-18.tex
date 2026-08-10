@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
+\usepackage{lmodern,microtype,setspace}
+\usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+\usepackage[hidelinks]{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.15em}
+\hypersetup{
+  pdftitle={Privacy Lens: An Evidence-Bounded Android Privacy Review Framework, Revision 15},
+  pdfauthor={Zhiheng Zhang}
+}
+\title{Privacy Lens: An Evidence-Bounded Android Privacy Review Framework with Governed Legal-Evidence Packs (Revision 15)}
+\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
+\date{August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+\small\singlespacing
+Mobile privacy-review tools face an evidence-to-decision gap: a permission observation can indicate activity, but it cannot by itself establish purpose, necessity, lawful basis, acquisition completeness, or legal compliance. When an interface suppresses these missing facts, a technically correct calculation can still produce an unreliable conclusion. This thesis addresses that gap through Privacy Lens, a local-first Android prototype that converts bounded permission-audit summaries into traceable prompts for human review.
+
+Following a design-science method, the architecture treats provenance, temporal scope, missing context, and uncertainty as first-class evidence rather than treating a count as a legal verdict. A fail-closed engine rejects malformed records and unsafe temporal aggregation, isolates simulator data, and records the rule-pack version applied to each finding. The European Union General Data Protection Regulation provides the evaluated legal objective; jurisdiction-specific mappings remain outside the Android, repository, and interface layers through a replaceable pack contract.
+
+The implemented product organises the review journey around Overview, Findings, and Settings. Findings remain on the device, Android backup and remote updates are disabled, the evaluated predecessor package has no network or sensitive runtime permission, and users can clear local evidence directly. Revision 15 adds source-status records, calendar-valid governance dates, basis-specific Article 6 evidence, transparency, minimisation, retention-justification, and DPIA-screening questions. A withdrawn-consent signal is labelled a potential conflict for urgent human review, not a finding of infringement.
+
+Evaluation separates rule conformance, hostile admission, temporal behaviour, pack identity, legal-evidence completeness, release packaging, manifest facts, physical installation, and rendered interface evidence. In a fixed-seed 1,000-case corpus, the engine produced 800 true positives and 200 true negatives without disagreement against the specified threshold oracle. A further 1,800 independently calculated pack cases, basis-specific and DPIA evidence probes, governance mutations, accessibility contracts, and release-privacy contracts passed. The 1.3.0 ARM64 APK and AAB built successfully; the APK completed five cold-start rounds on one OPPO PERM00 without a package-specific crash-buffer entry.
+
+These results establish an initial store-submission engineering candidate within the recorded scope. They do not establish legal compliance, unrestricted Android visibility, population accuracy, accessibility conformance, long-run reliability, or store approval. The contribution is an evidence-bounded architecture and traceability method that separate statutory motivation, engineering heuristics, observed evidence, missing legal facts, and prohibited conclusions.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{Iteration-V2/Chapter1/chapter-01-15}
+\input{Iteration-V2/Chapter2/chapter-02-15}
+\input{Iteration-V2/Chapter3/chapter-03-15}
+\input{Iteration-V2/Chapter4/chapter-04-15}
+\input{Iteration-V2/Chapter5/chapter-05-15}
+\input{Iteration-V2/Chapter6/chapter-06-15}
+\input{Iteration-V2/Chapter7/chapter-07-15}
+{\small
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+}
+\end{document}

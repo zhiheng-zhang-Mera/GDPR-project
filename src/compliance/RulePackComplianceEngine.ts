@@ -34,8 +34,21 @@ function parseAudit(value: unknown): PermissionAudit | ComplianceEvaluation {
   if (x.processingContext !== undefined) {
     if (!x.processingContext || typeof x.processingContext !== 'object' || Array.isArray(x.processingContext)) return reject('INVALID_CONTEXT', 'processingContext must be an object.');
     const context = x.processingContext as Record<string, unknown>;
-    for (const field of ['purpose', 'controllerIdentity', 'article9Condition'] as const) if (context[field] !== undefined && typeof context[field] !== 'string') return reject('INVALID_CONTEXT', `${field} must be a string.`);
-    for (const field of ['consentWithdrawn', 'specialCategoryData', 'userInitiated'] as const) if (context[field] !== undefined && typeof context[field] !== 'boolean') return reject('INVALID_CONTEXT', `${field} must be a boolean.`);
+    for (const field of [
+      'purpose',
+      'controllerIdentity',
+      'article9Condition',
+      'transparencyNoticeReference',
+      'dataMinimisationAssessmentReference',
+      'retentionJustification',
+      'consentEvidenceReference',
+      'contractNecessityReference',
+      'legalMandateReference',
+      'vitalInterestsAssessmentReference',
+      'legitimateInterestsAssessmentReference',
+      'dpiaReference',
+    ] as const) if (context[field] !== undefined && typeof context[field] !== 'string') return reject('INVALID_CONTEXT', `${field} must be a string.`);
+    for (const field of ['consentWithdrawn', 'specialCategoryData', 'userInitiated', 'dpiaRequired'] as const) if (context[field] !== undefined && typeof context[field] !== 'boolean') return reject('INVALID_CONTEXT', `${field} must be a boolean.`);
     if (context.lawfulBasis !== undefined && (typeof context.lawfulBasis !== 'string' || !LAWFUL_BASES.has(context.lawfulBasis))) return reject('INVALID_CONTEXT', 'Unknown Article 6 lawful basis.');
     if (context.retentionDays !== undefined && (!Number.isSafeInteger(context.retentionDays) || (context.retentionDays as number) < 0)) return reject('INVALID_CONTEXT', 'retentionDays must be a safe non-negative integer.');
   }
@@ -62,7 +75,8 @@ function riskFor(ratio: number): ComplianceFinding['riskLevel'] {
 
 function humanSummary(status: ComplianceFinding['compliance']['status'], signals: ComplianceFinding['signals']): string {
   const statusLabel: Record<typeof status, string> = {
-    LIKELY_NON_COMPLIANT: 'Potential conflict needs urgent human review',
+    POTENTIAL_CONFLICT: 'Potential legal conflict needs urgent human review',
+    LIKELY_NON_COMPLIANT: 'Legacy potential conflict needs urgent human review',
     REVIEW_REQUIRED: 'Review required',
     INSUFFICIENT_EVIDENCE: 'More evidence is needed',
     NO_TECHNICAL_CONCERN: 'No technical concern from this check',
@@ -135,7 +149,7 @@ export class RulePackComplianceEngine implements IComplianceEngine {
       compliance: { status, applicablePrinciples: this.pack.principles, missingEvidence, legalCaveat: this.pack.legalCaveat },
       communication: undefined as never,
     };
-    const urgent = status === 'LIKELY_NON_COMPLIANT' || finding.riskLevel === 'CRITICAL';
+    const urgent = status === 'POTENTIAL_CONFLICT' || status === 'LIKELY_NON_COMPLIANT' || finding.riskLevel === 'CRITICAL';
     const silent = status === 'NO_TECHNICAL_CONCERN';
     finding.communication = {
       title: `${finding.permissionType} privacy review`,

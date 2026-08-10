@@ -16,8 +16,18 @@ export type PackGovernanceState =
   | 'SUPERSEDED'
   | 'REVOKED';
 
+export type RegulatorySourceStatus = 'BINDING_LAW' | 'FINAL_GUIDANCE' | 'CONSULTATION_MATERIAL';
+
+export interface RegulatorySource {
+  title: string;
+  url: string;
+  authority: string;
+  status: RegulatorySourceStatus;
+  checkedAt: string;
+}
+
 export interface PackGovernance {
-  schemaVersion: 1;
+  schemaVersion: 2;
   state: PackGovernanceState;
   authoredAt: string;
   lastReviewedAt: string;
@@ -42,6 +52,7 @@ export interface RegulationPack {
   kind: RegulationPackKind;
   versionLabel: string;
   sourceUrl?: string;
+  sources: readonly RegulatorySource[];
   description: string;
   governance: PackGovernance;
   rules: Record<SensitivePermission, ComplianceRule>;

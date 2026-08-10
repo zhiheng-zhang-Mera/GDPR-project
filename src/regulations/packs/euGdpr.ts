@@ -8,21 +8,58 @@ export const EU_GDPR_PACK: RegulationPack = {
   kind: 'LEGAL_FRAMEWORK',
   versionLabel: 'Regulation (EU) 2016/679',
   sourceUrl: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj',
-  description: 'Technical prompts for necessity, lawful-basis and accountability review.',
+  sources: [
+    {
+      title: 'Regulation (EU) 2016/679',
+      url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj',
+      authority: 'European Union',
+      status: 'BINDING_LAW',
+      checkedAt: '2026-08-10',
+    },
+    {
+      title: 'Guidelines 05/2020 on consent under Regulation 2016/679',
+      url: 'https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-052020-consent-under-regulation-2016679_en',
+      authority: 'European Data Protection Board',
+      status: 'FINAL_GUIDANCE',
+      checkedAt: '2026-08-10',
+    },
+    {
+      title: 'EDPB-endorsed WP29 transparency and DPIA guidelines',
+      url: 'https://www.edpb.europa.eu/endorsed-wp29-guidelines_en',
+      authority: 'European Data Protection Board',
+      status: 'FINAL_GUIDANCE',
+      checkedAt: '2026-08-10',
+    },
+    {
+      title: 'Guidelines 1/2024 on Article 6(1)(f) legitimate interests',
+      url: 'https://www.edpb.europa.eu/public-consultations/guidelines-12024-on-processing-of-personal-data-based-on-article-61f-gdpr_en',
+      authority: 'European Data Protection Board',
+      status: 'CONSULTATION_MATERIAL',
+      checkedAt: '2026-08-10',
+    },
+    {
+      title: '2026 EDPB DPIA template',
+      url: 'https://www.edpb.europa.eu/our-work-tools/documents/public-consultations/2026/edpb-dpia-template_en',
+      authority: 'European Data Protection Board',
+      status: 'CONSULTATION_MATERIAL',
+      checkedAt: '2026-08-10',
+    },
+  ],
+  description: 'Technical prompts for necessity, lawful-basis, transparency, minimisation, retention and DPIA evidence review.',
   governance: {
-    schemaVersion: 1,
+    schemaVersion: 2,
     state: 'TECHNICAL_CANDIDATE',
     authoredAt: '2026-08-09',
-    lastReviewedAt: '2026-08-09',
+    lastReviewedAt: '2026-08-10',
     effectiveFrom: '2018-05-25',
     reviewAuthority: {
       kind: 'PROJECT_ENGINEERING',
       reviewer: 'Privacy Lens project author',
-      scope: 'Technical traceability against official GDPR and final EDPB sources; not independent legal approval.',
+      scope: 'Technical traceability against the official GDPR, final EDPB guidance, and clearly labelled draft guidance; not independent legal approval.',
     },
     releaseScope: 'CONTROLLED_EVALUATION',
     locales: ['en'],
-    changeTriggers: ['GDPR amendment', 'authoritative interpretation', 'mapping correction', 'review expiry', 'localisation change'],
+    changeTriggers: ['GDPR amendment', 'authoritative interpretation', 'consultation-material finalisation', 'mapping correction', 'review expiry', 'localisation change'],
   },
   rules: {
     LOCATION: {
@@ -53,6 +90,8 @@ export const EU_GDPR_PACK: RegulationPack = {
     'Art. 5(1)(c) data minimisation',
     'Art. 5(2) accountability',
     'Art. 6 lawfulness of processing',
+    'Arts. 7, 13 and 14 consent evidence and transparency',
+    'Arts. 25 and 35 data protection by design and DPIA screening',
   ],
   legalCaveat: 'This automated warning supports accountability review and is not a determination of GDPR infringement.',
   findMissingEvidence: ({ processingContext: context }) => {
@@ -61,12 +100,22 @@ export const EU_GDPR_PACK: RegulationPack = {
     if (!context?.lawfulBasis) missing.push('Article 6 lawful basis');
     if (!context?.controllerIdentity?.trim()) missing.push('controller identity');
     if (!Number.isInteger(context?.retentionDays) || (context?.retentionDays ?? -1) < 0) missing.push('retention period');
+    if (!context?.transparencyNoticeReference?.trim()) missing.push('Articles 13/14 transparency notice reference');
+    if (!context?.dataMinimisationAssessmentReference?.trim()) missing.push('Article 5(1)(c) necessity and minimisation assessment');
+    if (!context?.retentionJustification?.trim()) missing.push('Article 5(1)(e) retention justification');
+    if (context?.lawfulBasis === 'CONSENT' && !context.consentEvidenceReference?.trim()) missing.push('Article 7 consent evidence');
+    if (context?.lawfulBasis === 'CONTRACT' && !context.contractNecessityReference?.trim()) missing.push('Article 6(1)(b) contractual necessity assessment');
+    if ((context?.lawfulBasis === 'LEGAL_OBLIGATION' || context?.lawfulBasis === 'PUBLIC_TASK') && !context.legalMandateReference?.trim()) missing.push('Article 6(3) legal mandate reference');
+    if (context?.lawfulBasis === 'VITAL_INTERESTS' && !context.vitalInterestsAssessmentReference?.trim()) missing.push('Article 6(1)(d) vital-interests necessity assessment');
+    if (context?.lawfulBasis === 'LEGITIMATE_INTERESTS' && !context.legitimateInterestsAssessmentReference?.trim()) missing.push('Article 6(1)(f) legitimate-interests three-part assessment');
     if (context?.specialCategoryData && !context.article9Condition?.trim()) missing.push('Article 9 condition');
+    if (context?.dpiaRequired === undefined) missing.push('Article 35 DPIA screening outcome');
+    if (context?.dpiaRequired && !context.dpiaReference?.trim()) missing.push('Article 35 DPIA reference');
     return missing;
   },
   classify: (audit, signals, missing) => {
     const context = audit.processingContext;
-    if (context?.consentWithdrawn && context.lawfulBasis === 'CONSENT' && audit.accessCount > 0) return 'LIKELY_NON_COMPLIANT';
+    if (context?.consentWithdrawn && context.lawfulBasis === 'CONSENT' && audit.accessCount > 0) return 'POTENTIAL_CONFLICT';
     if (missing.length > 0) return 'INSUFFICIENT_EVIDENCE';
     if (signals.length > 0) return 'REVIEW_REQUIRED';
     return 'NO_TECHNICAL_CONCERN';
