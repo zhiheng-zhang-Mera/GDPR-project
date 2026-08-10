@@ -55,15 +55,9 @@ export const FindingCard = memo(function FindingCard({ finding }: { finding: Com
       </TouchableOpacity>
       {expanded && (
         <View style={styles.details}>
-          <View style={styles.nextStep}>
-            <View style={styles.nextStepIcon}><Ionicons name="arrow-forward" size={17} color={T.colors.primary} /></View>
-            <View style={styles.nextStepCopy}><Text style={styles.sectionLabel}>Recommended next step</Text><Text style={styles.detailText}>{finding.communication.recommendedAction}</Text></View>
-          </View>
-          <View style={styles.detailGrid}>
-            <View style={styles.detailBlock}><Text style={styles.sectionLabel}>Technical evidence</Text><Text style={styles.detailText}>Window {finding.evidence.dailyCount} · Peak/min {finding.evidence.peakCallsPerMinute} · Rolling {finding.evidence.rollingCount}</Text></View>
-            <View style={styles.detailBlock}><Text style={styles.sectionLabel}>Rule reference</Text><Text style={styles.detailText}>{finding.legalReference ?? finding.gdprArticle}</Text></View>
-            <View style={styles.detailBlock}><Text style={styles.sectionLabel}>Evidence gaps</Text><Text style={styles.detailText}>{finding.compliance.missingEvidence.join(', ') || 'None recorded for this automated check'}</Text></View>
-          </View>
+          <View style={styles.reasoningStep}><View style={styles.reasoningNumber}><Text style={styles.reasoningNumberText}>1</Text></View><View style={styles.nextStepCopy}><Text style={styles.sectionLabel}>What was observed</Text><Text style={styles.detailText}>Window {finding.evidence.dailyCount} · Peak/min {finding.evidence.peakCallsPerMinute} · Rolling {finding.evidence.rollingCount}</Text><Text style={styles.ruleText}>{finding.legalReference ?? finding.gdprArticle}</Text></View></View>
+          <View style={styles.reasoningStep}><View style={styles.reasoningNumber}><Text style={styles.reasoningNumberText}>2</Text></View><View style={styles.nextStepCopy}><Text style={styles.sectionLabel}>What is not established</Text><Text style={styles.detailText}>{finding.compliance.missingEvidence.join(', ') || 'No additional gap was recorded by this rule; legal meaning still requires context.'}</Text></View></View>
+          <View style={styles.nextStep}><View style={styles.nextStepIcon}><Text style={styles.reasoningNumberText}>3</Text></View><View style={styles.nextStepCopy}><Text style={styles.sectionLabel}>Your proportionate next step</Text><Text style={styles.detailText}>{finding.communication.recommendedAction}</Text><Text style={styles.agencyText}>Do not change access or confront a developer based on this card alone.</Text></View></View>
           <Text style={styles.caveat}>{finding.compliance.legalCaveat}</Text>
         </View>
       )}
@@ -90,10 +84,13 @@ const styles = StyleSheet.create({
   nextStep: { flexDirection: 'row', gap: 10, padding: 13, borderRadius: 15, backgroundColor: T.colors.mint },
   nextStepIcon: { width: 31, height: 31, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' },
   nextStepCopy: { flex: 1 },
-  detailGrid: { gap: 11 },
-  detailBlock: { paddingHorizontal: 2 },
+  reasoningStep: { flexDirection: 'row', gap: 10, paddingHorizontal: 2, paddingVertical: 5 },
+  reasoningNumber: { width: 31, height: 31, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: T.colors.canvasDeep, borderWidth: 1, borderColor: T.colors.mintStrong },
+  reasoningNumberText: { color: T.colors.primary, fontSize: 12, lineHeight: 16, fontWeight: '900' },
   sectionLabel: { color: T.colors.ink, fontSize: 11, lineHeight: 15, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.5 },
   detailText: { color: T.colors.inkSoft, fontSize: 13, lineHeight: 20, marginTop: 4 },
+  ruleText: { color: T.colors.muted, fontSize: 11, lineHeight: 17, marginTop: 5 },
+  agencyText: { color: T.colors.primaryDark, fontSize: 11, lineHeight: 17, fontWeight: '800', marginTop: 6 },
   caveat: { color: T.colors.warning, backgroundColor: T.colors.warningSoft, borderRadius: 10, padding: 11, fontSize: 12, lineHeight: 18, marginTop: 8 },
   expandRow: { alignSelf: 'flex-start', minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 3, paddingRight: 8 },
   expandText: { color: T.colors.primary, fontSize: 13, lineHeight: 18, fontWeight: '800' },

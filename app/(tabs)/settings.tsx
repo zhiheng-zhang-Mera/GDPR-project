@@ -97,7 +97,7 @@ export default function SettingsScreen() {
           <Ionicons name="trash-outline" size={20} color={T.colors.danger} /><View style={styles.clearCopy}><Text style={styles.clearTitle}>Clear local findings</Text><Text style={styles.clearBody}>{findings.length} finding{findings.length === 1 ? '' : 's'} stored</Text></View><Ionicons name="chevron-forward" size={20} color="#879894" />
         </TouchableOpacity>
 
-        <Text style={styles.version}>Privacy Lens 1.4.0 · Interface research candidate</Text>
+        <Text style={styles.version}>Privacy Lens 1.5.0 · Human-factors research candidate</Text>
       </ScrollView>
       <BottomNav active="settings" />
     </SafeAreaView>
