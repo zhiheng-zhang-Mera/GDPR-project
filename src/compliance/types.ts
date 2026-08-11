@@ -108,10 +108,12 @@ export interface ComplianceFinding {
       overdueSourceTitles: string[];
     };
     legalReview: {
-      state: 'CURRENT' | 'EXPIRED' | 'NOT_PROVIDED' | 'NOT_APPLICABLE' | 'NOT_RECORDED';
+      state: 'CURRENT' | 'EXPIRED' | 'NOT_PROVIDED' | 'SOURCE_BUNDLE_MISMATCH' | 'SIGNER_NOT_TRUSTED' | 'SIGNER_REVOKED' | 'SIGNATURE_INVALID' | 'NOT_APPLICABLE' | 'NOT_RECORDED';
       assessedAt: string;
       validUntil?: string;
       attestationId?: string;
+      signingKeyId?: string;
+      reason?: string;
     };
   };
   communication: {

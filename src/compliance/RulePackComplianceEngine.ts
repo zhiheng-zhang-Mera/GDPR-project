@@ -1,6 +1,6 @@
 import { IComplianceEngine } from './IComplianceEngine';
 import { ComplianceErrorCode, ComplianceEvaluation, ComplianceFinding, PermissionAudit, SensitivePermission } from './types';
-import { RegulationPack } from '../regulations/types';
+import { LegalReviewTrustAnchor, RegulationPack } from '../regulations/types';
 import { assessPackLegalReview, assessPackSourceReview } from '../regulations/governance';
 
 const DAY_MS = 86_400_000;
@@ -98,10 +98,10 @@ export class RulePackComplianceEngine implements IComplianceEngine {
   private readonly sourceReview: ReturnType<typeof assessPackSourceReview>;
   private readonly legalReview: ReturnType<typeof assessPackLegalReview>;
 
-  constructor(readonly pack: RegulationPack, evaluatedAt = new Date().toISOString().slice(0, 10)) {
+  constructor(readonly pack: RegulationPack, evaluatedAt = new Date().toISOString().slice(0, 10), trustAnchors?: readonly LegalReviewTrustAnchor[]) {
     this.regulation = pack.shortName;
     this.sourceReview = assessPackSourceReview(pack, evaluatedAt);
-    this.legalReview = assessPackLegalReview(pack, evaluatedAt);
+    this.legalReview = assessPackLegalReview(pack, evaluatedAt, trustAnchors);
   }
 
   evaluate(audit: PermissionAudit): ComplianceFinding {
@@ -137,11 +137,11 @@ export class RulePackComplianceEngine implements IComplianceEngine {
     const preliminaryStatus = this.pack.classify(audit, signals, missingEvidence);
     const legalReviewNeedsAttestation = this.legalReview.state !== 'CURRENT' && this.legalReview.state !== 'NOT_APPLICABLE';
     if (this.sourceReview.state === 'REVIEW_DUE') missingEvidence.push('renewed regulatory-source review');
-    if (legalReviewNeedsAttestation) missingEvidence.push('current independent qualified legal-review attestation');
+    if (legalReviewNeedsAttestation) missingEvidence.push('current cryptographically verified independent qualified legal-review attestation');
     const status = this.sourceReview.state === 'REVIEW_DUE' || (legalReviewNeedsAttestation && preliminaryStatus === 'NO_TECHNICAL_CONCERN') ? 'INSUFFICIENT_EVIDENCE' : preliminaryStatus;
     const caveats = [this.pack.legalCaveat];
     if (this.sourceReview.state === 'REVIEW_DUE') caveats.push('One or more regulatory sources are past the project review date; refresh and review the pack before relying on its mapping.');
-    if (legalReviewNeedsAttestation) caveats.push('No current independent qualified legal-review attestation is recorded for this pack version; the project blocks a reassuring no-concern result.');
+    if (legalReviewNeedsAttestation) caveats.push(`No current cryptographically verified independent qualified legal-review attestation is available for this pack version (${this.legalReview.state}); the project blocks a reassuring no-concern result.`);
     const legalReference = rule.legalReference;
     const finding: ComplianceFinding = {
       id: `${audit.packageName}:${audit.permissionType}`,

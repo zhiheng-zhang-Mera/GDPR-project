@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
+\usepackage{lmodern,microtype,setspace}
+\usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+\usepackage[hidelinks]{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.15em}
+\hypersetup{
+  pdftitle={Privacy Lens: An Evidence-Bounded Android Privacy Review Framework, Revision 22},
+  pdfauthor={Zhiheng Zhang}
+}
+\title{Privacy Lens: An Evidence-Bounded Android Privacy Review Framework with Cryptographically Governed Legal-Evidence Packs (Revision 22)}
+\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
+\date{August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+\small\singlespacing
+Mobile privacy-review tools face an evidence-to-decision gap: a permission observation can indicate activity but cannot by itself establish purpose, necessity, lawful basis, acquisition completeness, or legal compliance. This thesis addresses that gap through Privacy Lens, a local-first Android prototype that converts bounded permission-audit summaries into traceable prompts for human review.
+
+Following a design-science method, the architecture treats provenance, temporal scope, missing context, and uncertainty as first-class evidence rather than converting a count into a legal verdict. A fail-closed engine rejects malformed records and unsafe temporal aggregation, isolates simulator data, and records the rule-pack version applied to each finding. Jurisdiction mappings remain outside the Android, repository, and interface layers through a replaceable pack contract; the European Union General Data Protection Regulation provides the evaluated legal objective.
+
+Revision 22 makes the reviewed source-record digest reproducible from a canonical order-independent bundle and requires an Ed25519 signature, application-controlled trust anchor, valid and non-revoked signer, and current attestation before reassurance. The EU pack deliberately remains unattested and the production trust store empty. Findings remain local; backup and remote updates are disabled; the evaluated package has no network or sensitive runtime permission; and users can clear evidence directly. The interface separates signal, missing context, and proportionate action.
+
+In a fixed-seed 1,000-case corpus, the engine matched its specified oracle with 800 true positives and 200 true negatives. A further 1,800 independently calculated pack cases, source and signature mutations, unknown and revoked signer probes, ordering invariance, accessibility contracts, and release-privacy contracts passed. The 1.10.0 APK and AAB built successfully. On one OPPO PERM00, the interface exposed the absent signed-review state and bounded next action; five final-artifact cold starts returned status ok with an empty crash buffer.
+
+These results support an initial store-submission engineering candidate within the recorded scope. Signature verification authenticates only a payload relative to a configured key. The evidence does not establish reviewer identity or qualification, source-content authenticity, legal correctness, unrestricted Android visibility, accessibility conformance, participant outcomes, long-run reliability, store approval, or publication acceptance. The contribution is an evidence-bounded architecture and traceability method that separate statutory motivation, engineering heuristics, observed evidence, missing legal facts, and prohibited conclusions.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{Iteration-V2/Chapter1/chapter-01-22}
+\input{Iteration-V2/Chapter2/chapter-02-22}
+\input{Iteration-V2/Chapter3/chapter-03-22}
+\input{Iteration-V2/Chapter4/chapter-04-22}
+\input{Iteration-V2/Chapter5/chapter-05-22}
+\input{Iteration-V2/Chapter6/chapter-06-22}
+\input{Iteration-V2/Chapter7/chapter-07-22}
+{\small
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+}
+\end{document}

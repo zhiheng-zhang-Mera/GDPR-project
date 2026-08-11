@@ -24,7 +24,15 @@ export type RegulatorySourceLifecycle =
   | 'CONSULTATION_CLOSED_PENDING_FINALISATION';
 export type SourceReviewState = 'CURRENT' | 'REVIEW_DUE';
 export type PackSourceReviewState = SourceReviewState | 'NOT_APPLICABLE';
-export type LegalReviewGateState = 'CURRENT' | 'EXPIRED' | 'NOT_PROVIDED' | 'NOT_APPLICABLE';
+export type LegalReviewGateState =
+  | 'CURRENT'
+  | 'EXPIRED'
+  | 'NOT_PROVIDED'
+  | 'SOURCE_BUNDLE_MISMATCH'
+  | 'SIGNER_NOT_TRUSTED'
+  | 'SIGNER_REVOKED'
+  | 'SIGNATURE_INVALID'
+  | 'NOT_APPLICABLE';
 
 export interface RegulatorySource {
   title: string;
@@ -56,6 +64,19 @@ export interface LegalReviewAttestation {
   reviewerQualification: string;
   approverId: string;
   scope: string;
+  signatureAlgorithm: 'ED25519';
+  signingKeyId: string;
+  signatureBase64: string;
+}
+
+export interface LegalReviewTrustAnchor {
+  keyId: string;
+  algorithm: 'ED25519';
+  publicKeyBase64: string;
+  owner: string;
+  validFrom: string;
+  validUntil: string;
+  revokedAt?: string;
 }
 
 export interface PackLegalReviewAssessment {
@@ -63,10 +84,12 @@ export interface PackLegalReviewAssessment {
   assessedAt: string;
   validUntil?: string;
   attestationId?: string;
+  signingKeyId?: string;
+  reason?: string;
 }
 
 export interface PackGovernance {
-  schemaVersion: 3;
+  schemaVersion: 4;
   state: PackGovernanceState;
   authoredAt: string;
   lastReviewedAt: string;

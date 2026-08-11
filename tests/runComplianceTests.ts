@@ -137,7 +137,7 @@ const documented = legalEngine.evaluate({
   processingContext: { ...commonLegalEvidence, lawfulBasis: 'CONTRACT', contractNecessityReference: 'service-core-necessity-4', userInitiated: true },
 });
 assert(documented.compliance.status === 'INSUFFICIENT_EVIDENCE', 'Complete processing context must not produce reassurance while independent legal review is unrecorded.');
-assert(documented.compliance.legalReview.state === 'NOT_PROVIDED' && documented.compliance.missingEvidence.includes('current independent qualified legal-review attestation'), 'The legal-review gate must remain explicit in the finding.');
+assert(documented.compliance.legalReview.state === 'NOT_PROVIDED' && documented.compliance.missingEvidence.includes('current cryptographically verified independent qualified legal-review attestation'), 'The signed legal-review gate must remain explicit in the finding.');
 assert(documented.communication.notificationPriority === 'STANDARD', 'A blocked reassurance result requires a review notification.');
 
 const withdrawn = legalEngine.evaluate({

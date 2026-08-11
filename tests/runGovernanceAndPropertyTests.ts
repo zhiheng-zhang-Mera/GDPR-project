@@ -1,8 +1,11 @@
 import { RulePackComplianceEngine } from '../src/compliance/RulePackComplianceEngine';
+import forgeEd25519 from 'node-forge/lib/ed25519';
+import forgeUtil from 'node-forge/lib/util';
 import { PermissionAudit, RegulationId, SensitivePermission } from '../src/compliance/types';
 import { getRegulationPack, listRegulationPacks } from '../src/regulations/registry';
 import { assessPackLegalReview, assessPackSourceReview, validateRegulationPack } from '../src/regulations/governance';
-import { RegulationPack } from '../src/regulations/types';
+import { canonicalizeLegalReviewPayload, computeSourceBundleSha256 } from '../src/regulations/attestationCrypto';
+import { LegalReviewTrustAnchor, RegulationPack } from '../src/regulations/types';
 
 function assert(condition: boolean, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -36,9 +39,24 @@ const validContext = {
   dpiaRequired: false,
 };
 
+function bytesToBinary(bytes: Uint8Array): string {
+  return Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
+}
+
+const testKeyPair = forgeEd25519.generateKeyPair({ seed: new Uint8Array(Array.from({ length: 32 }, (_, index) => index + 1)) });
+const TEST_TRUST_ANCHOR: LegalReviewTrustAnchor = {
+  keyId: 'test-ed25519-review-key-1',
+  algorithm: 'ED25519',
+  publicKeyBase64: forgeUtil.encode64(bytesToBinary(testKeyPair.publicKey)),
+  owner: 'Synthetic governance-test fixture',
+  validFrom: '2026-01-01',
+  validUntil: '2030-01-01',
+};
+const TEST_TRUST_ANCHORS = [TEST_TRUST_ANCHOR] as const;
+
 function makeLegallyAttestedPack(validUntil = '2027-02-11'): RegulationPack {
   const pack = getRegulationPack('EU_GDPR');
-  return {
+  const unsigned: RegulationPack = {
     ...pack,
     governance: {
       ...pack.governance,
@@ -47,7 +65,7 @@ function makeLegallyAttestedPack(validUntil = '2027-02-11'): RegulationPack {
       legalReviewAttestation: {
         attestationId: 'test-attestation-eu-gdpr-v1',
         reviewedPackVersion: pack.versionLabel,
-        reviewedSourcesSha256: 'A'.repeat(64),
+        reviewedSourcesSha256: computeSourceBundleSha256(pack),
         reviewedAt: '2026-08-10',
         approvedAt: '2026-08-11',
         validUntil,
@@ -55,9 +73,14 @@ function makeLegallyAttestedPack(validUntil = '2027-02-11'): RegulationPack {
         reviewerQualification: 'Synthetic qualified-reviewer fixture',
         approverId: 'test-independent-approver',
         scope: 'Synthetic full-pack review fixture for governance tests only.',
+        signatureAlgorithm: 'ED25519',
+        signingKeyId: TEST_TRUST_ANCHOR.keyId,
+        signatureBase64: 'A'.repeat(88),
       },
     },
   };
+  const signature = forgeEd25519.sign({ message: canonicalizeLegalReviewPayload(unsigned, unsigned.governance.legalReviewAttestation!), encoding: 'utf8', privateKey: testKeyPair.privateKey });
+  return { ...unsigned, governance: { ...unsigned.governance, legalReviewAttestation: { ...unsigned.governance.legalReviewAttestation!, signatureBase64: forgeUtil.encode64(bytesToBinary(signature)) } } };
 }
 
 for (const pack of listRegulationPacks()) {
@@ -114,34 +137,44 @@ assert(validateRegulationPack(illegalApproval).some((error) => error.includes('q
 assert(validateRegulationPack(illegalApproval).some((error) => error.includes('legal-review attestation')), 'A legal state without a version-bound attestation must fail governance validation.');
 
 const attestedPack = makeLegallyAttestedPack();
-assert(validateRegulationPack(attestedPack).length === 0, 'A synthetic, internally consistent two-person legal-review attestation fixture must pass schema validation.');
+const reorderedSourcePack: RegulationPack = { ...attestedPack, sources: [...attestedPack.sources].reverse() };
+assert(computeSourceBundleSha256(reorderedSourcePack) === computeSourceBundleSha256(attestedPack), 'Canonical source-record hashing must be independent of input ordering and host locale.');
+assert(validateRegulationPack(attestedPack, TEST_TRUST_ANCHORS).length === 0, 'A synthetic signed two-person legal-review attestation fixture must pass schema validation with an explicitly injected test trust anchor.');
 assert(assessPackLegalReview(getRegulationPack('EU_GDPR'), '2026-08-11').state === 'NOT_PROVIDED', 'The real project pack must disclose that independent legal review is not recorded.');
 assert(assessPackLegalReview(getRegulationPack('GLOBAL_RESEARCH_BASELINE'), '2026-08-11').state === 'NOT_APPLICABLE', 'A non-legal research pack must not imply legal attestation.');
-assert(assessPackLegalReview(attestedPack, '2026-08-11').state === 'CURRENT', 'A current attestation must be recognised on its assessed date.');
-assert(assessPackLegalReview(attestedPack, '2027-02-12').state === 'EXPIRED', 'An attestation must expire after its recorded validity date.');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS).state === 'CURRENT', 'A current signed attestation must be recognised on its assessed date.');
+assert(assessPackLegalReview(attestedPack, '2027-02-12', TEST_TRUST_ANCHORS).state === 'EXPIRED', 'An attestation must expire after its recorded validity date.');
 
 const selfApprovedPack: RegulationPack = {
   ...attestedPack,
   governance: { ...attestedPack.governance, legalReviewAttestation: { ...attestedPack.governance.legalReviewAttestation!, approverId: 'TEST-QUALIFIED-REVIEWER' } },
 };
-assert(validateRegulationPack(selfApprovedPack).some((error) => error.includes('different identities')), 'Case-insensitive reviewer self-approval must fail the four-eyes project gate.');
+assert(validateRegulationPack(selfApprovedPack, TEST_TRUST_ANCHORS).some((error) => error.includes('different identities')), 'Case-insensitive reviewer self-approval must fail the four-eyes project gate.');
 
 const mismatchedAttestationPack: RegulationPack = {
   ...attestedPack,
   governance: { ...attestedPack.governance, legalReviewAttestation: { ...attestedPack.governance.legalReviewAttestation!, reviewedPackVersion: 'different-pack-version', reviewedSourcesSha256: 'not-a-sha256' } },
 };
-assert(validateRegulationPack(mismatchedAttestationPack).some((error) => error.includes('must match pack.versionLabel')), 'An attestation for another pack version must fail validation.');
-assert(validateRegulationPack(mismatchedAttestationPack).some((error) => error.includes('SHA-256 hex digest')), 'A malformed reviewed-source digest must fail validation.');
+assert(validateRegulationPack(mismatchedAttestationPack, TEST_TRUST_ANCHORS).some((error) => error.includes('must match pack.versionLabel')), 'An attestation for another pack version must fail validation.');
+assert(validateRegulationPack(mismatchedAttestationPack, TEST_TRUST_ANCHORS).some((error) => error.includes('SHA-256 hex digest')), 'A malformed reviewed-source digest must fail validation.');
+
+const changedSourcePack: RegulationPack = { ...attestedPack, sources: attestedPack.sources.map((source, index) => index === 0 ? { ...source, versionLabel: `${source.versionLabel}-changed` } : source) };
+assert(assessPackLegalReview(changedSourcePack, '2026-08-11', TEST_TRUST_ANCHORS).state === 'SOURCE_BUNDLE_MISMATCH', 'A source-record change after signing must invalidate the source bundle before reassurance.');
+const badSignaturePack: RegulationPack = { ...attestedPack, governance: { ...attestedPack.governance, legalReviewAttestation: { ...attestedPack.governance.legalReviewAttestation!, signatureBase64: `${attestedPack.governance.legalReviewAttestation!.signatureBase64[0] === 'A' ? 'B' : 'A'}${attestedPack.governance.legalReviewAttestation!.signatureBase64.slice(1)}` } } };
+assert(assessPackLegalReview(badSignaturePack, '2026-08-11', TEST_TRUST_ANCHORS).state === 'SIGNATURE_INVALID', 'A modified Ed25519 signature must fail closed.');
+assert(assessPackLegalReview(attestedPack, '2026-08-11').state === 'SIGNER_NOT_TRUSTED', 'A structurally valid signature must not be trusted without an application-controlled trust anchor.');
+const revokedAnchor = { ...TEST_TRUST_ANCHOR, revokedAt: '2026-08-10' };
+assert(assessPackLegalReview(attestedPack, '2026-08-11', [revokedAnchor]).state === 'SIGNER_REVOKED', 'A revoked signing key must fail closed.');
 
 const unreviewedNoConcern = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-08-11').evaluate({ packageName: 'legal.review.missing', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
 assert(unreviewedNoConcern.compliance.status === 'INSUFFICIENT_EVIDENCE', 'A legal pack without current independent attestation must not emit a reassuring no-concern result.');
-assert(unreviewedNoConcern.compliance.legalReview.state === 'NOT_PROVIDED' && unreviewedNoConcern.compliance.missingEvidence.includes('current independent qualified legal-review attestation'), 'The finding must preserve and explain the missing legal-review gate.');
+assert(unreviewedNoConcern.compliance.legalReview.state === 'NOT_PROVIDED' && unreviewedNoConcern.compliance.missingEvidence.includes('current cryptographically verified independent qualified legal-review attestation'), 'The finding must preserve and explain the missing signed legal-review gate.');
 
-const attestedNoConcern = new RulePackComplianceEngine(attestedPack, '2026-08-11').evaluate({ packageName: 'legal.review.current', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
+const attestedNoConcern = new RulePackComplianceEngine(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS).evaluate({ packageName: 'legal.review.current', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
 assert(attestedNoConcern.compliance.status === 'NO_TECHNICAL_CONCERN' && attestedNoConcern.compliance.legalReview.state === 'CURRENT', 'A consistent current attestation may clear the project reassurance gate without establishing legal compliance.');
 
 const unreviewedSignal = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-08-11').evaluate({ packageName: 'legal.review.signal', permissionType: 'CONTACTS', accessCount: 7, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
-assert(unreviewedSignal.compliance.status === 'REVIEW_REQUIRED' && unreviewedSignal.compliance.missingEvidence.includes('current independent qualified legal-review attestation'), 'The gate must preserve a conservative technical review signal while disclosing absent legal attestation.');
+assert(unreviewedSignal.compliance.status === 'REVIEW_REQUIRED' && unreviewedSignal.compliance.missingEvidence.includes('current cryptographically verified independent qualified legal-review attestation'), 'The gate must preserve a conservative technical review signal while disclosing absent signed legal attestation.');
 
 const missingSource: RegulationPack = { ...getRegulationPack('EU_GDPR'), sourceUrl: 'http://example.invalid' };
 assert(validateRegulationPack(missingSource).some((error) => error.includes('HTTPS official source')), 'Governance validator must reject a non-HTTPS legal source mutation.');

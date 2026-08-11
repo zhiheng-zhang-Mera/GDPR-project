@@ -1,0 +1,40 @@
+Privacy Lens 1.10.0 signed source-record bundle gate - physical-device acceptance
+Date: 2026-08-11
+Device: OPPO PERM00, serial BICIPVNB5HS85H9T, primary ABI arm64-v8a
+Package: com.zhihengzhang.privacylens
+Version: versionCode 11; versionName 1.10.0; minSdk 24; targetSdk 36
+
+Final release artifacts
+- APK bytes: 62,901,943
+- APK SHA-256: 4DAA5D59E7BDD3A5B7287AE345B6775A9B13604286146E37179D35E3DFE44253
+- AAB bytes: 31,777,577
+- AAB SHA-256: A5BEB2946C52EC90B5A239DEB6F0E6E3B2DBCD7781FD2C7D8C2129EC6467AB6D
+- Gradle tasks assembleRelease, bundleRelease and lintVitalRelease: PASS
+- Metro bundled 1,077 modules, including the Ed25519 verification dependency: PASS
+
+Installation and UI acceptance
+- Final-hash release APK installed successfully with adb install -r.
+- Package metadata on device matched versionCode 11 and versionName 1.10.0.
+- Final settings XML contains: Legal review gate; Ed25519 signature; non-revoked status; and the explicit non-certification/statutory-boundary sentence.
+- Finding XML contains: Synthetic demo; Source review current; Legal review not recorded; and the cryptographically verified independent legal-review evidence gap.
+- Visual inspection: the gate card, source register, finding chip, three-step evidence hierarchy, and bounded-action text were readable with no observed overlap or clipping on this one device at the sampled settings.
+
+Final cold-start and crash sample
+Round,Status,TotalTimeMs,WaitTimeMs
+1,ok,931,940
+2,ok,2001,2009
+3,ok,878,888
+4,ok,1864,1869
+5,ok,1805,1812
+Median TotalTimeMs: 1805
+Crash-buffer lines: 0
+
+Evidence boundaries
+- This is a five-launch short sample on one physical device, not long-duration or broad-device reliability evidence.
+- The source-record digest covers canonical project metadata, not downloaded official-source bytes.
+- Signature verification proves that a configured key signed the canonical payload; it does not prove reviewer identity, qualification, legal correctness, or publication acceptance.
+- The production trust store is deliberately empty because no independently governed reviewer key has been provisioned. Test keys are injected only in tests.
+- Revocation data is application-bundled and static; no online trust or revocation service is claimed.
+- The real EU pack remains an engineering-reviewed technical candidate with no independent qualified legal-review attestation.
+- The synthetic demo is labelled and is not evidence of another app's behaviour.
+- Full logcat and jobscheduler output are deliberately excluded; only the scoped empty crash-buffer result is recorded.

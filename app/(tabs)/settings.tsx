@@ -18,12 +18,14 @@ export default function SettingsScreen() {
   const legalReview = assessPackLegalReview(selectedPack);
   const legalReviewWarning = legalReview.state !== 'CURRENT' && legalReview.state !== 'NOT_APPLICABLE';
   const legalReviewBody = legalReview.state === 'CURRENT'
-    ? `Attestation ${legalReview.attestationId} is bound to ${selectedPack.versionLabel} and remains valid until ${legalReview.validUntil}.`
+    ? `Attestation ${legalReview.attestationId} is bound to the canonical source-record bundle for ${selectedPack.versionLabel}, signed by trusted key ${legalReview.signingKeyId}, and valid until ${legalReview.validUntil}.`
     : legalReview.state === 'EXPIRED'
       ? `The independent legal-review attestation for ${selectedPack.versionLabel} expired on ${legalReview.validUntil}. A reassuring no-concern result is blocked.`
       : legalReview.state === 'NOT_PROVIDED'
-        ? `No independent qualified legal-review attestation is recorded for ${selectedPack.versionLabel}. A reassuring no-concern result is blocked while bounded review signals remain visible.`
-        : 'This non-legal research baseline does not accept or imply a legal-review attestation.';
+        ? `No independent qualified legal-review attestation is recorded for ${selectedPack.versionLabel}. The app requires a matching source-record digest, Ed25519 signature, trusted key and non-revoked status before reassurance.`
+        : legalReview.state === 'NOT_APPLICABLE'
+          ? 'This non-legal research baseline does not accept or imply a legal-review attestation.'
+          : `${legalReview.reason ?? 'The signed legal-review proof failed verification.'} A reassuring no-concern result is blocked.`;
 
   const confirmClear = () => Alert.alert(
     'Clear local findings?',
@@ -117,7 +119,7 @@ export default function SettingsScreen() {
           <Ionicons name="trash-outline" size={20} color={T.colors.danger} /><View style={styles.clearCopy}><Text style={styles.clearTitle}>Clear local findings</Text><Text style={styles.clearBody}>{findings.length} finding{findings.length === 1 ? '' : 's'} stored</Text></View><Ionicons name="chevron-forward" size={20} color="#879894" />
         </TouchableOpacity>
 
-        <Text style={styles.version}>Privacy Lens 1.9.0 · Legal-review attestation gate candidate</Text>
+        <Text style={styles.version}>Privacy Lens 1.10.0 · Signed source-bundle gate candidate</Text>
       </ScrollView>
       <BottomNav active="settings" />
     </SafeAreaView>
