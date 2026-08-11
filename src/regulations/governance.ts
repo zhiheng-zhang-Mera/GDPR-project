@@ -1,7 +1,7 @@
 import { computeSourceBundleSha256, currentSourceContentManifestSha256, verifyLegalReviewSignature } from './attestationCrypto';
 import { assessPackSourceContent } from './sourceContent';
-import { LEGAL_REVIEW_TRUST_ANCHORS } from './trustAnchors';
-import { LegalReviewGateState, LegalReviewTrustAnchor, PackLegalReviewAssessment, PackSourceReviewAssessment, RegulationPack, RegulatorySource, RegulatorySourceLifecycle, SourceContentArtifacts, SourceContentVerificationState, SourceReviewState } from './types';
+import { assessProductionLegalReviewTrustStore } from './trustAnchors';
+import { LegalReviewGateState, LegalReviewTrustStoreAssessment, PackLegalReviewAssessment, PackSourceReviewAssessment, RegulationPack, RegulatorySource, RegulatorySourceLifecycle, SourceContentArtifacts, SourceContentVerificationState, SourceReviewState } from './types';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const SHA256 = /^[A-Fa-f0-9]{64}$/;
@@ -23,11 +23,12 @@ function isHttpsUrl(value: string | undefined): boolean {
   }
 }
 
-export function validateRegulationPack(pack: RegulationPack, trustAnchors: readonly LegalReviewTrustAnchor[] = LEGAL_REVIEW_TRUST_ANCHORS): string[] {
+export function validateRegulationPack(pack: RegulationPack, trustStore: LegalReviewTrustStoreAssessment = assessProductionLegalReviewTrustStore()): string[] {
   const errors: string[] = [];
   const governance = pack.governance;
   const legalState = governance.state === 'LEGALLY_REVIEWED' || governance.state === 'APPROVED_RELEASE';
   const attestation = governance.legalReviewAttestation;
+  const trustAnchors = trustStore.state === 'CURRENT' ? trustStore.trustAnchors : [];
 
   if (!pack.id.trim()) errors.push('id is required');
   if (!pack.versionLabel.trim()) errors.push('versionLabel is required');
@@ -100,7 +101,7 @@ export function validateRegulationPack(pack: RegulationPack, trustAnchors: reado
     if (attestation.signatureAlgorithm !== 'ED25519') errors.push('legalReviewAttestation.signatureAlgorithm must be ED25519');
     if (!attestation.signingKeyId.trim()) errors.push('legalReviewAttestation.signingKeyId is required');
     if (!BASE64.test(attestation.signatureBase64) || attestation.signatureBase64.length !== 88) errors.push('legalReviewAttestation.signatureBase64 must encode a 64-byte Ed25519 signature');
-    if (attestation.reviewerId.trim().toLocaleLowerCase() === attestation.approverId.trim().toLocaleLowerCase()) errors.push('legal-review reviewer and approver must be different identities');
+    if (attestation.reviewerId.trim().toLowerCase() === attestation.approverId.trim().toLowerCase()) errors.push('legal-review reviewer and approver must be different identities');
     if (attestation.reviewerId !== governance.reviewAuthority.reviewer) errors.push('legal-review attestation reviewer must match reviewAuthority.reviewer');
     if (isIsoCalendarDate(attestation.reviewedAt) && isIsoCalendarDate(attestation.approvedAt) && attestation.approvedAt < attestation.reviewedAt) errors.push('legal-review approval cannot precede review');
     if (isIsoCalendarDate(attestation.approvedAt) && isIsoCalendarDate(attestation.validUntil) && attestation.validUntil <= attestation.approvedAt) errors.push('legal-review validity must extend beyond approval');
@@ -152,8 +153,8 @@ export function validateRegulationPack(pack: RegulationPack, trustAnchors: reado
   return errors;
 }
 
-export function assertValidRegulationPack(pack: RegulationPack, trustAnchors: readonly LegalReviewTrustAnchor[] = LEGAL_REVIEW_TRUST_ANCHORS): RegulationPack {
-  const errors = validateRegulationPack(pack, trustAnchors);
+export function assertValidRegulationPack(pack: RegulationPack, trustStore: LegalReviewTrustStoreAssessment = assessProductionLegalReviewTrustStore()): RegulationPack {
+  const errors = validateRegulationPack(pack, trustStore);
   if (errors.length > 0) throw new Error(`Invalid regulation pack ${pack.id}: ${errors.join('; ')}`);
   return pack;
 }
@@ -210,7 +211,7 @@ export function sourceContentLabel(state: SourceContentVerificationState): strin
 export function assessPackLegalReview(
   pack: RegulationPack,
   asOfDate = new Date().toISOString().slice(0, 10),
-  trustAnchors: readonly LegalReviewTrustAnchor[] = LEGAL_REVIEW_TRUST_ANCHORS,
+  trustStore: LegalReviewTrustStoreAssessment = assessProductionLegalReviewTrustStore(asOfDate),
   sourceArtifacts: SourceContentArtifacts = {},
 ): PackLegalReviewAssessment {
   if (!isIsoCalendarDate(asOfDate)) throw new Error(`Invalid legal-review assessment date: ${asOfDate}`);
@@ -223,7 +224,8 @@ export function assessPackLegalReview(
   if (!manifestSha256 || attestation.reviewedSourceContentManifestSha256.toLowerCase() !== manifestSha256) return { ...base, state: 'SOURCE_CONTENT_MANIFEST_MISMATCH', reason: 'The signed source-content manifest digest does not match the current canonical manifest.' };
   const sourceContent = assessPackSourceContent(pack, sourceArtifacts, asOfDate);
   if (sourceContent.state !== 'VERIFIED') return { ...base, state: 'SOURCE_CONTENT_UNVERIFIED', sourceContentState: sourceContent.state, reason: sourceContent.reason ?? 'The offline source-content evidence did not verify.' };
-  const anchor = trustAnchors.find(({ keyId }) => keyId === attestation.signingKeyId);
+  if (trustStore.state !== 'CURRENT') return { ...base, state: 'TRUST_STORE_UNVERIFIED', trustStoreState: trustStore.state, reason: trustStore.reason ?? 'The signed production trust store did not verify.' };
+  const anchor = trustStore.trustAnchors.find(({ keyId }) => keyId === attestation.signingKeyId);
   if (!anchor || anchor.algorithm !== attestation.signatureAlgorithm || asOfDate < anchor.validFrom || asOfDate > anchor.validUntil) return { ...base, state: 'SIGNER_NOT_TRUSTED', reason: 'No currently valid application trust anchor matches the signing key.' };
   if (anchor.revokedAt && asOfDate >= anchor.revokedAt) return { ...base, state: 'SIGNER_REVOKED', reason: `The signing key was revoked on ${anchor.revokedAt}.` };
   if (!verifyLegalReviewSignature(pack, anchor.publicKeyBase64)) return { ...base, state: 'SIGNATURE_INVALID', reason: 'The Ed25519 signature could not be verified over the canonical attestation payload.' };
@@ -231,6 +233,7 @@ export function assessPackLegalReview(
     ...base,
     state: asOfDate > attestation.validUntil ? 'EXPIRED' : 'CURRENT',
     sourceContentState: sourceContent.state,
+    trustStoreState: trustStore.state,
   };
 }
 
@@ -245,6 +248,7 @@ export function legalReviewLabel(state: LegalReviewGateState): string {
     case 'SIGNER_NOT_TRUSTED': return 'Legal-review signer not trusted';
     case 'SIGNER_REVOKED': return 'Legal-review signer revoked';
     case 'SIGNATURE_INVALID': return 'Legal-review signature invalid';
+    case 'TRUST_STORE_UNVERIFIED': return 'Legal-review trust store unverified';
     case 'NOT_APPLICABLE': return 'Legal review not applicable';
   }
 }

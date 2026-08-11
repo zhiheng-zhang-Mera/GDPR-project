@@ -1,6 +1,6 @@
 import { IComplianceEngine } from './IComplianceEngine';
 import { ComplianceErrorCode, ComplianceEvaluation, ComplianceFinding, PermissionAudit, SensitivePermission } from './types';
-import { LegalReviewTrustAnchor, RegulationPack, SourceContentArtifacts } from '../regulations/types';
+import { LegalReviewTrustStoreAssessment, RegulationPack, SourceContentArtifacts } from '../regulations/types';
 import { assessPackLegalReview, assessPackSourceReview } from '../regulations/governance';
 import { assessPackSourceContent } from '../regulations/sourceContent';
 
@@ -100,11 +100,11 @@ export class RulePackComplianceEngine implements IComplianceEngine {
   private readonly sourceContent: ReturnType<typeof assessPackSourceContent>;
   private readonly legalReview: ReturnType<typeof assessPackLegalReview>;
 
-  constructor(readonly pack: RegulationPack, evaluatedAt = new Date().toISOString().slice(0, 10), trustAnchors?: readonly LegalReviewTrustAnchor[], sourceArtifacts?: SourceContentArtifacts) {
+  constructor(readonly pack: RegulationPack, evaluatedAt = new Date().toISOString().slice(0, 10), trustStore?: LegalReviewTrustStoreAssessment, sourceArtifacts?: SourceContentArtifacts) {
     this.regulation = pack.shortName;
     this.sourceReview = assessPackSourceReview(pack, evaluatedAt);
     this.sourceContent = assessPackSourceContent(pack, sourceArtifacts, evaluatedAt);
-    this.legalReview = assessPackLegalReview(pack, evaluatedAt, trustAnchors, sourceArtifacts);
+    this.legalReview = assessPackLegalReview(pack, evaluatedAt, trustStore, sourceArtifacts);
   }
 
   evaluate(audit: PermissionAudit): ComplianceFinding {

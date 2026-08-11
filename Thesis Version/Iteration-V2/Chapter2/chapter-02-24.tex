@@ -1,0 +1,7 @@
+\input{Iteration-V2/Chapter2/chapter-02-23}
+
+\subsection{Revision 24: key lifecycle and rollback concepts}
+
+Key-management guidance treats cryptographic keys as lifecycle-governed objects rather than timeless constants. NIST SP 800-57 Part 1 Revision 5 discusses general key-management practices and protection across lifecycle phases \cite{nist80057r5}. Privacy Lens uses that source only as security-engineering context: neither NIST guidance nor the project's separation of issuer and approver creates a GDPR requirement or certifies a reviewer.
+
+The Update Framework specifies version, expiry, trusted-root, and rollback-resistance concepts for software-update metadata \cite{tufspec}. Revision 24 borrows the narrower ideas of signed metadata, expiry, monotonic versions, and predecessor continuity, but does not implement TUF roles, threshold signatures, repository metadata, mirrors, consistent snapshots, or a transparency service. Calling the envelope ``TUF compliant'' would therefore exceed the evidence. The academically relevant point is the explicit translation and limitation of external security concepts, not terminological association.

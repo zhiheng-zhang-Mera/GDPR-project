@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
+\usepackage{lmodern,microtype,setspace}
+\usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+\usepackage[hidelinks]{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.15em}
+\hypersetup{
+  pdftitle={Privacy Lens: An Evidence-Bounded Android Privacy Review Framework, Revision 24},
+  pdfauthor={Zhiheng Zhang}
+}
+\title{Privacy Lens: An Evidence-Bounded Android Privacy Review Framework with a Signed Monotonic Legal-Review Trust Store (Revision 24)}
+\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
+\date{August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+\small\singlespacing
+Mobile privacy-review tools face an evidence-to-decision gap: a permission observation can indicate activity but cannot by itself establish purpose, necessity, lawful basis, acquisition completeness, or legal compliance. This thesis addresses that gap through Privacy Lens, a local-first Android prototype that converts bounded permission-audit summaries into traceable prompts for human review.
+
+Following a design-science method, the architecture treats provenance, temporal scope, missing context, and uncertainty as first-class evidence rather than converting a count into a legal verdict. A fail-closed engine rejects malformed records and unsafe temporal aggregation, isolates simulator data, and records the rule-pack version applied to each finding. Jurisdiction mappings remain outside the Android, repository, and interface layers through a replaceable pack contract; the European Union General Data Protection Regulation provides the evaluated legal objective.
+
+Revision 24 adds a canonical Ed25519-signed trust-store envelope for legal-review keys. A unique offline root signs an independently approved payload containing reviewer anchors, explicit revocations, validity dates, a safe monotonic sequence, and the accepted predecessor digest. The application persists the highest accepted sequence and digest and rejects signature mutation, unknown or malformed roots, freeze through expiry, rollback, same-sequence forks, gaps, missing history, and predecessor mismatch. The legal pack deliberately remains unattested, its verified source bytes are not bundled, and the production root and envelope stores remain empty. Findings remain local; backup and remote updates are disabled; the evaluated package has no network or sensitive runtime permission; and users can clear ordinary evidence without clearing rollback state.
+
+In a fixed-seed 1,000-case corpus, the engine matched its specified oracle with 800 true positives and 200 true negatives. A further 1,800 independently calculated pack cases, source-content checks, signed trust-store adversarial probes, accessibility contracts, release-privacy contracts, compilation, and lint passed. The 1.12.0 APK and AAB built successfully. On one OPPO PERM00, the interface exposed official document bytes, independent review signature, and production key governance as separate links; the production trust store remained visibly unprovisioned; three short relaunches returned a live process; and the crash buffer remained empty.
+
+These results support a stronger store-submission engineering candidate within the recorded scope. They do not establish reviewer identity or qualification, legal correctness, unrestricted Android visibility, accessibility conformance, participant outcomes, long-run reliability, production root custody, transparency, recovery across uninstall or data clearing, store approval, or publication acceptance. NIST key-lifecycle and TUF rollback concepts inform the design, but Privacy Lens claims neither a GDPR obligation derived from those sources nor TUF conformance. The contribution is an evidence-bounded architecture that separates statutory motivation, engineering controls, observed evidence, missing legal facts, and prohibited conclusions.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{Iteration-V2/Chapter1/chapter-01-24}
+\input{Iteration-V2/Chapter2/chapter-02-24}
+\input{Iteration-V2/Chapter3/chapter-03-24}
+\input{Iteration-V2/Chapter4/chapter-04-24}
+\input{Iteration-V2/Chapter5/chapter-05-24}
+\input{Iteration-V2/Chapter6/chapter-06-24}
+\input{Iteration-V2/Chapter7/chapter-07-24}
+{\small
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+}
+\end{document}

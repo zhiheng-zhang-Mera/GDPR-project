@@ -6,7 +6,9 @@ import { clearFindings as clearStoredFindings, listFindings, replaceFindings } f
 import { createEvaluationConfig, simulationToAudit } from '../compliance/ViolationSimulator';
 import { RulePackComplianceEngine } from '../compliance/RulePackComplianceEngine';
 import { DEFAULT_REGULATION_ID, getRegulationPack, isRegulationId, listRegulationPacks } from '../regulations/registry';
-import { RegulationPack } from '../regulations/types';
+import { assessAndPersistProductionTrustStore } from '../regulations/TrustStoreStateRepository';
+import { assessProductionLegalReviewTrustStore } from '../regulations/trustAnchors';
+import { LegalReviewTrustStoreAssessment, RegulationPack } from '../regulations/types';
 import { AuditEvent, PrivacyBridge } from '../services/PrivacyBridge';
 
 const REGULATION_KEY = '@privacy_lens_regulation_v1';
@@ -37,6 +39,7 @@ interface PrivacyContextValue {
   availablePacks: RegulationPack[];
   selectedRegulationId: RegulationId;
   selectedPack: RegulationPack;
+  trustStoreAssessment: LegalReviewTrustStoreAssessment;
   isHydrating: boolean;
   isRunning: boolean;
   nativeCapabilityAvailable: boolean;
@@ -90,7 +93,9 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
   const [lastUpdated, setLastUpdated] = useState<number>();
   const [statusMessage, setStatusMessage] = useState<string>();
   const [evaluationSummary, setEvaluationSummary] = useState<EvaluationSummary>();
-  const engineRef = useRef(new RulePackComplianceEngine(getRegulationPack(DEFAULT_REGULATION_ID)));
+  const [trustStoreAssessment, setTrustStoreAssessment] = useState<LegalReviewTrustStoreAssessment>(() => assessProductionLegalReviewTrustStore());
+  const trustStoreRef = useRef(trustStoreAssessment);
+  const engineRef = useRef(new RulePackComplianceEngine(getRegulationPack(DEFAULT_REGULATION_ID), undefined, trustStoreAssessment));
   const selectedPack = getRegulationPack(selectedRegulationId);
 
   const publish = useCallback(async (next: ComplianceFinding[]) => {
@@ -118,14 +123,17 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     let active = true;
     void (async () => {
       try {
-        const [storedRegulation, storedFindings] = await Promise.all([
+        const [storedRegulation, storedFindings, assessedTrustStore] = await Promise.all([
           AsyncStorage.getItem(REGULATION_KEY),
           listFindings(),
+          assessAndPersistProductionTrustStore(),
         ]);
         if (!active) return;
         const regulationId = isRegulationId(storedRegulation) ? storedRegulation : DEFAULT_REGULATION_ID;
         setSelectedRegulationId(regulationId);
-        engineRef.current = new RulePackComplianceEngine(getRegulationPack(regulationId));
+        trustStoreRef.current = assessedTrustStore;
+        setTrustStoreAssessment(assessedTrustStore);
+        engineRef.current = new RulePackComplianceEngine(getRegulationPack(regulationId), undefined, assessedTrustStore);
         const migrated = storedFindings.map(migrateFinding).sort((a, b) => b.detectedAt - a.detectedAt);
         setFindings(migrated);
         setLastUpdated(migrated[0]?.detectedAt);
@@ -148,7 +156,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
 
   const selectRegulation = useCallback(async (id: RegulationId) => {
     const pack = getRegulationPack(id);
-    engineRef.current = new RulePackComplianceEngine(pack);
+    engineRef.current = new RulePackComplianceEngine(pack, undefined, trustStoreRef.current);
     setSelectedRegulationId(id);
     setEvaluationSummary(undefined);
     await AsyncStorage.setItem(REGULATION_KEY, id);
@@ -174,7 +182,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
   const runControlledEvaluation = useCallback(async () => {
     setIsRunning(true);
     setStatusMessage(undefined);
-    const engine = new RulePackComplianceEngine(getRegulationPack(selectedRegulationId));
+    const engine = new RulePackComplianceEngine(getRegulationPack(selectedRegulationId), undefined, trustStoreRef.current);
     const samples = [];
     const latest = new Map<string, ComplianceFinding>();
     for (let round = 0; round < 50; round += 1) {
@@ -206,6 +214,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     availablePacks: listRegulationPacks(),
     selectedRegulationId,
     selectedPack,
+    trustStoreAssessment,
     isHydrating,
     isRunning,
     nativeCapabilityAvailable: PrivacyBridge.isNativeAvailable(),
@@ -216,7 +225,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     runDeviceAudit,
     runControlledEvaluation,
     clearFindings,
-  }), [findings, selectedRegulationId, selectedPack, isHydrating, isRunning, lastUpdated, statusMessage, evaluationSummary, selectRegulation, runDeviceAudit, runControlledEvaluation, clearFindings]);
+  }), [findings, selectedRegulationId, selectedPack, trustStoreAssessment, isHydrating, isRunning, lastUpdated, statusMessage, evaluationSummary, selectRegulation, runDeviceAudit, runControlledEvaluation, clearFindings]);
 
   return <PrivacyContext.Provider value={value}>{children}</PrivacyContext.Provider>;
 }

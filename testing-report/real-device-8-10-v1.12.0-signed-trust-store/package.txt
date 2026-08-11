@@ -1,0 +1,7 @@
+package=com.zhihengzhang.privacylens
+versionCode=13
+versionName=1.12.0
+minSdk=24
+targetSdk=36
+device_model=OPPO PERM00
+release_install=PASS

@@ -1,0 +1,7 @@
+\input{Iteration-V2/Chapter1/chapter-01-23}
+
+\subsection{Revision 24 contribution: a signed monotonic trust-store boundary}
+
+Revision 24 replaces the preceding static reviewer-key denylist concept with a canonical, Ed25519-signed trust-store envelope. The envelope identifies an offline signing root, separates issuance from approval, carries reviewer anchors and explicit revocations, expires, advances through a positive safe-integer sequence, and binds every non-initial version to the digest of its accepted predecessor. The application persists the highest accepted sequence and envelope digest and refuses older, forked, skipped, or unchained candidates. Production roots and envelopes remain empty, so the evaluated EU pack still cannot produce legal reassurance.
+
+The contribution is deliberately narrower than production public-key infrastructure. It demonstrates a fail-closed, testable boundary between application code and reviewer-key governance. It does not establish qualified legal review, secure root custody, witnessed publication, hardware-backed monotonicity, or continuity after uninstall or application-data clearing. This distinction continues the thesis's central method: technical evidence must make unsupported authority difficult to imply.

@@ -7,7 +7,7 @@ import { RegulationId } from '../../src/compliance/types';
 import { usePrivacy } from '../../src/context/PrivacyContext';
 import { assessPackLegalReview, legalReviewLabel, packGovernanceLabel, sourceContentLabel, sourceLifecycleLabel, sourceReviewLabel, sourceReviewState } from '../../src/regulations/governance';
 import { assessPackSourceContent } from '../../src/regulations/sourceContent';
-import { LEGAL_REVIEW_TRUST_STORE_POLICY } from '../../src/regulations/trustAnchors';
+import { trustStoreEnvelopeLabel } from '../../src/regulations/trustStoreEnvelope';
 
 const SOURCE_STATUS_LABEL = {
   BINDING_LAW: 'Binding law',
@@ -16,7 +16,7 @@ const SOURCE_STATUS_LABEL = {
 } as const;
 
 export default function SettingsScreen() {
-  const { availablePacks, selectedRegulationId, selectedPack, selectRegulation, clearFindings, findings } = usePrivacy();
+  const { availablePacks, selectedRegulationId, selectedPack, trustStoreAssessment: trustStore, selectRegulation, clearFindings, findings } = usePrivacy();
   const legalReview = assessPackLegalReview(selectedPack);
   const sourceContent = assessPackSourceContent(selectedPack);
   const legalReviewWarning = legalReview.state !== 'CURRENT' && legalReview.state !== 'NOT_APPLICABLE';
@@ -97,13 +97,13 @@ export default function SettingsScreen() {
         </View>
 
         <Text style={styles.sectionTitle}>Evidence chain</Text>
-        <View accessibilityRole="summary" accessibilityLabel={`${sourceContentLabel(sourceContent.state)}. ${sourceContent.verifiedArtifactCount} of ${sourceContent.expectedArtifactCount} official-document artifacts verified in this app. Production trust store ${LEGAL_REVIEW_TRUST_STORE_POLICY.state.toLowerCase()}.`} style={styles.chainCard}>
+        <View accessibilityRole="summary" accessibilityLabel={`${sourceContentLabel(sourceContent.state)}. ${sourceContent.verifiedArtifactCount} of ${sourceContent.expectedArtifactCount} official-document artifacts verified in this app. ${trustStoreEnvelopeLabel(trustStore.state)}. Signed envelopes require a monotonic sequence and matching predecessor digest.`} style={styles.chainCard}>
           <EvidenceStep icon="document-lock-outline" title="1 · Official document bytes" body={`${sourceContentLabel(sourceContent.state)} · ${sourceContent.verifiedArtifactCount}/${sourceContent.expectedArtifactCount} verified in this app`} warning={sourceContent.state !== 'VERIFIED' && sourceContent.state !== 'NOT_APPLICABLE'} />
           <View style={styles.chainDivider} />
           <EvidenceStep icon="finger-print-outline" title="2 · Independent review signature" body={legalReviewLabel(legalReview.state)} warning={legalReviewWarning} />
           <View style={styles.chainDivider} />
-          <EvidenceStep icon="key-outline" title="3 · Production key governance" body="Unprovisioned · offline two-person release policy drafted · bundled static revocation only" warning />
-          <Text style={styles.chainBoundary}>A recorded digest is not a fresh download check. A valid signature identifies a configured key, not legal correctness or GDPR compliance.</Text>
+          <EvidenceStep icon="key-outline" title="3 · Production key governance" body={`${trustStoreEnvelopeLabel(trustStore.state)} · signed envelope v1 · sequence + predecessor-digest rollback checks`} warning={trustStore.state !== 'CURRENT'} />
+          <Text style={styles.chainBoundary}>A recorded digest is not a fresh download check. A valid signature identifies a configured key, not legal correctness or GDPR compliance. Rollback resistance depends on local history and can be lost after uninstall, app-data clearing, or device compromise; it is not a transparency log.</Text>
         </View>
 
         <View style={styles.sourceHeading}><View style={styles.sourceHeadingCopy}><Text style={styles.sectionTitleCompact}>Source register</Text><Text style={styles.sectionHelp}>Authority status is part of the pack—not inferred from visual prominence.</Text></View><View style={styles.sourceCount}><Text style={styles.sourceCountText}>{selectedPack.sources.length}</Text></View></View>
@@ -134,7 +134,7 @@ export default function SettingsScreen() {
           <Ionicons name="trash-outline" size={20} color={T.colors.danger} /><View style={styles.clearCopy}><Text style={styles.clearTitle}>Clear local findings</Text><Text style={styles.clearBody}>{findings.length} finding{findings.length === 1 ? '' : 's'} stored</Text></View><Ionicons name="chevron-forward" size={20} color="#879894" />
         </TouchableOpacity>
 
-        <Text style={styles.version}>Privacy Lens 1.11.0 · Offline source-content gate candidate</Text>
+        <Text style={styles.version}>Privacy Lens 1.12.0 · Signed monotonic trust-store candidate</Text>
       </ScrollView>
       <BottomNav active="settings" />
     </SafeAreaView>

@@ -42,7 +42,22 @@ export type LegalReviewGateState =
   | 'SIGNER_NOT_TRUSTED'
   | 'SIGNER_REVOKED'
   | 'SIGNATURE_INVALID'
+  | 'TRUST_STORE_UNVERIFIED'
   | 'NOT_APPLICABLE';
+
+export type TrustStoreEnvelopeState =
+  | 'CURRENT'
+  | 'UNPROVISIONED'
+  | 'INVALID'
+  | 'ROOT_NOT_TRUSTED'
+  | 'ROOT_REVOKED'
+  | 'SIGNATURE_INVALID'
+  | 'NOT_YET_VALID'
+  | 'EXPIRED'
+  | 'HISTORY_NOT_AVAILABLE'
+  | 'ROLLBACK_DETECTED'
+  | 'SEQUENCE_GAP'
+  | 'CHAIN_MISMATCH';
 
 export interface RegulatorySource {
   title: string;
@@ -120,6 +135,56 @@ export interface LegalReviewTrustAnchor {
   revokedAt?: string;
 }
 
+export interface LegalReviewTrustRootAnchor {
+  keyId: string;
+  algorithm: 'ED25519';
+  publicKeyBase64: string;
+  owner: string;
+  validFrom: string;
+  validUntil: string;
+  revokedAt?: string;
+}
+
+export interface LegalReviewKeyRevocation {
+  keyId: string;
+  revokedAt: string;
+  reason: string;
+  successorKeyId?: string;
+}
+
+export interface LegalReviewTrustStoreEnvelope {
+  schema: 'privacy-lens.legal-review-trust-store.v1';
+  sequence: number;
+  issuedAt: string;
+  validFrom: string;
+  validUntil: string;
+  issuerId: string;
+  approverId: string;
+  previousEnvelopeSha256?: string;
+  trustAnchors: readonly LegalReviewTrustAnchor[];
+  revocations: readonly LegalReviewKeyRevocation[];
+  signatureAlgorithm: 'ED25519';
+  signingRootKeyId: string;
+  signatureBase64: string;
+}
+
+export interface LegalReviewTrustStoreRollbackState {
+  highestAcceptedSequence: number;
+  acceptedEnvelopeSha256: string;
+}
+
+export interface LegalReviewTrustStoreAssessment {
+  state: TrustStoreEnvelopeState;
+  assessedAt: string;
+  sequence?: number;
+  envelopeSha256?: string;
+  validUntil?: string;
+  signingRootKeyId?: string;
+  trustAnchors: readonly LegalReviewTrustAnchor[];
+  nextRollbackState?: LegalReviewTrustStoreRollbackState;
+  reason?: string;
+}
+
 export interface PackLegalReviewAssessment {
   state: LegalReviewGateState;
   assessedAt: string;
@@ -127,6 +192,7 @@ export interface PackLegalReviewAssessment {
   attestationId?: string;
   signingKeyId?: string;
   sourceContentState?: SourceContentVerificationState;
+  trustStoreState?: TrustStoreEnvelopeState;
   reason?: string;
 }
 

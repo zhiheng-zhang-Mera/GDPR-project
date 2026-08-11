@@ -6,7 +6,8 @@ import { getRegulationPack, listRegulationPacks } from '../src/regulations/regis
 import { assessPackLegalReview, assessPackSourceReview, validateRegulationPack } from '../src/regulations/governance';
 import { canonicalizeLegalReviewPayload, computeSourceBundleSha256 } from '../src/regulations/attestationCrypto';
 import { assessPackSourceContent, computeSourceContentManifestSha256, sha256Bytes } from '../src/regulations/sourceContent';
-import { LegalReviewTrustAnchor, RegulationPack, SourceContentArtifacts } from '../src/regulations/types';
+import { assessTrustStoreEnvelope, canonicalizeTrustStoreEnvelope, computeTrustStoreEnvelopeSha256, validateRollbackStateTransition, validateTrustStoreEnvelope } from '../src/regulations/trustStoreEnvelope';
+import { LegalReviewKeyRevocation, LegalReviewTrustAnchor, LegalReviewTrustRootAnchor, LegalReviewTrustStoreEnvelope, RegulationPack, SourceContentArtifacts } from '../src/regulations/types';
 
 function assert(condition: boolean, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -53,7 +54,82 @@ const TEST_TRUST_ANCHOR: LegalReviewTrustAnchor = {
   validFrom: '2026-01-01',
   validUntil: '2030-01-01',
 };
-const TEST_TRUST_ANCHORS = [TEST_TRUST_ANCHOR] as const;
+const testRootKeyPair = forgeEd25519.generateKeyPair({ seed: new Uint8Array(Array.from({ length: 32 }, (_, index) => 101 + index)) });
+const TEST_ROOT_ANCHOR: LegalReviewTrustRootAnchor = {
+  keyId: 'test-offline-root-key-1',
+  algorithm: 'ED25519',
+  publicKeyBase64: forgeUtil.encode64(bytesToBinary(testRootKeyPair.publicKey)),
+  owner: 'Synthetic offline trust-store root fixture',
+  validFrom: '2026-01-01',
+  validUntil: '2035-01-01',
+};
+
+function makeTrustStoreEnvelope(options: {
+  sequence?: number;
+  previousEnvelopeSha256?: string;
+  validFrom?: string;
+  validUntil?: string;
+  anchors?: readonly LegalReviewTrustAnchor[];
+  revocations?: readonly LegalReviewKeyRevocation[];
+} = {}): LegalReviewTrustStoreEnvelope {
+  const unsigned: LegalReviewTrustStoreEnvelope = {
+    schema: 'privacy-lens.legal-review-trust-store.v1',
+    sequence: options.sequence ?? 1,
+    issuedAt: '2026-08-11',
+    validFrom: options.validFrom ?? '2026-08-11',
+    validUntil: options.validUntil ?? '2027-08-11',
+    issuerId: 'test-trust-store-custodian',
+    approverId: 'test-independent-release-approver',
+    previousEnvelopeSha256: options.previousEnvelopeSha256,
+    trustAnchors: options.anchors ?? [TEST_TRUST_ANCHOR],
+    revocations: options.revocations ?? [],
+    signatureAlgorithm: 'ED25519',
+    signingRootKeyId: TEST_ROOT_ANCHOR.keyId,
+    signatureBase64: 'A'.repeat(88),
+  };
+  const signature = forgeEd25519.sign({ message: canonicalizeTrustStoreEnvelope(unsigned), encoding: 'utf8', privateKey: testRootKeyPair.privateKey });
+  return { ...unsigned, signatureBase64: forgeUtil.encode64(bytesToBinary(signature)) };
+}
+
+const TEST_TRUST_STORE_ENVELOPE = makeTrustStoreEnvelope();
+const TEST_TRUST_STORE = assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2026-08-11');
+assert(TEST_TRUST_STORE.state === 'CURRENT' && TEST_TRUST_STORE.trustAnchors.length === 1 && TEST_TRUST_STORE.nextRollbackState?.highestAcceptedSequence === 1, 'A valid initial signed trust-store envelope must produce effective anchors and rollback state.');
+assert(validateTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE).length === 0, 'The valid trust-store fixture must pass structural validation.');
+
+const SECOND_TEST_TRUST_ANCHOR: LegalReviewTrustAnchor = { ...TEST_TRUST_ANCHOR, keyId: 'test-ed25519-review-key-2', owner: 'Second synthetic reviewer fixture' };
+const orderedTrustStore = makeTrustStoreEnvelope({ anchors: [TEST_TRUST_ANCHOR, SECOND_TEST_TRUST_ANCHOR], revocations: [{ keyId: TEST_TRUST_ANCHOR.keyId, revokedAt: '2026-08-10', reason: 'Synthetic first revocation', successorKeyId: SECOND_TEST_TRUST_ANCHOR.keyId }, { keyId: 'retired-test-key', revokedAt: '2026-08-09', reason: 'Synthetic historical revocation' }] });
+const reorderedTrustStore = makeTrustStoreEnvelope({ anchors: [SECOND_TEST_TRUST_ANCHOR, TEST_TRUST_ANCHOR], revocations: [{ keyId: 'retired-test-key', revokedAt: '2026-08-09', reason: 'Synthetic historical revocation' }, { keyId: TEST_TRUST_ANCHOR.keyId, revokedAt: '2026-08-10', reason: 'Synthetic first revocation', successorKeyId: SECOND_TEST_TRUST_ANCHOR.keyId }] });
+assert(canonicalizeTrustStoreEnvelope(orderedTrustStore) === canonicalizeTrustStoreEnvelope(reorderedTrustStore), 'Trust-store canonicalization must be independent of anchor and revocation input ordering.');
+
+const tamperedTrustStore = { ...TEST_TRUST_STORE_ENVELOPE, signatureBase64: `${TEST_TRUST_STORE_ENVELOPE.signatureBase64[0] === 'A' ? 'B' : 'A'}${TEST_TRUST_STORE_ENVELOPE.signatureBase64.slice(1)}` };
+assert(assessTrustStoreEnvelope(tamperedTrustStore, [TEST_ROOT_ANCHOR], '2026-08-11').state === 'SIGNATURE_INVALID', 'A modified trust-store signature must fail closed.');
+assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [], '2026-08-11').state === 'ROOT_NOT_TRUSTED', 'An unknown trust-store root must fail closed.');
+assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR, TEST_ROOT_ANCHOR], '2026-08-11').state === 'ROOT_NOT_TRUSTED', 'Duplicate matching offline roots must fail closed as ambiguous.');
+assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [{ ...TEST_ROOT_ANCHOR, publicKeyBase64: 'A'.repeat(44) }], '2026-08-11').state === 'ROOT_NOT_TRUSTED', 'A structurally invalid offline root must fail closed before signature verification.');
+assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [{ ...TEST_ROOT_ANCHOR, validFrom: '2026-08-12' }], '2026-08-12').state === 'ROOT_NOT_TRUSTED', 'The offline root must have been valid when the envelope was issued, not only when assessed.');
+assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [{ ...TEST_ROOT_ANCHOR, revokedAt: '2026-08-11' }], '2026-08-11').state === 'ROOT_REVOKED', 'A revoked trust-store root must fail closed.');
+assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2027-08-12').state === 'EXPIRED', 'An expired trust-store envelope must fail closed against freeze attacks.');
+assert(assessTrustStoreEnvelope(makeTrustStoreEnvelope({ validFrom: '2026-08-12' }), [TEST_ROOT_ANCHOR], '2026-08-11').state === 'NOT_YET_VALID', 'A future trust-store envelope must not activate early.');
+const selfApprovedTrustStore = { ...TEST_TRUST_STORE_ENVELOPE, approverId: TEST_TRUST_STORE_ENVELOPE.issuerId };
+assert(assessTrustStoreEnvelope(selfApprovedTrustStore, [TEST_ROOT_ANCHOR], '2026-08-11').state === 'INVALID', 'Trust-store self-approval must fail before signature assessment.');
+assert(validateTrustStoreEnvelope(makeTrustStoreEnvelope({ anchors: [{ ...TEST_TRUST_ANCHOR, keyId: TEST_ROOT_ANCHOR.keyId }] })).some((error) => error.includes('must differ from the offline root')), 'An offline root identifier cannot also be a reviewer trust-anchor identifier.');
+assert(validateTrustStoreEnvelope(makeTrustStoreEnvelope({ revocations: [{ keyId: TEST_TRUST_ANCHOR.keyId, revokedAt: '2027-08-12', reason: 'Invalid post-expiry fixture' }] })).some((error) => error.includes('cannot follow envelope expiry')), 'A revocation after envelope expiry must be rejected as incoherent.');
+
+const trustStoreSequence2 = makeTrustStoreEnvelope({ sequence: 2, previousEnvelopeSha256: TEST_TRUST_STORE.envelopeSha256 });
+const TRUST_STORE_SEQUENCE_2 = assessTrustStoreEnvelope(trustStoreSequence2, [TEST_ROOT_ANCHOR], '2026-08-12', TEST_TRUST_STORE.nextRollbackState);
+assert(TRUST_STORE_SEQUENCE_2.state === 'CURRENT' && TRUST_STORE_SEQUENCE_2.nextRollbackState?.highestAcceptedSequence === 2, 'The next signed envelope must advance exactly one sequence and bind its predecessor digest.');
+assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2026-08-12', TRUST_STORE_SEQUENCE_2.nextRollbackState).state === 'ROLLBACK_DETECTED', 'An older valid signed envelope must be rejected as rollback.');
+const forkedSequence2 = makeTrustStoreEnvelope({ sequence: 2, previousEnvelopeSha256: TEST_TRUST_STORE.envelopeSha256, anchors: [{ ...TEST_TRUST_ANCHOR, owner: 'Changed same-sequence fixture' }] });
+assert(assessTrustStoreEnvelope(forkedSequence2, [TEST_ROOT_ANCHOR], '2026-08-12', TRUST_STORE_SEQUENCE_2.nextRollbackState).state === 'ROLLBACK_DETECTED', 'A different envelope reusing the accepted sequence must be rejected.');
+const wrongPredecessor = makeTrustStoreEnvelope({ sequence: 2, previousEnvelopeSha256: 'f'.repeat(64) });
+assert(assessTrustStoreEnvelope(wrongPredecessor, [TEST_ROOT_ANCHOR], '2026-08-12', TEST_TRUST_STORE.nextRollbackState).state === 'CHAIN_MISMATCH', 'A mismatched predecessor digest must fail closed.');
+const sequenceGap = makeTrustStoreEnvelope({ sequence: 3, previousEnvelopeSha256: TEST_TRUST_STORE.envelopeSha256 });
+assert(assessTrustStoreEnvelope(sequenceGap, [TEST_ROOT_ANCHOR], '2026-08-12', TEST_TRUST_STORE.nextRollbackState).state === 'SEQUENCE_GAP', 'Skipped trust-store envelope sequences must fail closed.');
+assert(assessTrustStoreEnvelope(trustStoreSequence2, [TEST_ROOT_ANCHOR], '2026-08-12').state === 'HISTORY_NOT_AVAILABLE', 'A non-initial envelope without persisted rollback state must fail closed.');
+assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2026-08-12', TEST_TRUST_STORE.nextRollbackState).state === 'CURRENT', 'Reassessing the exact highest accepted envelope must be idempotent.');
+assert(validateRollbackStateTransition(undefined, TRUST_STORE_SEQUENCE_2.nextRollbackState!)?.includes('first accepted') === true, 'Persistent rollback state must reject initial sequence 2.');
+assert(validateRollbackStateTransition(TEST_TRUST_STORE.nextRollbackState, { highestAcceptedSequence: 3, acceptedEnvelopeSha256: computeTrustStoreEnvelopeSha256(sequenceGap) })?.includes('skip') === true, 'Persistent rollback state must reject sequence gaps independently of envelope assessment.');
+assert(validateRollbackStateTransition(TEST_TRUST_STORE.nextRollbackState, { highestAcceptedSequence: 1, acceptedEnvelopeSha256: 'f'.repeat(64) })?.includes('different envelope') === true, 'Persistent rollback state must reject same-sequence replacement.');
 
 function asciiBytes(value: string): Uint8Array {
   return Uint8Array.from(Array.from(value, (character) => character.charCodeAt(0)));
@@ -166,54 +242,57 @@ const reorderedSourcePack: RegulationPack = { ...attestedPack, sources: [...atte
 assert(computeSourceBundleSha256(reorderedSourcePack) === computeSourceBundleSha256(attestedPack), 'Canonical source-record hashing must be independent of input ordering and host locale.');
 const reorderedManifestPack: RegulationPack = { ...attestedPack, governance: { ...attestedPack.governance, sourceContentManifest: { ...attestedPack.governance.sourceContentManifest!, entries: [...attestedPack.governance.sourceContentManifest!.entries].reverse() } } };
 assert(computeSourceContentManifestSha256(reorderedManifestPack) === computeSourceContentManifestSha256(attestedPack), 'Canonical source-content manifests must be independent of input ordering and host locale.');
-assert(validateRegulationPack(attestedPack, TEST_TRUST_ANCHORS).length === 0, 'A synthetic signed two-person legal-review attestation fixture must pass schema validation with an explicitly injected test trust anchor.');
+assert(validateRegulationPack(attestedPack, TEST_TRUST_STORE).length === 0, 'A synthetic signed two-person legal-review attestation fixture must pass schema validation with an explicitly verified trust-store envelope.');
 assert(assessPackSourceContent(getRegulationPack('EU_GDPR')).state === 'ARTIFACTS_NOT_AVAILABLE', 'The production pack must distinguish recorded digests from locally verified source bytes.');
 assert(assessPackSourceContent(attestedPack, TEST_SOURCE_ARTIFACTS).state === 'VERIFIED', 'All synthetic offline source bytes must verify against the test manifest.');
 assert(assessPackLegalReview(getRegulationPack('EU_GDPR'), '2026-08-11').state === 'NOT_PROVIDED', 'The real project pack must disclose that independent legal review is not recorded.');
 assert(assessPackLegalReview(getRegulationPack('GLOBAL_RESEARCH_BASELINE'), '2026-08-11').state === 'NOT_APPLICABLE', 'A non-legal research pack must not imply legal attestation.');
-assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).state === 'CURRENT', 'A current signed attestation with verified source bytes must be recognised on its assessed date.');
-assert(assessPackLegalReview(attestedPack, '2027-02-12', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).state === 'EXPIRED', 'An attestation must expire after its recorded validity date.');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_TRUST_STORE, TEST_SOURCE_ARTIFACTS).state === 'CURRENT', 'A current signed attestation with verified source bytes and trust-store envelope must be recognised on its assessed date.');
+const laterTrustStore = assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2027-02-12');
+assert(assessPackLegalReview(attestedPack, '2027-02-12', laterTrustStore, TEST_SOURCE_ARTIFACTS).state === 'EXPIRED', 'An attestation must expire after its recorded validity date.');
 
 const selfApprovedPack: RegulationPack = {
   ...attestedPack,
   governance: { ...attestedPack.governance, legalReviewAttestation: { ...attestedPack.governance.legalReviewAttestation!, approverId: 'TEST-QUALIFIED-REVIEWER' } },
 };
-assert(validateRegulationPack(selfApprovedPack, TEST_TRUST_ANCHORS).some((error) => error.includes('different identities')), 'Case-insensitive reviewer self-approval must fail the four-eyes project gate.');
+assert(validateRegulationPack(selfApprovedPack, TEST_TRUST_STORE).some((error) => error.includes('different identities')), 'Case-insensitive reviewer self-approval must fail the four-eyes project gate.');
 
 const mismatchedAttestationPack: RegulationPack = {
   ...attestedPack,
   governance: { ...attestedPack.governance, legalReviewAttestation: { ...attestedPack.governance.legalReviewAttestation!, reviewedPackVersion: 'different-pack-version', reviewedSourcesSha256: 'not-a-sha256' } },
 };
-assert(validateRegulationPack(mismatchedAttestationPack, TEST_TRUST_ANCHORS).some((error) => error.includes('must match pack.versionLabel')), 'An attestation for another pack version must fail validation.');
-assert(validateRegulationPack(mismatchedAttestationPack, TEST_TRUST_ANCHORS).some((error) => error.includes('SHA-256 hex digest')), 'A malformed reviewed-source digest must fail validation.');
+assert(validateRegulationPack(mismatchedAttestationPack, TEST_TRUST_STORE).some((error) => error.includes('must match pack.versionLabel')), 'An attestation for another pack version must fail validation.');
+assert(validateRegulationPack(mismatchedAttestationPack, TEST_TRUST_STORE).some((error) => error.includes('SHA-256 hex digest')), 'A malformed reviewed-source digest must fail validation.');
 
 const changedSourcePack: RegulationPack = { ...attestedPack, sources: attestedPack.sources.map((source, index) => index === 0 ? { ...source, versionLabel: `${source.versionLabel}-changed` } : source) };
-assert(assessPackLegalReview(changedSourcePack, '2026-08-11', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).state === 'SOURCE_BUNDLE_MISMATCH', 'A source-record change after signing must invalidate the source bundle before reassurance.');
+assert(assessPackLegalReview(changedSourcePack, '2026-08-11', TEST_TRUST_STORE, TEST_SOURCE_ARTIFACTS).state === 'SOURCE_BUNDLE_MISMATCH', 'A source-record change after signing must invalidate the source bundle before reassurance.');
 const changedManifestPack: RegulationPack = { ...attestedPack, governance: { ...attestedPack.governance, sourceContentManifest: { ...attestedPack.governance.sourceContentManifest!, entries: attestedPack.governance.sourceContentManifest!.entries.map((entry, index) => index === 0 ? { ...entry, sha256: 'f'.repeat(64) } : entry) } } };
-assert(assessPackLegalReview(changedManifestPack, '2026-08-11', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).state === 'SOURCE_CONTENT_MANIFEST_MISMATCH', 'A content-manifest change after signing must fail before source-byte verification.');
+assert(assessPackLegalReview(changedManifestPack, '2026-08-11', TEST_TRUST_STORE, TEST_SOURCE_ARTIFACTS).state === 'SOURCE_CONTENT_MANIFEST_MISMATCH', 'A content-manifest change after signing must fail before source-byte verification.');
 const missingArtifactId = attestedPack.governance.sourceContentManifest!.entries[0].artifactId;
 const incompleteArtifacts = Object.fromEntries(Object.entries(TEST_SOURCE_ARTIFACTS).filter(([artifactId]) => artifactId !== missingArtifactId));
 assert(assessPackSourceContent(attestedPack, incompleteArtifacts).state === 'ARTIFACT_MISSING', 'A missing offline artifact must remain distinct from a digest mismatch.');
-assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS, incompleteArtifacts).state === 'SOURCE_CONTENT_UNVERIFIED', 'A signed attestation must not clear when an offline source artifact is missing.');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_TRUST_STORE, incompleteArtifacts).state === 'SOURCE_CONTENT_UNVERIFIED', 'A signed attestation must not clear when an offline source artifact is missing.');
 const originalBytes = TEST_SOURCE_ARTIFACTS[missingArtifactId];
 const sameLengthMutation = { ...TEST_SOURCE_ARTIFACTS, [missingArtifactId]: Uint8Array.from(originalBytes, (byte, index) => index === 0 ? byte ^ 1 : byte) };
 assert(assessPackSourceContent(attestedPack, sameLengthMutation).state === 'ARTIFACT_HASH_MISMATCH', 'A same-length source mutation must fail the SHA-256 check.');
 const lengthMutation = { ...TEST_SOURCE_ARTIFACTS, [missingArtifactId]: originalBytes.slice(1) };
 assert(assessPackSourceContent(attestedPack, lengthMutation).state === 'ARTIFACT_LENGTH_MISMATCH', 'A truncated source artifact must expose a distinct length mismatch.');
 const badSignaturePack: RegulationPack = { ...attestedPack, governance: { ...attestedPack.governance, legalReviewAttestation: { ...attestedPack.governance.legalReviewAttestation!, signatureBase64: `${attestedPack.governance.legalReviewAttestation!.signatureBase64[0] === 'A' ? 'B' : 'A'}${attestedPack.governance.legalReviewAttestation!.signatureBase64.slice(1)}` } } };
-assert(assessPackLegalReview(badSignaturePack, '2026-08-11', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).state === 'SIGNATURE_INVALID', 'A modified Ed25519 signature must fail closed.');
-assert(assessPackLegalReview(attestedPack, '2026-08-11', undefined, TEST_SOURCE_ARTIFACTS).state === 'SIGNER_NOT_TRUSTED', 'A structurally valid signature must not be trusted without an application-controlled trust anchor.');
-const revokedAnchor = { ...TEST_TRUST_ANCHOR, revokedAt: '2026-08-10' };
-assert(assessPackLegalReview(attestedPack, '2026-08-11', [revokedAnchor], TEST_SOURCE_ARTIFACTS).state === 'SIGNER_REVOKED', 'A revoked signing key must fail closed.');
+assert(assessPackLegalReview(badSignaturePack, '2026-08-11', TEST_TRUST_STORE, TEST_SOURCE_ARTIFACTS).state === 'SIGNATURE_INVALID', 'A modified Ed25519 signature must fail closed.');
+const unprovisionedTrustStore = assessTrustStoreEnvelope(undefined, [], '2026-08-11');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', unprovisionedTrustStore, TEST_SOURCE_ARTIFACTS).state === 'TRUST_STORE_UNVERIFIED', 'A structurally valid review signature must not be trusted without a verified production trust-store envelope.');
+const revokedTrustStoreEnvelope = makeTrustStoreEnvelope({ revocations: [{ keyId: TEST_TRUST_ANCHOR.keyId, revokedAt: '2026-08-10', reason: 'Synthetic compromise fixture' }] });
+const revokedTrustStore = assessTrustStoreEnvelope(revokedTrustStoreEnvelope, [TEST_ROOT_ANCHOR], '2026-08-11');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', revokedTrustStore, TEST_SOURCE_ARTIFACTS).state === 'SIGNER_REVOKED', 'A reviewer key revoked by a verified trust-store envelope must fail closed.');
 
 const unreviewedNoConcern = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-08-11').evaluate({ packageName: 'legal.review.missing', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
 assert(unreviewedNoConcern.compliance.status === 'INSUFFICIENT_EVIDENCE', 'A legal pack without current independent attestation must not emit a reassuring no-concern result.');
 assert(unreviewedNoConcern.compliance.legalReview.state === 'NOT_PROVIDED' && unreviewedNoConcern.compliance.missingEvidence.includes('current cryptographically verified independent qualified legal-review attestation'), 'The finding must preserve and explain the missing signed legal-review gate.');
 
-const attestedNoConcern = new RulePackComplianceEngine(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).evaluate({ packageName: 'legal.review.current', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
+const attestedNoConcern = new RulePackComplianceEngine(attestedPack, '2026-08-11', TEST_TRUST_STORE, TEST_SOURCE_ARTIFACTS).evaluate({ packageName: 'legal.review.current', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
 assert(attestedNoConcern.compliance.status === 'NO_TECHNICAL_CONCERN' && attestedNoConcern.compliance.legalReview.state === 'CURRENT' && attestedNoConcern.compliance.sourceContent.state === 'VERIFIED', 'A consistent current attestation may clear the project reassurance gate only with verified source bytes, without establishing legal compliance.');
 
-const contentUnavailableNoConcern = new RulePackComplianceEngine(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS).evaluate({ packageName: 'legal.content.unavailable', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
+const contentUnavailableNoConcern = new RulePackComplianceEngine(attestedPack, '2026-08-11', TEST_TRUST_STORE).evaluate({ packageName: 'legal.content.unavailable', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
 assert(contentUnavailableNoConcern.compliance.status === 'INSUFFICIENT_EVIDENCE' && contentUnavailableNoConcern.compliance.sourceContent.state === 'ARTIFACTS_NOT_AVAILABLE' && contentUnavailableNoConcern.compliance.missingEvidence.includes('offline verification of every recorded official-source artifact'), 'Recorded digests without supplied bytes must block reassurance and remain visible in the finding.');
 
 const unreviewedSignal = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-08-11').evaluate({ packageName: 'legal.review.signal', permissionType: 'CONTACTS', accessCount: 7, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
@@ -310,4 +389,4 @@ try {
 }
 assert(unknownRejected, 'Unknown regulation packs must fail closed instead of silently loading the default pack.');
 
-console.log('Governance validation, 1,800 independent-oracle cases, source-content byte verification, metamorphic boundaries, and representative mutation probes passed.');
+console.log('Governance validation, 1,800 independent-oracle cases, source-content verification, signed trust-store rollback/freeze/chain probes, metamorphic boundaries, and representative mutations passed.');

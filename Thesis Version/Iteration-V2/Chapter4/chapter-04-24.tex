@@ -1,0 +1,7 @@
+\input{Iteration-V2/Chapter4/chapter-04-23}
+
+\subsection{Revision 24 implementation: canonical envelopes and monotonic state}
+
+The implementation serialises a fixed field set, sorts anchors and revocations by key identifier, normalises predecessor digests, and signs the resulting UTF-8 payload with Ed25519. Structural validation checks real calendar dates, safe sequences, exact decoded key and signature lengths, identity separation, duplicate identifiers, validity intervals, and coherent revocation dates. Assessment accepts exactly one matching offline root, checks that it was valid at issuance and remains valid at assessment, verifies the signature, then evaluates stored history before it can expose reviewer anchors.
+
+A repository stores only the highest accepted sequence and SHA-256 envelope digest under a dedicated AsyncStorage key. A pure transition validator rejects decreasing sequences, same-sequence replacement, and skipped steps; the repository fails closed to an invalid assessment with zero anchors when stored state is malformed or cannot be persisted. Clearing ordinary findings does not clear this state. The same boundary is shown in Settings and attached to finding evidence. Because AsyncStorage is app-private rather than tamper-resistant hardware, uninstall, application-data clearing, unsuitable restoration, or device compromise can break continuity. Disabled Android backup narrows one path but does not create a public transparency log.

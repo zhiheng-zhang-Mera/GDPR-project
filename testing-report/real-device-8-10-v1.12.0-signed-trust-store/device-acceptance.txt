@@ -1,0 +1,14 @@
+Privacy Lens 1.12.0 signed trust-store candidate
+Acceptance date: 2026-08-11
+Physical target: one OPPO PERM00 handset
+
+PASS - Release APK installed as versionCode 13 / versionName 1.12.0.
+PASS - Application process was present after launch.
+PASS - Three short force-stop/relaunch rounds returned a live process.
+PASS - Settings rendered the fail-closed legal-review gate.
+PASS - Evidence chain rendered official bytes, review signature, and production key governance separately.
+PASS - Production trust store was visibly labelled unprovisioned.
+PASS - Local rollback-history limits named uninstall, app-data clearing, device compromise, and absence of a transparency log.
+PASS - Crash buffer was empty after the recorded interaction and restart sample.
+
+Boundaries: this is a short single-device engineering sample. It does not prove long-run reliability, broad OEM behaviour, accessibility conformance, participant comprehension, reviewer qualification, legal correctness, production key provisioning, store approval, or publication acceptance.

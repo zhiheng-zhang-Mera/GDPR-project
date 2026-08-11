@@ -1,0 +1,9 @@
+\input{Iteration-V2/Chapter5/chapter-05-23}
+
+\subsection{Revision 24 evaluation: signed trust-store adversarial probes}
+
+The unchanged seeded compliance corpus returned 800 true positives, 200 true negatives, zero false positives, and zero false negatives. The 1,800-case independent governance oracle also passed. Added probes covered canonical order invariance; signature mutation; unknown, duplicate, malformed, revoked, and not-yet-valid roots; root validity at issuance; envelope expiry and future activation; issuer self-approval; root/reviewer identifier collision; incoherent post-expiry revocation; exact sequence-two advancement; replay of sequence one; a same-sequence fork; predecessor mismatch; sequence gap; missing history; idempotent reassessment; and independent rollback-state transition rejection. Application compilation, accessibility contracts across five files and 12 touchables, release-privacy contracts across 30 source files, and lint passed.
+
+The release build produced a 62,929,891-byte APK with SHA-256 \texttt{\seqsplit{0b723dc0541b93bc27a4ffa5513d1b21f0794d39eaa49a2b719dddd5c7491097}} and a 31,790,208-byte AAB with SHA-256 \texttt{\seqsplit{ccf2e229344941d484db5e582fe8be44940f375641258ae9b7d63d4e74d3f8cf}}. Installation on one OPPO PERM00 reported version code 13, version name 1.12.0, minimum SDK 24, and target SDK 36. Three short force-stop and relaunch rounds returned a live process and the crash buffer remained empty. Device screenshots showed the legal-review warning, the three-link evidence chain, the unprovisioned production trust store, and the local-history boundary without observed clipping in the captured viewport.
+
+These results establish conformance to the stated engineering contract only. The positive cryptographic path uses deterministic synthetic keys; no production root, signed envelope, qualified review, participant outcome, or external replication is claimed.
