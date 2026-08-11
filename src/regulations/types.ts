@@ -24,6 +24,7 @@ export type RegulatorySourceLifecycle =
   | 'CONSULTATION_CLOSED_PENDING_FINALISATION';
 export type SourceReviewState = 'CURRENT' | 'REVIEW_DUE';
 export type PackSourceReviewState = SourceReviewState | 'NOT_APPLICABLE';
+export type LegalReviewGateState = 'CURRENT' | 'EXPIRED' | 'NOT_PROVIDED' | 'NOT_APPLICABLE';
 
 export interface RegulatorySource {
   title: string;
@@ -44,8 +45,28 @@ export interface PackSourceReviewAssessment {
   overdueSourceTitles: string[];
 }
 
+export interface LegalReviewAttestation {
+  attestationId: string;
+  reviewedPackVersion: string;
+  reviewedSourcesSha256: string;
+  reviewedAt: string;
+  approvedAt: string;
+  validUntil: string;
+  reviewerId: string;
+  reviewerQualification: string;
+  approverId: string;
+  scope: string;
+}
+
+export interface PackLegalReviewAssessment {
+  state: LegalReviewGateState;
+  assessedAt: string;
+  validUntil?: string;
+  attestationId?: string;
+}
+
 export interface PackGovernance {
-  schemaVersion: 2;
+  schemaVersion: 3;
   state: PackGovernanceState;
   authoredAt: string;
   lastReviewedAt: string;
@@ -58,6 +79,7 @@ export interface PackGovernance {
   releaseScope: 'CONTROLLED_EVALUATION' | 'PRODUCTION';
   locales: readonly string[];
   changeTriggers: readonly string[];
+  legalReviewAttestation?: LegalReviewAttestation;
   supersedes?: string;
   successor?: string;
 }

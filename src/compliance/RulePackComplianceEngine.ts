@@ -1,7 +1,7 @@
 import { IComplianceEngine } from './IComplianceEngine';
 import { ComplianceErrorCode, ComplianceEvaluation, ComplianceFinding, PermissionAudit, SensitivePermission } from './types';
 import { RegulationPack } from '../regulations/types';
-import { assessPackSourceReview } from '../regulations/governance';
+import { assessPackLegalReview, assessPackSourceReview } from '../regulations/governance';
 
 const DAY_MS = 86_400_000;
 const BURST_LIMIT: Record<SensitivePermission, number> = { LOCATION: 12, MICROPHONE: 6, CONTACTS: 4 };
@@ -96,10 +96,12 @@ export class RulePackComplianceEngine implements IComplianceEngine {
   private readonly history = new Map<string, { start: number; end: number; count: number }[]>();
 
   private readonly sourceReview: ReturnType<typeof assessPackSourceReview>;
+  private readonly legalReview: ReturnType<typeof assessPackLegalReview>;
 
   constructor(readonly pack: RegulationPack, evaluatedAt = new Date().toISOString().slice(0, 10)) {
     this.regulation = pack.shortName;
     this.sourceReview = assessPackSourceReview(pack, evaluatedAt);
+    this.legalReview = assessPackLegalReview(pack, evaluatedAt);
   }
 
   evaluate(audit: PermissionAudit): ComplianceFinding {
@@ -132,8 +134,14 @@ export class RulePackComplianceEngine implements IComplianceEngine {
     if ((audit.source ?? 'SIMULATOR') !== 'SIMULATOR' && completed.length > 0 && rollingCount > threshold) signals.push('CROSS_WINDOW');
     const ratio = Math.max(excess / threshold, peak / BURST_LIMIT[audit.permissionType] - 1, rollingCount / threshold - 1);
     const missingEvidence = this.pack.findMissingEvidence(audit);
+    const preliminaryStatus = this.pack.classify(audit, signals, missingEvidence);
+    const legalReviewNeedsAttestation = this.legalReview.state !== 'CURRENT' && this.legalReview.state !== 'NOT_APPLICABLE';
     if (this.sourceReview.state === 'REVIEW_DUE') missingEvidence.push('renewed regulatory-source review');
-    const status = this.sourceReview.state === 'REVIEW_DUE' ? 'INSUFFICIENT_EVIDENCE' : this.pack.classify(audit, signals, missingEvidence);
+    if (legalReviewNeedsAttestation) missingEvidence.push('current independent qualified legal-review attestation');
+    const status = this.sourceReview.state === 'REVIEW_DUE' || (legalReviewNeedsAttestation && preliminaryStatus === 'NO_TECHNICAL_CONCERN') ? 'INSUFFICIENT_EVIDENCE' : preliminaryStatus;
+    const caveats = [this.pack.legalCaveat];
+    if (this.sourceReview.state === 'REVIEW_DUE') caveats.push('One or more regulatory sources are past the project review date; refresh and review the pack before relying on its mapping.');
+    if (legalReviewNeedsAttestation) caveats.push('No current independent qualified legal-review attestation is recorded for this pack version; the project blocks a reassuring no-concern result.');
     const legalReference = rule.legalReference;
     const finding: ComplianceFinding = {
       id: `${audit.packageName}:${audit.permissionType}`,
@@ -155,8 +163,9 @@ export class RulePackComplianceEngine implements IComplianceEngine {
         status,
         applicablePrinciples: this.pack.principles,
         missingEvidence,
-        legalCaveat: this.sourceReview.state === 'REVIEW_DUE' ? `${this.pack.legalCaveat} One or more regulatory sources are past the project review date; refresh and review the pack before relying on its mapping.` : this.pack.legalCaveat,
+        legalCaveat: caveats.join(' '),
         sourceReview: this.sourceReview,
+        legalReview: this.legalReview,
       },
       communication: undefined as never,
     };

@@ -64,7 +64,7 @@ export const EU_GDPR_PACK: RegulationPack = {
   ],
   description: 'Technical prompts for necessity, lawful-basis, transparency, minimisation, retention and DPIA evidence review.',
   governance: {
-    schemaVersion: 2,
+    schemaVersion: 3,
     state: 'TECHNICAL_CANDIDATE',
     authoredAt: '2026-08-09',
     lastReviewedAt: '2026-08-11',

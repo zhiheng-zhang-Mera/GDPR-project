@@ -107,6 +107,12 @@ export interface ComplianceFinding {
       nextDueAt?: string;
       overdueSourceTitles: string[];
     };
+    legalReview: {
+      state: 'CURRENT' | 'EXPIRED' | 'NOT_PROVIDED' | 'NOT_APPLICABLE' | 'NOT_RECORDED';
+      assessedAt: string;
+      validUntil?: string;
+      attestationId?: string;
+    };
   };
   communication: {
     title: string;

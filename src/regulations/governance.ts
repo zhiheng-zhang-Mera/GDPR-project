@@ -1,6 +1,7 @@
-import { PackSourceReviewAssessment, RegulationPack, RegulatorySource, RegulatorySourceLifecycle, SourceReviewState } from './types';
+import { LegalReviewGateState, PackLegalReviewAssessment, PackSourceReviewAssessment, RegulationPack, RegulatorySource, RegulatorySourceLifecycle, SourceReviewState } from './types';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const SHA256 = /^[A-Fa-f0-9]{64}$/;
 
 function isIsoCalendarDate(value: string | undefined): value is string {
   if (!value || !ISO_DATE.test(value)) return false;
@@ -22,9 +23,11 @@ export function validateRegulationPack(pack: RegulationPack): string[] {
   const errors: string[] = [];
   const governance = pack.governance;
   const legalState = governance.state === 'LEGALLY_REVIEWED' || governance.state === 'APPROVED_RELEASE';
+  const attestation = governance.legalReviewAttestation;
 
   if (!pack.id.trim()) errors.push('id is required');
   if (!pack.versionLabel.trim()) errors.push('versionLabel is required');
+  if (governance.schemaVersion !== 3) errors.push('governance.schemaVersion must be 3');
   if (!isIsoCalendarDate(governance.authoredAt)) errors.push('governance.authoredAt must be a valid YYYY-MM-DD date');
   if (!isIsoCalendarDate(governance.lastReviewedAt)) errors.push('governance.lastReviewedAt must be a valid YYYY-MM-DD date');
   if (governance.effectiveFrom && !isIsoCalendarDate(governance.effectiveFrom)) errors.push('governance.effectiveFrom must be a valid YYYY-MM-DD date');
@@ -40,9 +43,31 @@ export function validateRegulationPack(pack: RegulationPack): string[] {
   if (pack.kind === 'LEGAL_FRAMEWORK' && governance.state === 'NON_LEGAL_DEMONSTRATOR') errors.push('a legal framework cannot use the non-legal demonstrator state');
   if (pack.kind === 'RESEARCH_BASELINE' && governance.state !== 'NON_LEGAL_DEMONSTRATOR') errors.push('a research baseline must remain a non-legal demonstrator');
   if (legalState && governance.reviewAuthority.kind !== 'QUALIFIED_LEGAL') errors.push('legally reviewed or approved packs require a qualified legal reviewer');
+  if (legalState && !attestation) errors.push('legally reviewed or approved packs require a legal-review attestation');
   if (governance.state === 'APPROVED_RELEASE' && governance.releaseScope !== 'PRODUCTION') errors.push('approved release packs require production release scope');
   if ((governance.state === 'TECHNICAL_CANDIDATE' || governance.state === 'NON_LEGAL_DEMONSTRATOR') && governance.releaseScope !== 'CONTROLLED_EVALUATION') errors.push('candidate and demonstrator packs are limited to controlled evaluation');
   if ((governance.state === 'SUPERSEDED' || governance.state === 'REVOKED') && !governance.successor) errors.push('superseded or revoked packs require a successor or blocking identifier');
+
+  if (attestation) {
+    if (pack.kind !== 'LEGAL_FRAMEWORK') errors.push('legal-review attestations are only valid for legal frameworks');
+    if (!legalState) errors.push('a legal-review attestation requires a legally reviewed or approved governance state');
+    if (governance.reviewAuthority.kind !== 'QUALIFIED_LEGAL') errors.push('a legal-review attestation requires qualified legal review authority');
+    if (!attestation.attestationId.trim()) errors.push('legalReviewAttestation.attestationId is required');
+    if (attestation.reviewedPackVersion !== pack.versionLabel) errors.push('legalReviewAttestation.reviewedPackVersion must match pack.versionLabel');
+    if (!SHA256.test(attestation.reviewedSourcesSha256)) errors.push('legalReviewAttestation.reviewedSourcesSha256 must be a SHA-256 hex digest');
+    if (!isIsoCalendarDate(attestation.reviewedAt)) errors.push('legalReviewAttestation.reviewedAt must be a valid YYYY-MM-DD date');
+    if (!isIsoCalendarDate(attestation.approvedAt)) errors.push('legalReviewAttestation.approvedAt must be a valid YYYY-MM-DD date');
+    if (!isIsoCalendarDate(attestation.validUntil)) errors.push('legalReviewAttestation.validUntil must be a valid YYYY-MM-DD date');
+    if (!attestation.reviewerId.trim()) errors.push('legalReviewAttestation.reviewerId is required');
+    if (!attestation.reviewerQualification.trim()) errors.push('legalReviewAttestation.reviewerQualification is required');
+    if (!attestation.approverId.trim()) errors.push('legalReviewAttestation.approverId is required');
+    if (!attestation.scope.trim()) errors.push('legalReviewAttestation.scope is required');
+    if (attestation.reviewerId.trim().toLocaleLowerCase() === attestation.approverId.trim().toLocaleLowerCase()) errors.push('legal-review reviewer and approver must be different identities');
+    if (attestation.reviewerId !== governance.reviewAuthority.reviewer) errors.push('legal-review attestation reviewer must match reviewAuthority.reviewer');
+    if (isIsoCalendarDate(attestation.reviewedAt) && isIsoCalendarDate(attestation.approvedAt) && attestation.approvedAt < attestation.reviewedAt) errors.push('legal-review approval cannot precede review');
+    if (isIsoCalendarDate(attestation.approvedAt) && isIsoCalendarDate(attestation.validUntil) && attestation.validUntil <= attestation.approvedAt) errors.push('legal-review validity must extend beyond approval');
+    if (isIsoCalendarDate(attestation.approvedAt) && isIsoCalendarDate(governance.lastReviewedAt) && attestation.approvedAt !== governance.lastReviewedAt) errors.push('legal-review approval must match governance.lastReviewedAt');
+  }
 
   const sourceUrls = new Set<string>();
   for (const [index, source] of pack.sources.entries()) {
@@ -118,4 +143,26 @@ export function assessPackSourceReview(pack: RegulationPack, asOfDate = new Date
   const overdueSourceTitles = pack.sources.filter((source) => sourceReviewState(source, asOfDate) === 'REVIEW_DUE').map(({ title }) => title);
   const nextDueAt = [...pack.sources].map(({ reviewDueAt }) => reviewDueAt).sort()[0];
   return { state: overdueSourceTitles.length > 0 ? 'REVIEW_DUE' : 'CURRENT', assessedAt: asOfDate, nextDueAt, overdueSourceTitles };
+}
+
+export function assessPackLegalReview(pack: RegulationPack, asOfDate = new Date().toISOString().slice(0, 10)): PackLegalReviewAssessment {
+  if (!isIsoCalendarDate(asOfDate)) throw new Error(`Invalid legal-review assessment date: ${asOfDate}`);
+  if (pack.kind !== 'LEGAL_FRAMEWORK') return { state: 'NOT_APPLICABLE', assessedAt: asOfDate };
+  const attestation = pack.governance.legalReviewAttestation;
+  if (!attestation) return { state: 'NOT_PROVIDED', assessedAt: asOfDate };
+  return {
+    state: asOfDate > attestation.validUntil ? 'EXPIRED' : 'CURRENT',
+    assessedAt: asOfDate,
+    validUntil: attestation.validUntil,
+    attestationId: attestation.attestationId,
+  };
+}
+
+export function legalReviewLabel(state: LegalReviewGateState): string {
+  switch (state) {
+    case 'CURRENT': return 'Independent legal review current';
+    case 'EXPIRED': return 'Independent legal review expired';
+    case 'NOT_PROVIDED': return 'Independent legal review not recorded';
+    case 'NOT_APPLICABLE': return 'Legal review not applicable';
+  }
 }

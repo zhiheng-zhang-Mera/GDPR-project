@@ -1,0 +1,39 @@
+Privacy Lens 1.9.0 legal-attestation gate - physical-device acceptance
+Date: 2026-08-11
+Device: OPPO PERM00, serial BICIPVNB5HS85H9T, primary ABI arm64-v8a
+Package: com.zhihengzhang.privacylens
+Version: versionCode 10; versionName 1.9.0; minSdk 24; targetSdk 36
+
+Release artifacts
+- APK bytes: 59,426,275
+- APK SHA-256: 83A52E6CDE02E82D452F607380F3FEE66E7F3928A342CE4CC800FD44235D7F69
+- AAB bytes: 29,617,222
+- AAB SHA-256: D199F57482070A035AC25C3E6202D6939BEA20F375DBF37475A6914097F5F689
+- Offline Gradle tasks: assembleRelease, bundleRelease, lintVitalRelease - PASS
+
+Installation and UI acceptance
+- Clean uninstall/reinstall completed after the ColorOS installer confirmation.
+- Notification permission was denied for this QA run; the core review flow remained usable.
+- Settings XML contains: Legal review gate; Independent legal review not recorded; no independent qualified legal-review attestation; and the explicit non-certification/statutory-boundary sentence.
+- Finding XML contains: Synthetic demo; Source review current; Legal review not recorded; current independent qualified legal-review attestation; and assessed 2026-08-11.
+- The final expanded-finding XML contains exactly one WHAT WAS OBSERVED heading after removal of a duplicate presentation node.
+- Visual inspection: gate card, finding chip, and expanded evidence hierarchy were readable with no observed overlap or clipping on this one device at the sampled font/display settings.
+
+Cold-start and crash sample
+Round,Status,TotalTimeMs,WaitTimeMs
+1,ok,1223,1228
+2,ok,1733,1762
+3,ok,1737,1756
+4,ok,1767,1783
+5,ok,1712,1732
+Median TotalTimeMs: 1733
+Matching package lines in crash buffer: 0
+Total crash-buffer lines: 0
+
+Evidence boundaries
+- This is a five-launch short sample on one physical device, not long-duration or broad-device reliability evidence.
+- The synthetic demo is labelled and is not evidence of another app's behaviour.
+- ColorOS installer text stating that no risk was found is platform UI and is not treated as a security, privacy, or legal certification.
+- The app records that no independent qualified legal-review attestation exists for the current EU pack. It does not claim such review occurred.
+- The four-eyes/separation-of-duties rule is a project governance control, not asserted as a statutory GDPR requirement.
+- Full logcat and jobscheduler output are deliberately excluded; this record retains only the scoped crash-buffer result.

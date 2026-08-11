@@ -1,7 +1,7 @@
 import { RulePackComplianceEngine } from '../src/compliance/RulePackComplianceEngine';
 import { PermissionAudit, RegulationId, SensitivePermission } from '../src/compliance/types';
 import { getRegulationPack, listRegulationPacks } from '../src/regulations/registry';
-import { assessPackSourceReview, validateRegulationPack } from '../src/regulations/governance';
+import { assessPackLegalReview, assessPackSourceReview, validateRegulationPack } from '../src/regulations/governance';
 import { RegulationPack } from '../src/regulations/types';
 
 function assert(condition: boolean, message: string): asserts condition {
@@ -35,6 +35,30 @@ const validContext = {
   contractNecessityReference: 'property-contract-necessity',
   dpiaRequired: false,
 };
+
+function makeLegallyAttestedPack(validUntil = '2027-02-11'): RegulationPack {
+  const pack = getRegulationPack('EU_GDPR');
+  return {
+    ...pack,
+    governance: {
+      ...pack.governance,
+      state: 'LEGALLY_REVIEWED',
+      reviewAuthority: { kind: 'QUALIFIED_LEGAL', reviewer: 'test-qualified-reviewer', scope: 'Synthetic governance fixture; not a real legal approval.' },
+      legalReviewAttestation: {
+        attestationId: 'test-attestation-eu-gdpr-v1',
+        reviewedPackVersion: pack.versionLabel,
+        reviewedSourcesSha256: 'A'.repeat(64),
+        reviewedAt: '2026-08-10',
+        approvedAt: '2026-08-11',
+        validUntil,
+        reviewerId: 'test-qualified-reviewer',
+        reviewerQualification: 'Synthetic qualified-reviewer fixture',
+        approverId: 'test-independent-approver',
+        scope: 'Synthetic full-pack review fixture for governance tests only.',
+      },
+    },
+  };
+}
 
 for (const pack of listRegulationPacks()) {
   assert(validateRegulationPack(pack).length === 0, `${pack.id} must pass governance validation.`);
@@ -87,6 +111,37 @@ const illegalApproval: RegulationPack = {
   },
 };
 assert(validateRegulationPack(illegalApproval).some((error) => error.includes('qualified legal reviewer')), 'Governance validator must reject an engineering-only approval mutation.');
+assert(validateRegulationPack(illegalApproval).some((error) => error.includes('legal-review attestation')), 'A legal state without a version-bound attestation must fail governance validation.');
+
+const attestedPack = makeLegallyAttestedPack();
+assert(validateRegulationPack(attestedPack).length === 0, 'A synthetic, internally consistent two-person legal-review attestation fixture must pass schema validation.');
+assert(assessPackLegalReview(getRegulationPack('EU_GDPR'), '2026-08-11').state === 'NOT_PROVIDED', 'The real project pack must disclose that independent legal review is not recorded.');
+assert(assessPackLegalReview(getRegulationPack('GLOBAL_RESEARCH_BASELINE'), '2026-08-11').state === 'NOT_APPLICABLE', 'A non-legal research pack must not imply legal attestation.');
+assert(assessPackLegalReview(attestedPack, '2026-08-11').state === 'CURRENT', 'A current attestation must be recognised on its assessed date.');
+assert(assessPackLegalReview(attestedPack, '2027-02-12').state === 'EXPIRED', 'An attestation must expire after its recorded validity date.');
+
+const selfApprovedPack: RegulationPack = {
+  ...attestedPack,
+  governance: { ...attestedPack.governance, legalReviewAttestation: { ...attestedPack.governance.legalReviewAttestation!, approverId: 'TEST-QUALIFIED-REVIEWER' } },
+};
+assert(validateRegulationPack(selfApprovedPack).some((error) => error.includes('different identities')), 'Case-insensitive reviewer self-approval must fail the four-eyes project gate.');
+
+const mismatchedAttestationPack: RegulationPack = {
+  ...attestedPack,
+  governance: { ...attestedPack.governance, legalReviewAttestation: { ...attestedPack.governance.legalReviewAttestation!, reviewedPackVersion: 'different-pack-version', reviewedSourcesSha256: 'not-a-sha256' } },
+};
+assert(validateRegulationPack(mismatchedAttestationPack).some((error) => error.includes('must match pack.versionLabel')), 'An attestation for another pack version must fail validation.');
+assert(validateRegulationPack(mismatchedAttestationPack).some((error) => error.includes('SHA-256 hex digest')), 'A malformed reviewed-source digest must fail validation.');
+
+const unreviewedNoConcern = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-08-11').evaluate({ packageName: 'legal.review.missing', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
+assert(unreviewedNoConcern.compliance.status === 'INSUFFICIENT_EVIDENCE', 'A legal pack without current independent attestation must not emit a reassuring no-concern result.');
+assert(unreviewedNoConcern.compliance.legalReview.state === 'NOT_PROVIDED' && unreviewedNoConcern.compliance.missingEvidence.includes('current independent qualified legal-review attestation'), 'The finding must preserve and explain the missing legal-review gate.');
+
+const attestedNoConcern = new RulePackComplianceEngine(attestedPack, '2026-08-11').evaluate({ packageName: 'legal.review.current', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
+assert(attestedNoConcern.compliance.status === 'NO_TECHNICAL_CONCERN' && attestedNoConcern.compliance.legalReview.state === 'CURRENT', 'A consistent current attestation may clear the project reassurance gate without establishing legal compliance.');
+
+const unreviewedSignal = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-08-11').evaluate({ packageName: 'legal.review.signal', permissionType: 'CONTACTS', accessCount: 7, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
+assert(unreviewedSignal.compliance.status === 'REVIEW_REQUIRED' && unreviewedSignal.compliance.missingEvidence.includes('current independent qualified legal-review attestation'), 'The gate must preserve a conservative technical review signal while disclosing absent legal attestation.');
 
 const missingSource: RegulationPack = { ...getRegulationPack('EU_GDPR'), sourceUrl: 'http://example.invalid' };
 assert(validateRegulationPack(missingSource).some((error) => error.includes('HTTPS official source')), 'Governance validator must reject a non-HTTPS legal source mutation.');
