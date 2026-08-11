@@ -190,7 +190,7 @@ export function assessTrustStoreEnvelope(
   const trustAnchors = effectiveAnchors(envelope);
   return {
     ...base,
-    state: 'CURRENT',
+    state: 'ENVELOPE_VERIFIED',
     trustAnchors,
     nextRollbackState: { highestAcceptedSequence: envelope.sequence, acceptedEnvelopeSha256: envelopeSha256 },
   };
@@ -199,6 +199,7 @@ export function assessTrustStoreEnvelope(
 export function trustStoreEnvelopeLabel(state: LegalReviewTrustStoreAssessment['state']): string {
   switch (state) {
     case 'CURRENT': return 'Signed trust store current';
+    case 'ENVELOPE_VERIFIED': return 'Envelope verified; witnesses pending';
     case 'UNPROVISIONED': return 'Production trust store unprovisioned';
     case 'INVALID': return 'Trust-store envelope invalid';
     case 'ROOT_NOT_TRUSTED': return 'Trust-store root not trusted';
@@ -210,5 +211,9 @@ export function trustStoreEnvelopeLabel(state: LegalReviewTrustStoreAssessment['
     case 'ROLLBACK_DETECTED': return 'Trust-store rollback detected';
     case 'SEQUENCE_GAP': return 'Trust-store sequence gap';
     case 'CHAIN_MISMATCH': return 'Trust-store predecessor mismatch';
+    case 'WITNESS_POLICY_UNPROVISIONED': return 'Production witness policy unprovisioned';
+    case 'WITNESS_POLICY_INVALID': return 'Witness policy invalid';
+    case 'WITNESS_RECEIPTS_INVALID': return 'Witness receipts invalid';
+    case 'WITNESS_QUORUM_NOT_MET': return 'Witness quorum not met';
   }
 }

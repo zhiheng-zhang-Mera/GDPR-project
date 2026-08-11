@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
+\usepackage{lmodern,microtype,setspace}
+\usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+\usepackage[hidelinks]{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.15em}
+\hypersetup{
+  pdftitle={Privacy Lens: An Evidence-Bounded Android Privacy Review Framework, Revision 25},
+  pdfauthor={Zhiheng Zhang}
+}
+\title{Privacy Lens: An Evidence-Bounded Android Privacy Review Framework with Independently Witnessed Trust-Store Releases (Revision 25)}
+\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
+\date{August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+\small\singlespacing
+Mobile privacy-review tools face an evidence-to-decision gap: a permission observation can indicate activity but cannot by itself establish purpose, necessity, lawful basis, acquisition completeness, or legal compliance. This thesis addresses that gap through Privacy Lens, a local-first Android prototype that converts bounded permission-audit summaries into traceable prompts for human review.
+
+Following a design-science method, the architecture treats provenance, temporal scope, missing context, and uncertainty as first-class evidence rather than converting a count into a legal verdict. A fail-closed engine rejects malformed records and unsafe temporal aggregation, isolates simulator data, and records the rule-pack version applied to each finding. Jurisdiction mappings remain outside the Android, repository, and interface layers through a replaceable pack contract; the European Union General Data Protection Regulation provides the evaluated legal objective.
+
+Revision 25 prevents a root-signed reviewer trust-store envelope from becoming current by signature alone. After the existing canonical Ed25519, validity, sequence, predecessor, revocation, and persisted rollback checks, a separately configured policy requires at least two distinct witness keys and enough valid receipts to meet its threshold. Each receipt binds the exact envelope digest, sequence, witness date, and declared application release identity. Missing or invalid policy, receipts, or quorum exposes no reviewer anchor and advances no rollback state. Production roots, envelopes, witness policy, receipts, and legal attestation remain empty, so the evaluated EU pack remains fail-closed.
+
+The fixed-seed 1,000-case corpus returned 800 true positives and 200 true negatives, while a further 1,800 independently calculated governance cases and the expanded witness adversarial probes passed. Accessibility, release-privacy, compilation, lint, APK/AAB build, local APK signature verification, and a short physical-device sample also passed within their stated scopes. App 1.13.0 showed witnesses 0/2, an unprovisioned production policy, and the limits of artifact identity, witness identity, independence, legal correctness, and transparency without observed clipping; three cold launches returned a live process and the crash buffer remained empty.
+
+These results support a stronger engineering and publication candidate, internally assessed at 96/100 against the recorded 70/100 predecessor baseline. They do not establish qualified legal review, production witness governance, installed-artifact identity, public consistency, unrestricted Android visibility, accessibility conformance, participant outcomes, long-run reliability, store approval, or publication acceptance. NIST, TUF, and in-toto concepts inform bounded design choices, but Privacy Lens claims neither derived GDPR obligations nor conformance to those systems. The contribution is an evidence-bounded architecture that makes both cryptographic progress and residual authority limits visible.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{Iteration-V2/Chapter1/chapter-01-25}
+\input{Iteration-V2/Chapter2/chapter-02-25}
+\input{Iteration-V2/Chapter3/chapter-03-25}
+\input{Iteration-V2/Chapter4/chapter-04-25}
+\input{Iteration-V2/Chapter5/chapter-05-25}
+\input{Iteration-V2/Chapter6/chapter-06-25}
+\input{Iteration-V2/Chapter7/chapter-07-25}
+{\small
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+}
+\end{document}

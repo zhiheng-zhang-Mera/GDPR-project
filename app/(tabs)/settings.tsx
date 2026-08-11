@@ -17,7 +17,7 @@ const SOURCE_STATUS_LABEL = {
 
 export default function SettingsScreen() {
   const { availablePacks, selectedRegulationId, selectedPack, trustStoreAssessment: trustStore, selectRegulation, clearFindings, findings } = usePrivacy();
-  const legalReview = assessPackLegalReview(selectedPack);
+  const legalReview = assessPackLegalReview(selectedPack, new Date().toISOString().slice(0, 10), trustStore);
   const sourceContent = assessPackSourceContent(selectedPack);
   const legalReviewWarning = legalReview.state !== 'CURRENT' && legalReview.state !== 'NOT_APPLICABLE';
   const legalReviewBody = legalReview.state === 'CURRENT'
@@ -97,13 +97,13 @@ export default function SettingsScreen() {
         </View>
 
         <Text style={styles.sectionTitle}>Evidence chain</Text>
-        <View accessibilityRole="summary" accessibilityLabel={`${sourceContentLabel(sourceContent.state)}. ${sourceContent.verifiedArtifactCount} of ${sourceContent.expectedArtifactCount} official-document artifacts verified in this app. ${trustStoreEnvelopeLabel(trustStore.state)}. Signed envelopes require a monotonic sequence and matching predecessor digest.`} style={styles.chainCard}>
+        <View accessibilityRole="summary" accessibilityLabel={`${sourceContentLabel(sourceContent.state)}. ${sourceContent.verifiedArtifactCount} of ${sourceContent.expectedArtifactCount} official-document artifacts verified in this app. ${trustStoreEnvelopeLabel(trustStore.state)}. ${trustStore.verifiedWitnessCount ?? 0} of ${trustStore.requiredWitnessCount ?? 2} independent witness receipts verified. Signed envelopes require a monotonic sequence, matching predecessor digest, and threshold witness receipts bound to the exact envelope and declared release identity.`} style={styles.chainCard}>
           <EvidenceStep icon="document-lock-outline" title="1 · Official document bytes" body={`${sourceContentLabel(sourceContent.state)} · ${sourceContent.verifiedArtifactCount}/${sourceContent.expectedArtifactCount} verified in this app`} warning={sourceContent.state !== 'VERIFIED' && sourceContent.state !== 'NOT_APPLICABLE'} />
           <View style={styles.chainDivider} />
           <EvidenceStep icon="finger-print-outline" title="2 · Independent review signature" body={legalReviewLabel(legalReview.state)} warning={legalReviewWarning} />
           <View style={styles.chainDivider} />
-          <EvidenceStep icon="key-outline" title="3 · Production key governance" body={`${trustStoreEnvelopeLabel(trustStore.state)} · signed envelope v1 · sequence + predecessor-digest rollback checks`} warning={trustStore.state !== 'CURRENT'} />
-          <Text style={styles.chainBoundary}>A recorded digest is not a fresh download check. A valid signature identifies a configured key, not legal correctness or GDPR compliance. Rollback resistance depends on local history and can be lost after uninstall, app-data clearing, or device compromise; it is not a transparency log.</Text>
+          <EvidenceStep icon="key-outline" title="3 · Key governance & witnesses" body={`${trustStoreEnvelopeLabel(trustStore.state)} · witnesses ${trustStore.verifiedWitnessCount ?? 0}/${trustStore.requiredWitnessCount ?? 2} · ${trustStore.witnessPolicyProvisioned ? 'policy provisioned' : 'production policy unprovisioned'}`} warning={trustStore.state !== 'CURRENT'} />
+          <Text style={styles.chainBoundary}>A recorded digest is not a fresh download check. A root signature alone cannot make this trust store current. Receipts attest only to the exact envelope and declared release identity; they do not bind an installed APK/AAB hash, prove real-world witness identity or independence, or form a public transparency log. A valid signature does not establish legal correctness or GDPR compliance. Local rollback history can be lost after uninstall, app-data clearing, or device compromise.</Text>
         </View>
 
         <View style={styles.sourceHeading}><View style={styles.sourceHeadingCopy}><Text style={styles.sectionTitleCompact}>Source register</Text><Text style={styles.sectionHelp}>Authority status is part of the pack—not inferred from visual prominence.</Text></View><View style={styles.sourceCount}><Text style={styles.sourceCountText}>{selectedPack.sources.length}</Text></View></View>
@@ -134,7 +134,7 @@ export default function SettingsScreen() {
           <Ionicons name="trash-outline" size={20} color={T.colors.danger} /><View style={styles.clearCopy}><Text style={styles.clearTitle}>Clear local findings</Text><Text style={styles.clearBody}>{findings.length} finding{findings.length === 1 ? '' : 's'} stored</Text></View><Ionicons name="chevron-forward" size={20} color="#879894" />
         </TouchableOpacity>
 
-        <Text style={styles.version}>Privacy Lens 1.12.0 · Signed monotonic trust-store candidate</Text>
+        <Text style={styles.version}>Privacy Lens 1.13.0 · Witnessed trust-store candidate</Text>
       </ScrollView>
       <BottomNav active="settings" />
     </SafeAreaView>

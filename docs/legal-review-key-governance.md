@@ -1,8 +1,8 @@
 # Legal-review key governance procedure
 
-Status: **mechanism implemented and tested; production roots and envelopes unprovisioned**
+Status: **mechanism implemented and tested; production roots, envelopes, witness policy, and receipts unprovisioned**
 
-Policy identifier: `privacy-lens.trust-store-policy.v2`
+Policy identifier: `privacy-lens.trust-store-policy.v3`
 
 Applies to: Privacy Lens legal-rule-pack attestations
 
@@ -10,7 +10,7 @@ Applies to: Privacy Lens legal-rule-pack attestations
 
 This is a project release control, not a requirement stated by the GDPR, a certification scheme, proof of reviewer qualification, or a substitute for legal advice. The production root store and signed trust-store envelope are empty. No real EU pack can clear the legal-review gate until independently governed root and reviewer keys, a genuine qualified review, and trusted rollback state are provisioned. The rollback state is app-private persistent storage, not tamper-resistant hardware: uninstalling the app, clearing application data, restoring an unsuitable backup, or compromising the device can remove or alter that history. Android backup is disabled, but that does not turn local state into a transparency log or guarantee continuity across reinstallations.
 
-The envelope design is informed by general key-lifecycle guidance in [NIST SP 800-57 Part 1 Revision 5](https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final) and by version, expiry, predecessor, and rollback concepts in [The Update Framework specification](https://theupdateframework.github.io/specification/). Privacy Lens does not claim TUF conformance or that NIST guidance creates a GDPR obligation.
+The envelope design is informed by general key-lifecycle guidance in [NIST SP 800-57 Part 1 Revision 5](https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final), by version, expiry, predecessor, and rollback concepts in [The Update Framework specification](https://theupdateframework.github.io/specification/), and by subject/digest/predicate separation in the [in-toto Attestation Framework](https://github.com/in-toto/attestation/blob/main/spec/README.md) and its [Statement specification](https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md). Privacy Lens does not claim NIST, TUF, or in-toto conformance, and none of these sources creates a GDPR obligation.
 
 ## Roles and separation
 
@@ -47,6 +47,17 @@ Role separation is a conservative Privacy Lens control. It must not be represent
 5. Independently verify the signature and produce a release record containing the application commit, APK/AAB hashes, manifest digest, attestation ID, key ID, and decision.
 6. A passing signature authenticates only the payload relative to the configured key. The reviewer remains responsible for the legal analysis and scope.
 
+## Independent trust-store witnesses
+
+1. A valid root signature is necessary but insufficient for `CURRENT`. The root-signed envelope first reaches `ENVELOPE_VERIFIED`; a separately configured witness policy and its threshold receipts must then verify.
+2. Provision at least two Ed25519 witness anchors under independently documented custody. Witness owners, key IDs, and public keys must each be unique; key IDs and public keys must not reuse root or reviewer material. A one-of-one policy is rejected.
+3. Each `privacy-lens.trust-store-witness-receipt.v1` binds the exact canonical envelope SHA-256 digest, envelope sequence, witness date, witness key ID, and declared application ID, semantic version, version code, and release channel. The receipt is invalid if any bound value changes.
+4. Every supplied receipt must be structurally valid, timely, signed by a currently valid non-revoked configured witness, and unique within the set. A malformed or extraneous receipt fails the entire set; missing receipts yield `WITNESS_QUORUM_NOT_MET`.
+5. Persist reviewer anchors and rollback state only after both the envelope and witness threshold pass. Witness-policy, receipt, or quorum failure exposes no reviewer anchor and advances no rollback state.
+6. Record the canonical order-independent receipt-set digest in the release evidence so independent reviewers can compare the exact set without treating input order as meaningful.
+
+These receipts are deliberately narrower than a public transparency service. They do not prove the real-world identity, organizational independence, competence, or uncompromised custody of a witness. The current schema binds a declared release identity but not the installed APK/AAB bytes or signing-certificate digest. It therefore cannot prove which binary a device actually runs. It also provides no public append-only log, gossip, inclusion proof, or split-view detection. A future artifact-attestation layer may adopt compatible concepts from the [in-toto Release predicate](https://github.com/in-toto/attestation/blob/main/spec/predicates/release.md), but this prototype does not claim that format or assurance.
+
 ## Rotation and revocation
 
 - Rotate before expiry, on role or institutional change, when custody controls change, or when the cryptographic policy changes.
@@ -70,6 +81,8 @@ A production trust-store change is blocked unless all of the following are evide
 - canonical payload and valid Ed25519 signature;
 - current key and attestation validity;
 - revocation and rollback tests;
+- a valid witness policy with at least two separately governed anchors and enough exact-envelope release-identity receipts to meet its threshold;
+- an independently retained witness receipt set and matching canonical set digest;
 - durable highest-sequence and accepted-envelope-digest state, with recovery and corruption procedures;
 - release-artifact hashes and reproducible test results;
 - jurisdiction, language, and deployment-scope review;

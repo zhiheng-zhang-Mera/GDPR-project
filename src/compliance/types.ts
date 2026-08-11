@@ -123,7 +123,10 @@ export interface ComplianceFinding {
       attestationId?: string;
       signingKeyId?: string;
       sourceContentState?: 'VERIFIED' | 'MANIFEST_NOT_PROVIDED' | 'ARTIFACTS_NOT_AVAILABLE' | 'ARTIFACT_MISSING' | 'ARTIFACT_LENGTH_MISMATCH' | 'ARTIFACT_HASH_MISMATCH' | 'NOT_APPLICABLE';
-      trustStoreState?: 'CURRENT' | 'UNPROVISIONED' | 'INVALID' | 'ROOT_NOT_TRUSTED' | 'ROOT_REVOKED' | 'SIGNATURE_INVALID' | 'NOT_YET_VALID' | 'EXPIRED' | 'HISTORY_NOT_AVAILABLE' | 'ROLLBACK_DETECTED' | 'SEQUENCE_GAP' | 'CHAIN_MISMATCH';
+      trustStoreState?: 'CURRENT' | 'ENVELOPE_VERIFIED' | 'UNPROVISIONED' | 'INVALID' | 'ROOT_NOT_TRUSTED' | 'ROOT_REVOKED' | 'SIGNATURE_INVALID' | 'NOT_YET_VALID' | 'EXPIRED' | 'HISTORY_NOT_AVAILABLE' | 'ROLLBACK_DETECTED' | 'SEQUENCE_GAP' | 'CHAIN_MISMATCH' | 'WITNESS_POLICY_UNPROVISIONED' | 'WITNESS_POLICY_INVALID' | 'WITNESS_RECEIPTS_INVALID' | 'WITNESS_QUORUM_NOT_MET';
+      requiredWitnessCount?: number;
+      verifiedWitnessCount?: number;
+      witnessReceiptSetSha256?: string;
       reason?: string;
     };
   };

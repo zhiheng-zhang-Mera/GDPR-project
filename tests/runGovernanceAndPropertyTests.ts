@@ -7,7 +7,8 @@ import { assessPackLegalReview, assessPackSourceReview, validateRegulationPack }
 import { canonicalizeLegalReviewPayload, computeSourceBundleSha256 } from '../src/regulations/attestationCrypto';
 import { assessPackSourceContent, computeSourceContentManifestSha256, sha256Bytes } from '../src/regulations/sourceContent';
 import { assessTrustStoreEnvelope, canonicalizeTrustStoreEnvelope, computeTrustStoreEnvelopeSha256, validateRollbackStateTransition, validateTrustStoreEnvelope } from '../src/regulations/trustStoreEnvelope';
-import { LegalReviewKeyRevocation, LegalReviewTrustAnchor, LegalReviewTrustRootAnchor, LegalReviewTrustStoreEnvelope, RegulationPack, SourceContentArtifacts } from '../src/regulations/types';
+import { assessWitnessedTrustStoreEnvelope, canonicalizeTrustStoreWitnessReceipt, computeWitnessReceiptSetSha256 } from '../src/regulations/trustStoreWitness';
+import { LegalReviewKeyRevocation, LegalReviewTrustAnchor, LegalReviewTrustRootAnchor, LegalReviewTrustStoreEnvelope, LegalReviewTrustStoreReleaseIdentity, LegalReviewTrustStoreWitnessAnchor, LegalReviewTrustStoreWitnessPolicy, LegalReviewTrustStoreWitnessReceipt, RegulationPack, SourceContentArtifacts } from '../src/regulations/types';
 
 function assert(condition: boolean, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -63,6 +64,14 @@ const TEST_ROOT_ANCHOR: LegalReviewTrustRootAnchor = {
   validFrom: '2026-01-01',
   validUntil: '2035-01-01',
 };
+const witnessKeyPair1 = forgeEd25519.generateKeyPair({ seed: new Uint8Array(Array.from({ length: 32 }, (_, index) => 151 + index)) });
+const witnessKeyPair2 = forgeEd25519.generateKeyPair({ seed: new Uint8Array(Array.from({ length: 32 }, (_, index) => 201 + index)) });
+const TEST_WITNESS_ANCHORS: readonly LegalReviewTrustStoreWitnessAnchor[] = [
+  { keyId: 'test-release-witness-1', algorithm: 'ED25519', publicKeyBase64: forgeUtil.encode64(bytesToBinary(witnessKeyPair1.publicKey)), owner: 'Synthetic independent witness one', validFrom: '2026-01-01', validUntil: '2035-01-01' },
+  { keyId: 'test-release-witness-2', algorithm: 'ED25519', publicKeyBase64: forgeUtil.encode64(bytesToBinary(witnessKeyPair2.publicKey)), owner: 'Synthetic independent witness two', validFrom: '2026-01-01', validUntil: '2035-01-01' },
+];
+const TEST_WITNESS_POLICY: LegalReviewTrustStoreWitnessPolicy = { schema: 'privacy-lens.trust-store-witness-policy.v1', requiredWitnesses: 2, anchors: TEST_WITNESS_ANCHORS };
+const TEST_RELEASE_IDENTITY: LegalReviewTrustStoreReleaseIdentity = { applicationId: 'com.zhihengzhang.privacylens', versionName: '1.13.0', versionCode: 14, releaseChannel: 'CONTROLLED_RESEARCH' };
 
 function makeTrustStoreEnvelope(options: {
   sequence?: number;
@@ -91,15 +100,60 @@ function makeTrustStoreEnvelope(options: {
   return { ...unsigned, signatureBase64: forgeUtil.encode64(bytesToBinary(signature)) };
 }
 
+function makeWitnessReceipt(envelope: LegalReviewTrustStoreEnvelope, witnessIndex: 0 | 1, options: { envelopeSha256?: string; witnessedAt?: string; releaseIdentity?: LegalReviewTrustStoreReleaseIdentity; witnessKeyId?: string } = {}): LegalReviewTrustStoreWitnessReceipt {
+  const witnessAnchor = TEST_WITNESS_ANCHORS[witnessIndex];
+  const unsigned: LegalReviewTrustStoreWitnessReceipt = {
+    schema: 'privacy-lens.trust-store-witness-receipt.v1',
+    scope: 'TRUST_STORE_ENVELOPE',
+    envelopeSha256: options.envelopeSha256 ?? computeTrustStoreEnvelopeSha256(envelope),
+    sequence: envelope.sequence,
+    witnessedAt: options.witnessedAt ?? '2026-08-11',
+    witnessKeyId: options.witnessKeyId ?? witnessAnchor.keyId,
+    releaseIdentity: options.releaseIdentity ?? TEST_RELEASE_IDENTITY,
+    signatureAlgorithm: 'ED25519',
+    signatureBase64: 'A'.repeat(88),
+  };
+  const keyPair = witnessIndex === 0 ? witnessKeyPair1 : witnessKeyPair2;
+  const signature = forgeEd25519.sign({ message: canonicalizeTrustStoreWitnessReceipt(unsigned), encoding: 'utf8', privateKey: keyPair.privateKey });
+  return { ...unsigned, signatureBase64: forgeUtil.encode64(bytesToBinary(signature)) };
+}
+
+function makeWitnessReceipts(envelope: LegalReviewTrustStoreEnvelope): readonly LegalReviewTrustStoreWitnessReceipt[] {
+  return [makeWitnessReceipt(envelope, 0), makeWitnessReceipt(envelope, 1)];
+}
+
 const TEST_TRUST_STORE_ENVELOPE = makeTrustStoreEnvelope();
-const TEST_TRUST_STORE = assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2026-08-11');
-assert(TEST_TRUST_STORE.state === 'CURRENT' && TEST_TRUST_STORE.trustAnchors.length === 1 && TEST_TRUST_STORE.nextRollbackState?.highestAcceptedSequence === 1, 'A valid initial signed trust-store envelope must produce effective anchors and rollback state.');
+const TEST_ENVELOPE_ASSESSMENT = assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2026-08-11');
+assert(TEST_ENVELOPE_ASSESSMENT.state === 'ENVELOPE_VERIFIED' && TEST_ENVELOPE_ASSESSMENT.trustAnchors.length === 1 && TEST_ENVELOPE_ASSESSMENT.nextRollbackState?.highestAcceptedSequence === 1, 'A valid initial signed trust-store envelope must verify without yet claiming witnessed release acceptance.');
+const TEST_WITNESS_RECEIPTS = makeWitnessReceipts(TEST_TRUST_STORE_ENVELOPE);
+const TEST_TRUST_STORE = assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], TEST_WITNESS_POLICY, TEST_WITNESS_RECEIPTS, TEST_RELEASE_IDENTITY, '2026-08-11');
+assert(TEST_TRUST_STORE.state === 'CURRENT' && TEST_TRUST_STORE.verifiedWitnessCount === 2 && TEST_TRUST_STORE.requiredWitnessCount === 2 && TEST_TRUST_STORE.trustAnchors.length === 1, 'A valid envelope must become current only after the independent witness threshold verifies.');
 assert(validateTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE).length === 0, 'The valid trust-store fixture must pass structural validation.');
 
 const SECOND_TEST_TRUST_ANCHOR: LegalReviewTrustAnchor = { ...TEST_TRUST_ANCHOR, keyId: 'test-ed25519-review-key-2', owner: 'Second synthetic reviewer fixture' };
 const orderedTrustStore = makeTrustStoreEnvelope({ anchors: [TEST_TRUST_ANCHOR, SECOND_TEST_TRUST_ANCHOR], revocations: [{ keyId: TEST_TRUST_ANCHOR.keyId, revokedAt: '2026-08-10', reason: 'Synthetic first revocation', successorKeyId: SECOND_TEST_TRUST_ANCHOR.keyId }, { keyId: 'retired-test-key', revokedAt: '2026-08-09', reason: 'Synthetic historical revocation' }] });
 const reorderedTrustStore = makeTrustStoreEnvelope({ anchors: [SECOND_TEST_TRUST_ANCHOR, TEST_TRUST_ANCHOR], revocations: [{ keyId: 'retired-test-key', revokedAt: '2026-08-09', reason: 'Synthetic historical revocation' }, { keyId: TEST_TRUST_ANCHOR.keyId, revokedAt: '2026-08-10', reason: 'Synthetic first revocation', successorKeyId: SECOND_TEST_TRUST_ANCHOR.keyId }] });
 assert(canonicalizeTrustStoreEnvelope(orderedTrustStore) === canonicalizeTrustStoreEnvelope(reorderedTrustStore), 'Trust-store canonicalization must be independent of anchor and revocation input ordering.');
+assert(computeWitnessReceiptSetSha256(TEST_WITNESS_RECEIPTS) === computeWitnessReceiptSetSha256([...TEST_WITNESS_RECEIPTS].reverse()), 'Witness receipt-set identity must be independent of receipt input ordering.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], undefined, [], TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_POLICY_UNPROVISIONED', 'A verified envelope without a production witness policy must not become current.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], { ...TEST_WITNESS_POLICY, requiredWitnesses: 1 }, TEST_WITNESS_RECEIPTS, TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_POLICY_INVALID', 'A one-party witness policy must fail the independent threshold requirement.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], TEST_WITNESS_POLICY, [TEST_WITNESS_RECEIPTS[0]], TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_QUORUM_NOT_MET', 'One valid receipt must not satisfy a two-witness policy.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], TEST_WITNESS_POLICY, [TEST_WITNESS_RECEIPTS[0], TEST_WITNESS_RECEIPTS[0]], TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_RECEIPTS_INVALID', 'Duplicate witness identities must not count twice.');
+const tamperedWitnessReceipt = { ...TEST_WITNESS_RECEIPTS[1], signatureBase64: `${TEST_WITNESS_RECEIPTS[1].signatureBase64[0] === 'A' ? 'B' : 'A'}${TEST_WITNESS_RECEIPTS[1].signatureBase64.slice(1)}` };
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], TEST_WITNESS_POLICY, [TEST_WITNESS_RECEIPTS[0], tamperedWitnessReceipt], TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_RECEIPTS_INVALID', 'A mutated witness signature must fail the entire receipt set.');
+const wrongEnvelopeReceipt = makeWitnessReceipt(TEST_TRUST_STORE_ENVELOPE, 1, { envelopeSha256: 'f'.repeat(64) });
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], TEST_WITNESS_POLICY, [TEST_WITNESS_RECEIPTS[0], wrongEnvelopeReceipt], TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_RECEIPTS_INVALID', 'A correctly signed receipt for another envelope digest must fail.');
+const wrongReleaseReceipt = makeWitnessReceipt(TEST_TRUST_STORE_ENVELOPE, 1, { releaseIdentity: { ...TEST_RELEASE_IDENTITY, versionName: '1.12.0' } });
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], TEST_WITNESS_POLICY, [TEST_WITNESS_RECEIPTS[0], wrongReleaseReceipt], TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_RECEIPTS_INVALID', 'A correctly signed receipt for another application release must fail.');
+const futureWitnessReceipt = makeWitnessReceipt(TEST_TRUST_STORE_ENVELOPE, 1, { witnessedAt: '2026-08-12' });
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], TEST_WITNESS_POLICY, [TEST_WITNESS_RECEIPTS[0], futureWitnessReceipt], TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_RECEIPTS_INVALID', 'A future-dated witness receipt must fail.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], { ...TEST_WITNESS_POLICY, anchors: [{ ...TEST_WITNESS_ANCHORS[0], keyId: TEST_ROOT_ANCHOR.keyId }, TEST_WITNESS_ANCHORS[1]] }, TEST_WITNESS_RECEIPTS, TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_POLICY_INVALID', 'Witness identities must remain separate from the offline root and reviewer keys.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], { ...TEST_WITNESS_POLICY, anchors: [TEST_WITNESS_ANCHORS[0], { ...TEST_WITNESS_ANCHORS[1], publicKeyBase64: TEST_WITNESS_ANCHORS[0].publicKeyBase64 }] }, TEST_WITNESS_RECEIPTS, TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_POLICY_INVALID', 'One public key under multiple identifiers must not satisfy witness independence.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], { ...TEST_WITNESS_POLICY, anchors: [TEST_WITNESS_ANCHORS[0], { ...TEST_WITNESS_ANCHORS[1], owner: TEST_WITNESS_ANCHORS[0].owner.toUpperCase() }] }, TEST_WITNESS_RECEIPTS, TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_POLICY_INVALID', 'One owner under case variants must not count as two independent witnesses.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], { ...TEST_WITNESS_POLICY, anchors: [TEST_WITNESS_ANCHORS[0], { ...TEST_WITNESS_ANCHORS[1], publicKeyBase64: TEST_TRUST_ANCHOR.publicKeyBase64 }] }, TEST_WITNESS_RECEIPTS, TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_POLICY_INVALID', 'Witness public-key material must remain separate from reviewer keys.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], { ...TEST_WITNESS_POLICY, anchors: [TEST_WITNESS_ANCHORS[0], { ...TEST_WITNESS_ANCHORS[1], revokedAt: '2026-08-11' }] }, TEST_WITNESS_RECEIPTS, TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_RECEIPTS_INVALID', 'A revoked witness must not satisfy the release threshold.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], { ...TEST_WITNESS_POLICY, anchors: [TEST_WITNESS_ANCHORS[0], { ...TEST_WITNESS_ANCHORS[1], revokedAt: '2025-12-31' }] }, TEST_WITNESS_RECEIPTS, TEST_RELEASE_IDENTITY, '2026-08-11').state === 'WITNESS_POLICY_INVALID', 'A witness revocation outside its validity interval must invalidate the policy.');
+assert(assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], TEST_WITNESS_POLICY, TEST_WITNESS_RECEIPTS, { ...TEST_RELEASE_IDENTITY, versionName: 'release fourteen' }, '2026-08-11').state === 'WITNESS_POLICY_INVALID', 'A malformed expected release version must invalidate the witness policy assessment.');
 
 const tamperedTrustStore = { ...TEST_TRUST_STORE_ENVELOPE, signatureBase64: `${TEST_TRUST_STORE_ENVELOPE.signatureBase64[0] === 'A' ? 'B' : 'A'}${TEST_TRUST_STORE_ENVELOPE.signatureBase64.slice(1)}` };
 assert(assessTrustStoreEnvelope(tamperedTrustStore, [TEST_ROOT_ANCHOR], '2026-08-11').state === 'SIGNATURE_INVALID', 'A modified trust-store signature must fail closed.');
@@ -117,7 +171,7 @@ assert(validateTrustStoreEnvelope(makeTrustStoreEnvelope({ revocations: [{ keyId
 
 const trustStoreSequence2 = makeTrustStoreEnvelope({ sequence: 2, previousEnvelopeSha256: TEST_TRUST_STORE.envelopeSha256 });
 const TRUST_STORE_SEQUENCE_2 = assessTrustStoreEnvelope(trustStoreSequence2, [TEST_ROOT_ANCHOR], '2026-08-12', TEST_TRUST_STORE.nextRollbackState);
-assert(TRUST_STORE_SEQUENCE_2.state === 'CURRENT' && TRUST_STORE_SEQUENCE_2.nextRollbackState?.highestAcceptedSequence === 2, 'The next signed envelope must advance exactly one sequence and bind its predecessor digest.');
+assert(TRUST_STORE_SEQUENCE_2.state === 'ENVELOPE_VERIFIED' && TRUST_STORE_SEQUENCE_2.nextRollbackState?.highestAcceptedSequence === 2, 'The next signed envelope must advance exactly one sequence and bind its predecessor digest before witness evaluation.');
 assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2026-08-12', TRUST_STORE_SEQUENCE_2.nextRollbackState).state === 'ROLLBACK_DETECTED', 'An older valid signed envelope must be rejected as rollback.');
 const forkedSequence2 = makeTrustStoreEnvelope({ sequence: 2, previousEnvelopeSha256: TEST_TRUST_STORE.envelopeSha256, anchors: [{ ...TEST_TRUST_ANCHOR, owner: 'Changed same-sequence fixture' }] });
 assert(assessTrustStoreEnvelope(forkedSequence2, [TEST_ROOT_ANCHOR], '2026-08-12', TRUST_STORE_SEQUENCE_2.nextRollbackState).state === 'ROLLBACK_DETECTED', 'A different envelope reusing the accepted sequence must be rejected.');
@@ -126,7 +180,7 @@ assert(assessTrustStoreEnvelope(wrongPredecessor, [TEST_ROOT_ANCHOR], '2026-08-1
 const sequenceGap = makeTrustStoreEnvelope({ sequence: 3, previousEnvelopeSha256: TEST_TRUST_STORE.envelopeSha256 });
 assert(assessTrustStoreEnvelope(sequenceGap, [TEST_ROOT_ANCHOR], '2026-08-12', TEST_TRUST_STORE.nextRollbackState).state === 'SEQUENCE_GAP', 'Skipped trust-store envelope sequences must fail closed.');
 assert(assessTrustStoreEnvelope(trustStoreSequence2, [TEST_ROOT_ANCHOR], '2026-08-12').state === 'HISTORY_NOT_AVAILABLE', 'A non-initial envelope without persisted rollback state must fail closed.');
-assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2026-08-12', TEST_TRUST_STORE.nextRollbackState).state === 'CURRENT', 'Reassessing the exact highest accepted envelope must be idempotent.');
+assert(assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2026-08-12', TEST_TRUST_STORE.nextRollbackState).state === 'ENVELOPE_VERIFIED', 'Reassessing the exact highest accepted envelope must remain idempotently envelope-verified before witness evaluation.');
 assert(validateRollbackStateTransition(undefined, TRUST_STORE_SEQUENCE_2.nextRollbackState!)?.includes('first accepted') === true, 'Persistent rollback state must reject initial sequence 2.');
 assert(validateRollbackStateTransition(TEST_TRUST_STORE.nextRollbackState, { highestAcceptedSequence: 3, acceptedEnvelopeSha256: computeTrustStoreEnvelopeSha256(sequenceGap) })?.includes('skip') === true, 'Persistent rollback state must reject sequence gaps independently of envelope assessment.');
 assert(validateRollbackStateTransition(TEST_TRUST_STORE.nextRollbackState, { highestAcceptedSequence: 1, acceptedEnvelopeSha256: 'f'.repeat(64) })?.includes('different envelope') === true, 'Persistent rollback state must reject same-sequence replacement.');
@@ -242,13 +296,14 @@ const reorderedSourcePack: RegulationPack = { ...attestedPack, sources: [...atte
 assert(computeSourceBundleSha256(reorderedSourcePack) === computeSourceBundleSha256(attestedPack), 'Canonical source-record hashing must be independent of input ordering and host locale.');
 const reorderedManifestPack: RegulationPack = { ...attestedPack, governance: { ...attestedPack.governance, sourceContentManifest: { ...attestedPack.governance.sourceContentManifest!, entries: [...attestedPack.governance.sourceContentManifest!.entries].reverse() } } };
 assert(computeSourceContentManifestSha256(reorderedManifestPack) === computeSourceContentManifestSha256(attestedPack), 'Canonical source-content manifests must be independent of input ordering and host locale.');
-assert(validateRegulationPack(attestedPack, TEST_TRUST_STORE).length === 0, 'A synthetic signed two-person legal-review attestation fixture must pass schema validation with an explicitly verified trust-store envelope.');
+assert(validateRegulationPack(attestedPack, TEST_TRUST_STORE).length === 0, 'A synthetic signed two-person legal-review attestation fixture must pass schema validation with an explicitly witnessed trust-store release.');
 assert(assessPackSourceContent(getRegulationPack('EU_GDPR')).state === 'ARTIFACTS_NOT_AVAILABLE', 'The production pack must distinguish recorded digests from locally verified source bytes.');
 assert(assessPackSourceContent(attestedPack, TEST_SOURCE_ARTIFACTS).state === 'VERIFIED', 'All synthetic offline source bytes must verify against the test manifest.');
 assert(assessPackLegalReview(getRegulationPack('EU_GDPR'), '2026-08-11').state === 'NOT_PROVIDED', 'The real project pack must disclose that independent legal review is not recorded.');
 assert(assessPackLegalReview(getRegulationPack('GLOBAL_RESEARCH_BASELINE'), '2026-08-11').state === 'NOT_APPLICABLE', 'A non-legal research pack must not imply legal attestation.');
-assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_TRUST_STORE, TEST_SOURCE_ARTIFACTS).state === 'CURRENT', 'A current signed attestation with verified source bytes and trust-store envelope must be recognised on its assessed date.');
-const laterTrustStore = assessTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], '2027-02-12');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_TRUST_STORE, TEST_SOURCE_ARTIFACTS).state === 'CURRENT', 'A current signed attestation with verified source bytes and a witnessed trust-store release must be recognised on its assessed date.');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_ENVELOPE_ASSESSMENT, TEST_SOURCE_ARTIFACTS).state === 'TRUST_STORE_UNVERIFIED', 'A root-signed envelope alone must not bypass the independent witness requirement.');
+const laterTrustStore = assessWitnessedTrustStoreEnvelope(TEST_TRUST_STORE_ENVELOPE, [TEST_ROOT_ANCHOR], TEST_WITNESS_POLICY, TEST_WITNESS_RECEIPTS, TEST_RELEASE_IDENTITY, '2027-02-12');
 assert(assessPackLegalReview(attestedPack, '2027-02-12', laterTrustStore, TEST_SOURCE_ARTIFACTS).state === 'EXPIRED', 'An attestation must expire after its recorded validity date.');
 
 const selfApprovedPack: RegulationPack = {
@@ -282,7 +337,7 @@ assert(assessPackLegalReview(badSignaturePack, '2026-08-11', TEST_TRUST_STORE, T
 const unprovisionedTrustStore = assessTrustStoreEnvelope(undefined, [], '2026-08-11');
 assert(assessPackLegalReview(attestedPack, '2026-08-11', unprovisionedTrustStore, TEST_SOURCE_ARTIFACTS).state === 'TRUST_STORE_UNVERIFIED', 'A structurally valid review signature must not be trusted without a verified production trust-store envelope.');
 const revokedTrustStoreEnvelope = makeTrustStoreEnvelope({ revocations: [{ keyId: TEST_TRUST_ANCHOR.keyId, revokedAt: '2026-08-10', reason: 'Synthetic compromise fixture' }] });
-const revokedTrustStore = assessTrustStoreEnvelope(revokedTrustStoreEnvelope, [TEST_ROOT_ANCHOR], '2026-08-11');
+const revokedTrustStore = assessWitnessedTrustStoreEnvelope(revokedTrustStoreEnvelope, [TEST_ROOT_ANCHOR], TEST_WITNESS_POLICY, makeWitnessReceipts(revokedTrustStoreEnvelope), TEST_RELEASE_IDENTITY, '2026-08-11');
 assert(assessPackLegalReview(attestedPack, '2026-08-11', revokedTrustStore, TEST_SOURCE_ARTIFACTS).state === 'SIGNER_REVOKED', 'A reviewer key revoked by a verified trust-store envelope must fail closed.');
 
 const unreviewedNoConcern = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-08-11').evaluate({ packageName: 'legal.review.missing', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
@@ -389,4 +444,4 @@ try {
 }
 assert(unknownRejected, 'Unknown regulation packs must fail closed instead of silently loading the default pack.');
 
-console.log('Governance validation, 1,800 independent-oracle cases, source-content verification, signed trust-store rollback/freeze/chain probes, metamorphic boundaries, and representative mutations passed.');
+console.log('Governance validation, 1,800 independent-oracle cases, source-content verification, signed trust-store rollback/freeze/chain probes, independent witness threshold/identity/signature probes, metamorphic boundaries, and representative mutations passed.');

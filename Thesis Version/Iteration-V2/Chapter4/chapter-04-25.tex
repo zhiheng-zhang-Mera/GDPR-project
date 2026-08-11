@@ -1,0 +1,7 @@
+\input{Iteration-V2/Chapter4/chapter-04-24}
+
+\subsection{Revision 25 implementation: threshold receipt assessment}
+
+The implementation first performs the Revision-24 envelope assessment. A valid root signature produces \texttt{ENVELOPE\_VERIFIED}, never \texttt{CURRENT}. A second assessor validates the expected package release, witness policy, anchors, and every supplied receipt. Receipt payloads use a fixed JSON field order; SHA-256 identifies the envelope and a canonical witness-key ordering makes the receipt-set digest independent of input order. Ed25519 verifies each canonical receipt. A successful threshold promotes the assessment to \texttt{CURRENT}; every failure path clears effective reviewer anchors and the candidate rollback transition.
+
+The production module intentionally configures no witness policy and an empty receipt set. Settings and expanded finding evidence show the verified/required count and receipt-set digest when available. The interface states that root approval alone is insufficient and that receipts neither bind the installed artifact nor prove witness identity, independence, legal correctness, GDPR compliance, or public transparency. Persistence remains conditional on the combined witnessed assessment.

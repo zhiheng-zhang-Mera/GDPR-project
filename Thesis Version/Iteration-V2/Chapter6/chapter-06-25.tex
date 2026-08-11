@@ -1,0 +1,7 @@
+\input{Iteration-V2/Chapter6/chapter-06-24}
+
+\subsection{Revision 25 residual witness and artifact validity limits}
+
+Threshold receipts reduce reliance on one offline root only if witness identities, custody, independence, and ceremonies are genuine. The application cannot infer those organisational facts from public keys. Collusion, coerced approval, shared custody, substituted anchors, or a compromised release process could still produce cryptographically valid receipts. With no public append-only service, gossip, inclusion proof, or split-view detection, different audiences could also receive inconsistent but locally valid evidence.
+
+The current receipt binds a declared release identity rather than artifact digests. It therefore does not prove that the APK/AAB built, distributed, installed, or executed on a device is the release a witness intended to observe. The streamed-install digest failure encountered during evaluation was a transport-path observation, not evidence that the local artifact signature was invalid; successful non-streaming installation likewise does not prove general transport reliability. Production artifact attestation, independent witness governance, qualified legal review, assistive-technology assessment, participant comprehension, multi-device coverage, and external replication remain validity gates.

@@ -1,0 +1,27 @@
+Privacy Lens 1.13.0 witnessed trust-store candidate
+Acceptance date: 2026-08-11
+Physical target: one OPPO PERM00 handset
+
+PASS - Local apksigner verification accepted the release APK under APK Signature Scheme v2.
+PASS - ADB non-streaming install of the final artifact succeeded as versionCode 14 / versionName 1.13.0; a preceding artifact's initial streamed transfer had been rejected with a content-digest mismatch.
+PASS - Three final short force-stop/relaunch rounds returned COLD launches of 2277 ms, 2266 ms, and 1937 ms, followed by a live application process.
+PASS - Settings rendered the fail-closed independent legal-review gate.
+PASS - Evidence chain separated official-document bytes, independent review signature, and key governance with witnesses.
+PASS - Production trust store and witness policy were visibly unprovisioned, with witnesses 0/2.
+PASS - The screen stated that a root signature alone is insufficient and that receipts do not prove APK/AAB identity, witness identity or independence, legal correctness, GDPR compliance, or a public transparency log.
+PASS - Crash buffer was empty after the recorded launch and interaction sample.
+
+Release artifacts
+APK bytes: 62937667
+APK SHA-256: 9E7B6CB5F7FB05A4A9F051BE3BBC3E182B509D82BB2D6346480E5BA946513B3A
+AAB bytes: 31793300
+AAB SHA-256: BBEDCFEFA096F1CCF7B75A01A22490CF8F432B2F6AF4EA5B38093F5AE682A114
+
+Evidence
+- overview.png/xml: live post-install overview state.
+- settings-top.png/xml: selected EU GDPR pack and privacy controls.
+- evidence-chain.png/xml: legal gate, 0/6 local source-byte state, witness 0/2 state, and bounded assurance language.
+- package.txt: device package metadata.
+- crash-buffer.txt: empty package-adjacent Android crash buffer sample.
+
+Boundaries: this is a short single-device engineering sample, not broad-device or long-run reliability evidence. It does not establish accessibility conformance, participant comprehension, production key or witness custody, witness independence, artifact transparency, qualified legal review, legal correctness, GDPR certification, store approval, or publication acceptance. The initial streamed-install digest failure also shows that one transport path was unreliable in this session; successful non-streaming installation does not erase that observation.

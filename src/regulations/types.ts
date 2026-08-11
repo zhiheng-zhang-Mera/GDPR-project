@@ -47,6 +47,7 @@ export type LegalReviewGateState =
 
 export type TrustStoreEnvelopeState =
   | 'CURRENT'
+  | 'ENVELOPE_VERIFIED'
   | 'UNPROVISIONED'
   | 'INVALID'
   | 'ROOT_NOT_TRUSTED'
@@ -57,7 +58,11 @@ export type TrustStoreEnvelopeState =
   | 'HISTORY_NOT_AVAILABLE'
   | 'ROLLBACK_DETECTED'
   | 'SEQUENCE_GAP'
-  | 'CHAIN_MISMATCH';
+  | 'CHAIN_MISMATCH'
+  | 'WITNESS_POLICY_UNPROVISIONED'
+  | 'WITNESS_POLICY_INVALID'
+  | 'WITNESS_RECEIPTS_INVALID'
+  | 'WITNESS_QUORUM_NOT_MET';
 
 export interface RegulatorySource {
   title: string;
@@ -173,6 +178,41 @@ export interface LegalReviewTrustStoreRollbackState {
   acceptedEnvelopeSha256: string;
 }
 
+export interface LegalReviewTrustStoreWitnessAnchor {
+  keyId: string;
+  algorithm: 'ED25519';
+  publicKeyBase64: string;
+  owner: string;
+  validFrom: string;
+  validUntil: string;
+  revokedAt?: string;
+}
+
+export interface LegalReviewTrustStoreWitnessPolicy {
+  schema: 'privacy-lens.trust-store-witness-policy.v1';
+  requiredWitnesses: number;
+  anchors: readonly LegalReviewTrustStoreWitnessAnchor[];
+}
+
+export interface LegalReviewTrustStoreReleaseIdentity {
+  applicationId: string;
+  versionName: string;
+  versionCode: number;
+  releaseChannel: 'CONTROLLED_RESEARCH' | 'PRODUCTION';
+}
+
+export interface LegalReviewTrustStoreWitnessReceipt {
+  schema: 'privacy-lens.trust-store-witness-receipt.v1';
+  scope: 'TRUST_STORE_ENVELOPE';
+  envelopeSha256: string;
+  sequence: number;
+  witnessedAt: string;
+  witnessKeyId: string;
+  releaseIdentity: LegalReviewTrustStoreReleaseIdentity;
+  signatureAlgorithm: 'ED25519';
+  signatureBase64: string;
+}
+
 export interface LegalReviewTrustStoreAssessment {
   state: TrustStoreEnvelopeState;
   assessedAt: string;
@@ -180,6 +220,11 @@ export interface LegalReviewTrustStoreAssessment {
   envelopeSha256?: string;
   validUntil?: string;
   signingRootKeyId?: string;
+  witnessPolicyProvisioned?: boolean;
+  requiredWitnessCount?: number;
+  verifiedWitnessCount?: number;
+  witnessReceiptSetSha256?: string;
+  releaseIdentity?: LegalReviewTrustStoreReleaseIdentity;
   trustAnchors: readonly LegalReviewTrustAnchor[];
   nextRollbackState?: LegalReviewTrustStoreRollbackState;
   reason?: string;
@@ -193,6 +238,9 @@ export interface PackLegalReviewAssessment {
   signingKeyId?: string;
   sourceContentState?: SourceContentVerificationState;
   trustStoreState?: TrustStoreEnvelopeState;
+  requiredWitnessCount?: number;
+  verifiedWitnessCount?: number;
+  witnessReceiptSetSha256?: string;
   reason?: string;
 }
 

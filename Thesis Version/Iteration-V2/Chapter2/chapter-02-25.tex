@@ -1,0 +1,7 @@
+\input{Iteration-V2/Chapter2/chapter-02-24}
+
+\subsection{Revision 25: attestation subject and digest concepts}
+
+The in-toto Attestation Framework separates an identified subject and digest from a predicate containing claims about that subject \cite{intotoattestation}. Revision 25 borrows the narrower discipline of binding a signed statement to an exact digest and declared release identity. It does not implement the in-toto Statement or envelope formats, a published predicate type, supply-chain layout verification, a transparency log, or in-toto conformance. The receipt-set digest is an order-independent local comparison identifier, not an inclusion proof.
+
+This distinction matters because witness signatures can otherwise invite an unjustified inference that a binary or human role has been independently verified. Privacy Lens receipts currently identify the application by package name, semantic version, version code, and controlled-research channel, but do not include APK, AAB, or signing-certificate digests. Consequently, they can support exact-envelope agreement only; artifact identity and real-world witness governance remain separate acceptance obligations.

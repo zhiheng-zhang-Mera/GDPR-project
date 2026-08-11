@@ -1,0 +1,7 @@
+\input{Iteration-V2/Chapter1/chapter-01-24}
+
+\subsection{Revision 25 contribution: independently witnessed trust-store releases}
+
+Revision 25 prevents a root-signed trust-store envelope from becoming operational solely because its signature verifies. The envelope now stops at \texttt{ENVELOPE\_VERIFIED}; \texttt{CURRENT} additionally requires a separately configured policy with at least two distinct Ed25519 witness anchors and enough valid receipts to meet its threshold. Each receipt binds the exact canonical envelope digest, sequence, witness date, and declared application release identity. Reviewer anchors and rollback state remain unavailable when policy, receipt, or quorum validation fails.
+
+This adds independently attributable cryptographic observations, not a production transparency system. The evaluated root, envelope, witness policy, and receipt sets remain empty. The receipts do not prove witness identity, organisational independence, qualification, uncompromised custody, public inclusion, or the installed APK/AAB bytes. The contribution is therefore a stronger fail-closed release boundary without a corresponding claim of legal authority or deployed assurance.

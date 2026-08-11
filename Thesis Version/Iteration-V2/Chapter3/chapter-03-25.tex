@@ -1,0 +1,7 @@
+\input{Iteration-V2/Chapter3/chapter-03-24}
+
+\subsection{Revision 25 witness requirements and attacker model}
+
+Revision 25 adds seven requirements. \textbf{WR1} requires a fixed receipt schema and canonical field order. \textbf{WR2} rejects thresholds below two or above the configured anchor count. \textbf{WR3} requires unique witness owners, key identifiers, and public keys, with identifiers and public-key material distinct from roots and reviewers. \textbf{WR4} requires valid Ed25519 material, coherent validity and revocation dates, and validity at both witnessing and assessment. \textbf{WR5} binds every receipt to the exact envelope digest, sequence, timely witness date, and expected application release identity. \textbf{WR6} rejects the entire supplied set on malformed, duplicate, unknown, revoked, future-dated, wrongly bound, or incorrectly signed receipts. \textbf{WR7} exposes no reviewer anchors and advances no rollback state until quorum passes.
+
+The extended attacker model includes a compromised root acting alone, receipt replay against another envelope or release, duplicate counting, threshold reduction to one, witness/root identity collision, signature mutation, future dating, and use of a revoked witness. It does not claim resistance to colluding or fictitious witnesses, replacement of application code or configured anchors, release-channel compromise, public split views, or device compromise.

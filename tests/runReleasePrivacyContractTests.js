@@ -17,6 +17,9 @@ const appJson = JSON.parse(read('app.json'));
 const buildGradle = read('android/app/build.gradle');
 const manifest = read('android/app/src/main/AndroidManifest.xml');
 const trustStoreRepository = read('src/regulations/TrustStoreStateRepository.ts');
+const trustAnchors = read('src/regulations/trustAnchors.ts');
+const trustStoreEnvelope = read('src/regulations/trustStoreEnvelope.ts');
+const trustStoreWitness = read('src/regulations/trustStoreWitness.ts');
 const privacyContext = read('src/context/PrivacyContext.tsx');
 const sourceRoots = ['app', 'components', 'src'];
 
@@ -30,6 +33,10 @@ assert(trustStoreRepository.includes("@privacy_lens_trust_store_rollback_v1"), '
 assert(trustStoreRepository.includes('validateRollbackStateTransition(current, next)'), 'Trust-store persistence must validate monotonic rollback-state transitions before writing.');
 assert(trustStoreRepository.includes('await AsyncStorage.setItem(ROLLBACK_STATE_KEY'), 'Accepted trust-store sequence and digest must be persisted.');
 assert(trustStoreRepository.includes("state: 'INVALID', trustAnchors: [], nextRollbackState: undefined"), 'A rollback-state persistence failure must remove all effective reviewer trust anchors.');
+assert(trustStoreRepository.includes('assessWitnessedTrustStoreEnvelope'), 'Production trust-store persistence must require witnessed-envelope assessment.');
+assert(trustAnchors.includes('LEGAL_REVIEW_TRUST_STORE_WITNESS_POLICY: LegalReviewTrustStoreWitnessPolicy | undefined = undefined') && trustAnchors.includes('LEGAL_REVIEW_TRUST_STORE_WITNESS_RECEIPTS: readonly LegalReviewTrustStoreWitnessReceipt[] = []'), 'Research releases must not silently provision production witness policy or receipts.');
+assert(trustStoreEnvelope.includes("state: 'ENVELOPE_VERIFIED'"), 'A root-signed envelope alone must not be labelled current.');
+assert(trustStoreWitness.includes('witnessPolicy.requiredWitnesses < 2') && trustStoreWitness.includes('trustAnchors: []') && trustStoreWitness.includes('nextRollbackState: undefined'), 'Witness validation must require an independent threshold and fail without exposing anchors or advancing rollback state.');
 assert(privacyContext.includes('assessAndPersistProductionTrustStore()'), 'Privacy context hydration must assess and persist the production trust store.');
 assert(!/clearStoredFindings[\s\S]{0,500}(?:removeItem\(ROLLBACK_STATE_KEY|clearTrustStore)/.test(privacyContext), 'Clearing ordinary findings must not clear trust-store rollback state.');
 

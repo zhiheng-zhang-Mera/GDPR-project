@@ -218,7 +218,15 @@ export function assessPackLegalReview(
   if (pack.kind !== 'LEGAL_FRAMEWORK') return { state: 'NOT_APPLICABLE', assessedAt: asOfDate };
   const attestation = pack.governance.legalReviewAttestation;
   if (!attestation) return { state: 'NOT_PROVIDED', assessedAt: asOfDate };
-  const base = { assessedAt: asOfDate, validUntil: attestation.validUntil, attestationId: attestation.attestationId, signingKeyId: attestation.signingKeyId };
+  const base = {
+    assessedAt: asOfDate,
+    validUntil: attestation.validUntil,
+    attestationId: attestation.attestationId,
+    signingKeyId: attestation.signingKeyId,
+    requiredWitnessCount: trustStore.requiredWitnessCount,
+    verifiedWitnessCount: trustStore.verifiedWitnessCount,
+    witnessReceiptSetSha256: trustStore.witnessReceiptSetSha256,
+  };
   if (attestation.reviewedSourcesSha256.toLowerCase() !== computeSourceBundleSha256(pack)) return { ...base, state: 'SOURCE_BUNDLE_MISMATCH', reason: 'The signed digest does not match the canonical source-record bundle.' };
   const manifestSha256 = currentSourceContentManifestSha256(pack);
   if (!manifestSha256 || attestation.reviewedSourceContentManifestSha256.toLowerCase() !== manifestSha256) return { ...base, state: 'SOURCE_CONTENT_MANIFEST_MISMATCH', reason: 'The signed source-content manifest digest does not match the current canonical manifest.' };
