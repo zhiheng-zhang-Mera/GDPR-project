@@ -22,6 +22,8 @@ export type RegulatorySourceLifecycle =
   | 'FINAL'
   | 'CONSULTATION_OPEN'
   | 'CONSULTATION_CLOSED_PENDING_FINALISATION';
+export type SourceReviewState = 'CURRENT' | 'REVIEW_DUE';
+export type PackSourceReviewState = SourceReviewState | 'NOT_APPLICABLE';
 
 export interface RegulatorySource {
   title: string;
@@ -31,7 +33,15 @@ export interface RegulatorySource {
   status: RegulatorySourceStatus;
   lifecycle: RegulatorySourceLifecycle;
   checkedAt: string;
+  reviewDueAt: string;
   consultationClosedAt?: string;
+}
+
+export interface PackSourceReviewAssessment {
+  state: PackSourceReviewState;
+  assessedAt: string;
+  nextDueAt?: string;
+  overdueSourceTitles: string[];
 }
 
 export interface PackGovernance {

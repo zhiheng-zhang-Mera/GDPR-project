@@ -2,7 +2,7 @@
   "expo": {
     "name": "Privacy Lens",
     "slug": "privacy-lens",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "orientation": "portrait",
     "icon": "./assets/images/privacy-lens-icon.png",
     "scheme": "privacylens",

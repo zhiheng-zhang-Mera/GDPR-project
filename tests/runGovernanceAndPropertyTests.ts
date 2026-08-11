@@ -1,7 +1,7 @@
 import { RulePackComplianceEngine } from '../src/compliance/RulePackComplianceEngine';
 import { PermissionAudit, RegulationId, SensitivePermission } from '../src/compliance/types';
 import { getRegulationPack, listRegulationPacks } from '../src/regulations/registry';
-import { validateRegulationPack } from '../src/regulations/governance';
+import { assessPackSourceReview, validateRegulationPack } from '../src/regulations/governance';
 import { RegulationPack } from '../src/regulations/types';
 
 function assert(condition: boolean, message: string): asserts condition {
@@ -107,6 +107,10 @@ const euSources = getRegulationPack('EU_GDPR').sources;
 assert(euSources.some(({ status }) => status === 'CONSULTATION_MATERIAL'), 'Non-final EDPB materials must remain explicitly labelled as consultation material.');
 assert(euSources.filter(({ status }) => status === 'CONSULTATION_MATERIAL').every(({ lifecycle }) => lifecycle === 'CONSULTATION_CLOSED_PENDING_FINALISATION'), 'Closed non-final EDPB materials must retain a pending-finalisation lifecycle.');
 assert(euSources.every(({ versionLabel }) => versionLabel.trim().length > 0), 'Every legal source record must pin a visible document version.');
+assert(euSources.every(({ reviewDueAt, checkedAt }) => reviewDueAt > checkedAt), 'Every legal source must schedule a future review after its check date.');
+assert(assessPackSourceReview(getRegulationPack('EU_GDPR'), '2026-08-11').state === 'CURRENT', 'The recorded EU source inventory must be current on its review date.');
+assert(assessPackSourceReview(getRegulationPack('EU_GDPR'), '2026-09-12').state === 'REVIEW_DUE', 'The EU source inventory must become review-due after the earliest scheduled deadline.');
+assert(assessPackSourceReview(getRegulationPack('GLOBAL_RESEARCH_BASELINE'), '2026-09-12').state === 'NOT_APPLICABLE', 'The non-legal research pack must not imply a legal-source review.');
 
 const lifecycleMismatch: RegulationPack = {
   ...getRegulationPack('EU_GDPR'),
@@ -131,6 +135,26 @@ const uncheckedAfterReview: RegulationPack = {
   sources: getRegulationPack('EU_GDPR').sources.map((source, index) => index === 4 ? { ...source, checkedAt: '2026-08-12' } : source),
 };
 assert(validateRegulationPack(uncheckedAfterReview).some((error) => error.includes('checkedAt cannot follow governance.lastReviewedAt')), 'Source checks recorded after the pack review must fail validation.');
+
+const missingReviewDeadline: RegulationPack = {
+  ...getRegulationPack('EU_GDPR'),
+  sources: getRegulationPack('EU_GDPR').sources.map((source, index) => index === 0 ? { ...source, reviewDueAt: '' } : source),
+};
+assert(validateRegulationPack(missingReviewDeadline).some((error) => error.includes('reviewDueAt must be a valid')), 'Legal sources without a valid review deadline must fail governance validation.');
+
+const nonFutureReviewDeadline: RegulationPack = {
+  ...getRegulationPack('EU_GDPR'),
+  sources: getRegulationPack('EU_GDPR').sources.map((source, index) => index === 0 ? { ...source, reviewDueAt: source.checkedAt } : source),
+};
+assert(validateRegulationPack(nonFutureReviewDeadline).some((error) => error.includes('reviewDueAt must follow checkedAt')), 'A source review deadline that does not follow its check date must fail governance validation.');
+
+const currentReviewFinding = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-08-11').evaluate({ packageName: 'source.review.current', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
+assert(currentReviewFinding.compliance.sourceReview.state === 'CURRENT', 'A finding must preserve the current source-review assessment used for evaluation.');
+
+const overdueReviewFinding = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-09-12').evaluate({ packageName: 'source.review.overdue', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
+assert(overdueReviewFinding.compliance.status === 'INSUFFICIENT_EVIDENCE', 'An overdue legal-source review must fail closed to insufficient evidence.');
+assert(overdueReviewFinding.compliance.sourceReview.state === 'REVIEW_DUE' && overdueReviewFinding.compliance.missingEvidence.includes('renewed regulatory-source review'), 'An overdue finding must preserve the review-due state and renewal gap.');
+assert(overdueReviewFinding.compliance.sourceReview.overdueSourceTitles.length === 2, 'The overdue assessment must identify both short-cycle consultation sources.');
 
 let unknownRejected = false;
 try {

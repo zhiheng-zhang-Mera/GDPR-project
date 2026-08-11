@@ -101,6 +101,12 @@ export interface ComplianceFinding {
     applicablePrinciples: string[];
     missingEvidence: string[];
     legalCaveat: string;
+    sourceReview: {
+      state: 'CURRENT' | 'REVIEW_DUE' | 'NOT_APPLICABLE' | 'NOT_RECORDED';
+      assessedAt: string;
+      nextDueAt?: string;
+      overdueSourceTitles: string[];
+    };
   };
   communication: {
     title: string;

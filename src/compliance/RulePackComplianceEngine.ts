@@ -1,6 +1,7 @@
 import { IComplianceEngine } from './IComplianceEngine';
 import { ComplianceErrorCode, ComplianceEvaluation, ComplianceFinding, PermissionAudit, SensitivePermission } from './types';
 import { RegulationPack } from '../regulations/types';
+import { assessPackSourceReview } from '../regulations/governance';
 
 const DAY_MS = 86_400_000;
 const BURST_LIMIT: Record<SensitivePermission, number> = { LOCATION: 12, MICROPHONE: 6, CONTACTS: 4 };
@@ -94,8 +95,11 @@ export class RulePackComplianceEngine implements IComplianceEngine {
   readonly regulation: string;
   private readonly history = new Map<string, { start: number; end: number; count: number }[]>();
 
-  constructor(readonly pack: RegulationPack) {
+  private readonly sourceReview: ReturnType<typeof assessPackSourceReview>;
+
+  constructor(readonly pack: RegulationPack, evaluatedAt = new Date().toISOString().slice(0, 10)) {
     this.regulation = pack.shortName;
+    this.sourceReview = assessPackSourceReview(pack, evaluatedAt);
   }
 
   evaluate(audit: PermissionAudit): ComplianceFinding {
@@ -128,7 +132,8 @@ export class RulePackComplianceEngine implements IComplianceEngine {
     if ((audit.source ?? 'SIMULATOR') !== 'SIMULATOR' && completed.length > 0 && rollingCount > threshold) signals.push('CROSS_WINDOW');
     const ratio = Math.max(excess / threshold, peak / BURST_LIMIT[audit.permissionType] - 1, rollingCount / threshold - 1);
     const missingEvidence = this.pack.findMissingEvidence(audit);
-    const status = this.pack.classify(audit, signals, missingEvidence);
+    if (this.sourceReview.state === 'REVIEW_DUE') missingEvidence.push('renewed regulatory-source review');
+    const status = this.sourceReview.state === 'REVIEW_DUE' ? 'INSUFFICIENT_EVIDENCE' : this.pack.classify(audit, signals, missingEvidence);
     const legalReference = rule.legalReference;
     const finding: ComplianceFinding = {
       id: `${audit.packageName}:${audit.permissionType}`,
@@ -146,7 +151,13 @@ export class RulePackComplianceEngine implements IComplianceEngine {
       detectedAt: audit.windowEnd,
       signals,
       evidence: { dailyCount: audit.accessCount, peakCallsPerMinute: peak, rollingCount, source: audit.source ?? 'SIMULATOR' },
-      compliance: { status, applicablePrinciples: this.pack.principles, missingEvidence, legalCaveat: this.pack.legalCaveat },
+      compliance: {
+        status,
+        applicablePrinciples: this.pack.principles,
+        missingEvidence,
+        legalCaveat: this.sourceReview.state === 'REVIEW_DUE' ? `${this.pack.legalCaveat} One or more regulatory sources are past the project review date; refresh and review the pack before relying on its mapping.` : this.pack.legalCaveat,
+        sourceReview: this.sourceReview,
+      },
       communication: undefined as never,
     };
     const urgent = status === 'POTENTIAL_CONFLICT' || status === 'LIKELY_NON_COMPLIANT' || finding.riskLevel === 'CRITICAL';

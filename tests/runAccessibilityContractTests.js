@@ -40,6 +40,7 @@ assert(findingCard.includes('accessibilityState={{ expanded }}') && findingCard.
 assert(findingCard.includes('presentation.marker') && findingCard.includes('statusRail'), 'Finding status must use a text marker and structural rail in addition to colour.');
 assert(findingCard.includes('minHeight: 44'), 'The dedicated evidence disclosure control must retain a 44-pixel minimum target.');
 assert(findingCard.includes('What is not established'), 'Expanded findings must separate uncertainty from observation.');
+assert(findingCard.includes('SOURCE_REVIEW_LABEL') && findingCard.includes('finding.compliance.sourceReview.state') && findingCard.includes('next due'), 'Findings must expose the source-review state used for their legal mapping.');
 assert(findingCard.includes('Do not change access or confront a developer based on this card alone.'), 'Finding details must discourage impulsive action.');
 assert(overview.includes('Pause between signal and action.'), 'Overview must teach the signal-context-action sequence.');
 assert(overview.includes('Run a synthetic demonstration?'), 'Synthetic demonstration must disclose its effect before execution.');
@@ -47,6 +48,7 @@ assert(overview.includes('useWindowDimensions') && overview.includes('metricsCol
 const settings = sources.find((item) => item.relative === 'app/(tabs)/settings.tsx').text;
 assert(settings.includes('selectedPack.sources.map') && settings.includes("BINDING_LAW: 'Binding law'") && settings.includes("CONSULTATION_MATERIAL: 'Consultation material'"), 'Settings must render source-authority status without treating consultation material as final guidance.');
 assert(settings.includes('sourceLifecycleLabel(source.lifecycle)') && settings.includes('source.versionLabel') && settings.includes('status checked'), 'Settings must expose each source version, lifecycle, and verification date.');
+assert(settings.includes('sourceReviewState(source)') && settings.includes('source.reviewDueAt') && settings.includes('Source-review expiry research candidate'), 'Settings must expose scheduled source-review currency and deadline.');
 assert(navigation.includes('itemSelected') && navigation.includes('iconWrapSelected'), 'Bottom navigation must provide a structural selected state in addition to colour.');
 assert(navigation.includes('useWindowDimensions') && navigation.includes('safeLargeText') && navigation.includes('itemLargeText'), 'Bottom navigation must increase its vertical capacity at larger system text sizes.');
 const privacy = sources.find((item) => item.relative === 'app/(tabs)/privacy.tsx').text;

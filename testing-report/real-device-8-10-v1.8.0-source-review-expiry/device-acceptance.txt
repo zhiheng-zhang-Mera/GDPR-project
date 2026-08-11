@@ -1,0 +1,33 @@
+Privacy Lens 1.8.0 source-review expiry — physical-device acceptance
+Date: 2026-08-11
+Device: OPPO PERM00 (arm64-v8a), serial BICIPVNB5HS85H9T
+Package: com.zhihengzhang.privacylens
+versionName: 1.8.0
+versionCode: 9
+minSdk: 24
+targetSdk: 36
+
+Release artifacts
+- APK bytes: 62,777,563
+- APK SHA-256: 08594A648AB1E050A683380DAA20B34D1022B45F631DE875E04E1A685D4EB909
+- AAB bytes: 31,705,224
+- AAB SHA-256: 1C2B52EE6349F35AA6E5645808C12E6E33A550B052BD7ABD6759F9383A00F77B
+
+UI contract assertions
+- Final-source review current / due 2027-02-11: PASS
+- Consultation lifecycle closed / finalisation pending: PASS
+- Consultation-source review due 2026-09-11: PASS
+- Finding chip exposes source-review state: PASS
+- Expanded finding exposes assessed 2026-08-11 / next due 2026-09-11: PASS
+
+Five controlled cold starts (am start -W)
+- Round 1: Status ok; TotalTime 743 ms; WaitTime 748 ms
+- Round 2: Status ok; TotalTime 1686 ms; WaitTime 1709 ms
+- Round 3: Status ok; TotalTime 1702 ms; WaitTime 1734 ms
+- Round 4: Status ok; TotalTime 1702 ms; WaitTime 1720 ms
+- Round 5: Status ok; TotalTime 1712 ms; WaitTime 1738 ms
+- Median TotalTime: 1702 ms
+- Crash buffer after the five starts: no matching fatal exception/package entry
+
+Claim boundary
+This is a short, controlled acceptance sample on one physical device. It does not establish long-duration stability, cross-device behaviour, background scheduling reliability, legal correctness, or production readiness.

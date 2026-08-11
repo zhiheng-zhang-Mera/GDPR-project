@@ -1,4 +1,4 @@
-import { RegulationPack, RegulatorySourceLifecycle } from './types';
+import { PackSourceReviewAssessment, RegulationPack, RegulatorySource, RegulatorySourceLifecycle, SourceReviewState } from './types';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -51,7 +51,9 @@ export function validateRegulationPack(pack: RegulationPack): string[] {
     if (!source.authority.trim()) errors.push(`sources.${index}.authority is required`);
     if (!isHttpsUrl(source.url)) errors.push(`sources.${index}.url must use HTTPS`);
     if (!isIsoCalendarDate(source.checkedAt)) errors.push(`sources.${index}.checkedAt must be a valid YYYY-MM-DD date`);
+    if (!isIsoCalendarDate(source.reviewDueAt)) errors.push(`sources.${index}.reviewDueAt must be a valid YYYY-MM-DD date`);
     if (isIsoCalendarDate(source.checkedAt) && isIsoCalendarDate(governance.lastReviewedAt) && source.checkedAt > governance.lastReviewedAt) errors.push(`sources.${index}.checkedAt cannot follow governance.lastReviewedAt`);
+    if (isIsoCalendarDate(source.checkedAt) && isIsoCalendarDate(source.reviewDueAt) && source.reviewDueAt <= source.checkedAt) errors.push(`sources.${index}.reviewDueAt must follow checkedAt`);
     if (source.status === 'BINDING_LAW' && source.lifecycle !== 'IN_FORCE') errors.push(`sources.${index} binding law must use the IN_FORCE lifecycle`);
     if (source.status === 'FINAL_GUIDANCE' && source.lifecycle !== 'FINAL') errors.push(`sources.${index} final guidance must use the FINAL lifecycle`);
     if (source.status === 'CONSULTATION_MATERIAL' && source.lifecycle !== 'CONSULTATION_OPEN' && source.lifecycle !== 'CONSULTATION_CLOSED_PENDING_FINALISATION') errors.push(`sources.${index} consultation material must use a consultation lifecycle`);
@@ -99,4 +101,21 @@ export function sourceLifecycleLabel(lifecycle: RegulatorySourceLifecycle): stri
     case 'CONSULTATION_OPEN': return 'Consultation open';
     case 'CONSULTATION_CLOSED_PENDING_FINALISATION': return 'Consultation closed; finalisation pending';
   }
+}
+
+export function sourceReviewState(source: RegulatorySource, asOfDate = new Date().toISOString().slice(0, 10)): SourceReviewState {
+  if (!isIsoCalendarDate(asOfDate)) throw new Error(`Invalid source-review assessment date: ${asOfDate}`);
+  return asOfDate > source.reviewDueAt ? 'REVIEW_DUE' : 'CURRENT';
+}
+
+export function sourceReviewLabel(state: SourceReviewState): string {
+  return state === 'CURRENT' ? 'Source review current' : 'Source review due';
+}
+
+export function assessPackSourceReview(pack: RegulationPack, asOfDate = new Date().toISOString().slice(0, 10)): PackSourceReviewAssessment {
+  if (!isIsoCalendarDate(asOfDate)) throw new Error(`Invalid pack source-review assessment date: ${asOfDate}`);
+  if (pack.sources.length === 0) return { state: 'NOT_APPLICABLE', assessedAt: asOfDate, overdueSourceTitles: [] };
+  const overdueSourceTitles = pack.sources.filter((source) => sourceReviewState(source, asOfDate) === 'REVIEW_DUE').map(({ title }) => title);
+  const nextDueAt = [...pack.sources].map(({ reviewDueAt }) => reviewDueAt).sort()[0];
+  return { state: overdueSourceTitles.length > 0 ? 'REVIEW_DUE' : 'CURRENT', assessedAt: asOfDate, nextDueAt, overdueSourceTitles };
 }

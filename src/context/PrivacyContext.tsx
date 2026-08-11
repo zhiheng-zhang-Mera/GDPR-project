@@ -53,13 +53,21 @@ const PrivacyContext = createContext<PrivacyContextValue | undefined>(undefined)
 
 function migrateFinding(finding: ComplianceFinding): ComplianceFinding {
   const status = finding.compliance.status === 'LIKELY_NON_COMPLIANT' ? 'POTENTIAL_CONFLICT' : finding.compliance.status;
-  if (finding.regulationId && finding.legalReference && status === finding.compliance.status) return finding;
+  if (finding.regulationId && finding.legalReference && finding.compliance.sourceReview && status === finding.compliance.status) return finding;
   return {
     ...finding,
     regulationId: 'EU_GDPR',
     regulationName: 'EU GDPR',
     legalReference: finding.gdprArticle,
-    compliance: { ...finding.compliance, status },
+    compliance: {
+      ...finding.compliance,
+      status,
+      sourceReview: finding.compliance.sourceReview ?? {
+        state: 'NOT_RECORDED',
+        assessedAt: new Date(finding.detectedAt).toISOString().slice(0, 10),
+        overdueSourceTitles: [],
+      },
+    },
   };
 }
 

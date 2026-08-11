@@ -17,6 +17,7 @@ export const EU_GDPR_PACK: RegulationPack = {
       status: 'BINDING_LAW',
       lifecycle: 'IN_FORCE',
       checkedAt: '2026-08-11',
+      reviewDueAt: '2027-02-11',
     },
     {
       title: 'Guidelines 05/2020 on consent under Regulation 2016/679',
@@ -26,6 +27,7 @@ export const EU_GDPR_PACK: RegulationPack = {
       status: 'FINAL_GUIDANCE',
       lifecycle: 'FINAL',
       checkedAt: '2026-08-11',
+      reviewDueAt: '2027-02-11',
     },
     {
       title: 'EDPB-endorsed WP29 transparency and DPIA guidelines',
@@ -35,6 +37,7 @@ export const EU_GDPR_PACK: RegulationPack = {
       status: 'FINAL_GUIDANCE',
       lifecycle: 'FINAL',
       checkedAt: '2026-08-11',
+      reviewDueAt: '2027-02-11',
     },
     {
       title: 'Guidelines 1/2024 on Article 6(1)(f) legitimate interests',
@@ -45,6 +48,7 @@ export const EU_GDPR_PACK: RegulationPack = {
       lifecycle: 'CONSULTATION_CLOSED_PENDING_FINALISATION',
       consultationClosedAt: '2024-11-20',
       checkedAt: '2026-08-11',
+      reviewDueAt: '2026-09-11',
     },
     {
       title: '2026 EDPB DPIA template',
@@ -55,6 +59,7 @@ export const EU_GDPR_PACK: RegulationPack = {
       lifecycle: 'CONSULTATION_CLOSED_PENDING_FINALISATION',
       consultationClosedAt: '2026-06-09',
       checkedAt: '2026-08-11',
+      reviewDueAt: '2026-09-11',
     },
   ],
   description: 'Technical prompts for necessity, lawful-basis, transparency, minimisation, retention and DPIA evidence review.',
