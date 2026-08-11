@@ -105,6 +105,32 @@ assert(validateRegulationPack(missingBindingLaw).some((error) => error.includes(
 
 const euSources = getRegulationPack('EU_GDPR').sources;
 assert(euSources.some(({ status }) => status === 'CONSULTATION_MATERIAL'), 'Non-final EDPB materials must remain explicitly labelled as consultation material.');
+assert(euSources.filter(({ status }) => status === 'CONSULTATION_MATERIAL').every(({ lifecycle }) => lifecycle === 'CONSULTATION_CLOSED_PENDING_FINALISATION'), 'Closed non-final EDPB materials must retain a pending-finalisation lifecycle.');
+assert(euSources.every(({ versionLabel }) => versionLabel.trim().length > 0), 'Every legal source record must pin a visible document version.');
+
+const lifecycleMismatch: RegulationPack = {
+  ...getRegulationPack('EU_GDPR'),
+  sources: getRegulationPack('EU_GDPR').sources.map((source, index) => index === 0 ? { ...source, lifecycle: 'FINAL' as const } : source),
+};
+assert(validateRegulationPack(lifecycleMismatch).some((error) => error.includes('binding law must use the IN_FORCE lifecycle')), 'Binding-law lifecycle mismatches must fail governance validation.');
+
+const unversionedSource: RegulationPack = {
+  ...getRegulationPack('EU_GDPR'),
+  sources: getRegulationPack('EU_GDPR').sources.map((source, index) => index === 1 ? { ...source, versionLabel: '' } : source),
+};
+assert(validateRegulationPack(unversionedSource).some((error) => error.includes('versionLabel is required')), 'Unversioned legal sources must fail governance validation.');
+
+const closedWithoutDate: RegulationPack = {
+  ...getRegulationPack('EU_GDPR'),
+  sources: getRegulationPack('EU_GDPR').sources.map((source, index) => index === 3 ? { ...source, consultationClosedAt: undefined } : source),
+};
+assert(validateRegulationPack(closedWithoutDate).some((error) => error.includes('consultationClosedAt must be a valid')), 'Closed consultations must record a valid closure date.');
+
+const uncheckedAfterReview: RegulationPack = {
+  ...getRegulationPack('EU_GDPR'),
+  sources: getRegulationPack('EU_GDPR').sources.map((source, index) => index === 4 ? { ...source, checkedAt: '2026-08-12' } : source),
+};
+assert(validateRegulationPack(uncheckedAfterReview).some((error) => error.includes('checkedAt cannot follow governance.lastReviewedAt')), 'Source checks recorded after the pack review must fail validation.');
 
 let unknownRejected = false;
 try {

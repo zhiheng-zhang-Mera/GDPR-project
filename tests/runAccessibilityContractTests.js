@@ -45,7 +45,8 @@ assert(overview.includes('Pause between signal and action.'), 'Overview must tea
 assert(overview.includes('Run a synthetic demonstration?'), 'Synthetic demonstration must disclose its effect before execution.');
 assert(overview.includes('useWindowDimensions') && overview.includes('metricsColumn') && overview.includes('sectionHeadingColumn'), 'Overview must reflow dense horizontal content at larger system text sizes.');
 const settings = sources.find((item) => item.relative === 'app/(tabs)/settings.tsx').text;
-assert(settings.includes('selectedPack.sources.map') && settings.includes("BINDING_LAW: 'Binding law'") && settings.includes("CONSULTATION_MATERIAL: 'Consultation'"), 'Settings must render source-authority status without treating consultation material as final guidance.');
+assert(settings.includes('selectedPack.sources.map') && settings.includes("BINDING_LAW: 'Binding law'") && settings.includes("CONSULTATION_MATERIAL: 'Consultation material'"), 'Settings must render source-authority status without treating consultation material as final guidance.');
+assert(settings.includes('sourceLifecycleLabel(source.lifecycle)') && settings.includes('source.versionLabel') && settings.includes('status checked'), 'Settings must expose each source version, lifecycle, and verification date.');
 assert(navigation.includes('itemSelected') && navigation.includes('iconWrapSelected'), 'Bottom navigation must provide a structural selected state in addition to colour.');
 assert(navigation.includes('useWindowDimensions') && navigation.includes('safeLargeText') && navigation.includes('itemLargeText'), 'Bottom navigation must increase its vertical capacity at larger system text sizes.');
 const privacy = sources.find((item) => item.relative === 'app/(tabs)/privacy.tsx').text;

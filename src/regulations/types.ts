@@ -17,13 +17,21 @@ export type PackGovernanceState =
   | 'REVOKED';
 
 export type RegulatorySourceStatus = 'BINDING_LAW' | 'FINAL_GUIDANCE' | 'CONSULTATION_MATERIAL';
+export type RegulatorySourceLifecycle =
+  | 'IN_FORCE'
+  | 'FINAL'
+  | 'CONSULTATION_OPEN'
+  | 'CONSULTATION_CLOSED_PENDING_FINALISATION';
 
 export interface RegulatorySource {
   title: string;
+  versionLabel: string;
   url: string;
   authority: string;
   status: RegulatorySourceStatus;
+  lifecycle: RegulatorySourceLifecycle;
   checkedAt: string;
+  consultationClosedAt?: string;
 }
 
 export interface PackGovernance {

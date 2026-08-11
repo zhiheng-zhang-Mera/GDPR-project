@@ -1,4 +1,4 @@
-import { RegulationPack } from './types';
+import { RegulationPack, RegulatorySourceLifecycle } from './types';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -47,9 +47,20 @@ export function validateRegulationPack(pack: RegulationPack): string[] {
   const sourceUrls = new Set<string>();
   for (const [index, source] of pack.sources.entries()) {
     if (!source.title.trim()) errors.push(`sources.${index}.title is required`);
+    if (!source.versionLabel.trim()) errors.push(`sources.${index}.versionLabel is required`);
     if (!source.authority.trim()) errors.push(`sources.${index}.authority is required`);
     if (!isHttpsUrl(source.url)) errors.push(`sources.${index}.url must use HTTPS`);
     if (!isIsoCalendarDate(source.checkedAt)) errors.push(`sources.${index}.checkedAt must be a valid YYYY-MM-DD date`);
+    if (isIsoCalendarDate(source.checkedAt) && isIsoCalendarDate(governance.lastReviewedAt) && source.checkedAt > governance.lastReviewedAt) errors.push(`sources.${index}.checkedAt cannot follow governance.lastReviewedAt`);
+    if (source.status === 'BINDING_LAW' && source.lifecycle !== 'IN_FORCE') errors.push(`sources.${index} binding law must use the IN_FORCE lifecycle`);
+    if (source.status === 'FINAL_GUIDANCE' && source.lifecycle !== 'FINAL') errors.push(`sources.${index} final guidance must use the FINAL lifecycle`);
+    if (source.status === 'CONSULTATION_MATERIAL' && source.lifecycle !== 'CONSULTATION_OPEN' && source.lifecycle !== 'CONSULTATION_CLOSED_PENDING_FINALISATION') errors.push(`sources.${index} consultation material must use a consultation lifecycle`);
+    if (source.lifecycle === 'CONSULTATION_CLOSED_PENDING_FINALISATION') {
+      if (!isIsoCalendarDate(source.consultationClosedAt)) errors.push(`sources.${index}.consultationClosedAt must be a valid YYYY-MM-DD date for a closed consultation`);
+      if (isIsoCalendarDate(source.consultationClosedAt) && isIsoCalendarDate(source.checkedAt) && source.checkedAt < source.consultationClosedAt) errors.push(`sources.${index}.checkedAt cannot precede consultationClosedAt`);
+    } else if (source.consultationClosedAt !== undefined) {
+      errors.push(`sources.${index}.consultationClosedAt is only valid for a closed consultation`);
+    }
     if (sourceUrls.has(source.url)) errors.push(`sources.${index}.url duplicates another source`);
     sourceUrls.add(source.url);
   }
@@ -78,5 +89,14 @@ export function packGovernanceLabel(pack: RegulationPack): string {
     case 'NON_LEGAL_DEMONSTRATOR': return 'Non-legal demonstration only';
     case 'SUPERSEDED': return 'Superseded pack';
     case 'REVOKED': return 'Revoked pack';
+  }
+}
+
+export function sourceLifecycleLabel(lifecycle: RegulatorySourceLifecycle): string {
+  switch (lifecycle) {
+    case 'IN_FORCE': return 'In force';
+    case 'FINAL': return 'Final';
+    case 'CONSULTATION_OPEN': return 'Consultation open';
+    case 'CONSULTATION_CLOSED_PENDING_FINALISATION': return 'Consultation closed; finalisation pending';
   }
 }
