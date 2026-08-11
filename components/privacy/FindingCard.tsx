@@ -29,12 +29,12 @@ export const FindingCard = memo(function FindingCard({ finding }: { finding: Com
         </View>
         <View style={styles.heading}>
           <Text style={styles.title}>{PERMISSION_LABEL[finding.permissionType]}</Text>
-          <Text style={styles.packageName} numberOfLines={1}>{finding.packageName}</Text>
+          <Text style={styles.packageName}>{finding.packageName}</Text>
         </View>
-        <View style={[styles.badge, { backgroundColor: tone.background }]}>
-          <Text style={[styles.badgeMarker, { color: tone.foreground }]}>{presentation.marker}</Text>
-          <Text style={[styles.badgeText, { color: tone.foreground }]}>{presentation.label}</Text>
-        </View>
+      </View>
+      <View style={[styles.badge, { backgroundColor: tone.background }]}>
+        <Text style={[styles.badgeMarker, { color: tone.foreground }]}>{presentation.marker}</Text>
+        <Text style={[styles.badgeText, { color: tone.foreground }]}>{presentation.label}</Text>
       </View>
       <Text style={styles.summary}>{finding.communication.summary.replaceAll('_', ' ')}</Text>
       <View style={styles.metaRow}>
@@ -73,9 +73,9 @@ const styles = StyleSheet.create({
   heading: { flex: 1, minWidth: 0 },
   title: { color: T.colors.ink, fontSize: 17, lineHeight: 22, fontWeight: '800' },
   packageName: { color: T.colors.muted, fontSize: 12, lineHeight: 17, marginTop: 1 },
-  badge: { maxWidth: 126, paddingHorizontal: 9, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: T.radius.pill },
+  badge: { alignSelf: 'flex-start', maxWidth: '100%', paddingHorizontal: 9, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: T.radius.pill },
   badgeMarker: { fontSize: 12, lineHeight: 14, fontWeight: '900' },
-  badgeText: { flexShrink: 1, fontSize: 10, lineHeight: 13, fontWeight: '900', textAlign: 'center' },
+  badgeText: { flexShrink: 1, fontSize: 10, lineHeight: 13, fontWeight: '900' },
   summary: { color: T.colors.inkSoft, fontSize: 14, lineHeight: 21 },
   metaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 7 },
   metaChip: { minHeight: 30, paddingHorizontal: 9, flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: T.radius.pill, backgroundColor: T.colors.surfaceMuted, borderWidth: 1, borderColor: T.colors.line },

@@ -65,6 +65,8 @@ export default function SettingsScreen() {
           <Fact icon="cloud-offline-outline" title="No evidence upload" body="This release has no account, analytics, advertising SDK, or evidence-sync service." />
           <View style={styles.divider} />
           <Fact icon="scale-outline" title="Human review required" body="Technical signals are prompts for investigation. They are not legal advice or findings of infringement." />
+          <View style={styles.divider} />
+          <Fact icon="text-outline" title="Readable structure" body="System text scaling is supported. Dense horizontal groups reflow at larger text sizes, and status remains readable without colour alone." />
         </View>
 
         <Text style={styles.sectionTitle}>About the evidence</Text>
@@ -97,7 +99,7 @@ export default function SettingsScreen() {
           <Ionicons name="trash-outline" size={20} color={T.colors.danger} /><View style={styles.clearCopy}><Text style={styles.clearTitle}>Clear local findings</Text><Text style={styles.clearBody}>{findings.length} finding{findings.length === 1 ? '' : 's'} stored</Text></View><Ionicons name="chevron-forward" size={20} color="#879894" />
         </TouchableOpacity>
 
-        <Text style={styles.version}>Privacy Lens 1.5.0 · Human-factors research candidate</Text>
+        <Text style={styles.version}>Privacy Lens 1.6.0 · Cognitive-accessibility research candidate</Text>
       </ScrollView>
       <BottomNav active="settings" />
     </SafeAreaView>

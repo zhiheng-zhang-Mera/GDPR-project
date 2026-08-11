@@ -43,8 +43,14 @@ assert(findingCard.includes('What is not established'), 'Expanded findings must 
 assert(findingCard.includes('Do not change access or confront a developer based on this card alone.'), 'Finding details must discourage impulsive action.');
 assert(overview.includes('Pause between signal and action.'), 'Overview must teach the signal-context-action sequence.');
 assert(overview.includes('Run a synthetic demonstration?'), 'Synthetic demonstration must disclose its effect before execution.');
+assert(overview.includes('useWindowDimensions') && overview.includes('metricsColumn') && overview.includes('sectionHeadingColumn'), 'Overview must reflow dense horizontal content at larger system text sizes.');
 const settings = sources.find((item) => item.relative === 'app/(tabs)/settings.tsx').text;
 assert(settings.includes('selectedPack.sources.map') && settings.includes("BINDING_LAW: 'Binding law'") && settings.includes("CONSULTATION_MATERIAL: 'Consultation'"), 'Settings must render source-authority status without treating consultation material as final guidance.');
 assert(navigation.includes('itemSelected') && navigation.includes('iconWrapSelected'), 'Bottom navigation must provide a structural selected state in addition to colour.');
+assert(navigation.includes('useWindowDimensions') && navigation.includes('safeLargeText') && navigation.includes('itemLargeText'), 'Bottom navigation must increase its vertical capacity at larger system text sizes.');
+const privacy = sources.find((item) => item.relative === 'app/(tabs)/privacy.tsx').text;
+assert(privacy.includes('useWindowDimensions') && privacy.includes('filtersLargeText') && privacy.includes('ledgerSummaryLargeText'), 'Findings filters and summary must reflow at larger system text sizes.');
+assert(!findingCard.includes('numberOfLines={1}'), 'Finding identity must not be forcibly truncated at larger text sizes.');
+assert(settings.includes('System text scaling is supported.') && settings.includes('status remains readable without colour alone.'), 'Settings must disclose the implemented reading-accessibility behavior.');
 
 console.log(`Accessibility source contracts passed for ${sourceFiles.length} files and ${sources.reduce((sum, item) => sum + [...item.text.matchAll(/<TouchableOpacity\b[\s\S]*?>/g)].length, 0)} interactive touchables.`);

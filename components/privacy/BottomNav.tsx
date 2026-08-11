@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Href, router } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrivacyTheme as T } from '../../constants/privacyTheme';
 
@@ -13,9 +13,11 @@ const ITEMS: { key: NavKey; label: string; route: Href; icon: keyof typeof Ionic
 ];
 
 export function BottomNav({ active }: { active: NavKey }) {
+  const { fontScale } = useWindowDimensions();
+  const largeTextLayout = fontScale >= 1.4;
   return (
-    <SafeAreaView edges={['bottom']} style={styles.safe}>
-      <View accessibilityRole="tablist" style={styles.bar}>
+    <SafeAreaView edges={['bottom']} style={[styles.safe, largeTextLayout && styles.safeLargeText]}>
+      <View accessibilityRole="tablist" style={[styles.bar, largeTextLayout && styles.barLargeText]}>
         {ITEMS.map((item) => {
           const selected = active === item.key;
           return (
@@ -26,7 +28,7 @@ export function BottomNav({ active }: { active: NavKey }) {
               accessibilityState={{ selected }}
               activeOpacity={0.7}
               onPress={() => { if (!selected) router.replace(item.route); }}
-              style={[styles.item, selected && styles.itemSelected]}
+              style={[styles.item, largeTextLayout && styles.itemLargeText, selected && styles.itemSelected]}
             >
               <View style={[styles.iconWrap, selected && styles.iconWrapSelected]}>
                 <Ionicons name={selected ? item.activeIcon : item.icon} size={22} color={selected ? T.colors.primary : '#70827F'} />
@@ -42,8 +44,11 @@ export function BottomNav({ active }: { active: NavKey }) {
 
 const styles = StyleSheet.create({
   safe: { minHeight: 82, flexShrink: 0, backgroundColor: T.colors.canvas },
+  safeLargeText: { minHeight: 96 },
   bar: { minHeight: 68, marginHorizontal: 12, marginTop: 5, marginBottom: 7, padding: 5, flexDirection: 'row', alignItems: 'stretch', borderRadius: 24, borderWidth: 1, borderColor: T.colors.line, backgroundColor: '#FFFFFF', ...T.shadow.floating },
+  barLargeText: { minHeight: 82 },
   item: { flex: 1, minHeight: 56, alignItems: 'center', justifyContent: 'center', gap: 1, borderRadius: 18 },
+  itemLargeText: { minHeight: 70 },
   itemSelected: { backgroundColor: T.colors.mint },
   iconWrap: { width: 34, height: 29, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
   iconWrapSelected: { backgroundColor: 'rgba(255,255,255,0.68)' },

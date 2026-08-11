@@ -1,0 +1,49 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
+\usepackage{lmodern,microtype,setspace}
+\usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+\usepackage[hidelinks]{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.15em}
+\hypersetup{
+  pdftitle={Privacy Lens: An Evidence-Bounded Android Privacy Review Framework, Revision 18},
+  pdfauthor={Zhiheng Zhang}
+}
+\title{Privacy Lens: An Evidence-Bounded Android Privacy Review Framework with Governed Legal-Evidence Packs (Revision 18)}
+\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
+\date{August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+\small\singlespacing
+Mobile privacy-review tools face an evidence-to-decision gap: a permission observation can indicate activity, but it cannot by itself establish purpose, necessity, lawful basis, acquisition completeness, or legal compliance. When an interface suppresses these missing facts, a technically correct calculation can still produce an unreliable conclusion. This thesis addresses that gap through Privacy Lens, a local-first Android prototype that converts bounded permission-audit summaries into traceable prompts for human review.
+
+Following a design-science method, the architecture treats provenance, temporal scope, missing context, and uncertainty as first-class evidence rather than treating a count as a legal verdict. A fail-closed engine rejects malformed records and unsafe temporal aggregation, isolates simulator data, and records the rule-pack version applied to each finding. The European Union General Data Protection Regulation provides the evaluated legal objective; jurisdiction-specific mappings remain outside the Android, repository, and interface layers through a replaceable pack contract.
+
+The product organises review around Overview, Findings, and Settings. Findings remain local, Android backup and remote updates are disabled, the evaluated package has no network or sensitive runtime permission, and users can clear evidence directly. Successive revisions added legal-source governance, visible provenance, non-colour status, a signal--missing-context--proportionate-action path, and consequence-first demonstration disclosure. Revision 18 adds large-text reflow, complete package identity, structural status, and expanded navigation spacing.
+
+Evaluation separates logical, legal-governance, package, physical-device, interface, and human-factors evidence. In a fixed-seed 1,000-case corpus, the engine matched the specified oracle with 800 true positives and 200 true negatives. A further 1,800 independently calculated pack cases, legal-evidence probes, governance mutations, accessibility contracts, and release-privacy contracts passed. The 1.6.0 ARM64 APK and AAB built successfully. On one OPPO PERM00, selected states rendered at the available 1.6 font scale without observed clipping; the original 0.9 scale was restored, and five subsequent cold starts produced no crash-buffer entry. No accessibility conformance or participant outcome is inferred.
+
+These results establish an initial store-submission engineering candidate within the recorded scope. They do not establish legal compliance, unrestricted Android visibility, population accuracy, accessibility conformance, long-run reliability, or store approval. The contribution is an evidence-bounded architecture and traceability method that separate statutory motivation, engineering heuristics, observed evidence, missing legal facts, and prohibited conclusions.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{Iteration-V2/Chapter1/chapter-01-18}
+\input{Iteration-V2/Chapter2/chapter-02-18}
+\input{Iteration-V2/Chapter3/chapter-03-18}
+\input{Iteration-V2/Chapter4/chapter-04-18}
+\input{Iteration-V2/Chapter5/chapter-05-18}
+\input{Iteration-V2/Chapter6/chapter-06-18}
+\input{Iteration-V2/Chapter7/chapter-07-18}
+{\small
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+}
+\end{document}

@@ -1,0 +1,7 @@
+﻿Starting: Intent { cmp=com.zhihengzhang.privacylens/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.zhihengzhang.privacylens/.MainActivity
+TotalTime: 1745
+WaitTime: 1759
+Complete
