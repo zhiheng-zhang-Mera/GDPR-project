@@ -1,0 +1,13 @@
+package=com.zhihengzhang.privacylens
+versionCode=15
+versionName=1.14.0
+minSdk=24
+targetSdk=36
+device=BICIPVNB5HS85H9T
+model=PERM00
+installMode=non-streaming
+installResult=Success
+apkSha256=B4D633DD30E9813077AE082F0CB0444C5138179CE9366A6C19B4B1E36F9B2BA5
+aabSha256=B4823D63CF9855469DC647EDFFA9B9316535BCABE4A0F17E4CBDCB0A9420AE24
+apkSignatureSchemeV2=true
+qaCertificate=Android Debug

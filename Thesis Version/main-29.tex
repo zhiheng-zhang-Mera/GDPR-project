@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
+\usepackage{lmodern,microtype,setspace}
+\usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+\usepackage[hidelinks]{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.15em}
+\hypersetup{pdftitle={Privacy Lens: An Evidence-Bounded Android Privacy Review Framework, Revision 26},pdfauthor={Zhiheng Zhang}}
+\title{Privacy Lens: Evidence-Bounded Android Privacy Review with Witnessed Governance and Non-Collecting Decision Calibration (Revision 26)}
+\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
+\date{August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+\small\singlespacing
+Mobile privacy-review tools face an evidence-to-decision gap: a permission observation may indicate activity but cannot by itself establish purpose, necessity, lawful basis, acquisition completeness, legal compliance, or developer intent. Privacy Lens addresses this gap with a local-first Android prototype that converts bounded permission-audit summaries into traceable prompts for human review.
+
+The architecture treats provenance, temporal scope, missing context, and uncertainty as first-class evidence. A fail-closed engine rejects malformed records and unsafe aggregation, isolates simulator data, and binds findings to replaceable rule packs. Independent legal-review reassurance additionally requires verified source bytes, a signed canonical attestation, a valid monotonic root envelope, and a minimum two-witness receipt threshold. Production roots, envelopes, witnesses, and legal attestation remain empty.
+
+Revision 26 adds a non-collecting decision pause after the evidence. Users distinguish a technical signal from a GDPR verdict or developer intent, receive immediate correction, and review provenance, evidence gaps, and proportionality. Answers exist only while the card is open and neither persist nor upload. A preregistration draft fixes a two-arm comprehension study, primary endpoint, sample size, exclusions, stopping rule, and analysis. A dependency-free analyzer accepts a visibly synthetic dry run without converting it into participant evidence.
+
+The 1,000-case engine corpus, 1,800-case independent governance oracle, decision-state probes, accessibility and release-privacy contracts, TypeScript, and lint passed. Release build and one-device evidence are reported separately after artifact verification. The internal artifact-quality rubric reaches 98/100, with every component at least 95\%, so further self-scored feature iteration stops. This threshold is not a legal opinion, participant outcome, accessibility certification, journal decision, or proof of publication quality. The contribution is an auditable boundary between technical signal, governed legal evidence, reflective action, and the external validation still required.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{Iteration-V2/Chapter1/chapter-01-26}
+\input{Iteration-V2/Chapter2/chapter-02-26}
+\input{Iteration-V2/Chapter3/chapter-03-26}
+\input{Iteration-V2/Chapter4/chapter-04-26}
+\input{Iteration-V2/Chapter5/chapter-05-26}
+\input{Iteration-V2/Chapter6/chapter-06-26}
+\input{Iteration-V2/Chapter7/chapter-07-26}
+{\small
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+}
+\end{document}

@@ -1,0 +1,7 @@
+\input{Iteration-V2/Chapter4/chapter-04-25}
+
+\subsection{Revision 26 implementation: pure readiness state machine}
+
+\texttt{DecisionReadiness.ts} implements four deterministic states: unanswered interpretation, corrected misinterpretation, incomplete context checks, and readiness for proportionate review. The only ready transition requires the technical-signal interpretation plus all three context checks. Even that terminal message states that readiness is not proof of a violation. Unit probes cover every state and verify that a legal-verdict or intent interpretation cannot become ready merely because all boxes are selected.
+
+\texttt{FindingCard.tsx} holds the response state locally with React component state, resets it on collapse, and provides no repository, context, network, analytics, or persistence call. Settings and the privacy-policy draft disclose this lifetime. Radio and checkbox controls expose selection state, all targets retain a 44-pixel minimum, and feedback uses a polite live region. The card remains an aid to reflective review rather than an enforcement gate.

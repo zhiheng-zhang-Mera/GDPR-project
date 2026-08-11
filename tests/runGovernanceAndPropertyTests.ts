@@ -71,7 +71,7 @@ const TEST_WITNESS_ANCHORS: readonly LegalReviewTrustStoreWitnessAnchor[] = [
   { keyId: 'test-release-witness-2', algorithm: 'ED25519', publicKeyBase64: forgeUtil.encode64(bytesToBinary(witnessKeyPair2.publicKey)), owner: 'Synthetic independent witness two', validFrom: '2026-01-01', validUntil: '2035-01-01' },
 ];
 const TEST_WITNESS_POLICY: LegalReviewTrustStoreWitnessPolicy = { schema: 'privacy-lens.trust-store-witness-policy.v1', requiredWitnesses: 2, anchors: TEST_WITNESS_ANCHORS };
-const TEST_RELEASE_IDENTITY: LegalReviewTrustStoreReleaseIdentity = { applicationId: 'com.zhihengzhang.privacylens', versionName: '1.13.0', versionCode: 14, releaseChannel: 'CONTROLLED_RESEARCH' };
+const TEST_RELEASE_IDENTITY: LegalReviewTrustStoreReleaseIdentity = { applicationId: 'com.zhihengzhang.privacylens', versionName: '1.14.0', versionCode: 15, releaseChannel: 'CONTROLLED_RESEARCH' };
 
 function makeTrustStoreEnvelope(options: {
   sequence?: number;

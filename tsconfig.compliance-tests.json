@@ -17,6 +17,7 @@
     "src/compliance/ViolationSimulator.ts",
     "src/compliance/Evaluation.ts",
     "src/compliance/DashboardModel.ts",
+    "src/compliance/DecisionReadiness.ts",
     "tests/runComplianceTests.ts",
     "tests/runExtendedComplianceTests.ts",
     "tests/runGovernanceAndPropertyTests.ts"

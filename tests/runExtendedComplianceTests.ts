@@ -1,6 +1,7 @@
 import { GDPRComplianceEngine } from '../src/compliance/GDPRComplianceEngine';
 import { calculateMetrics } from '../src/compliance/Evaluation';
 import { STATUS_PRESENTATION } from '../src/compliance/DashboardModel';
+import { assessDecisionReadiness } from '../src/compliance/DecisionReadiness';
 import { RulePackComplianceEngine } from '../src/compliance/RulePackComplianceEngine';
 import { getRegulationPack, isRegulationId, listRegulationPacks } from '../src/regulations/registry';
 import { createEvaluationConfig, createSimulationConfig, simulationToAudit } from '../src/compliance/ViolationSimulator';
@@ -9,6 +10,22 @@ import { ProcessingContext, SensitivePermission } from '../src/compliance/types'
 function assert(condition: boolean, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
+
+const uncheckedDecision = assessDecisionReadiness({ provenanceChecked: false, gapsChecked: false, proportionalityChecked: false });
+assert(uncheckedDecision.state === 'UNDERSTANDING_NOT_CHECKED' && !uncheckedDecision.ready, 'An unanswered interpretation must not report readiness.');
+for (const interpretation of ['LEGAL_VIOLATION', 'DEVELOPER_INTENT'] as const) {
+  const corrected = assessDecisionReadiness({ interpretation, provenanceChecked: true, gapsChecked: true, proportionalityChecked: true });
+  assert(corrected.state === 'MISINTERPRETATION_CORRECTED' && !corrected.ready, `${interpretation} must be corrected even when every checkbox is selected.`);
+}
+for (const omitted of ['provenanceChecked', 'gapsChecked', 'proportionalityChecked'] as const) {
+  const input = { interpretation: 'TECHNICAL_SIGNAL' as const, provenanceChecked: true, gapsChecked: true, proportionalityChecked: true };
+  input[omitted] = false;
+  const incomplete = assessDecisionReadiness(input);
+  assert(incomplete.state === 'CONTEXT_CHECKS_INCOMPLETE' && !incomplete.ready, `Readiness must require ${omitted}.`);
+}
+const readyDecision = assessDecisionReadiness({ interpretation: 'TECHNICAL_SIGNAL', provenanceChecked: true, gapsChecked: true, proportionalityChecked: true });
+assert(readyDecision.state === 'READY_FOR_PROPORTIONATE_REVIEW' && readyDecision.ready, 'A correct interpretation plus all context checks should prepare proportionate review.');
+assert(readyDecision.feedback.includes('not proof'), 'Readiness feedback must preserve the legal-claim boundary.');
 
 const now = 1_700_000_000_000;
 const validContext: ProcessingContext = {

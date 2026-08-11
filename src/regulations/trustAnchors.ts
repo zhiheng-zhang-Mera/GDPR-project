@@ -18,8 +18,8 @@ export const LEGAL_REVIEW_TRUST_STORE_WITNESS_POLICY: LegalReviewTrustStoreWitne
 export const LEGAL_REVIEW_TRUST_STORE_WITNESS_RECEIPTS: readonly LegalReviewTrustStoreWitnessReceipt[] = [];
 export const LEGAL_REVIEW_TRUST_STORE_RELEASE_IDENTITY: LegalReviewTrustStoreReleaseIdentity = {
   applicationId: 'com.zhihengzhang.privacylens',
-  versionName: '1.13.0',
-  versionCode: 14,
+  versionName: '1.14.0',
+  versionCode: 15,
   releaseChannel: 'CONTROLLED_RESEARCH',
 };
 

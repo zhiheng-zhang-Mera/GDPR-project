@@ -3,6 +3,7 @@ import { memo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { PrivacyTheme as T } from '../../constants/privacyTheme';
 import { STATUS_PRESENTATION } from '../../src/compliance/DashboardModel';
+import { assessDecisionReadiness, FindingInterpretation } from '../../src/compliance/DecisionReadiness';
 import { ComplianceFinding } from '../../src/compliance/types';
 
 const TONES = {
@@ -22,10 +23,24 @@ const TRUST_STORE_LABEL = { CURRENT: 'Witnessed trust store current', ENVELOPE_V
 
 export const FindingCard = memo(function FindingCard({ finding }: { finding: ComplianceFinding }) {
   const [expanded, setExpanded] = useState(false);
+  const [interpretation, setInterpretation] = useState<FindingInterpretation>();
+  const [provenanceChecked, setProvenanceChecked] = useState(false);
+  const [gapsChecked, setGapsChecked] = useState(false);
+  const [proportionalityChecked, setProportionalityChecked] = useState(false);
   const presentation = STATUS_PRESENTATION[finding.compliance.status];
   const tone = TONES[finding.compliance.status];
   const legalReviewWarning = finding.compliance.legalReview.state !== 'CURRENT' && finding.compliance.legalReview.state !== 'NOT_APPLICABLE';
   const sourceContentWarning = finding.compliance.sourceContent.state !== 'VERIFIED' && finding.compliance.sourceContent.state !== 'NOT_APPLICABLE';
+  const readiness = assessDecisionReadiness({ interpretation, provenanceChecked, gapsChecked, proportionalityChecked });
+  const toggleExpanded = () => {
+    if (expanded) {
+      setInterpretation(undefined);
+      setProvenanceChecked(false);
+      setGapsChecked(false);
+      setProportionalityChecked(false);
+    }
+    setExpanded((value) => !value);
+  };
   return (
     <View style={styles.card}>
       <View style={[styles.statusRail, { backgroundColor: tone.foreground }]} />
@@ -56,7 +71,7 @@ export const FindingCard = memo(function FindingCard({ finding }: { finding: Com
         accessibilityLabel={`${expanded ? 'Hide' : 'View'} evidence for ${presentation.label}, ${PERMISSION_LABEL[finding.permissionType]}, ${finding.packageName}`}
         accessibilityHint={expanded ? 'Collapse evidence details' : 'Show evidence details and next step'}
         activeOpacity={0.72}
-        onPress={() => setExpanded((value) => !value)}
+        onPress={toggleExpanded}
         style={styles.expandRow}
       >
         <Text style={styles.expandText}>{expanded ? 'Hide evidence' : 'View evidence'}</Text>
@@ -68,6 +83,57 @@ export const FindingCard = memo(function FindingCard({ finding }: { finding: Com
           {finding.compliance.legalReview.requiredWitnessCount !== undefined ? <Text style={[styles.sourceReviewText, finding.compliance.legalReview.trustStoreState !== 'CURRENT' && styles.legalReviewWarning]}>Witness receipts {finding.compliance.legalReview.verifiedWitnessCount ?? 0}/{finding.compliance.legalReview.requiredWitnessCount}{finding.compliance.legalReview.witnessReceiptSetSha256 ? ` · set ${finding.compliance.legalReview.witnessReceiptSetSha256.slice(0, 12)}…` : ''}</Text> : null}
           <View style={styles.reasoningStep}><View style={styles.reasoningNumber}><Text style={styles.reasoningNumberText}>2</Text></View><View style={styles.nextStepCopy}><Text style={styles.sectionLabel}>What is not established</Text><Text style={styles.detailText}>{finding.compliance.missingEvidence.join(', ') || 'No additional gap was recorded by this rule; legal meaning still requires context.'}</Text></View></View>
           <View style={styles.nextStep}><View style={styles.nextStepIcon}><Text style={styles.reasoningNumberText}>3</Text></View><View style={styles.nextStepCopy}><Text style={styles.sectionLabel}>Your proportionate next step</Text><Text style={styles.detailText}>{finding.communication.recommendedAction}</Text><Text style={styles.agencyText}>Do not change access or confront a developer based on this card alone.</Text></View></View>
+          <View style={styles.pauseCard}>
+            <View style={styles.pauseHeadingRow}>
+              <View style={styles.pauseIcon}><Ionicons name="pause" size={17} color={T.colors.primary} /></View>
+              <View style={styles.pauseHeadingCopy}>
+                <Text style={styles.pauseTitle}>Decision pause</Text>
+                <Text style={styles.pauseIntro}>A private, session-only check before you act. Closing this evidence card clears every answer.</Text>
+              </View>
+            </View>
+            <Text style={styles.pauseQuestion}>What does this card establish?</Text>
+            {([
+              ['TECHNICAL_SIGNAL', 'A technical signal that needs context'],
+              ['LEGAL_VIOLATION', 'A GDPR violation'],
+              ['DEVELOPER_INTENT', 'Developer intent'],
+            ] as const).map(([value, label]) => {
+              const selected = interpretation === value;
+              return (
+                <TouchableOpacity
+                  key={value}
+                  accessibilityRole="radio"
+                  accessibilityLabel={label}
+                  accessibilityState={{ selected }}
+                  activeOpacity={0.72}
+                  onPress={() => setInterpretation(value)}
+                  style={[styles.choice, selected && styles.choiceSelected]}
+                >
+                  <View style={[styles.choiceRadio, selected && styles.choiceRadioSelected]}>{selected ? <View style={styles.choiceDot} /> : null}</View>
+                  <Text style={[styles.choiceText, selected && styles.choiceTextSelected]}>{label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+            <Text accessibilityLiveRegion="polite" style={[styles.feedback, readiness.state === 'MISINTERPRETATION_CORRECTED' && styles.feedbackCorrection, readiness.ready && styles.feedbackReady]}>{readiness.feedback}</Text>
+            <Text style={styles.pauseQuestion}>Context checks</Text>
+            {([
+              ['provenance', 'I distinguished synthetic, imported, and on-device provenance', provenanceChecked, setProvenanceChecked],
+              ['gaps', 'I reviewed the missing evidence and legal-context gaps', gapsChecked, setGapsChecked],
+              ['proportionate', 'I will seek neutral context before changing access or confronting anyone', proportionalityChecked, setProportionalityChecked],
+            ] as const).map(([key, label, checked, setter]) => (
+              <TouchableOpacity
+                key={key}
+                accessibilityRole="checkbox"
+                accessibilityLabel={label}
+                accessibilityState={{ checked }}
+                activeOpacity={0.72}
+                onPress={() => setter(!checked)}
+                style={[styles.checkRow, checked && styles.checkRowSelected]}
+              >
+                <View style={[styles.checkbox, checked && styles.checkboxSelected]}>{checked ? <Ionicons name="checkmark" size={16} color="#FFFFFF" /> : null}</View>
+                <Text style={styles.checkText}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
           <Text style={styles.caveat}>{finding.compliance.legalCaveat}</Text>
         </View>
       )}
@@ -105,6 +171,28 @@ const styles = StyleSheet.create({
   sourceReviewText: { color: T.colors.primaryDark, fontSize: 10, lineHeight: 16, fontWeight: '800', marginTop: 5 },
   legalReviewWarning: { color: T.colors.danger },
   agencyText: { color: T.colors.primaryDark, fontSize: 11, lineHeight: 17, fontWeight: '800', marginTop: 6 },
+  pauseCard: { marginTop: 4, padding: 14, gap: 9, borderRadius: 16, backgroundColor: T.colors.surfaceMuted, borderWidth: 1, borderColor: T.colors.mintStrong },
+  pauseHeadingRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  pauseIcon: { width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: T.colors.mint },
+  pauseHeadingCopy: { flex: 1 },
+  pauseTitle: { color: T.colors.ink, fontSize: 14, lineHeight: 19, fontWeight: '900' },
+  pauseIntro: { color: T.colors.muted, fontSize: 11, lineHeight: 17, marginTop: 2 },
+  pauseQuestion: { color: T.colors.ink, fontSize: 12, lineHeight: 17, fontWeight: '900', marginTop: 3 },
+  choice: { minHeight: 44, paddingHorizontal: 11, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 9, borderRadius: 12, borderWidth: 1, borderColor: T.colors.line, backgroundColor: '#FFFFFF' },
+  choiceSelected: { borderColor: T.colors.primary, backgroundColor: T.colors.mint },
+  choiceRadio: { width: 21, height: 21, borderRadius: 11, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#8DA09B' },
+  choiceRadioSelected: { borderColor: T.colors.primary },
+  choiceDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: T.colors.primary },
+  choiceText: { flex: 1, color: T.colors.inkSoft, fontSize: 12, lineHeight: 18, fontWeight: '700' },
+  choiceTextSelected: { color: T.colors.primaryDark },
+  feedback: { padding: 10, borderRadius: 10, color: T.colors.primaryDark, backgroundColor: T.colors.infoSoft, fontSize: 11, lineHeight: 17, fontWeight: '800' },
+  feedbackCorrection: { color: T.colors.danger, backgroundColor: T.colors.dangerSoft },
+  feedbackReady: { color: T.colors.primaryDark, backgroundColor: T.colors.mint },
+  checkRow: { minHeight: 44, paddingHorizontal: 11, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 9, borderRadius: 12, borderWidth: 1, borderColor: T.colors.line, backgroundColor: '#FFFFFF' },
+  checkRowSelected: { borderColor: T.colors.mintStrong, backgroundColor: '#F7FCFA' },
+  checkbox: { width: 22, height: 22, borderRadius: 7, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#8DA09B' },
+  checkboxSelected: { borderColor: T.colors.primary, backgroundColor: T.colors.primary },
+  checkText: { flex: 1, color: T.colors.inkSoft, fontSize: 11, lineHeight: 17, fontWeight: '700' },
   caveat: { color: T.colors.warning, backgroundColor: T.colors.warningSoft, borderRadius: 10, padding: 11, fontSize: 12, lineHeight: 18, marginTop: 8 },
   expandRow: { alignSelf: 'flex-start', minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 3, paddingRight: 8 },
   expandText: { color: T.colors.primary, fontSize: 13, lineHeight: 18, fontWeight: '800' },

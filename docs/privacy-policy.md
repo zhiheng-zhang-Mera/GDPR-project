@@ -18,6 +18,8 @@ Opening an official legal source uses the device browser and is then governed by
 
 Findings and the active rule-pack choice are stored in app-private local storage. Android backup is disabled. Users can delete the local findings from Settings or remove all app data by uninstalling the app.
 
+The optional decision-pause interaction does not collect research data. Its interpretation choice and context checkboxes exist only while the evidence card remains open, are cleared when that card closes, and are not written to storage or uploaded.
+
 ## Permissions and device access
 
 The app does not request location, microphone, contacts, storage, overlay, advertising, or other sensitive runtime permissions. It declares Internet access for opening official sources and operational WorkManager permissions for wake locks, network state, boot rescheduling, and foreground-service compatibility. Ordinary Android security restrictions limit cross-application evidence visibility.
