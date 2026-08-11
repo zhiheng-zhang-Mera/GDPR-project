@@ -5,7 +5,8 @@ import { PermissionAudit, RegulationId, SensitivePermission } from '../src/compl
 import { getRegulationPack, listRegulationPacks } from '../src/regulations/registry';
 import { assessPackLegalReview, assessPackSourceReview, validateRegulationPack } from '../src/regulations/governance';
 import { canonicalizeLegalReviewPayload, computeSourceBundleSha256 } from '../src/regulations/attestationCrypto';
-import { LegalReviewTrustAnchor, RegulationPack } from '../src/regulations/types';
+import { assessPackSourceContent, computeSourceContentManifestSha256, sha256Bytes } from '../src/regulations/sourceContent';
+import { LegalReviewTrustAnchor, RegulationPack, SourceContentArtifacts } from '../src/regulations/types';
 
 function assert(condition: boolean, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -54,8 +55,31 @@ const TEST_TRUST_ANCHOR: LegalReviewTrustAnchor = {
 };
 const TEST_TRUST_ANCHORS = [TEST_TRUST_ANCHOR] as const;
 
+function asciiBytes(value: string): Uint8Array {
+  return Uint8Array.from(Array.from(value, (character) => character.charCodeAt(0)));
+}
+
+const legalPackFixture = getRegulationPack('EU_GDPR');
+const TEST_SOURCE_ARTIFACTS: SourceContentArtifacts = Object.fromEntries(legalPackFixture.sources.map((source, index) => [`test-source-${index}.pdf`, asciiBytes(`synthetic-offline-source-${index}:${source.url}`)]));
+
 function makeLegallyAttestedPack(validUntil = '2027-02-11'): RegulationPack {
-  const pack = getRegulationPack('EU_GDPR');
+  const original = getRegulationPack('EU_GDPR');
+  const pack: RegulationPack = {
+    ...original,
+    governance: {
+      ...original.governance,
+      sourceContentManifest: {
+        schema: 'privacy-lens.source-content-manifest.v1',
+        packVersion: original.versionLabel,
+        generatedAt: '2026-08-11',
+        entries: original.sources.map((source, index) => {
+          const artifactId = `test-source-${index}.pdf`;
+          const bytes = TEST_SOURCE_ARTIFACTS[artifactId];
+          return { sourceUrl: source.url, contentUrl: source.url, artifactId, mediaType: 'application/pdf' as const, byteLength: bytes.byteLength, sha256: sha256Bytes(bytes), retrievedAt: '2026-08-11', retrievalMethod: 'HTTPS_DIRECT' as const };
+        }),
+      },
+    },
+  };
   const unsigned: RegulationPack = {
     ...pack,
     governance: {
@@ -66,6 +90,7 @@ function makeLegallyAttestedPack(validUntil = '2027-02-11'): RegulationPack {
         attestationId: 'test-attestation-eu-gdpr-v1',
         reviewedPackVersion: pack.versionLabel,
         reviewedSourcesSha256: computeSourceBundleSha256(pack),
+        reviewedSourceContentManifestSha256: computeSourceContentManifestSha256(pack)!,
         reviewedAt: '2026-08-10',
         approvedAt: '2026-08-11',
         validUntil,
@@ -139,11 +164,15 @@ assert(validateRegulationPack(illegalApproval).some((error) => error.includes('l
 const attestedPack = makeLegallyAttestedPack();
 const reorderedSourcePack: RegulationPack = { ...attestedPack, sources: [...attestedPack.sources].reverse() };
 assert(computeSourceBundleSha256(reorderedSourcePack) === computeSourceBundleSha256(attestedPack), 'Canonical source-record hashing must be independent of input ordering and host locale.');
+const reorderedManifestPack: RegulationPack = { ...attestedPack, governance: { ...attestedPack.governance, sourceContentManifest: { ...attestedPack.governance.sourceContentManifest!, entries: [...attestedPack.governance.sourceContentManifest!.entries].reverse() } } };
+assert(computeSourceContentManifestSha256(reorderedManifestPack) === computeSourceContentManifestSha256(attestedPack), 'Canonical source-content manifests must be independent of input ordering and host locale.');
 assert(validateRegulationPack(attestedPack, TEST_TRUST_ANCHORS).length === 0, 'A synthetic signed two-person legal-review attestation fixture must pass schema validation with an explicitly injected test trust anchor.');
+assert(assessPackSourceContent(getRegulationPack('EU_GDPR')).state === 'ARTIFACTS_NOT_AVAILABLE', 'The production pack must distinguish recorded digests from locally verified source bytes.');
+assert(assessPackSourceContent(attestedPack, TEST_SOURCE_ARTIFACTS).state === 'VERIFIED', 'All synthetic offline source bytes must verify against the test manifest.');
 assert(assessPackLegalReview(getRegulationPack('EU_GDPR'), '2026-08-11').state === 'NOT_PROVIDED', 'The real project pack must disclose that independent legal review is not recorded.');
 assert(assessPackLegalReview(getRegulationPack('GLOBAL_RESEARCH_BASELINE'), '2026-08-11').state === 'NOT_APPLICABLE', 'A non-legal research pack must not imply legal attestation.');
-assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS).state === 'CURRENT', 'A current signed attestation must be recognised on its assessed date.');
-assert(assessPackLegalReview(attestedPack, '2027-02-12', TEST_TRUST_ANCHORS).state === 'EXPIRED', 'An attestation must expire after its recorded validity date.');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).state === 'CURRENT', 'A current signed attestation with verified source bytes must be recognised on its assessed date.');
+assert(assessPackLegalReview(attestedPack, '2027-02-12', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).state === 'EXPIRED', 'An attestation must expire after its recorded validity date.');
 
 const selfApprovedPack: RegulationPack = {
   ...attestedPack,
@@ -159,25 +188,54 @@ assert(validateRegulationPack(mismatchedAttestationPack, TEST_TRUST_ANCHORS).som
 assert(validateRegulationPack(mismatchedAttestationPack, TEST_TRUST_ANCHORS).some((error) => error.includes('SHA-256 hex digest')), 'A malformed reviewed-source digest must fail validation.');
 
 const changedSourcePack: RegulationPack = { ...attestedPack, sources: attestedPack.sources.map((source, index) => index === 0 ? { ...source, versionLabel: `${source.versionLabel}-changed` } : source) };
-assert(assessPackLegalReview(changedSourcePack, '2026-08-11', TEST_TRUST_ANCHORS).state === 'SOURCE_BUNDLE_MISMATCH', 'A source-record change after signing must invalidate the source bundle before reassurance.');
+assert(assessPackLegalReview(changedSourcePack, '2026-08-11', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).state === 'SOURCE_BUNDLE_MISMATCH', 'A source-record change after signing must invalidate the source bundle before reassurance.');
+const changedManifestPack: RegulationPack = { ...attestedPack, governance: { ...attestedPack.governance, sourceContentManifest: { ...attestedPack.governance.sourceContentManifest!, entries: attestedPack.governance.sourceContentManifest!.entries.map((entry, index) => index === 0 ? { ...entry, sha256: 'f'.repeat(64) } : entry) } } };
+assert(assessPackLegalReview(changedManifestPack, '2026-08-11', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).state === 'SOURCE_CONTENT_MANIFEST_MISMATCH', 'A content-manifest change after signing must fail before source-byte verification.');
+const missingArtifactId = attestedPack.governance.sourceContentManifest!.entries[0].artifactId;
+const incompleteArtifacts = Object.fromEntries(Object.entries(TEST_SOURCE_ARTIFACTS).filter(([artifactId]) => artifactId !== missingArtifactId));
+assert(assessPackSourceContent(attestedPack, incompleteArtifacts).state === 'ARTIFACT_MISSING', 'A missing offline artifact must remain distinct from a digest mismatch.');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS, incompleteArtifacts).state === 'SOURCE_CONTENT_UNVERIFIED', 'A signed attestation must not clear when an offline source artifact is missing.');
+const originalBytes = TEST_SOURCE_ARTIFACTS[missingArtifactId];
+const sameLengthMutation = { ...TEST_SOURCE_ARTIFACTS, [missingArtifactId]: Uint8Array.from(originalBytes, (byte, index) => index === 0 ? byte ^ 1 : byte) };
+assert(assessPackSourceContent(attestedPack, sameLengthMutation).state === 'ARTIFACT_HASH_MISMATCH', 'A same-length source mutation must fail the SHA-256 check.');
+const lengthMutation = { ...TEST_SOURCE_ARTIFACTS, [missingArtifactId]: originalBytes.slice(1) };
+assert(assessPackSourceContent(attestedPack, lengthMutation).state === 'ARTIFACT_LENGTH_MISMATCH', 'A truncated source artifact must expose a distinct length mismatch.');
 const badSignaturePack: RegulationPack = { ...attestedPack, governance: { ...attestedPack.governance, legalReviewAttestation: { ...attestedPack.governance.legalReviewAttestation!, signatureBase64: `${attestedPack.governance.legalReviewAttestation!.signatureBase64[0] === 'A' ? 'B' : 'A'}${attestedPack.governance.legalReviewAttestation!.signatureBase64.slice(1)}` } } };
-assert(assessPackLegalReview(badSignaturePack, '2026-08-11', TEST_TRUST_ANCHORS).state === 'SIGNATURE_INVALID', 'A modified Ed25519 signature must fail closed.');
-assert(assessPackLegalReview(attestedPack, '2026-08-11').state === 'SIGNER_NOT_TRUSTED', 'A structurally valid signature must not be trusted without an application-controlled trust anchor.');
+assert(assessPackLegalReview(badSignaturePack, '2026-08-11', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).state === 'SIGNATURE_INVALID', 'A modified Ed25519 signature must fail closed.');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', undefined, TEST_SOURCE_ARTIFACTS).state === 'SIGNER_NOT_TRUSTED', 'A structurally valid signature must not be trusted without an application-controlled trust anchor.');
 const revokedAnchor = { ...TEST_TRUST_ANCHOR, revokedAt: '2026-08-10' };
-assert(assessPackLegalReview(attestedPack, '2026-08-11', [revokedAnchor]).state === 'SIGNER_REVOKED', 'A revoked signing key must fail closed.');
+assert(assessPackLegalReview(attestedPack, '2026-08-11', [revokedAnchor], TEST_SOURCE_ARTIFACTS).state === 'SIGNER_REVOKED', 'A revoked signing key must fail closed.');
 
 const unreviewedNoConcern = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-08-11').evaluate({ packageName: 'legal.review.missing', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
 assert(unreviewedNoConcern.compliance.status === 'INSUFFICIENT_EVIDENCE', 'A legal pack without current independent attestation must not emit a reassuring no-concern result.');
 assert(unreviewedNoConcern.compliance.legalReview.state === 'NOT_PROVIDED' && unreviewedNoConcern.compliance.missingEvidence.includes('current cryptographically verified independent qualified legal-review attestation'), 'The finding must preserve and explain the missing signed legal-review gate.');
 
-const attestedNoConcern = new RulePackComplianceEngine(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS).evaluate({ packageName: 'legal.review.current', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
-assert(attestedNoConcern.compliance.status === 'NO_TECHNICAL_CONCERN' && attestedNoConcern.compliance.legalReview.state === 'CURRENT', 'A consistent current attestation may clear the project reassurance gate without establishing legal compliance.');
+const attestedNoConcern = new RulePackComplianceEngine(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS, TEST_SOURCE_ARTIFACTS).evaluate({ packageName: 'legal.review.current', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
+assert(attestedNoConcern.compliance.status === 'NO_TECHNICAL_CONCERN' && attestedNoConcern.compliance.legalReview.state === 'CURRENT' && attestedNoConcern.compliance.sourceContent.state === 'VERIFIED', 'A consistent current attestation may clear the project reassurance gate only with verified source bytes, without establishing legal compliance.');
+
+const contentUnavailableNoConcern = new RulePackComplianceEngine(attestedPack, '2026-08-11', TEST_TRUST_ANCHORS).evaluate({ packageName: 'legal.content.unavailable', permissionType: 'CONTACTS', accessCount: 0, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
+assert(contentUnavailableNoConcern.compliance.status === 'INSUFFICIENT_EVIDENCE' && contentUnavailableNoConcern.compliance.sourceContent.state === 'ARTIFACTS_NOT_AVAILABLE' && contentUnavailableNoConcern.compliance.missingEvidence.includes('offline verification of every recorded official-source artifact'), 'Recorded digests without supplied bytes must block reassurance and remain visible in the finding.');
 
 const unreviewedSignal = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), '2026-08-11').evaluate({ packageName: 'legal.review.signal', permissionType: 'CONTACTS', accessCount: 7, windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED', processingContext: validContext });
 assert(unreviewedSignal.compliance.status === 'REVIEW_REQUIRED' && unreviewedSignal.compliance.missingEvidence.includes('current cryptographically verified independent qualified legal-review attestation'), 'The gate must preserve a conservative technical review signal while disclosing absent signed legal attestation.');
 
 const missingSource: RegulationPack = { ...getRegulationPack('EU_GDPR'), sourceUrl: 'http://example.invalid' };
 assert(validateRegulationPack(missingSource).some((error) => error.includes('HTTPS official source')), 'Governance validator must reject a non-HTTPS legal source mutation.');
+
+const missingContentManifest: RegulationPack = { ...getRegulationPack('EU_GDPR'), governance: { ...getRegulationPack('EU_GDPR').governance, sourceContentManifest: undefined } };
+assert(validateRegulationPack(missingContentManifest).some((error) => error.includes('require an offline source-content manifest')), 'Legal packs without a source-content manifest must fail governance validation.');
+
+const duplicateManifestArtifact: RegulationPack = {
+  ...getRegulationPack('EU_GDPR'),
+  governance: {
+    ...getRegulationPack('EU_GDPR').governance,
+    sourceContentManifest: {
+      ...getRegulationPack('EU_GDPR').governance.sourceContentManifest!,
+      entries: getRegulationPack('EU_GDPR').governance.sourceContentManifest!.entries.map((entry, index, entries) => index === 1 ? { ...entry, artifactId: entries[0].artifactId } : entry),
+    },
+  },
+};
+assert(validateRegulationPack(duplicateManifestArtifact).some((error) => error.includes('artifactId duplicates')), 'Duplicate artifact identifiers must fail manifest validation.');
 
 const invalidDate: RegulationPack = {
   ...getRegulationPack('EU_GDPR'),
@@ -214,7 +272,7 @@ assert(validateRegulationPack(unversionedSource).some((error) => error.includes(
 
 const closedWithoutDate: RegulationPack = {
   ...getRegulationPack('EU_GDPR'),
-  sources: getRegulationPack('EU_GDPR').sources.map((source, index) => index === 3 ? { ...source, consultationClosedAt: undefined } : source),
+  sources: getRegulationPack('EU_GDPR').sources.map((source) => source.title.startsWith('Guidelines 1/2024') ? { ...source, consultationClosedAt: undefined } : source),
 };
 assert(validateRegulationPack(closedWithoutDate).some((error) => error.includes('consultationClosedAt must be a valid')), 'Closed consultations must record a valid closure date.');
 
@@ -252,4 +310,4 @@ try {
 }
 assert(unknownRejected, 'Unknown regulation packs must fail closed instead of silently loading the default pack.');
 
-console.log('Governance validation, 1,800 independent-oracle cases, metamorphic boundaries, and representative mutation probes passed.');
+console.log('Governance validation, 1,800 independent-oracle cases, source-content byte verification, metamorphic boundaries, and representative mutation probes passed.');

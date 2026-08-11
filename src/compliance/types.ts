@@ -107,12 +107,22 @@ export interface ComplianceFinding {
       nextDueAt?: string;
       overdueSourceTitles: string[];
     };
+    sourceContent: {
+      state: 'VERIFIED' | 'MANIFEST_NOT_PROVIDED' | 'ARTIFACTS_NOT_AVAILABLE' | 'ARTIFACT_MISSING' | 'ARTIFACT_LENGTH_MISMATCH' | 'ARTIFACT_HASH_MISMATCH' | 'NOT_APPLICABLE' | 'NOT_RECORDED';
+      assessedAt: string;
+      manifestSha256?: string;
+      verifiedArtifactCount: number;
+      expectedArtifactCount: number;
+      affectedArtifactIds: string[];
+      reason?: string;
+    };
     legalReview: {
-      state: 'CURRENT' | 'EXPIRED' | 'NOT_PROVIDED' | 'SOURCE_BUNDLE_MISMATCH' | 'SIGNER_NOT_TRUSTED' | 'SIGNER_REVOKED' | 'SIGNATURE_INVALID' | 'NOT_APPLICABLE' | 'NOT_RECORDED';
+      state: 'CURRENT' | 'EXPIRED' | 'NOT_PROVIDED' | 'SOURCE_BUNDLE_MISMATCH' | 'SOURCE_CONTENT_MANIFEST_MISMATCH' | 'SOURCE_CONTENT_UNVERIFIED' | 'SIGNER_NOT_TRUSTED' | 'SIGNER_REVOKED' | 'SIGNATURE_INVALID' | 'NOT_APPLICABLE' | 'NOT_RECORDED';
       assessedAt: string;
       validUntil?: string;
       attestationId?: string;
       signingKeyId?: string;
+      sourceContentState?: 'VERIFIED' | 'MANIFEST_NOT_PROVIDED' | 'ARTIFACTS_NOT_AVAILABLE' | 'ARTIFACT_MISSING' | 'ARTIFACT_LENGTH_MISMATCH' | 'ARTIFACT_HASH_MISMATCH' | 'NOT_APPLICABLE';
       reason?: string;
     };
   };

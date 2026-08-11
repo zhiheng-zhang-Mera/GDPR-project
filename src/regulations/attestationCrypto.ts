@@ -2,9 +2,10 @@ import forgeEd25519 from 'node-forge/lib/ed25519';
 import forgeMd from 'node-forge/lib/md';
 import forgeUtil from 'node-forge/lib/util';
 import { LegalReviewAttestation, RegulationPack } from './types';
+import { computeSourceContentManifestSha256 } from './sourceContent';
 
 const SOURCE_BUNDLE_SCHEMA = 'privacy-lens.source-record-bundle.v1';
-const ATTESTATION_PAYLOAD_SCHEMA = 'privacy-lens.legal-review-attestation.v1';
+const ATTESTATION_PAYLOAD_SCHEMA = 'privacy-lens.legal-review-attestation.v2';
 
 export function canonicalizeSourceBundle(pack: RegulationPack): string {
   const sources = [...pack.sources]
@@ -38,6 +39,7 @@ export function canonicalizeLegalReviewPayload(pack: RegulationPack, attestation
     packId: pack.id,
     reviewedPackVersion: attestation.reviewedPackVersion,
     reviewedSourcesSha256: attestation.reviewedSourcesSha256.toLowerCase(),
+    reviewedSourceContentManifestSha256: attestation.reviewedSourceContentManifestSha256.toLowerCase(),
     reviewedAt: attestation.reviewedAt,
     approvedAt: attestation.approvedAt,
     validUntil: attestation.validUntil,
@@ -48,6 +50,10 @@ export function canonicalizeLegalReviewPayload(pack: RegulationPack, attestation
     signatureAlgorithm: attestation.signatureAlgorithm,
     signingKeyId: attestation.signingKeyId,
   });
+}
+
+export function currentSourceContentManifestSha256(pack: RegulationPack): string {
+  return computeSourceContentManifestSha256(pack) ?? '';
 }
 
 export function verifyLegalReviewSignature(pack: RegulationPack, publicKeyBase64: string): boolean {

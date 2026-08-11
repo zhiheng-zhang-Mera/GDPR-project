@@ -1,0 +1,38 @@
+Privacy Lens 1.11.0 physical-device acceptance
+Date: 2026-08-11
+Device: OPPO PERM00, ARM64 (device serial withheld from publishable evidence)
+Package: com.zhihengzhang.privacylens
+versionCode: 12
+versionName: 1.11.0
+minSdk: 24
+targetSdk: 36
+
+Release artifacts
+APK bytes: 62916583
+APK SHA-256: 5386EEA1C9E8B7930830C89E2A21186E8042684A767784D7D9E637724EBCA9E6
+AAB bytes: 31784243
+AAB SHA-256: 865CAE741AF7C807E4390D07894333DEE1A454A388549D89E1E6D305DA1F794D
+
+Install and cold starts
+Streamed release install: Success
+Run 1: Status ok, LaunchState COLD, TotalTime 1934 ms, WaitTime 1939 ms
+Run 2: Status ok, LaunchState COLD, TotalTime 1376 ms, WaitTime 1382 ms
+Run 3: Status ok, LaunchState COLD, TotalTime 1811 ms, WaitTime 1817 ms
+Run 4: Status ok, LaunchState COLD, TotalTime 1857 ms, WaitTime 1862 ms
+Run 5: Status ok, LaunchState COLD, TotalTime 851 ms, WaitTime 865 ms
+Median TotalTime: 1811 ms
+Crash buffer after cold starts and UI flow: empty
+
+Final UI evidence
+- evidence-chain-full.png/xml: legal gate; 0/6 local byte verification; independent review absent; production trust store unprovisioned; static-revocation and non-certification boundaries.
+- source-register.png/xml: six separately registered official sources with authority status, lifecycle, review deadline, manifest digest prefix, byte size, and retrieval date.
+- findings-current.png/xml: synthetic provenance, current source review, unverified-source-byte state, and absent legal review are visible without colour alone.
+- finding-expanded.png/xml: observation, 0/6 verification reason, missing evidence, proportionate next step, and no-impulsive-action guidance are visible without clipping.
+
+Offline source-content verification
+Six locally retrieved official PDFs matched their manifest byte lengths and SHA-256 digests.
+A same-length one-byte mutation of the GDPR PDF produced HASH_MISMATCH and verifier exit code 1.
+Official source bytes remain outside the repository and are not bundled in the evaluated app.
+
+Boundaries
+This is a short sample on one physical device, not broad-device, long-run, accessibility-conformance, participant-comprehension, legal-review, GDPR-certification, or production-readiness evidence. A recorded digest does not prove current publisher content or a legally controlling language/version. The production reviewer trust store remains empty and revocation remains application-bundled and static.

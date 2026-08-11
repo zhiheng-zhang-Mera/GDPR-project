@@ -1,6 +1,7 @@
-import { computeSourceBundleSha256, verifyLegalReviewSignature } from './attestationCrypto';
+import { computeSourceBundleSha256, currentSourceContentManifestSha256, verifyLegalReviewSignature } from './attestationCrypto';
+import { assessPackSourceContent } from './sourceContent';
 import { LEGAL_REVIEW_TRUST_ANCHORS } from './trustAnchors';
-import { LegalReviewGateState, LegalReviewTrustAnchor, PackLegalReviewAssessment, PackSourceReviewAssessment, RegulationPack, RegulatorySource, RegulatorySourceLifecycle, SourceReviewState } from './types';
+import { LegalReviewGateState, LegalReviewTrustAnchor, PackLegalReviewAssessment, PackSourceReviewAssessment, RegulationPack, RegulatorySource, RegulatorySourceLifecycle, SourceContentArtifacts, SourceContentVerificationState, SourceReviewState } from './types';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const SHA256 = /^[A-Fa-f0-9]{64}$/;
@@ -30,7 +31,7 @@ export function validateRegulationPack(pack: RegulationPack, trustAnchors: reado
 
   if (!pack.id.trim()) errors.push('id is required');
   if (!pack.versionLabel.trim()) errors.push('versionLabel is required');
-  if (governance.schemaVersion !== 4) errors.push('governance.schemaVersion must be 4');
+  if (governance.schemaVersion !== 5) errors.push('governance.schemaVersion must be 5');
   if (!isIsoCalendarDate(governance.authoredAt)) errors.push('governance.authoredAt must be a valid YYYY-MM-DD date');
   if (!isIsoCalendarDate(governance.lastReviewedAt)) errors.push('governance.lastReviewedAt must be a valid YYYY-MM-DD date');
   if (governance.effectiveFrom && !isIsoCalendarDate(governance.effectiveFrom)) errors.push('governance.effectiveFrom must be a valid YYYY-MM-DD date');
@@ -43,6 +44,8 @@ export function validateRegulationPack(pack: RegulationPack, trustAnchors: reado
   if (pack.kind === 'LEGAL_FRAMEWORK' && !isHttpsUrl(pack.sourceUrl)) errors.push('legal frameworks require an HTTPS official source');
   if (pack.kind === 'LEGAL_FRAMEWORK' && !pack.sources.some(({ status }) => status === 'BINDING_LAW')) errors.push('legal frameworks require a binding-law source record');
   if (pack.kind === 'LEGAL_FRAMEWORK' && !pack.sources.some(({ url }) => url === pack.sourceUrl)) errors.push('the primary sourceUrl must be present in source records');
+  if (pack.kind === 'LEGAL_FRAMEWORK' && !governance.sourceContentManifest) errors.push('legal frameworks require an offline source-content manifest');
+  if (pack.kind !== 'LEGAL_FRAMEWORK' && governance.sourceContentManifest) errors.push('source-content manifests are only valid for legal frameworks');
   if (pack.kind === 'LEGAL_FRAMEWORK' && governance.state === 'NON_LEGAL_DEMONSTRATOR') errors.push('a legal framework cannot use the non-legal demonstrator state');
   if (pack.kind === 'RESEARCH_BASELINE' && governance.state !== 'NON_LEGAL_DEMONSTRATOR') errors.push('a research baseline must remain a non-legal demonstrator');
   if (legalState && governance.reviewAuthority.kind !== 'QUALIFIED_LEGAL') errors.push('legally reviewed or approved packs require a qualified legal reviewer');
@@ -51,6 +54,34 @@ export function validateRegulationPack(pack: RegulationPack, trustAnchors: reado
   if ((governance.state === 'TECHNICAL_CANDIDATE' || governance.state === 'NON_LEGAL_DEMONSTRATOR') && governance.releaseScope !== 'CONTROLLED_EVALUATION') errors.push('candidate and demonstrator packs are limited to controlled evaluation');
   if ((governance.state === 'SUPERSEDED' || governance.state === 'REVOKED') && !governance.successor) errors.push('superseded or revoked packs require a successor or blocking identifier');
 
+  const manifest = governance.sourceContentManifest;
+  if (manifest) {
+    if (manifest.schema !== 'privacy-lens.source-content-manifest.v1') errors.push('sourceContentManifest.schema is unsupported');
+    if (manifest.packVersion !== pack.versionLabel) errors.push('sourceContentManifest.packVersion must match pack.versionLabel');
+    if (!isIsoCalendarDate(manifest.generatedAt)) errors.push('sourceContentManifest.generatedAt must be a valid YYYY-MM-DD date');
+    if (isIsoCalendarDate(manifest.generatedAt) && isIsoCalendarDate(governance.lastReviewedAt) && manifest.generatedAt > governance.lastReviewedAt) errors.push('sourceContentManifest.generatedAt cannot follow governance.lastReviewedAt');
+    if (manifest.entries.length !== pack.sources.length) errors.push('sourceContentManifest must contain exactly one artifact for every source record');
+    const sourceUrls = new Set(pack.sources.map(({ url }) => url));
+    const manifestSourceUrls = new Set<string>();
+    const artifactIds = new Set<string>();
+    for (const [index, entry] of manifest.entries.entries()) {
+      if (!sourceUrls.has(entry.sourceUrl)) errors.push(`sourceContentManifest.entries.${index}.sourceUrl must match a source record`);
+      if (manifestSourceUrls.has(entry.sourceUrl)) errors.push(`sourceContentManifest.entries.${index}.sourceUrl duplicates another manifest entry`);
+      if (!isHttpsUrl(entry.contentUrl)) errors.push(`sourceContentManifest.entries.${index}.contentUrl must use HTTPS`);
+      if (!entry.artifactId.trim()) errors.push(`sourceContentManifest.entries.${index}.artifactId is required`);
+      if (artifactIds.has(entry.artifactId)) errors.push(`sourceContentManifest.entries.${index}.artifactId duplicates another manifest entry`);
+      if (entry.mediaType !== 'application/pdf') errors.push(`sourceContentManifest.entries.${index}.mediaType must be application/pdf`);
+      if (!Number.isSafeInteger(entry.byteLength) || entry.byteLength <= 0) errors.push(`sourceContentManifest.entries.${index}.byteLength must be a positive safe integer`);
+      if (!SHA256.test(entry.sha256)) errors.push(`sourceContentManifest.entries.${index}.sha256 must be a SHA-256 hex digest`);
+      if (!isIsoCalendarDate(entry.retrievedAt)) errors.push(`sourceContentManifest.entries.${index}.retrievedAt must be a valid YYYY-MM-DD date`);
+      if (isIsoCalendarDate(entry.retrievedAt) && isIsoCalendarDate(manifest.generatedAt) && entry.retrievedAt > manifest.generatedAt) errors.push(`sourceContentManifest.entries.${index}.retrievedAt cannot follow manifest.generatedAt`);
+      if (entry.retrievalMethod !== 'HTTPS_DIRECT') errors.push(`sourceContentManifest.entries.${index}.retrievalMethod must be HTTPS_DIRECT`);
+      manifestSourceUrls.add(entry.sourceUrl);
+      artifactIds.add(entry.artifactId);
+    }
+    for (const sourceUrl of sourceUrls) if (!manifestSourceUrls.has(sourceUrl)) errors.push(`sourceContentManifest is missing source record ${sourceUrl}`);
+  }
+
   if (attestation) {
     if (pack.kind !== 'LEGAL_FRAMEWORK') errors.push('legal-review attestations are only valid for legal frameworks');
     if (!legalState) errors.push('a legal-review attestation requires a legally reviewed or approved governance state');
@@ -58,6 +89,7 @@ export function validateRegulationPack(pack: RegulationPack, trustAnchors: reado
     if (!attestation.attestationId.trim()) errors.push('legalReviewAttestation.attestationId is required');
     if (attestation.reviewedPackVersion !== pack.versionLabel) errors.push('legalReviewAttestation.reviewedPackVersion must match pack.versionLabel');
     if (!SHA256.test(attestation.reviewedSourcesSha256)) errors.push('legalReviewAttestation.reviewedSourcesSha256 must be a SHA-256 hex digest');
+    if (!SHA256.test(attestation.reviewedSourceContentManifestSha256)) errors.push('legalReviewAttestation.reviewedSourceContentManifestSha256 must be a SHA-256 hex digest');
     if (!isIsoCalendarDate(attestation.reviewedAt)) errors.push('legalReviewAttestation.reviewedAt must be a valid YYYY-MM-DD date');
     if (!isIsoCalendarDate(attestation.approvedAt)) errors.push('legalReviewAttestation.approvedAt must be a valid YYYY-MM-DD date');
     if (!isIsoCalendarDate(attestation.validUntil)) errors.push('legalReviewAttestation.validUntil must be a valid YYYY-MM-DD date');
@@ -74,6 +106,8 @@ export function validateRegulationPack(pack: RegulationPack, trustAnchors: reado
     if (isIsoCalendarDate(attestation.approvedAt) && isIsoCalendarDate(attestation.validUntil) && attestation.validUntil <= attestation.approvedAt) errors.push('legal-review validity must extend beyond approval');
     if (isIsoCalendarDate(attestation.approvedAt) && isIsoCalendarDate(governance.lastReviewedAt) && attestation.approvedAt !== governance.lastReviewedAt) errors.push('legal-review approval must match governance.lastReviewedAt');
     if (SHA256.test(attestation.reviewedSourcesSha256) && attestation.reviewedSourcesSha256.toLowerCase() !== computeSourceBundleSha256(pack)) errors.push('legalReviewAttestation.reviewedSourcesSha256 must match the canonical source-record bundle');
+    const manifestSha256 = currentSourceContentManifestSha256(pack);
+    if (SHA256.test(attestation.reviewedSourceContentManifestSha256) && attestation.reviewedSourceContentManifestSha256.toLowerCase() !== manifestSha256) errors.push('legalReviewAttestation.reviewedSourceContentManifestSha256 must match the canonical source-content manifest');
     const anchor = trustAnchors.find(({ keyId }) => keyId === attestation.signingKeyId);
     if (!anchor) errors.push('legalReviewAttestation.signingKeyId is not in the application trust store');
     else {
@@ -161,13 +195,34 @@ export function assessPackSourceReview(pack: RegulationPack, asOfDate = new Date
   return { state: overdueSourceTitles.length > 0 ? 'REVIEW_DUE' : 'CURRENT', assessedAt: asOfDate, nextDueAt, overdueSourceTitles };
 }
 
-export function assessPackLegalReview(pack: RegulationPack, asOfDate = new Date().toISOString().slice(0, 10), trustAnchors: readonly LegalReviewTrustAnchor[] = LEGAL_REVIEW_TRUST_ANCHORS): PackLegalReviewAssessment {
+export function sourceContentLabel(state: SourceContentVerificationState): string {
+  switch (state) {
+    case 'VERIFIED': return 'Offline source content verified';
+    case 'MANIFEST_NOT_PROVIDED': return 'Source-content manifest not recorded';
+    case 'ARTIFACTS_NOT_AVAILABLE': return 'Source digests recorded; bytes not verified here';
+    case 'ARTIFACT_MISSING': return 'Offline source artifact missing';
+    case 'ARTIFACT_LENGTH_MISMATCH': return 'Offline source length mismatch';
+    case 'ARTIFACT_HASH_MISMATCH': return 'Offline source digest mismatch';
+    case 'NOT_APPLICABLE': return 'Source-content verification not applicable';
+  }
+}
+
+export function assessPackLegalReview(
+  pack: RegulationPack,
+  asOfDate = new Date().toISOString().slice(0, 10),
+  trustAnchors: readonly LegalReviewTrustAnchor[] = LEGAL_REVIEW_TRUST_ANCHORS,
+  sourceArtifacts: SourceContentArtifacts = {},
+): PackLegalReviewAssessment {
   if (!isIsoCalendarDate(asOfDate)) throw new Error(`Invalid legal-review assessment date: ${asOfDate}`);
   if (pack.kind !== 'LEGAL_FRAMEWORK') return { state: 'NOT_APPLICABLE', assessedAt: asOfDate };
   const attestation = pack.governance.legalReviewAttestation;
   if (!attestation) return { state: 'NOT_PROVIDED', assessedAt: asOfDate };
   const base = { assessedAt: asOfDate, validUntil: attestation.validUntil, attestationId: attestation.attestationId, signingKeyId: attestation.signingKeyId };
   if (attestation.reviewedSourcesSha256.toLowerCase() !== computeSourceBundleSha256(pack)) return { ...base, state: 'SOURCE_BUNDLE_MISMATCH', reason: 'The signed digest does not match the canonical source-record bundle.' };
+  const manifestSha256 = currentSourceContentManifestSha256(pack);
+  if (!manifestSha256 || attestation.reviewedSourceContentManifestSha256.toLowerCase() !== manifestSha256) return { ...base, state: 'SOURCE_CONTENT_MANIFEST_MISMATCH', reason: 'The signed source-content manifest digest does not match the current canonical manifest.' };
+  const sourceContent = assessPackSourceContent(pack, sourceArtifacts, asOfDate);
+  if (sourceContent.state !== 'VERIFIED') return { ...base, state: 'SOURCE_CONTENT_UNVERIFIED', sourceContentState: sourceContent.state, reason: sourceContent.reason ?? 'The offline source-content evidence did not verify.' };
   const anchor = trustAnchors.find(({ keyId }) => keyId === attestation.signingKeyId);
   if (!anchor || anchor.algorithm !== attestation.signatureAlgorithm || asOfDate < anchor.validFrom || asOfDate > anchor.validUntil) return { ...base, state: 'SIGNER_NOT_TRUSTED', reason: 'No currently valid application trust anchor matches the signing key.' };
   if (anchor.revokedAt && asOfDate >= anchor.revokedAt) return { ...base, state: 'SIGNER_REVOKED', reason: `The signing key was revoked on ${anchor.revokedAt}.` };
@@ -175,6 +230,7 @@ export function assessPackLegalReview(pack: RegulationPack, asOfDate = new Date(
   return {
     ...base,
     state: asOfDate > attestation.validUntil ? 'EXPIRED' : 'CURRENT',
+    sourceContentState: sourceContent.state,
   };
 }
 
@@ -184,6 +240,8 @@ export function legalReviewLabel(state: LegalReviewGateState): string {
     case 'EXPIRED': return 'Independent legal review expired';
     case 'NOT_PROVIDED': return 'Independent legal review not recorded';
     case 'SOURCE_BUNDLE_MISMATCH': return 'Legal-review source bundle changed';
+    case 'SOURCE_CONTENT_MANIFEST_MISMATCH': return 'Legal-review content manifest changed';
+    case 'SOURCE_CONTENT_UNVERIFIED': return 'Legal-review source content unverified';
     case 'SIGNER_NOT_TRUSTED': return 'Legal-review signer not trusted';
     case 'SIGNER_REVOKED': return 'Legal-review signer revoked';
     case 'SIGNATURE_INVALID': return 'Legal-review signature invalid';

@@ -9,7 +9,7 @@ declare module 'node-forge/lib/ed25519' {
 }
 
 declare module 'node-forge/lib/md' {
-  const md: { sha256: { create(): { update(value: string, encoding: 'utf8'): { digest(): { toHex(): string } } } } };
+  const md: { sha256: { create(): { update(value: string, encoding: 'utf8' | 'raw'): { digest(): { toHex(): string } } } } };
   export default md;
 }
 

@@ -1,7 +1,8 @@
 import { IComplianceEngine } from './IComplianceEngine';
 import { ComplianceErrorCode, ComplianceEvaluation, ComplianceFinding, PermissionAudit, SensitivePermission } from './types';
-import { LegalReviewTrustAnchor, RegulationPack } from '../regulations/types';
+import { LegalReviewTrustAnchor, RegulationPack, SourceContentArtifacts } from '../regulations/types';
 import { assessPackLegalReview, assessPackSourceReview } from '../regulations/governance';
+import { assessPackSourceContent } from '../regulations/sourceContent';
 
 const DAY_MS = 86_400_000;
 const BURST_LIMIT: Record<SensitivePermission, number> = { LOCATION: 12, MICROPHONE: 6, CONTACTS: 4 };
@@ -96,12 +97,14 @@ export class RulePackComplianceEngine implements IComplianceEngine {
   private readonly history = new Map<string, { start: number; end: number; count: number }[]>();
 
   private readonly sourceReview: ReturnType<typeof assessPackSourceReview>;
+  private readonly sourceContent: ReturnType<typeof assessPackSourceContent>;
   private readonly legalReview: ReturnType<typeof assessPackLegalReview>;
 
-  constructor(readonly pack: RegulationPack, evaluatedAt = new Date().toISOString().slice(0, 10), trustAnchors?: readonly LegalReviewTrustAnchor[]) {
+  constructor(readonly pack: RegulationPack, evaluatedAt = new Date().toISOString().slice(0, 10), trustAnchors?: readonly LegalReviewTrustAnchor[], sourceArtifacts?: SourceContentArtifacts) {
     this.regulation = pack.shortName;
     this.sourceReview = assessPackSourceReview(pack, evaluatedAt);
-    this.legalReview = assessPackLegalReview(pack, evaluatedAt, trustAnchors);
+    this.sourceContent = assessPackSourceContent(pack, sourceArtifacts, evaluatedAt);
+    this.legalReview = assessPackLegalReview(pack, evaluatedAt, trustAnchors, sourceArtifacts);
   }
 
   evaluate(audit: PermissionAudit): ComplianceFinding {
@@ -136,11 +139,14 @@ export class RulePackComplianceEngine implements IComplianceEngine {
     const missingEvidence = this.pack.findMissingEvidence(audit);
     const preliminaryStatus = this.pack.classify(audit, signals, missingEvidence);
     const legalReviewNeedsAttestation = this.legalReview.state !== 'CURRENT' && this.legalReview.state !== 'NOT_APPLICABLE';
+    const sourceContentNeedsVerification = this.sourceContent.state !== 'VERIFIED' && this.sourceContent.state !== 'NOT_APPLICABLE';
     if (this.sourceReview.state === 'REVIEW_DUE') missingEvidence.push('renewed regulatory-source review');
+    if (sourceContentNeedsVerification) missingEvidence.push('offline verification of every recorded official-source artifact');
     if (legalReviewNeedsAttestation) missingEvidence.push('current cryptographically verified independent qualified legal-review attestation');
-    const status = this.sourceReview.state === 'REVIEW_DUE' || (legalReviewNeedsAttestation && preliminaryStatus === 'NO_TECHNICAL_CONCERN') ? 'INSUFFICIENT_EVIDENCE' : preliminaryStatus;
+    const status = this.sourceReview.state === 'REVIEW_DUE' || ((sourceContentNeedsVerification || legalReviewNeedsAttestation) && preliminaryStatus === 'NO_TECHNICAL_CONCERN') ? 'INSUFFICIENT_EVIDENCE' : preliminaryStatus;
     const caveats = [this.pack.legalCaveat];
     if (this.sourceReview.state === 'REVIEW_DUE') caveats.push('One or more regulatory sources are past the project review date; refresh and review the pack before relying on its mapping.');
+    if (sourceContentNeedsVerification) caveats.push(`Official-document digests are recorded but the evaluated source bytes did not verify (${this.sourceContent.state}); the project blocks a reassuring no-concern result.`);
     if (legalReviewNeedsAttestation) caveats.push(`No current cryptographically verified independent qualified legal-review attestation is available for this pack version (${this.legalReview.state}); the project blocks a reassuring no-concern result.`);
     const legalReference = rule.legalReference;
     const finding: ComplianceFinding = {
@@ -165,6 +171,7 @@ export class RulePackComplianceEngine implements IComplianceEngine {
         missingEvidence,
         legalCaveat: caveats.join(' '),
         sourceReview: this.sourceReview,
+        sourceContent: this.sourceContent,
         legalReview: this.legalReview,
       },
       communication: undefined as never,

@@ -1,4 +1,5 @@
 import { RegulationPack } from '../types';
+import { EU_GDPR_SOURCE_CONTENT_MANIFEST } from '../manifests/euGdprSourceContent';
 
 export const EU_GDPR_PACK: RegulationPack = {
   id: 'EU_GDPR',
@@ -30,9 +31,19 @@ export const EU_GDPR_PACK: RegulationPack = {
       reviewDueAt: '2027-02-11',
     },
     {
-      title: 'EDPB-endorsed WP29 transparency and DPIA guidelines',
-      versionLabel: 'WP260 rev.01 and WP248 rev.01',
-      url: 'https://www.edpb.europa.eu/endorsed-wp29-guidelines_en',
+      title: 'WP29 Guidelines on transparency under Regulation 2016/679',
+      versionLabel: 'WP260 rev.01, endorsed by the EDPB',
+      url: 'https://ec.europa.eu/newsroom/article29/redirection/document/51025',
+      authority: 'European Data Protection Board',
+      status: 'FINAL_GUIDANCE',
+      lifecycle: 'FINAL',
+      checkedAt: '2026-08-11',
+      reviewDueAt: '2027-02-11',
+    },
+    {
+      title: 'WP29 Guidelines on Data Protection Impact Assessment',
+      versionLabel: 'WP248 rev.01, endorsed by the EDPB',
+      url: 'https://ec.europa.eu/newsroom/just/document.cfm?doc_id=47711',
       authority: 'European Data Protection Board',
       status: 'FINAL_GUIDANCE',
       lifecycle: 'FINAL',
@@ -64,7 +75,7 @@ export const EU_GDPR_PACK: RegulationPack = {
   ],
   description: 'Technical prompts for necessity, lawful-basis, transparency, minimisation, retention and DPIA evidence review.',
   governance: {
-    schemaVersion: 4,
+    schemaVersion: 5,
     state: 'TECHNICAL_CANDIDATE',
     authoredAt: '2026-08-09',
     lastReviewedAt: '2026-08-11',
@@ -76,7 +87,8 @@ export const EU_GDPR_PACK: RegulationPack = {
     },
     releaseScope: 'CONTROLLED_EVALUATION',
     locales: ['en'],
-    changeTriggers: ['GDPR amendment', 'authoritative interpretation', 'consultation-material finalisation', 'mapping correction', 'review expiry', 'localisation change'],
+    changeTriggers: ['GDPR amendment', 'authoritative interpretation', 'consultation-material finalisation', 'source-content digest change', 'mapping correction', 'review expiry', 'localisation change'],
+    sourceContentManifest: EU_GDPR_SOURCE_CONTENT_MANIFEST,
   },
   rules: {
     LOCATION: {

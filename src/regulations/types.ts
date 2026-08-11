@@ -24,11 +24,21 @@ export type RegulatorySourceLifecycle =
   | 'CONSULTATION_CLOSED_PENDING_FINALISATION';
 export type SourceReviewState = 'CURRENT' | 'REVIEW_DUE';
 export type PackSourceReviewState = SourceReviewState | 'NOT_APPLICABLE';
+export type SourceContentVerificationState =
+  | 'VERIFIED'
+  | 'MANIFEST_NOT_PROVIDED'
+  | 'ARTIFACTS_NOT_AVAILABLE'
+  | 'ARTIFACT_MISSING'
+  | 'ARTIFACT_LENGTH_MISMATCH'
+  | 'ARTIFACT_HASH_MISMATCH'
+  | 'NOT_APPLICABLE';
 export type LegalReviewGateState =
   | 'CURRENT'
   | 'EXPIRED'
   | 'NOT_PROVIDED'
   | 'SOURCE_BUNDLE_MISMATCH'
+  | 'SOURCE_CONTENT_MANIFEST_MISMATCH'
+  | 'SOURCE_CONTENT_UNVERIFIED'
   | 'SIGNER_NOT_TRUSTED'
   | 'SIGNER_REVOKED'
   | 'SIGNATURE_INVALID'
@@ -53,10 +63,41 @@ export interface PackSourceReviewAssessment {
   overdueSourceTitles: string[];
 }
 
+export interface SourceContentManifestEntry {
+  sourceUrl: string;
+  contentUrl: string;
+  artifactId: string;
+  mediaType: 'application/pdf';
+  byteLength: number;
+  sha256: string;
+  retrievedAt: string;
+  retrievalMethod: 'HTTPS_DIRECT';
+}
+
+export interface SourceContentManifest {
+  schema: 'privacy-lens.source-content-manifest.v1';
+  packVersion: string;
+  generatedAt: string;
+  entries: readonly SourceContentManifestEntry[];
+}
+
+export type SourceContentArtifacts = Readonly<Record<string, Uint8Array>>;
+
+export interface PackSourceContentAssessment {
+  state: SourceContentVerificationState;
+  assessedAt: string;
+  manifestSha256?: string;
+  verifiedArtifactCount: number;
+  expectedArtifactCount: number;
+  affectedArtifactIds: string[];
+  reason?: string;
+}
+
 export interface LegalReviewAttestation {
   attestationId: string;
   reviewedPackVersion: string;
   reviewedSourcesSha256: string;
+  reviewedSourceContentManifestSha256: string;
   reviewedAt: string;
   approvedAt: string;
   validUntil: string;
@@ -85,11 +126,12 @@ export interface PackLegalReviewAssessment {
   validUntil?: string;
   attestationId?: string;
   signingKeyId?: string;
+  sourceContentState?: SourceContentVerificationState;
   reason?: string;
 }
 
 export interface PackGovernance {
-  schemaVersion: 4;
+  schemaVersion: 5;
   state: PackGovernanceState;
   authoredAt: string;
   lastReviewedAt: string;
@@ -102,6 +144,7 @@ export interface PackGovernance {
   releaseScope: 'CONTROLLED_EVALUATION' | 'PRODUCTION';
   locales: readonly string[];
   changeTriggers: readonly string[];
+  sourceContentManifest?: SourceContentManifest;
   legalReviewAttestation?: LegalReviewAttestation;
   supersedes?: string;
   successor?: string;

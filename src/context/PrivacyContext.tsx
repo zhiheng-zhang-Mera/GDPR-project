@@ -53,7 +53,7 @@ const PrivacyContext = createContext<PrivacyContextValue | undefined>(undefined)
 
 function migrateFinding(finding: ComplianceFinding): ComplianceFinding {
   const status = finding.compliance.status === 'LIKELY_NON_COMPLIANT' ? 'POTENTIAL_CONFLICT' : finding.compliance.status;
-  if (finding.regulationId && finding.legalReference && finding.compliance.sourceReview && finding.compliance.legalReview && status === finding.compliance.status) return finding;
+  if (finding.regulationId && finding.legalReference && finding.compliance.sourceReview && finding.compliance.sourceContent && finding.compliance.legalReview && status === finding.compliance.status) return finding;
   return {
     ...finding,
     regulationId: 'EU_GDPR',
@@ -66,6 +66,13 @@ function migrateFinding(finding: ComplianceFinding): ComplianceFinding {
         state: 'NOT_RECORDED',
         assessedAt: new Date(finding.detectedAt).toISOString().slice(0, 10),
         overdueSourceTitles: [],
+      },
+      sourceContent: finding.compliance.sourceContent ?? {
+        state: 'NOT_RECORDED',
+        assessedAt: new Date(finding.detectedAt).toISOString().slice(0, 10),
+        verifiedArtifactCount: 0,
+        expectedArtifactCount: 0,
+        affectedArtifactIds: [],
       },
       legalReview: finding.compliance.legalReview ?? {
         state: 'NOT_RECORDED',
