@@ -1,6 +1,8 @@
 # Privacy Lens Privacy Policy
 
-Effective date: 9 August 2026
+Effective date: 13 August 2026
+
+Applies to repository version: 1.14.0
 
 Privacy Lens is an on-device privacy-review research application.
 
@@ -22,7 +24,7 @@ The optional decision-pause interaction does not collect research data. Its inte
 
 ## Permissions and device access
 
-The app does not request location, microphone, contacts, storage, overlay, advertising, or other sensitive runtime permissions. It declares Internet access for opening official sources and operational WorkManager permissions for wake locks, network state, boot rescheduling, and foreground-service compatibility. Ordinary Android security restrictions limit cross-application evidence visibility.
+The app does not request location, microphone, contacts, storage, overlay, advertising, Internet, or other sensitive runtime permissions. Official HTTPS sources are delegated to an installed browser, which applies its own network permissions and privacy policy. Operational WorkManager declarations support wake locks, boot rescheduling, and foreground-service compatibility. Ordinary Android security restrictions limit cross-application evidence visibility.
 
 ## Purpose and limitations
 
@@ -40,4 +42,4 @@ Before public distribution, the store owner must replace this repository contact
 
 ## 中文摘要
 
-Privacy Lens 只在设备本地处理权限审查摘要和明确标注的合成演示记录。本版本没有账户、广告 SDK、分析 SDK、证据上传服务或远程证据数据库，不通过应用收集、共享或出售本地证据。发现和法规包选择保存在应用私有空间，Android 备份已关闭，用户可在设置中清空或通过卸载删除。应用不请求位置、麦克风、联系人、存储、悬浮窗或广告等敏感运行时权限；清单声明互联网访问（打开官方来源）以及 WorkManager 调度所需的唤醒锁、网络状态、启动重排和前台服务兼容权限。公开发布前，应用所有者须补充真实支持邮箱并将政策发布到稳定 HTTPS 地址。
+Privacy Lens 只在设备本地处理权限审查摘要和明确标注的合成演示记录。本版本没有账户、广告 SDK、分析 SDK、证据上传服务或远程证据数据库，不通过应用收集、共享或出售本地证据。发现和法规包选择保存在应用私有空间，Android 备份已关闭，用户可在设置中清空或通过卸载删除。应用不请求位置、麦克风、联系人、存储、悬浮窗、广告、互联网或其他敏感运行时权限；官方 HTTPS 来源由系统浏览器打开，并受浏览器自身权限和隐私政策约束。WorkManager 运行声明用于唤醒锁、启动重排和前台服务兼容。公开发布前，应用所有者须补充真实支持邮箱并将政策发布到稳定 HTTPS 地址。

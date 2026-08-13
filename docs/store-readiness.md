@@ -1,40 +1,39 @@
-# Privacy Lens 1.1.0 Store-Readiness Gate
+# Privacy Lens 1.14.0 Store-Readiness Gate
 
-Assessment date: 9 August 2026
+Assessment date: 13 August 2026
 
 ## Decision
 
-**Code and artifact status: INITIAL SUBMISSION CANDIDATE.**
+**Repository and QA artifact status: FINAL HANDOFF CANDIDATE.**
 
-**Public listing status: OWNER ACTION REQUIRED.** A dedicated upload key, stable privacy-policy URL, monitored support contact, Play Console Data safety declaration, store screenshots/text, content rating, and internal-track review remain external owner-controlled steps.
+**Public Play release status: OWNER ACTION REQUIRED.** Production signing, a stable hosted privacy policy, monitored support contact, Play declarations/listing, Play-delivered binary review, broader validation, and appropriate legal/security/accessibility review remain external.
 
-## Passed engineering gates
+## Verified engineering evidence
 
-- Product scope reduced to Overview, Findings, and Settings.
-- Branded launcher, adaptive, monochrome, and splash assets generated and verified.
-- Package ID changed to `com.zhihengzhang.privacylens`.
-- min SDK 24; compile/target SDK 36; versionCode 2; versionName 1.1.0.
-- ARM64 release APK and AAB built successfully.
-- Storage permissions explicitly removed; no sensitive runtime permission; only Internet plus WorkManager operational declarations remain; Android backup disabled.
-- No account, advertising, analytics SDK, evidence upload, or sensitive permission.
-- EU GDPR and non-legal research packs load through a decoupled registry.
-- Existing findings retain their producing pack.
-- Input validation fails closed for unsafe package, permission, source, count, time-window, timestamp, and context values.
-- TypeScript, ESLint, deterministic compliance tests, pack tests, Android lintVital, install, cold launch, primary navigation, demo flow, and crash/ANR scan passed.
-- OPPO PERM00 screenshots and UI trees are retained in `testing-report/ui-round-2026-08-09/`.
+- Package `com.zhihengzhang.privacylens`, version code 15, version name 1.14.0, min SDK 24, target SDK 36.
+- ARM64 QA APK and AAB were built; recorded SHA-256 digests are retained in the final device report.
+- Local APK Signature Scheme v2 verification passed; the artifact used the Android Debug certificate and is not a production-signed release.
+- The inspected release manifest contained no Internet or sensitive runtime permission. Operational WorkManager declarations remained.
+- Android backup is disabled; the app has no account, analytics, advertising, or evidence-upload service.
+- Compliance corpus, extended boundary suite, independent governance/property oracle, accessibility source contracts, privacy-release contracts, TypeScript, ESLint, and delivery checks passed for the referenced acceptance revision.
+- A non-streaming install and the primary decision-pause flow passed on one OPPO PERM00 handset; the short cold-launch sample completed and the minimized crash buffer was empty.
+- Final evidence: [App 1.14.0 device report](../testing-report/real-device-8-10-v1.14.0-decision-pause/SUMMARY.md).
 
 ## Claim boundaries
 
-- Deterministic precision/recall demonstrates agreement with generated labels only.
-- One physical device and a short session do not prove broad OEM compatibility, long-duration WorkManager reliability, battery performance, accessibility conformance, or memory-leak freedom.
-- Native bridge availability does not imply unrestricted cross-app AppOps visibility.
-- The output is not a legal decision.
+- The QA/debug certificate is not suitable for Play publication.
+- One device and a short sample do not establish Android 7–16/OEM compatibility, accessibility conformance, long-duration WorkManager reliability, battery behavior, memory safety, or security assurance.
+- Native bridge availability does not imply unrestricted cross-app AppOps history.
+- Synthetic evaluation measures deterministic agreement, not population or legal accuracy.
+- The legal-review gate intentionally remains closed because production roots, witnesses, and qualified legal-review attestations are unprovisioned.
+- This repository does not provide a legal opinion, GDPR certification, participant study, or publication decision.
 
 ## Before Play upload
 
-1. Configure an owner-controlled upload key and remove QA/debug signing from the submission artifact.
-2. Publish `docs/privacy-policy.md` at HTTPS and replace the placeholder contact.
-3. Complete Data safety consistently with the shipped binary and policy.
-4. Prepare localized store copy, screenshots, feature graphic, content rating, and support details.
-5. Upload the AAB to an internal track, review Play pre-launch reports, and test the Play-delivered split APK on additional Android 7–16 devices.
-6. Decide whether production use remains a research prototype or undergoes legal, security, privacy, accessibility, and operational review.
+1. Create and protect an owner-controlled upload key; configure signing without committing secrets.
+2. Publish [privacy-policy.md](privacy-policy.md) at a stable HTTPS URL and replace its placeholder contact with a monitored address.
+3. Complete Data safety, content rating, support details, localized listing text, screenshots, and feature graphic against the exact shipped binary.
+4. Build the final AAB from a clean checkout; record commit, dependency lock, hashes, signing-certificate digest, merged manifest, and toolchain versions.
+5. Upload to an internal track, inspect Play pre-launch results, and test the Play-delivered split on a broader Android/device matrix including assistive technologies.
+6. Obtain the legal, privacy, security, accessibility, ethics, and operational review appropriate to the intended deployment and claims.
+7. Add an explicit license before inviting redistribution.

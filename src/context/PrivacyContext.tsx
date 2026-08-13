@@ -54,6 +54,11 @@ interface PrivacyContextValue {
 
 const PrivacyContext = createContext<PrivacyContextValue | undefined>(undefined);
 
+/**
+ * Upgrades pre-rule-pack records without rewriting their observed evidence.
+ * Unknown legacy governance fields fail toward NOT_RECORDED, never toward a
+ * reassuring state.
+ */
 function migrateFinding(finding: ComplianceFinding): ComplianceFinding {
   const status = finding.compliance.status === 'LIKELY_NON_COMPLIANT' ? 'POTENTIAL_CONFLICT' : finding.compliance.status;
   if (finding.regulationId && finding.legalReference && finding.compliance.sourceReview && finding.compliance.sourceContent && finding.compliance.legalReview && status === finding.compliance.status) return finding;
@@ -85,6 +90,11 @@ function migrateFinding(finding: ComplianceFinding): ComplianceFinding {
   };
 }
 
+/**
+ * Application orchestration boundary. Screens consume this context; native
+ * observations, synthetic evaluation, rule-pack governance, and persistence
+ * stay separated here so presentation code cannot silently relabel evidence.
+ */
 export function PrivacyProvider({ children }: { children: ReactNode }) {
   const [findings, setFindings] = useState<ComplianceFinding[]>([]);
   const [selectedRegulationId, setSelectedRegulationId] = useState<RegulationId>(DEFAULT_REGULATION_ID);
@@ -98,6 +108,8 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
   const engineRef = useRef(new RulePackComplianceEngine(getRegulationPack(DEFAULT_REGULATION_ID), undefined, trustStoreAssessment));
   const selectedPack = getRegulationPack(selectedRegulationId);
 
+  // Keep a bounded, newest-first app-private ledger. This is local persistence,
+  // not a server sync or an evidentiary chain-of-custody guarantee.
   const publish = useCallback(async (next: ComplianceFinding[]) => {
     const ordered = [...next].sort((a, b) => b.detectedAt - a.detectedAt).slice(0, 100);
     setFindings(ordered);
@@ -105,6 +117,8 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     setLastUpdated(Date.now());
   }, []);
 
+  // evaluateSafe converts malformed or unsupported input into a visible
+  // rejection instead of allowing screen code to construct a finding.
   const processAudit = useCallback(async (audit: PermissionAudit) => {
     const result = engineRef.current.evaluateSafe(audit);
     if (!result.accepted) {

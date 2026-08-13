@@ -23,6 +23,11 @@ function isHttpsUrl(value: string | undefined): boolean {
   }
 }
 
+/**
+ * Checks whether a pack is structurally safe to load. Passing this function
+ * means the recorded evidence is internally consistent; it is not a legal
+ * opinion, a certification, or proof that the source material is current.
+ */
 export function validateRegulationPack(pack: RegulationPack, trustStore: LegalReviewTrustStoreAssessment = assessProductionLegalReviewTrustStore()): string[] {
   const errors: string[] = [];
   const governance = pack.governance;
@@ -208,6 +213,11 @@ export function sourceContentLabel(state: SourceContentVerificationState): strin
   }
 }
 
+/**
+ * Computes the fail-closed release gate shown in the UI. A reassuring result
+ * requires source review, verified source bytes, a valid review attestation,
+ * and a current witnessed trust store. Any missing layer remains visible.
+ */
 export function assessPackLegalReview(
   pack: RegulationPack,
   asOfDate = new Date().toISOString().slice(0, 10),

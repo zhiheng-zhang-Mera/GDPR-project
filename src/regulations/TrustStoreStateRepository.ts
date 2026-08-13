@@ -13,6 +13,11 @@ import { LegalReviewTrustStoreAssessment, LegalReviewTrustStoreRollbackState } f
 const ROLLBACK_STATE_KEY = '@privacy_lens_trust_store_rollback_v1';
 const SHA256 = /^[A-Fa-f0-9]{64}$/;
 
+/**
+ * Parses only the minimal monotonic state needed to reject older envelopes.
+ * AsyncStorage is app-private but not tamper-resistant; uninstall, data clear,
+ * restore, or device compromise can erase this protection.
+ */
 function parseRollbackState(value: string | null): LegalReviewTrustStoreRollbackState | undefined {
   if (value === null) return undefined;
   const parsed: unknown = JSON.parse(value);
@@ -33,6 +38,11 @@ export async function persistTrustStoreRollbackState(current: LegalReviewTrustSt
   await AsyncStorage.setItem(ROLLBACK_STATE_KEY, JSON.stringify({ highestAcceptedSequence: next.highestAcceptedSequence, acceptedEnvelopeSha256: next.acceptedEnvelopeSha256.toLowerCase() }));
 }
 
+/**
+ * Persists rollback state only after the complete envelope and witness policy
+ * assess as CURRENT. Read or write failures invalidate the gate rather than
+ * falling back to the embedded anchors.
+ */
 export async function assessAndPersistProductionTrustStore(asOfDate = new Date().toISOString().slice(0, 10)): Promise<LegalReviewTrustStoreAssessment> {
   let previousState: LegalReviewTrustStoreRollbackState | undefined;
   try {

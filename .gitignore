@@ -30,6 +30,17 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# editor and IDE state
+.idea/
+.vs/
+*.suo
+*.user
+
+# local delivery bundles and install artifacts
+*.apk
+*.aab
+*.zip
+
 # local env files
 .env*.local
 
@@ -43,6 +54,4 @@ yarn-error.*
 .codex-tmp/
 tmp/pdfs/
 node_modules.pnpm-backup/
-
-app-example
 

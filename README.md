@@ -1,105 +1,143 @@
 # Privacy Lens
 
-Privacy Lens is an evidence-first Android privacy review prototype. It separates observed device evidence from synthetic demonstrations, explains what Android can and cannot reveal, and turns technical signals into questions for human review—not legal conclusions.
+> Evidence before conclusions · 证据先于结论
 
-中文简介见下方 [中文](#中文)。
+[English](#english) · [中文](#中文) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Latest thesis PDF](<output/pdf/Privacy-Lens-Thesis-Revision-26.pdf>)
 
-## Product status
+| Overview / 概览 | Findings / 发现 | Decision pause / 决策暂停 |
+|:--:|:--:|:--:|
+| <img src="assets/screenshots/product-overview.png" width="250" alt="Privacy Lens overview on an OPPO physical device"> | <img src="assets/screenshots/findings-summary.png" width="250" alt="Privacy Lens findings on an OPPO physical device"> | <img src="assets/screenshots/decision-pause.png" width="250" alt="Privacy Lens private decision pause on an OPPO physical device"> |
 
-Version 1.1.0 is an initial store-submission candidate at the code and artifact level:
+The screenshots are from the final App 1.14.0 physical-device acceptance run. They demonstrate the inspected UI state only; they do not establish broad device compatibility, accessibility conformance, or legal validity.
 
-- focused three-page experience: Overview, Findings, and Settings;
-- ARM64 release APK and Android App Bundle built against target SDK 36;
-- branded launcher and splash assets;
-- no account, advertising, analytics SDK, evidence upload, or sensitive runtime permission;
-- local evidence storage with Android backup disabled;
-- device QA on OPPO PERM00, including cold launch, navigation, synthetic workflow, screenshots, UI hierarchy, and crash-log checks.
+## English
 
-The generated release artifacts in `android/app/build/outputs/` use the repository's QA/debug signing configuration. A store owner must supply and protect a dedicated upload key before Play submission. Play Console declarations and listing publication are external steps.
+Privacy Lens is an offline, evidence-first Android research prototype for reviewing permission-activity summaries. It keeps observed-device evidence distinct from synthetic demonstrations, exposes missing context, and prepares questions for proportionate human review. It does **not** determine whether the GDPR was infringed.
 
-## What it does
+### Delivery status
 
-- Requests an on-device audit through a Kotlin/React Native bridge and WorkManager.
-- Reviews location, microphone, and contacts event summaries using the active rule pack.
-- Preserves evidence source, rule-pack identity, thresholds, rationale, caveats, and recommended human action in every finding.
-- Runs a clearly labelled 50-round deterministic synthetic demonstration.
-- Stores findings and the active rule-pack choice in app-private local storage.
+Version 1.14.0 is the final repository delivery candidate:
 
-## Regional rule packs
+- three focused screens: Overview, Findings, and Settings;
+- local evidence ledger with Android backup disabled;
+- no account, advertising, analytics, evidence upload, Internet permission, or sensitive runtime permission;
+- fail-closed regulation-pack, source-review, source-content, attestation, trust-store, rollback, and witness checks;
+- a private, session-only decision pause that clears its answers when a finding closes;
+- deterministic compliance, governance, accessibility-source, privacy-release, TypeScript, lint, and delivery checks;
+- physical-device evidence from one OPPO PERM00 handset, clearly bounded to a short acceptance sample.
 
-Regulation loading is independent of screen code. A registered pack owns its jurisdiction label, source, rules, references, evidence requirements, classification policy, principles, and caveat.
+The production root store, witnessed trust-store envelope, and qualified legal-review attestation are intentionally unprovisioned. The app therefore blocks reassuring legal-review states. Repository builds use a QA/debug certificate; Play upload signing and store declarations remain owner-controlled work.
 
-Included packs:
+### Evidence flow
 
-- **EU GDPR** — legal-framework prompts backed by the official EUR-Lex text.
-- **Research baseline** — explicitly non-legal, region-neutral demonstration of pack switching.
+```mermaid
+flowchart LR
+  A["Observed device summary"] --> C["Validate provenance and context"]
+  B["Labelled synthetic demo"] --> C
+  C --> D["Rule-pack evaluation"]
+  D --> E["Fail-closed governance gates"]
+  E --> F["Local evidence ledger"]
+  F --> G["Human review and decision pause"]
+```
 
-Adding a region means implementing a `RegulationPack` and registering it in `src/regulations/registry.ts`; existing findings keep the pack that produced them.
+The screen layer cannot create a reassuring result by itself. Regulation metadata, official-source records, source-content manifests, review attestations, trust anchors, witness receipts, and rollback state are evaluated below the UI.
 
-## Evidence boundaries
+### Quick start
 
-- Ordinary Android apps generally cannot inspect unrestricted AppOps history for other apps.
-- A blank audit is not proof that no access occurred.
-- WorkManager execution is deferrable and OEM-dependent.
-- Synthetic metrics show agreement with deterministic labels, not legal validity or real-world detection accuracy.
-- The app is a research and accountability aid, not legal advice, certification, or a finding of infringement.
-
-## Build and verify
-
-Requirements: Node.js, Java 21, Android SDK 36, and an Android NDK compatible with Expo 54.
+Prerequisites: Node.js 20+, npm, Java 21, Android SDK 36, and an Expo 54-compatible Android NDK.
 
 ```powershell
-npm install
-node node_modules/typescript/bin/tsc -p tsconfig.compliance-tests.json
-node .compliance-test-build/tests/runComplianceTests.js
-node .compliance-test-build/tests/runExtendedComplianceTests.js
-node node_modules/typescript/bin/tsc --noEmit
-node node_modules/eslint/bin/eslint.js .
+git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
+Set-Location GDPR-project
+git switch 8-13
+npm ci
+npm run verify
+npm start
+```
 
+For an Android source build:
+
+```powershell
 $env:NODE_ENV = 'production'
 Set-Location android
 .\gradlew.bat assembleRelease bundleRelease --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a
 ```
 
-On Windows, a hoisted dependency layout may be needed to avoid native CMake path limits.
+APK/AAB files are deliberately excluded from source control. Before public distribution, configure an owner-controlled upload key and follow [store readiness](docs/store-readiness.md).
 
-## Key paths
+### Repository map
 
-- `app/(tabs)/` — product screens
-- `src/regulations/` — decoupled regional rule packs
-- `src/compliance/` — validation, evaluation, evidence models
-- `android/app/src/main/java/com/zhihengzhang/privacylens/privacy/` — native audit bridge and workers
-- `tests/` — deterministic and boundary tests
-- `testing-report/ui-round-2026-08-09/` — current physical-device visual evidence
-- `docs/` — store-readiness, privacy policy, and product audit
-- `Thesis Version/` — append-only thesis revisions
+| Path | Purpose |
+|---|---|
+| `app/(tabs)/` | Overview, Findings, and Settings screens |
+| `components/privacy/` | Shared finding and navigation components |
+| `src/compliance/` | Input validation, evaluation, evidence, and decision readiness |
+| `src/regulations/` | Regulation packs and fail-closed governance chain |
+| `src/context/PrivacyContext.tsx` | Orchestration and local persistence boundary |
+| `android/.../privacy/` | Native audit bridge and WorkManager workers |
+| `tests/` | Deterministic and contract checks |
+| `testing-report/` | Versioned acceptance evidence; not broad validation |
+| `Thesis Version/` | Append-only thesis source and review history |
+| `output/pdf/` | Versioned compiled thesis PDFs |
+
+### Claim boundaries
+
+- Ordinary Android apps cannot inspect unrestricted AppOps history for other apps.
+- A blank audit is not proof that no access occurred.
+- WorkManager timing is deferrable and OEM-dependent.
+- Synthetic precision/recall measures agreement with generated labels, not real-world or legal accuracy.
+- Local rollback state is not tamper-resistant and can be lost after uninstall, data clearing, unsuitable restore, or device compromise.
+- Internal artifact scores, tests, and one-device QA are not a legal opinion, participant study, certification, peer review, or publication decision.
 
 ## 中文
 
-Privacy Lens 是一款“证据优先”的 Android 隐私审查研究原型。它把设备观测证据与合成演示严格分开，说明 Android 能看到什么、不能看到什么，并把技术信号转化为供人工复核的问题，而不是直接给出法律结论。
+Privacy Lens 是一款离线运行、证据优先的 Android 隐私审查研究原型。它将设备观测证据与合成演示严格分开，明确展示缺失语境，并帮助用户在采取行动前形成适度、可复核的问题。它**不会**判断是否发生 GDPR 侵权。
 
-### 当前状态
+### 交付状态
 
-1.1.0 版本在代码和构建产物层面达到“初步商店提交候选”状态：
+版本 1.14.0 是当前仓库最终交付候选：
 
-- 界面收敛为概览、发现、设置三个核心页面；
-- 已生成面向 ARM64、target SDK 36 的 release APK 与 AAB；
-- 已完成品牌图标、启动图、无障碍标签和实体设备交互验收；
-- 不包含账户、广告、分析 SDK、证据上传或敏感 Android 权限；
-- 证据仅保存在应用私有空间，并关闭 Android 备份。
+- 界面收敛为概览、发现和设置三个页面；
+- 证据账本仅保存在应用私有空间，且 Android 备份已关闭；
+- 无账户、广告、分析 SDK、证据上传、互联网权限或敏感运行时权限；
+- 法规包、来源复核、来源内容、法律复核签名、信任库、回滚和见证策略均采用失败关闭；
+- 决策暂停答案仅存在于当前打开的卡片中，关闭卡片即清除；
+- 具备确定性合规、治理、无障碍源代码、发布隐私、TypeScript、Lint 和交付结构检查；
+- 实体设备证据来自一台 OPPO PERM00，仅证明短时验收样本中的观察结果。
 
-仓库 release 当前仍使用 QA/调试签名，正式提交前必须由应用所有者配置并妥善保管独立上传密钥；Play Console 的 Data safety、隐私政策网址和商店文案发布也是外部步骤。
+生产根信任库、见证信任库封装和合格法律复核证明仍未配置，因此应用会阻断安抚性的法律复核状态。仓库构建使用 QA/调试证书；Play 上传签名、Data safety、支持邮箱和商店发布仍由项目所有者完成。
 
-### 地区法规解耦
+### 快速开始
 
-法规包不写死在界面中。每个 `RegulationPack` 独立定义地区、来源、阈值、条文引用、证据要求、分类策略、原则与免责边界。目前包含 EU GDPR 法律框架包和明确标注为“非法律演示”的地区中立研究包。新增地区只需实现并注册新包；历史发现不会被新选择重新贴标签。
+准备 Node.js 20+、npm、Java 21、Android SDK 36，以及兼容 Expo 54 的 Android NDK，然后执行：
+
+```powershell
+git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
+Set-Location GDPR-project
+git switch 8-13
+npm ci
+npm run verify
+npm start
+```
+
+源代码仓库不保存 APK/AAB。正式分发前请配置独立上传密钥，并逐项完成[商店就绪清单](docs/store-readiness.md)。
+
+### 阅读顺序
+
+1. 首次使用者先阅读[用户指南](User-Guide.md)。
+2. 开发者和维护者阅读[项目手册](docs/PROJECT-MANUAL.md)。
+3. 查看[初次接触项目审查](docs/FIRST-CONTACT-REVIEW.md)，了解本轮清洗依据。
+4. 发布负责人核对[最终交付清单](docs/DELIVERY-CHECKLIST.md)。
+5. 法规与密钥负责人阅读[法律复核密钥治理](docs/legal-review-key-governance.md)。
+6. 研究人员阅读[预注册草案](docs/research/decision-pause-preregistration.md)及其数据字典。
 
 ### 重要边界
 
-- 普通 Android 应用通常无法读取其他应用不受限制的 AppOps 历史；
-- 空白结果不代表没有发生访问；
-- WorkManager 可能被系统和 OEM 延迟；
-- 50 轮指标只证明确定性标签与实现一致，不代表真实世界或法律判断准确率；
-- 本项目不构成法律建议、合规认证或侵权认定。
+- 普通 Android 应用无法读取其他应用不受限制的 AppOps 历史；
+- 空白审查结果不代表没有发生访问；
+- WorkManager 的执行时间可能受系统和 OEM 延迟；
+- 合成指标只验证生成标签与实现一致，不代表真实世界或法律判断准确率；
+- 本地回滚状态不具备防篡改能力，卸载、清除数据、不适当恢复或设备失陷可能使其丢失；
+- 内部评分、自动测试和单设备验收不等于法律意见、真人实验、认证、同行评审或期刊录用。
 
-See [User-Guide.md](User-Guide.md), [store readiness](docs/store-readiness.md), and [privacy policy](docs/privacy-policy.md).
+License information has not yet been supplied by the repository owner; do not assume redistribution rights beyond applicable law and explicit owner permission.

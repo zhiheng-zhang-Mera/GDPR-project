@@ -1,4 +1,6 @@
-# Product Audit and Iteration Record — 9 August 2026
+# Product Audit and Iteration Record — historical 9 August snapshot
+
+> This document records the 1.1.0 audit state and is retained for traceability. It is not the current release assessment. See [store-readiness.md](store-readiness.md) for version 1.14.0.
 
 ## Baseline
 
