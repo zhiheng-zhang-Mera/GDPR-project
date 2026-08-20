@@ -2,13 +2,7 @@
 
 > Evidence before conclusions · 证据先于结论
 
-[English](#english) · [中文](#中文) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Latest thesis PDF](<output/pdf/Privacy-Lens-Thesis-Revision-26.pdf>)
-
-| Overview / 概览 | Findings / 发现 | Decision pause / 决策暂停 |
-|:--:|:--:|:--:|
-| <img src="assets/screenshots/product-overview.png" width="250" alt="Privacy Lens overview on an OPPO physical device"> | <img src="assets/screenshots/findings-summary.png" width="250" alt="Privacy Lens findings on an OPPO physical device"> | <img src="assets/screenshots/decision-pause.png" width="250" alt="Privacy Lens private decision pause on an OPPO physical device"> |
-
-The screenshots are from the final App 1.14.0 physical-device acceptance run. They demonstrate the inspected UI state only; they do not establish broad device compatibility, accessibility conformance, or legal validity.
+[English](#english) · [中文](#中文) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Final thesis source / 最终论文源](Thesis/Iteration-V3/main.tex)
 
 ## English
 
@@ -24,6 +18,7 @@ Version 1.15.0 is the current repository delivery candidate:
 - fail-closed regulation-pack, source-review, source-content, attestation, trust-store, rollback, and witness checks;
 - a private, session-only decision pause that clears its answers when a finding closes;
 - regulation-owned temporal profiles with rule-specific windows and unordered sensor/data combinations; findings remain advisory and non-blocking;
+- a separate regulation-to-temporal-rule mapping compiler, so mounting another valid pack changes the detection configuration without hard-coding GDPR combinations in the evaluator;
 - deterministic compliance, governance, accessibility-source, privacy-release, TypeScript, lint, and delivery checks;
 - physical-device evidence from one OPPO PERM00 handset, clearly bounded to a short acceptance sample.
 
@@ -78,7 +73,8 @@ APK/AAB files are deliberately excluded from source control. Before public distr
 | `android/.../privacy/` | Native audit bridge and WorkManager workers |
 | `tests/` | Deterministic and contract checks |
 | `testing-report/` | Versioned acceptance evidence; not broad validation |
-| `Thesis Version/` | Append-only thesis source and review history |
+| `Thesis/Iteration-V3/` | Standalone final thesis source: `main.tex`, seven chapters, and bibliography |
+| `Thesis Version/` | Preserved thesis source and review history |
 | `output/pdf/` | Versioned compiled thesis PDFs |
 
 ### Claim boundaries
@@ -104,6 +100,7 @@ Privacy Lens 是一款离线运行、证据优先的 Android 隐私审查研究�
 - 法规包、来源复核、来源内容、法律复核签名、信任库、回滚和见证策略均采用失败关闭；
 - 决策暂停答案仅存在于当前打开的卡片中，关闭卡片即清除；
 - 法规包分别声明检测窗口与无序传感器/数据组合，结果仅作提示且不拦截 App；
+- 法规包与通用时间组合评估器之间采用独立转换模块，切换有效法规包即可切换检测配置，而不在评估器中写死 GDPR 组合；
 - 具备确定性合规、治理、无障碍源代码、发布隐私、TypeScript、Lint 和交付结构检查；
 - 实体设备证据来自一台 OPPO PERM00，仅证明短时验收样本中的观察结果。
 
@@ -132,6 +129,7 @@ npm start
 4. 发布负责人核对[最终交付清单](docs/DELIVERY-CHECKLIST.md)。
 5. 法规与密钥负责人阅读[法律复核密钥治理](docs/legal-review-key-governance.md)。
 6. 研究人员阅读[预注册草案](docs/research/decision-pause-preregistration.md)及其数据字典。
+7. 论文交付阅读 [Thesis/Iteration-V3/main.tex](Thesis/Iteration-V3/main.tex)；历史源稿保留在 `Thesis Version/`。
 
 ### 重要边界
 

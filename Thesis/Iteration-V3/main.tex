@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
+\usepackage{lmodern,microtype,setspace}
+\usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+\usepackage[hidelinks]{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.15em}
+\hypersetup{pdftitle={Privacy Lens: Regulation-Driven Temporal Privacy Review},pdfauthor={Zhiheng Zhang}}
+\title{Privacy Lens: Evidence-Bounded Android Privacy Review with Regulation-Driven Temporal Combination Notices}
+\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
+\date{August 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+\small\singlespacing
+Privacy Lens is a local-first Android prototype converting bounded permission-audit summaries into human-review prompts. A signal cannot establish purpose, necessity, lawful basis, compliance, or intent.
+
+The architecture makes provenance, temporal scope, missing context, and uncertainty evidence. A fail-closed engine rejects malformed records, isolates simulation, and binds findings to replaceable packs. Legal reassurance requires verified source bytes, signed monotonic governance, and two witnesses; production authority remains empty.
+
+The system matches an order-independent multiset of data or sensor observations only when the active regulation pack supplies a valid risk-specific window, requirements, legal references, and rationale. A separate compiler validates the profile and converts it for a pure evaluator, so changing packs changes the mapping without embedding GDPR constants in detection. The result is an evidence receipt and review prompt, never blocking or a legal verdict. GDPR currently has five profiles; a research baseline has a different profile to test pack substitution.
+
+Automated temporal, governance, accessibility, release-privacy, TypeScript, lint, and release-build checks passed. A device verified installation, launch, local audit, Findings, and evidence-card interaction, not an incident. The contribution separates signal, legal evidence, action, and external validation.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{chapter-01}
+\input{chapter-02}
+\input{chapter-03}
+\input{chapter-04}
+\input{chapter-05}
+\input{chapter-06}
+\input{chapter-07}
+{\small
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+}
+\end{document}
