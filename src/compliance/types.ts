@@ -1,4 +1,30 @@
+import type { TemporalMatchEvidence } from './TemporalCooccurrenceEngine';
+
 export type SensitivePermission = 'LOCATION' | 'MICROPHONE' | 'CONTACTS';
+export type PrivacyObservationType =
+  | SensitivePermission
+  | 'ACTIVITY_RECOGNITION'
+  | 'BODY_SENSORS'
+  | 'CAMERA'
+  | 'CLIPBOARD_READ'
+  | 'DEVICE_IDENTIFIER'
+  | 'MEDIA_IMAGES'
+  | 'MEDIA_LOCATION'
+  | 'APP_BACKGROUNDED'
+  | 'DATA_TRANSFER';
+export type ObservationChannel = 'SENSOR_CALL' | 'DATA_ACCESS' | 'DATA_TRANSFER' | 'APP_STATE';
+export type AuditSource = 'SIMULATOR' | 'NATIVE_BRIDGE' | 'IMPORTED';
+export type ComplianceSignal = 'DAILY_TOTAL' | 'BURST_RATE' | 'CROSS_WINDOW' | 'TEMPORAL_COOCCURRENCE';
+
+export interface PrivacyObservation {
+  type: PrivacyObservationType;
+  occurredAt: number;
+  count?: number;
+  channel?: ObservationChannel;
+  context?: 'FOREGROUND' | 'BACKGROUND' | 'UNKNOWN';
+  destination?: 'LOCAL' | 'NETWORK' | 'UNKNOWN';
+  source?: AuditSource;
+}
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type LawfulBasis = 'CONSENT' | 'CONTRACT' | 'LEGAL_OBLIGATION' | 'VITAL_INTERESTS' | 'PUBLIC_TASK' | 'LEGITIMATE_INTERESTS';
 export type ComplianceStatus =
@@ -39,7 +65,9 @@ export interface PermissionAudit {
   foregroundCount?: number;
   backgroundCount?: number;
   accessTimestamps?: number[];
-  source?: 'SIMULATOR' | 'NATIVE_BRIDGE' | 'IMPORTED';
+  source?: AuditSource;
+  /** Optional fine-grained observations used by regulation-owned temporal rules. */
+  observationEvents?: PrivacyObservation[];
   processingContext?: ProcessingContext;
 }
 
@@ -89,7 +117,8 @@ export interface ComplianceFinding {
   gdprArticle: string;
   rationale: string;
   detectedAt: number;
-  signals: ('DAILY_TOTAL' | 'BURST_RATE' | 'CROSS_WINDOW')[];
+  signals: ComplianceSignal[];
+  temporalEvidence?: TemporalMatchEvidence[];
   evidence: {
     dailyCount: number;
     peakCallsPerMinute: number;

@@ -67,6 +67,36 @@ class PrivacyInspectorModule(
             else -> "LOCATION"
         }
         val now = System.currentTimeMillis()
+        val normalizedApi = apiName.uppercase()
+        val observationType = when {
+            "BODY" in normalizedApi || "HEALTH" in normalizedApi -> "BODY_SENSORS"
+            "ACTIVITY" in normalizedApi -> "ACTIVITY_RECOGNITION"
+            "CAMERA" in normalizedApi -> "CAMERA"
+            "CLIPBOARD" in normalizedApi -> "CLIPBOARD_READ"
+            "DEVICE" in normalizedApi || "PHONE_STATE" in normalizedApi -> "DEVICE_IDENTIFIER"
+            "MEDIA_LOCATION" in normalizedApi -> "MEDIA_LOCATION"
+            "MEDIA" in normalizedApi || "IMAGE" in normalizedApi -> "MEDIA_IMAGES"
+            "BACKGROUND" in normalizedApi -> "APP_BACKGROUNDED"
+            destination != "local" -> "DATA_TRANSFER"
+            else -> permissionType
+        }
+        val observationChannel = when (observationType) {
+            "DATA_TRANSFER" -> "DATA_TRANSFER"
+            "APP_BACKGROUNDED" -> "APP_STATE"
+            "CLIPBOARD_READ", "DEVICE_IDENTIFIER", "MEDIA_IMAGES", "MEDIA_LOCATION", "CONTACTS" -> "DATA_ACCESS"
+            else -> "SENSOR_CALL"
+        }
+        val observation = Arguments.createMap().apply {
+            putString("type", observationType)
+            putDouble("occurredAt", now.toDouble())
+            putInt("count", frequency)
+            putString("channel", observationChannel)
+            putString("destination", if (destination == "local") "LOCAL" else "NETWORK")
+            putString("source", "NATIVE_BRIDGE")
+        }
+        val observations = Arguments.createArray().apply {
+            if (frequency > 0) pushMap(observation)
+        }
         val params = Arguments.createMap().apply {
             putString("packageName", apiName)
             putString("permissionType", permissionType)
@@ -78,6 +108,7 @@ class PrivacyInspectorModule(
             putString("destination", destination)
             putString("eventType", eventType)
             putDouble("timestamp", now.toDouble())
+            putArray("observationEvents", observations)
         }
         reactContext
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)

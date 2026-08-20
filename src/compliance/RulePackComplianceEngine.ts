@@ -1,15 +1,21 @@
 import { IComplianceEngine } from './IComplianceEngine';
-import { ComplianceErrorCode, ComplianceEvaluation, ComplianceFinding, PermissionAudit, SensitivePermission } from './types';
+import { ComplianceErrorCode, ComplianceEvaluation, ComplianceFinding, PermissionAudit, PrivacyObservation, SensitivePermission } from './types';
 import { LegalReviewTrustStoreAssessment, RegulationPack, SourceContentArtifacts } from '../regulations/types';
 import { assessPackLegalReview, assessPackSourceReview } from '../regulations/governance';
 import { assessPackSourceContent } from '../regulations/sourceContent';
+import { CompiledTemporalRule, evaluateTemporalCooccurrence, SUPPORTED_OBSERVATION_TYPES } from './TemporalCooccurrenceEngine';
+import { compileTemporalRuleMapping } from '../regulations/temporalRuleMapping';
 
 const DAY_MS = 86_400_000;
 const BURST_LIMIT: Record<SensitivePermission, number> = { LOCATION: 12, MICROPHONE: 6, CONTACTS: 4 };
 const PERMISSIONS = new Set(['LOCATION', 'MICROPHONE', 'CONTACTS']);
 const LAWFUL_BASES = new Set(['CONSENT', 'CONTRACT', 'LEGAL_OBLIGATION', 'VITAL_INTERESTS', 'PUBLIC_TASK', 'LEGITIMATE_INTERESTS']);
 const SOURCES = new Set(['SIMULATOR', 'NATIVE_BRIDGE', 'IMPORTED']);
+const OBSERVATION_CHANNELS = new Set(['SENSOR_CALL', 'DATA_ACCESS', 'DATA_TRANSFER', 'APP_STATE']);
+const OBSERVATION_CONTEXTS = new Set(['FOREGROUND', 'BACKGROUND', 'UNKNOWN']);
+const OBSERVATION_DESTINATIONS = new Set(['LOCAL', 'NETWORK', 'UNKNOWN']);
 const MAX_HISTORY_ENTRIES = 4_096;
+const MAX_TEMPORAL_ENTRIES = 10_000;
 
 export class ComplianceInputError extends Error {
   constructor(readonly code: ComplianceErrorCode, message: string) {
@@ -33,6 +39,20 @@ function parseAudit(value: unknown): PermissionAudit | ComplianceEvaluation {
       (x.windowEnd as number) - (x.windowStart as number) > DAY_MS || (x.windowEnd as number) > Date.now() + 300_000) return reject('INVALID_WINDOW', 'Invalid audit window.');
   if (x.accessTimestamps !== undefined && (!Array.isArray(x.accessTimestamps) || x.accessTimestamps.length !== x.accessCount ||
       x.accessTimestamps.some((time) => !Number.isSafeInteger(time) || time < (x.windowStart as number) || time > (x.windowEnd as number)))) return reject('INVALID_TIMESTAMPS', 'Timestamps must match the count and window.');
+  if (x.observationEvents !== undefined) {
+    if (!Array.isArray(x.observationEvents) || x.observationEvents.length > MAX_TEMPORAL_ENTRIES) return reject('INVALID_TIMESTAMPS', 'observationEvents must be a bounded array.');
+    for (const observation of x.observationEvents) {
+      if (!observation || typeof observation !== 'object' || Array.isArray(observation)) return reject('INVALID_TIMESTAMPS', 'Each observation must be an object.');
+      const event = observation as Record<string, unknown>;
+      if (typeof event.type !== 'string' || !SUPPORTED_OBSERVATION_TYPES.has(event.type as never)) return reject('UNSUPPORTED_PERMISSION', 'Observation type is not supported by an installed adapter.');
+      if (!Number.isSafeInteger(event.occurredAt) || (event.occurredAt as number) < (x.windowStart as number) || (event.occurredAt as number) > (x.windowEnd as number)) return reject('INVALID_TIMESTAMPS', 'Observation timestamps must fall inside the audit window.');
+      if (event.count !== undefined && (!Number.isSafeInteger(event.count) || (event.count as number) <= 0)) return reject('INVALID_COUNT', 'Observation count must be a positive safe integer.');
+      if (event.source !== undefined && (typeof event.source !== 'string' || !SOURCES.has(event.source))) return reject('INVALID_SOURCE', 'Unknown observation source.');
+      if (event.channel !== undefined && (typeof event.channel !== 'string' || !OBSERVATION_CHANNELS.has(event.channel))) return reject('INVALID_CONTEXT', 'Unknown observation channel.');
+      if (event.context !== undefined && (typeof event.context !== 'string' || !OBSERVATION_CONTEXTS.has(event.context))) return reject('INVALID_CONTEXT', 'Unknown observation context.');
+      if (event.destination !== undefined && (typeof event.destination !== 'string' || !OBSERVATION_DESTINATIONS.has(event.destination))) return reject('INVALID_CONTEXT', 'Unknown observation destination.');
+    }
+  }
   if (x.processingContext !== undefined) {
     if (!x.processingContext || typeof x.processingContext !== 'object' || Array.isArray(x.processingContext)) return reject('INVALID_CONTEXT', 'processingContext must be an object.');
     const context = x.processingContext as Record<string, unknown>;
@@ -87,6 +107,7 @@ function humanSummary(status: ComplianceFinding['compliance']['status'], signals
     DAILY_TOTAL: 'daily volume exceeded the configured prompt threshold',
     BURST_RATE: 'a short burst exceeded the configured prompt threshold',
     CROSS_WINDOW: 'combined activity across completed windows exceeded the prompt threshold',
+    TEMPORAL_COOCCURRENCE: 'the active regulation pack matched an order-agnostic observation combination inside its own time window',
   } as const;
   const detail = signals.length > 0 ? signals.map((signal) => signalLabel[signal]).join('; ') : 'no threshold signal was observed';
   return `${statusLabel[status]} · ${detail}.`;
@@ -95,6 +116,8 @@ function humanSummary(status: ComplianceFinding['compliance']['status'], signals
 export class RulePackComplianceEngine implements IComplianceEngine {
   readonly regulation: string;
   private readonly history = new Map<string, { start: number; end: number; count: number }[]>();
+  private readonly temporalHistory = new Map<string, PrivacyObservation[]>();
+  private readonly temporalRules: CompiledTemporalRule[];
 
   private readonly sourceReview: ReturnType<typeof assessPackSourceReview>;
   private readonly sourceContent: ReturnType<typeof assessPackSourceContent>;
@@ -102,6 +125,7 @@ export class RulePackComplianceEngine implements IComplianceEngine {
 
   constructor(readonly pack: RegulationPack, evaluatedAt = new Date().toISOString().slice(0, 10), trustStore?: LegalReviewTrustStoreAssessment, sourceArtifacts?: SourceContentArtifacts) {
     this.regulation = pack.shortName;
+    this.temporalRules = compileTemporalRuleMapping(pack);
     this.sourceReview = assessPackSourceReview(pack, evaluatedAt);
     this.sourceContent = assessPackSourceContent(pack, sourceArtifacts, evaluatedAt);
     this.legalReview = assessPackLegalReview(pack, evaluatedAt, trustStore, sourceArtifacts);
@@ -135,6 +159,37 @@ export class RulePackComplianceEngine implements IComplianceEngine {
     if (excess > 0) signals.push('DAILY_TOTAL');
     if (peak > BURST_LIMIT[audit.permissionType]) signals.push('BURST_RATE');
     if ((audit.source ?? 'SIMULATOR') !== 'SIMULATOR' && completed.length > 0 && rollingCount > threshold) signals.push('CROSS_WINDOW');
+    const incomingObservations: PrivacyObservation[] = audit.observationEvents?.map((event) => ({
+      ...event,
+      source: event.source ?? audit.source ?? 'SIMULATOR',
+    })) ?? (audit.accessCount > 0 ? (audit.accessTimestamps?.length
+      ? audit.accessTimestamps.map((occurredAt) => ({
+        type: audit.permissionType,
+        occurredAt,
+        count: 1,
+        channel: audit.permissionType === 'CONTACTS' ? 'DATA_ACCESS' as const : 'SENSOR_CALL' as const,
+        source: audit.source ?? 'SIMULATOR',
+      }))
+      : [{
+        type: audit.permissionType,
+        occurredAt: audit.windowEnd,
+        count: 1,
+        channel: audit.permissionType === 'CONTACTS' ? 'DATA_ACCESS' : 'SENSOR_CALL',
+        source: audit.source ?? 'SIMULATOR',
+      }]) : []);
+    const oldTemporal = this.temporalHistory.get(audit.packageName) ?? [];
+    const temporalWatermark = Math.max(audit.windowEnd, ...oldTemporal.map(({ occurredAt }) => occurredAt), ...incomingObservations.map(({ occurredAt }) => occurredAt));
+    const maxWindow = Math.max(1, ...this.temporalRules.map(({ windowMs }) => windowMs));
+    const temporalByKey = new Map<string, PrivacyObservation>();
+    for (const event of [...oldTemporal, ...incomingObservations]) {
+      if (event.occurredAt < temporalWatermark - maxWindow || event.occurredAt > temporalWatermark) continue;
+      const eventKey = `${event.type}|${event.occurredAt}|${event.count ?? 1}|${event.source ?? ''}|${event.channel ?? ''}|${event.context ?? ''}|${event.destination ?? ''}`;
+      temporalByKey.set(eventKey, event);
+    }
+    const temporalLedger = [...temporalByKey.values()].sort((a, b) => a.occurredAt - b.occurredAt || a.type.localeCompare(b.type)).slice(-MAX_TEMPORAL_ENTRIES);
+    this.temporalHistory.set(audit.packageName, temporalLedger);
+    const temporalEvidence = evaluateTemporalCooccurrence({ packageName: audit.packageName, evaluatedAt: temporalWatermark, observations: temporalLedger, rules: this.temporalRules });
+    if (temporalEvidence.length > 0) signals.push('TEMPORAL_COOCCURRENCE');
     const ratio = Math.max(excess / threshold, peak / BURST_LIMIT[audit.permissionType] - 1, rollingCount / threshold - 1);
     const missingEvidence = this.pack.findMissingEvidence(audit);
     const preliminaryStatus = this.pack.classify(audit, signals, missingEvidence);
@@ -148,22 +203,29 @@ export class RulePackComplianceEngine implements IComplianceEngine {
     if (this.sourceReview.state === 'REVIEW_DUE') caveats.push('One or more regulatory sources are past the project review date; refresh and review the pack before relying on its mapping.');
     if (sourceContentNeedsVerification) caveats.push(`Official-document digests are recorded but the evaluated source bytes did not verify (${this.sourceContent.state}); the project blocks a reassuring no-concern result.`);
     if (legalReviewNeedsAttestation) caveats.push(`No current cryptographically verified independent qualified legal-review attestation is available for this pack version (${this.legalReview.state}); the project blocks a reassuring no-concern result.`);
-    const legalReference = rule.legalReference;
+    const legalReference = temporalEvidence.length > 0
+      ? [...new Set(temporalEvidence.flatMap(({ legalReferences }) => legalReferences))].join('; ')
+      : rule.legalReference;
+    const temporalRiskRank = { LOW: 0, MEDIUM: 1, HIGH: 2, CRITICAL: 3 } as const;
+    const temporalRisk = temporalEvidence.reduce<ComplianceFinding['riskLevel']>((highest, evidence) =>
+      temporalRiskRank[evidence.riskLevel] > temporalRiskRank[highest] ? evidence.riskLevel : highest, 'LOW');
+    const computedRisk = signals.length ? riskFor(ratio) : 'LOW';
     const finding: ComplianceFinding = {
-      id: `${audit.packageName}:${audit.permissionType}`,
+      id: temporalEvidence.length > 0 ? `${audit.packageName}:TEMPORAL:${temporalEvidence.map(({ ruleId }) => ruleId).join('+')}` : `${audit.packageName}:${audit.permissionType}`,
       packageName: audit.packageName,
       permissionType: audit.permissionType,
       violationCount: excess,
       threshold,
-      riskLevel: signals.length ? riskFor(ratio) : 'LOW',
+      riskLevel: temporalRiskRank[temporalRisk] > temporalRiskRank[computedRisk] ? temporalRisk : computedRisk,
       isActive: signals.length > 0,
       regulationId: this.pack.id,
       regulationName: this.pack.shortName,
       legalReference,
       gdprArticle: legalReference,
-      rationale: rule.rationale,
+      rationale: temporalEvidence.length > 0 ? temporalEvidence.map(({ rationale }) => rationale).join(' ') : rule.rationale,
       detectedAt: audit.windowEnd,
       signals,
+      temporalEvidence: temporalEvidence.length > 0 ? temporalEvidence : undefined,
       evidence: { dailyCount: audit.accessCount, peakCallsPerMinute: peak, rollingCount, source: audit.source ?? 'SIMULATOR' },
       compliance: {
         status,
@@ -176,12 +238,16 @@ export class RulePackComplianceEngine implements IComplianceEngine {
       },
       communication: undefined as never,
     };
-    const urgent = status === 'POTENTIAL_CONFLICT' || status === 'LIKELY_NON_COMPLIANT' || finding.riskLevel === 'CRITICAL';
+    const urgent = status === 'POTENTIAL_CONFLICT' || status === 'LIKELY_NON_COMPLIANT' || finding.riskLevel === 'CRITICAL' || temporalEvidence.some(({ notificationPriority }) => notificationPriority === 'URGENT');
     const silent = status === 'NO_TECHNICAL_CONCERN';
     finding.communication = {
-      title: `${finding.permissionType} privacy review`,
-      summary: humanSummary(status, signals),
-      recommendedAction: missingEvidence.length ? `Obtain: ${missingEvidence.join(', ')}.` : urgent ? 'Pause processing where appropriate and request human review.' : 'Review purpose, necessity, and proportionality before taking action.',
+      title: temporalEvidence[0]?.title ?? `${finding.permissionType} privacy review`,
+      summary: temporalEvidence.length > 0
+        ? `Within the active ${Math.round(temporalEvidence[0].windowMs / 60_000)}-minute rule window, ${temporalEvidence[0].requiredTypes.join(' + ')} were observed without assuming an order. This may relate to ${legalReference}; does it fit the app function you expected?`
+        : humanSummary(status, signals),
+      recommendedAction: temporalEvidence.length > 0
+        ? 'Review the local evidence, purpose, necessity, and user expectation. This warning does not block the app or determine a legal violation.'
+        : missingEvidence.length ? `Obtain: ${missingEvidence.join(', ')}.` : urgent ? 'Pause processing where appropriate and request human review.' : 'Review purpose, necessity, and proportionality before taking action.',
       notificationPriority: urgent ? 'URGENT' : silent ? 'SILENT' : 'STANDARD',
     };
     return { accepted: true, finding };

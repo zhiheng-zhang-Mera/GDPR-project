@@ -2,7 +2,7 @@
 
 Effective date: 13 August 2026
 
-Applies to repository version: 1.14.0
+Applies to repository version: 1.15.0
 
 Privacy Lens is an on-device privacy-review research application.
 

@@ -10,7 +10,7 @@ export const GLOBAL_RESEARCH_BASELINE_PACK: RegulationPack = {
   sources: [],
   description: 'A non-legal rule pack for demonstrating regional policy switching without implying local-law coverage.',
   governance: {
-    schemaVersion: 5,
+    schemaVersion: 6,
     state: 'NON_LEGAL_DEMONSTRATOR',
     authoredAt: '2026-08-09',
     lastReviewedAt: '2026-08-10',
@@ -28,6 +28,21 @@ export const GLOBAL_RESEARCH_BASELINE_PACK: RegulationPack = {
     MICROPHONE: { permissionType: 'MICROPHONE', baseline: 12, deviationMultiplier: 1.5, legalReference: 'Research baseline: sensitive sensor access', rationale: 'Repeated microphone access warrants a human review of purpose and user expectation.' },
     CONTACTS: { permissionType: 'CONTACTS', baseline: 6, deviationMultiplier: 1.5, legalReference: 'Research baseline: data minimisation', rationale: 'Contacts access should remain limited to a documented user-facing purpose.' },
   },
+  temporalProfiles: [
+    {
+      id: 'RESEARCH_SENSOR_FUSION',
+      title: 'Region-neutral sensor-fusion research prompt',
+      windowMs: 20 * 60 * 1_000,
+      requirements: [
+        { type: 'LOCATION', minCount: 1 },
+        { type: 'MICROPHONE', minCount: 1 },
+      ],
+      legalReferences: ['Research baseline: combined-observation proportionality'],
+      rationale: 'A location-and-microphone combination is used only to demonstrate that temporal mappings change with the active pack.',
+      riskLevel: 'MEDIUM',
+      notificationPriority: 'STANDARD',
+    },
+  ],
   principles: ['Purpose clarity', 'Data minimisation', 'User expectation', 'Human accountability'],
   legalCaveat: 'This region-neutral research baseline is not law, legal advice, or a compliance determination.',
   findMissingEvidence: ({ processingContext: context }) => {

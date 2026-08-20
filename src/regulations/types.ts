@@ -1,7 +1,9 @@
 import {
   ComplianceRule,
+  ComplianceSignal,
   ComplianceStatus,
   PermissionAudit,
+  PrivacyObservationType,
   RegulationId,
   SensitivePermission,
 } from '../compliance/types';
@@ -245,7 +247,7 @@ export interface PackLegalReviewAssessment {
 }
 
 export interface PackGovernance {
-  schemaVersion: 5;
+  schemaVersion: 6;
   state: PackGovernanceState;
   authoredAt: string;
   lastReviewedAt: string;
@@ -264,6 +266,23 @@ export interface PackGovernance {
   successor?: string;
 }
 
+export interface RegulationTemporalRequirement {
+  type: PrivacyObservationType;
+  minCount: number;
+}
+
+/** Regulation-owned mapping from legal concern to a dynamic event window. */
+export interface RegulationTemporalProfile {
+  id: string;
+  title: string;
+  windowMs: number;
+  requirements: readonly RegulationTemporalRequirement[];
+  legalReferences: readonly string[];
+  rationale: string;
+  riskLevel: 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  notificationPriority: 'STANDARD' | 'URGENT';
+}
+
 export interface RegulationPack {
   id: RegulationId;
   name: string;
@@ -276,12 +295,13 @@ export interface RegulationPack {
   description: string;
   governance: PackGovernance;
   rules: Record<SensitivePermission, ComplianceRule>;
+  temporalProfiles: readonly RegulationTemporalProfile[];
   principles: string[];
   legalCaveat: string;
   findMissingEvidence: (audit: PermissionAudit) => string[];
   classify: (
     audit: PermissionAudit,
-    signals: ('DAILY_TOTAL' | 'BURST_RATE' | 'CROSS_WINDOW')[],
+    signals: ComplianceSignal[],
     missingEvidence: string[],
   ) => ComplianceStatus;
 }

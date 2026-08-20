@@ -2,6 +2,7 @@ import { computeSourceBundleSha256, currentSourceContentManifestSha256, verifyLe
 import { assessPackSourceContent } from './sourceContent';
 import { assessProductionLegalReviewTrustStore } from './trustAnchors';
 import { LegalReviewGateState, LegalReviewTrustStoreAssessment, PackLegalReviewAssessment, PackSourceReviewAssessment, RegulationPack, RegulatorySource, RegulatorySourceLifecycle, SourceContentArtifacts, SourceContentVerificationState, SourceReviewState } from './types';
+import { validateTemporalRuleMapping } from './temporalRuleMapping';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const SHA256 = /^[A-Fa-f0-9]{64}$/;
@@ -37,7 +38,7 @@ export function validateRegulationPack(pack: RegulationPack, trustStore: LegalRe
 
   if (!pack.id.trim()) errors.push('id is required');
   if (!pack.versionLabel.trim()) errors.push('versionLabel is required');
-  if (governance.schemaVersion !== 5) errors.push('governance.schemaVersion must be 5');
+  if (governance.schemaVersion !== 6) errors.push('governance.schemaVersion must be 6');
   if (!isIsoCalendarDate(governance.authoredAt)) errors.push('governance.authoredAt must be a valid YYYY-MM-DD date');
   if (!isIsoCalendarDate(governance.lastReviewedAt)) errors.push('governance.lastReviewedAt must be a valid YYYY-MM-DD date');
   if (governance.effectiveFrom && !isIsoCalendarDate(governance.effectiveFrom)) errors.push('governance.effectiveFrom must be a valid YYYY-MM-DD date');
@@ -154,6 +155,8 @@ export function validateRegulationPack(pack: RegulationPack, trustStore: LegalRe
     if (!Number.isFinite(rule?.baseline) || rule.baseline < 0) errors.push(`rules.${permission}.baseline must be finite and non-negative`);
     if (!Number.isFinite(rule?.deviationMultiplier) || rule.deviationMultiplier <= 0) errors.push(`rules.${permission}.deviationMultiplier must be positive`);
   }
+
+  errors.push(...validateTemporalRuleMapping(pack));
 
   return errors;
 }

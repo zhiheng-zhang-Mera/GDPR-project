@@ -16,13 +16,14 @@ Privacy Lens is an offline, evidence-first Android research prototype for review
 
 ### Delivery status
 
-Version 1.14.0 is the final repository delivery candidate:
+Version 1.15.0 is the current repository delivery candidate:
 
 - three focused screens: Overview, Findings, and Settings;
 - local evidence ledger with Android backup disabled;
 - no account, advertising, analytics, evidence upload, Internet permission, or sensitive runtime permission;
 - fail-closed regulation-pack, source-review, source-content, attestation, trust-store, rollback, and witness checks;
 - a private, session-only decision pause that clears its answers when a finding closes;
+- regulation-owned temporal profiles with rule-specific windows and unordered sensor/data combinations; findings remain advisory and non-blocking;
 - deterministic compliance, governance, accessibility-source, privacy-release, TypeScript, lint, and delivery checks;
 - physical-device evidence from one OPPO PERM00 handset, clearly bounded to a short acceptance sample.
 
@@ -49,7 +50,7 @@ Prerequisites: Node.js 20+, npm, Java 21, Android SDK 36, and an Expo 54-compati
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
-git switch 8-13
+git switch 8-20
 npm ci
 npm run verify
 npm start
@@ -95,13 +96,14 @@ Privacy Lens 是一款离线运行、证据优先的 Android 隐私审查研究�
 
 ### 交付状态
 
-版本 1.14.0 是当前仓库最终交付候选：
+版本 1.15.0 是当前仓库交付候选：
 
 - 界面收敛为概览、发现和设置三个页面；
 - 证据账本仅保存在应用私有空间，且 Android 备份已关闭；
 - 无账户、广告、分析 SDK、证据上传、互联网权限或敏感运行时权限；
 - 法规包、来源复核、来源内容、法律复核签名、信任库、回滚和见证策略均采用失败关闭；
 - 决策暂停答案仅存在于当前打开的卡片中，关闭卡片即清除；
+- 法规包分别声明检测窗口与无序传感器/数据组合，结果仅作提示且不拦截 App；
 - 具备确定性合规、治理、无障碍源代码、发布隐私、TypeScript、Lint 和交付结构检查；
 - 实体设备证据来自一台 OPPO PERM00，仅证明短时验收样本中的观察结果。
 
@@ -114,7 +116,7 @@ Privacy Lens 是一款离线运行、证据优先的 Android 隐私审查研究�
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
-git switch 8-13
+git switch 8-20
 npm ci
 npm run verify
 npm start

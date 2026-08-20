@@ -6,7 +6,7 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const root = path.resolve(__dirname, '..');
-const expectedVersion = '1.14.0';
+const expectedVersion = '1.15.0';
 const failures = [];
 
 const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), 'utf8');

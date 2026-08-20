@@ -18,8 +18,10 @@
     "src/compliance/Evaluation.ts",
     "src/compliance/DashboardModel.ts",
     "src/compliance/DecisionReadiness.ts",
+    "src/compliance/TemporalCooccurrenceEngine.ts",
     "tests/runComplianceTests.ts",
     "tests/runExtendedComplianceTests.ts",
-    "tests/runGovernanceAndPropertyTests.ts"
+    "tests/runGovernanceAndPropertyTests.ts",
+    "tests/runTemporalCooccurrenceTests.ts"
   ]
 }
