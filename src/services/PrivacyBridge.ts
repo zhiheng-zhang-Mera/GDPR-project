@@ -25,7 +25,10 @@ export const PrivacyBridge = {
     return true;
   },
   runControlledTemporalFixture: async (fixture: PermissionAudit): Promise<boolean> => {
-    if (typeof __DEV__ === 'undefined' || !__DEV__ || Platform.OS !== 'android' || typeof PrivacyInspector?.emitControlledTemporalFixture !== 'function') return false;
+    // The native module is the security boundary: it rejects this method unless
+    // BuildConfig.DEBUG is true. Do not use the JavaScript __DEV__ flag here;
+    // an offline embedded bundle can set it to false even inside a debug APK.
+    if (Platform.OS !== 'android' || typeof PrivacyInspector?.emitControlledTemporalFixture !== 'function') return false;
     await PrivacyInspector.emitControlledTemporalFixture(JSON.stringify(fixture));
     return true;
   },
