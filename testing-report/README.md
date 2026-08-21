@@ -3,6 +3,8 @@
 This directory preserves versioned engineering evidence. Each report must state its device, duration, tested flow, result, and claim boundary.
 
 - Final App 1.14.0 device acceptance: [`real-device-8-10-v1.14.0-decision-pause/`](real-device-8-10-v1.14.0-decision-pause/)
+- Current final thesis evidence: [`final-thesis-evidence-2026-08-21.md`](final-thesis-evidence-2026-08-21.md)
+- Current controlled temporal device acceptance: [`real-device-8-21-controlled-temporal/`](real-device-8-21-controlled-temporal/)
 - Decision-pause synthetic analysis dry run: [`decision-pause-study-v1.14.0/`](decision-pause-study-v1.14.0/)
 - Earlier reports are retained as implementation history, not as current release claims.
 

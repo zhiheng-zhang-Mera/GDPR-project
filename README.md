@@ -84,7 +84,7 @@ APK/AAB files are deliberately excluded from source control. Before public distr
 | `android/.../privacy/` | Native audit bridge and WorkManager workers |
 | `tests/` | Deterministic and contract checks |
 | `testing-report/` | Versioned acceptance evidence; not broad validation |
-| `Thesis/Iteration-V4/` | Standalone Iteration V4 thesis source: `main.tex`, seven chapters, and bibliography |
+| `Thesis/Final/` | Self-contained final thesis source: `main.tex`, seven chapters, and bibliography |
 | `Thesis Version/` | Preserved thesis source and review history |
 | `output/pdf/` | Versioned compiled thesis PDFs |
 
@@ -142,7 +142,7 @@ npm start
 4. 发布负责人核对[最终交付清单](docs/DELIVERY-CHECKLIST.md)。
 5. 法规与密钥负责人阅读[法律复核密钥治理](docs/legal-review-key-governance.md)。
 6. 研究人员阅读[预注册草案](docs/research/decision-pause-preregistration.md)及其数据字典。
-7. 论文交付阅读 [Thesis/Iteration-V4/main.tex](Thesis/Iteration-V4/main.tex)；历史源稿保留在 `Thesis Version/`。
+7. 论文交付阅读 [Thesis/Final/main.tex](Thesis/Final/main.tex)；历史源稿单独保留，不构成最终稿的一部分。
 
 ### 重要边界
 
