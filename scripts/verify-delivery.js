@@ -20,6 +20,7 @@ const requiredFiles = [
   'docs/DELIVERY-CHECKLIST.md',
   'docs/FIRST-CONTACT-REVIEW.md',
   'docs/privacy-policy.md',
+  'docs/rule-cards.md',
   'output/pdf/Privacy-Lens-Thesis-Revision-26.pdf',
   'assets/screenshots/product-overview.png',
   'assets/screenshots/findings-summary.png',
@@ -75,6 +76,10 @@ for (const markdownFile of markdownFiles) {
 const readme = read('README.md');
 for (const screenshot of requiredFiles.filter((file) => file.startsWith('assets/screenshots/'))) {
   if (!readme.includes(screenshot)) fail(`README.md does not display ${screenshot}`);
+}
+const ruleCards = read('docs/rule-cards.md');
+for (const id of ['WEARABLE_LOCATION_HEALTH', 'MULTIMODAL_BIOMETRIC_CAPTURE', 'CROSS_DOMAIN_PROFILING', 'POST_BACKGROUND_MEDIA_ACCESS', 'HIGH_FREQUENCY_LOCATION']) {
+  if (!ruleCards.includes(`\`${id}\``)) fail(`rule-card coverage is missing ${id}`);
 }
 if (!readme.includes(`Version ${expectedVersion}`) || !readme.includes(`版本 ${expectedVersion}`)) {
   fail('README.md does not state the current version in both languages');

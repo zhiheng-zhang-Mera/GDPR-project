@@ -3,6 +3,7 @@ package com.zhihengzhang.privacylens.privacy
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.zhihengzhang.privacylens.BuildConfig
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -113,5 +114,56 @@ class PrivacyInspectorModule(
         reactContext
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
             .emit("ON_PASSIVE_AUDIT_EVENT", params)
+    }
+
+    /** Debug-only test seam. It accepts an already compiler-derived fixture and
+     * emits the ordinary bridge event; it cannot run in release builds. */
+    @ReactMethod
+    fun emitControlledTemporalFixture(payload: String, promise: Promise) {
+        if (!BuildConfig.DEBUG) {
+            promise.reject("CONTROLLED_FIXTURE_DISABLED", "Controlled fixtures are disabled in release builds.")
+            return
+        }
+        try {
+            val fixture = org.json.JSONObject(payload)
+            require(fixture.optBoolean("controlledDemo", false))
+            require(fixture.optString("evidenceKind") == "CONTROLLED_DEMO")
+            require(fixture.optString("source") == "NATIVE_BRIDGE")
+            val permission = fixture.getString("permissionType")
+            require(permission in setOf("LOCATION", "MICROPHONE", "CONTACTS"))
+            val packageName = fixture.getString("packageName")
+            require(packageName.matches(Regex("^[A-Za-z0-9_.-]{1,255}$")))
+            val events = fixture.getJSONArray("observationEvents")
+            require(events.length() in 1..100)
+            val eventArray = Arguments.createArray()
+            for (index in 0 until events.length()) {
+                val source = events.getJSONObject(index)
+                val type = source.getString("type")
+                require(type in setOf("LOCATION", "MICROPHONE", "CONTACTS", "ACTIVITY_RECOGNITION", "BODY_SENSORS", "CAMERA", "CLIPBOARD_READ", "DEVICE_IDENTIFIER", "MEDIA_IMAGES", "MEDIA_LOCATION", "APP_BACKGROUNDED", "DATA_TRANSFER"))
+                val occurredAt = source.getLong("occurredAt")
+                require(occurredAt > 0L)
+                eventArray.pushMap(Arguments.createMap().apply {
+                    putString("type", type)
+                    putDouble("occurredAt", occurredAt.toDouble())
+                    putInt("count", source.optInt("count", 1))
+                    putString("source", "NATIVE_BRIDGE")
+                })
+            }
+            val params = Arguments.createMap().apply {
+                putString("packageName", packageName)
+                putString("permissionType", permission)
+                putInt("accessCount", fixture.optInt("accessCount", 1))
+                putDouble("windowStart", fixture.getLong("windowStart").toDouble())
+                putDouble("windowEnd", fixture.getLong("windowEnd").toDouble())
+                putString("source", "NATIVE_BRIDGE")
+                putString("evidenceKind", "CONTROLLED_DEMO")
+                putBoolean("controlledDemo", true)
+                putArray("observationEvents", eventArray)
+            }
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("ON_PASSIVE_AUDIT_EVENT", params)
+            promise.resolve(true)
+        } catch (error: Exception) {
+            promise.reject("INVALID_CONTROLLED_FIXTURE", error.message, error)
+        }
     }
 }

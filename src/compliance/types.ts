@@ -14,6 +14,8 @@ export type PrivacyObservationType =
   | 'DATA_TRANSFER';
 export type ObservationChannel = 'SENSOR_CALL' | 'DATA_ACCESS' | 'DATA_TRANSFER' | 'APP_STATE';
 export type AuditSource = 'SIMULATOR' | 'NATIVE_BRIDGE' | 'IMPORTED';
+/** A controlled demo is a debug-only test path, never an observed privacy event. */
+export type EvidenceKind = 'OBSERVED' | 'CONTROLLED_DEMO';
 export type ComplianceSignal = 'DAILY_TOTAL' | 'BURST_RATE' | 'CROSS_WINDOW' | 'TEMPORAL_COOCCURRENCE';
 
 export interface PrivacyObservation {
@@ -24,6 +26,7 @@ export interface PrivacyObservation {
   context?: 'FOREGROUND' | 'BACKGROUND' | 'UNKNOWN';
   destination?: 'LOCAL' | 'NETWORK' | 'UNKNOWN';
   source?: AuditSource;
+  evidenceKind?: EvidenceKind;
 }
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type LawfulBasis = 'CONSENT' | 'CONTRACT' | 'LEGAL_OBLIGATION' | 'VITAL_INTERESTS' | 'PUBLIC_TASK' | 'LEGITIMATE_INTERESTS';
@@ -66,9 +69,13 @@ export interface PermissionAudit {
   backgroundCount?: number;
   accessTimestamps?: number[];
   source?: AuditSource;
+  /** Evidence remains visibly distinct from ordinary observed-device input. */
+  evidenceKind?: EvidenceKind;
   /** Optional fine-grained observations used by regulation-owned temporal rules. */
   observationEvents?: PrivacyObservation[];
   processingContext?: ProcessingContext;
+  /** Must be paired with CONTROLLED_DEMO and is accepted only by the debug bridge. */
+  controlledDemo?: boolean;
 }
 
 export type ComplianceErrorCode =
@@ -124,6 +131,7 @@ export interface ComplianceFinding {
     peakCallsPerMinute: number;
     rollingCount: number;
     source: NonNullable<PermissionAudit['source']>;
+    evidenceKind: EvidenceKind;
   };
   compliance: {
     status: ComplianceStatus;

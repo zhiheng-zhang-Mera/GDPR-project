@@ -5,6 +5,7 @@ import { calculateMetrics } from '../compliance/Evaluation';
 import { clearFindings as clearStoredFindings, listFindings, replaceFindings } from '../compliance/ViolationRepository';
 import { createEvaluationConfig, simulationToAudit } from '../compliance/ViolationSimulator';
 import { RulePackComplianceEngine } from '../compliance/RulePackComplianceEngine';
+import { createControlledTemporalFixture } from '../compliance/ControlledTemporalFixture';
 import { DEFAULT_REGULATION_ID, getRegulationPack, isRegulationId, listRegulationPacks } from '../regulations/registry';
 import { assessAndPersistProductionTrustStore } from '../regulations/TrustStoreStateRepository';
 import { assessProductionLegalReviewTrustStore } from '../regulations/trustAnchors';
@@ -12,6 +13,7 @@ import { LegalReviewTrustStoreAssessment, RegulationPack } from '../regulations/
 import { AuditEvent, PrivacyBridge } from '../services/PrivacyBridge';
 
 const REGULATION_KEY = '@privacy_lens_regulation_v1';
+const TEMPORAL_LEDGER_KEY = '@privacy_lens_temporal_ledger_v1';
 const TEST_CONTEXT: ProcessingContext = {
   purpose: 'Controlled local evaluation',
   lawfulBasis: 'LEGITIMATE_INTERESTS',
@@ -49,6 +51,7 @@ interface PrivacyContextValue {
   selectRegulation: (id: RegulationId) => Promise<void>;
   runDeviceAudit: () => Promise<void>;
   runControlledEvaluation: () => Promise<void>;
+  runControlledTemporalDemo: () => Promise<void>;
   clearFindings: () => Promise<void>;
 }
 
@@ -125,6 +128,11 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
       setStatusMessage(`Audit input rejected: ${result.message}`);
       return;
     }
+    try {
+      await AsyncStorage.setItem(TEMPORAL_LEDGER_KEY, JSON.stringify(engineRef.current.exportTemporalLedger()));
+    } catch {
+      setStatusMessage('The temporal ledger could not be saved. No data was uploaded; restart continuity is unavailable until storage succeeds.');
+    }
     setFindings((current) => {
       const next = [result.finding, ...current.filter((item) => item.id !== result.finding.id)].slice(0, 100);
       void replaceFindings(next);
@@ -137,10 +145,11 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     let active = true;
     void (async () => {
       try {
-        const [storedRegulation, storedFindings, assessedTrustStore] = await Promise.all([
+        const [storedRegulation, storedFindings, assessedTrustStore, storedTemporalLedger] = await Promise.all([
           AsyncStorage.getItem(REGULATION_KEY),
           listFindings(),
           assessAndPersistProductionTrustStore(),
+          AsyncStorage.getItem(TEMPORAL_LEDGER_KEY),
         ]);
         if (!active) return;
         const regulationId = isRegulationId(storedRegulation) ? storedRegulation : DEFAULT_REGULATION_ID;
@@ -148,6 +157,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
         trustStoreRef.current = assessedTrustStore;
         setTrustStoreAssessment(assessedTrustStore);
         engineRef.current = new RulePackComplianceEngine(getRegulationPack(regulationId), undefined, assessedTrustStore);
+        if (storedTemporalLedger && !engineRef.current.restoreTemporalLedger(JSON.parse(storedTemporalLedger))) setStatusMessage('Stored temporal evidence was expired, incompatible, or invalid and was not restored.');
         const migrated = storedFindings.map(migrateFinding).sort((a, b) => b.detectedAt - a.detectedAt);
         setFindings(migrated);
         setLastUpdated(migrated[0]?.detectedAt);
@@ -174,6 +184,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     setSelectedRegulationId(id);
     setEvaluationSummary(undefined);
     await AsyncStorage.setItem(REGULATION_KEY, id);
+    await AsyncStorage.removeItem(TEMPORAL_LEDGER_KEY);
     setStatusMessage(`${pack.shortName} is now active. Existing findings keep their original rule-pack label.`);
   }, []);
 
@@ -215,12 +226,28 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     setIsRunning(false);
   }, [findings, publish, selectedRegulationId]);
 
+  const runControlledTemporalDemo = useCallback(async () => {
+    setIsRunning(true);
+    setStatusMessage(undefined);
+    try {
+      const started = await PrivacyBridge.runControlledTemporalFixture(createControlledTemporalFixture(selectedPack));
+      setStatusMessage(started
+        ? 'Controlled on-device temporal demo requested. The resulting finding is explicitly labelled synthetic and advisory.'
+        : 'Controlled temporal demos are available only in a debug Android build with the native test bridge.');
+    } catch {
+      setStatusMessage('The controlled temporal demo was rejected by the debug bridge. No finding was created.');
+    } finally {
+      setIsRunning(false);
+    }
+  }, [selectedPack]);
+
   const clearFindings = useCallback(async () => {
     setFindings([]);
     setLastUpdated(undefined);
     setEvaluationSummary(undefined);
     setStatusMessage('Local findings cleared.');
     await clearStoredFindings();
+    await AsyncStorage.removeItem(TEMPORAL_LEDGER_KEY);
   }, []);
 
   const value = useMemo<PrivacyContextValue>(() => ({
@@ -238,8 +265,9 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     selectRegulation,
     runDeviceAudit,
     runControlledEvaluation,
+    runControlledTemporalDemo,
     clearFindings,
-  }), [findings, selectedRegulationId, selectedPack, trustStoreAssessment, isHydrating, isRunning, lastUpdated, statusMessage, evaluationSummary, selectRegulation, runDeviceAudit, runControlledEvaluation, clearFindings]);
+  }), [findings, selectedRegulationId, selectedPack, trustStoreAssessment, isHydrating, isRunning, lastUpdated, statusMessage, evaluationSummary, selectRegulation, runDeviceAudit, runControlledEvaluation, runControlledTemporalDemo, clearFindings]);
 
   return <PrivacyContext.Provider value={value}>{children}</PrivacyContext.Provider>;
 }

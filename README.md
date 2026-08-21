@@ -2,7 +2,7 @@
 
 > Evidence before conclusions · 证据先于结论
 
-[English](#english) · [中文](#中文) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Final thesis source / 最终论文源](Thesis/Iteration-V3/main.tex)
+[English](#english) · [中文](#中文) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Temporal rule cards](docs/rule-cards.md) · [Final thesis source / 最终论文源](Thesis/Iteration-V4/main.tex)
 
 ## English
 
@@ -18,6 +18,9 @@ Version 1.15.0 is the current repository delivery candidate:
 - fail-closed regulation-pack, source-review, source-content, attestation, trust-store, rollback, and witness checks;
 - a private, session-only decision pause that clears its answers when a finding closes;
 - regulation-owned temporal profiles with rule-specific windows and unordered sensor/data combinations; findings remain advisory and non-blocking;
+- a debug-only controlled device demonstration compiled from the active pack, visibly labelled synthetic at every bridge and finding boundary;
+- a minimal local temporal ledger that restores only same-pack, same-version, in-window, de-duplicated observations and fails closed on invalid state;
+- five GDPR temporal rule cards with assumptions, counterexamples, sources, and explicit non-assurance review status;
 - a separate regulation-to-temporal-rule mapping compiler, so mounting another valid pack changes the detection configuration without hard-coding GDPR combinations in the evaluator;
 - deterministic compliance, governance, accessibility-source, privacy-release, TypeScript, lint, and delivery checks;
 - physical-device evidence from one OPPO PERM00 handset, clearly bounded to a short acceptance sample.
@@ -37,6 +40,14 @@ flowchart LR
 ```
 
 The screen layer cannot create a reassuring result by itself. Regulation metadata, official-source records, source-content manifests, review attestations, trust anchors, witness receipts, and rollback state are evaluated below the UI.
+
+### Screens
+
+![Overview screen](assets/screenshots/product-overview.png)
+
+![Findings screen](assets/screenshots/findings-summary.png)
+
+![Decision-pause screen](assets/screenshots/decision-pause.png)
 
 ### Quick start
 
@@ -73,7 +84,7 @@ APK/AAB files are deliberately excluded from source control. Before public distr
 | `android/.../privacy/` | Native audit bridge and WorkManager workers |
 | `tests/` | Deterministic and contract checks |
 | `testing-report/` | Versioned acceptance evidence; not broad validation |
-| `Thesis/Iteration-V3/` | Standalone final thesis source: `main.tex`, seven chapters, and bibliography |
+| `Thesis/Iteration-V4/` | Standalone Iteration V4 thesis source: `main.tex`, seven chapters, and bibliography |
 | `Thesis Version/` | Preserved thesis source and review history |
 | `output/pdf/` | Versioned compiled thesis PDFs |
 
@@ -82,6 +93,8 @@ APK/AAB files are deliberately excluded from source control. Before public distr
 - Ordinary Android apps cannot inspect unrestricted AppOps history for other apps.
 - A blank audit is not proof that no access occurred.
 - WorkManager timing is deferrable and OEM-dependent.
+- The controlled device demo is synthetic debug evidence routed through the native bridge; it does not observe another app or establish a real privacy event.
+- Temporal state is local and bounded by the active pack's largest window; clearing local findings removes this state, while an incompatible or damaged restart snapshot is discarded.
 - Synthetic precision/recall measures agreement with generated labels, not real-world or legal accuracy.
 - Local rollback state is not tamper-resistant and can be lost after uninstall, data clearing, unsuitable restore, or device compromise.
 - Internal artifact scores, tests, and one-device QA are not a legal opinion, participant study, certification, peer review, or publication decision.
@@ -129,13 +142,15 @@ npm start
 4. 发布负责人核对[最终交付清单](docs/DELIVERY-CHECKLIST.md)。
 5. 法规与密钥负责人阅读[法律复核密钥治理](docs/legal-review-key-governance.md)。
 6. 研究人员阅读[预注册草案](docs/research/decision-pause-preregistration.md)及其数据字典。
-7. 论文交付阅读 [Thesis/Iteration-V3/main.tex](Thesis/Iteration-V3/main.tex)；历史源稿保留在 `Thesis Version/`。
+7. 论文交付阅读 [Thesis/Iteration-V4/main.tex](Thesis/Iteration-V4/main.tex)；历史源稿保留在 `Thesis Version/`。
 
 ### 重要边界
 
 - 普通 Android 应用无法读取其他应用不受限制的 AppOps 历史；
 - 空白审查结果不代表没有发生访问；
 - WorkManager 的执行时间可能受系统和 OEM 延迟；
+- 受控设备演示是经原生桥接回送的 Debug 合成证据，不会观察其他 App，也不代表真实隐私事件；
+- 时间状态只保存在本地，并受当前法规包最大窗口限制；清除本地发现会移除此状态，重启快照不兼容、损坏或过期时会被丢弃；
 - 合成指标只验证生成标签与实现一致，不代表真实世界或法律判断准确率；
 - 本地回滚状态不具备防篡改能力，卸载、清除数据、不适当恢复或设备失陷可能使其丢失；
 - 内部评分、自动测试和单设备验收不等于法律意见、真人实验、认证、同行评审或期刊录用。

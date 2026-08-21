@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "test:compliance": "tsc -p tsconfig.compliance-tests.json && node .compliance-test-build/tests/runComplianceTests.js && node .compliance-test-build/tests/runExtendedComplianceTests.js && node .compliance-test-build/tests/runGovernanceAndPropertyTests.js && node .compliance-test-build/tests/runTemporalCooccurrenceTests.js",
     "test:accessibility": "node tests/runAccessibilityContractTests.js",
-    "test:release-privacy": "node tests/runReleasePrivacyContractTests.js",
+    "test:release-privacy": "node tests/runReleasePrivacyContractTests.js && node tests/runNativeControlledFixtureContractTests.js",
     "verify:delivery": "node scripts/verify-delivery.js",
     "verify": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run typecheck && npm run lint && npm run verify:delivery"
   },

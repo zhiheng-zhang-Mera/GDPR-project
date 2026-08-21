@@ -1,0 +1,23 @@
+name: Continuous verification
+
+on:
+  push:
+    branches: [8-20, 8-21]
+  pull_request:
+    branches: [8-20, 8-21]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run verify

@@ -4,6 +4,7 @@ import { PrivacyObservation } from '../src/compliance/types';
 import { getRegulationPack } from '../src/regulations/registry';
 import { compileTemporalRuleMapping, validateTemporalRuleMapping } from '../src/regulations/temporalRuleMapping';
 import { RegulationPack } from '../src/regulations/types';
+import { createControlledTemporalFixture } from '../src/compliance/ControlledTemporalFixture';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -90,4 +91,29 @@ assert(finding?.signals.includes('TEMPORAL_COOCCURRENCE'), 'App engine must expo
 assert(finding?.communication.summary.includes('without assuming an order'), 'Notification must state order-agnostic evidence.');
 assert(finding?.communication.recommendedAction.includes('does not block'), 'Notification must remain advisory and non-blocking.');
 
-console.log(`Temporal mapping, exact-boundary, 720-permutation, pack-switch, fail-closed, integration, and 1,000-event ${burstElapsed.toFixed(3)}ms budget tests passed.`);
+// The controlled native fixture is generated from the mounted data, rather
+// than hard-coding GDPR combinations in a test-only code path.
+for (const packId of ['EU_GDPR', 'GLOBAL_RESEARCH_BASELINE'] as const) {
+  const fixture = createControlledTemporalFixture(getRegulationPack(packId), evaluatedAt);
+  const fixtureFinding = new RulePackComplianceEngine(getRegulationPack(packId), '2026-08-20').evaluate(fixture);
+  assert(fixtureFinding.signals.includes('TEMPORAL_COOCCURRENCE'), `${packId} controlled fixture must traverse the ordinary temporal engine.`);
+  assert(fixtureFinding.evidence.evidenceKind === 'CONTROLLED_DEMO' && fixtureFinding.evidence.source === 'NATIVE_BRIDGE', `${packId} fixture must remain visibly controlled and on-device bridged.`);
+}
+
+const firstFixture = createControlledTemporalFixture(gdpr, evaluatedAt);
+const firstEvents = firstFixture.observationEvents!.slice(0, -1);
+const finalEvent = firstFixture.observationEvents!.at(-1)!;
+const beforeRestart = new RulePackComplianceEngine(gdpr, '2026-08-20');
+beforeRestart.evaluate({ ...firstFixture, observationEvents: firstEvents });
+const snapshot = beforeRestart.exportTemporalLedger(evaluatedAt);
+const afterRestart = new RulePackComplianceEngine(gdpr, '2026-08-20');
+assert(afterRestart.restoreTemporalLedger(snapshot, evaluatedAt), 'Same-pack in-window ledger state must restore after a process restart.');
+const restoredFinding = afterRestart.evaluate({ ...firstFixture, observationEvents: [finalEvent] });
+const directEngine = new RulePackComplianceEngine(gdpr, '2026-08-20');
+const directFinding = directEngine.evaluate(firstFixture);
+assert(restoredFinding.temporalEvidence?.[0]?.evidenceSha256 && restoredFinding.temporalEvidence?.[0]?.evidenceSha256 === directFinding.temporalEvidence?.[0]?.evidenceSha256, 'Restarted ledger must produce the same evidence receipt as uninterrupted evaluation.');
+assert(!new RulePackComplianceEngine(getRegulationPack('GLOBAL_RESEARCH_BASELINE'), '2026-08-20').restoreTemporalLedger(snapshot, evaluatedAt), 'A temporal ledger must not cross regulation-pack boundaries.');
+assert(!afterRestart.restoreTemporalLedger({ ...snapshot, entries: [{ ...snapshot.entries[0], dedupeKey: 'forged' }] }, evaluatedAt), 'A forged dedupe key must fail closed.');
+assert(!afterRestart.restoreTemporalLedger(snapshot, evaluatedAt + gdprRules.reduce((max, rule) => Math.max(max, rule.windowMs), 0) + 1), 'An expired temporal ledger must not restore.');
+
+console.log(`Temporal mapping, controlled fixtures for two packs, restart ledger, exact-boundary, 720-permutation, pack-switch, fail-closed, integration, and 1,000-event ${burstElapsed.toFixed(3)}ms budget tests passed.`);

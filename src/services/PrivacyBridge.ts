@@ -24,6 +24,11 @@ export const PrivacyBridge = {
     await PrivacyInspector.runAuditNow();
     return true;
   },
+  runControlledTemporalFixture: async (fixture: PermissionAudit): Promise<boolean> => {
+    if (typeof __DEV__ === 'undefined' || !__DEV__ || Platform.OS !== 'android' || typeof PrivacyInspector?.emitControlledTemporalFixture !== 'function') return false;
+    await PrivacyInspector.emitControlledTemporalFixture(JSON.stringify(fixture));
+    return true;
+  },
   scheduleSimulation: (config: SimulationConfig) =>
     PrivacyInspector?.scheduleSimulation?.(JSON.stringify(config)),
   scheduleRandomSimulation: () => PrivacyInspector?.scheduleRandomSimulation?.(),

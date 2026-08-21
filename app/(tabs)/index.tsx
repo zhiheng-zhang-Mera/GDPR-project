@@ -15,13 +15,18 @@ function formatUpdated(value?: number) {
 export default function OverviewScreen() {
   const { fontScale } = useWindowDimensions();
   const largeTextLayout = fontScale >= 1.4;
-  const { findings, selectedPack, isHydrating, isRunning, nativeCapabilityAvailable, lastUpdated, statusMessage, runDeviceAudit, runControlledEvaluation, evaluationSummary } = usePrivacy();
+  const { findings, selectedPack, isHydrating, isRunning, nativeCapabilityAvailable, lastUpdated, statusMessage, runDeviceAudit, runControlledEvaluation, runControlledTemporalDemo, evaluationSummary } = usePrivacy();
   const summary = summarizeFindings(findings);
   const hasAttention = summary.action + summary.evidence > 0;
   const confirmControlledEvaluation = () => Alert.alert(
     'Run a synthetic demonstration?',
     'This adds labelled demo findings to the local ledger. It does not inspect other apps, and you can clear the findings in Settings.',
     [{ text: 'Cancel', style: 'cancel' }, { text: 'Run labelled demo', onPress: () => void runControlledEvaluation() }],
+  );
+  const confirmControlledTemporalDemo = () => Alert.alert(
+    'Run controlled device demo?',
+    'Debug builds generate a labelled fixture from the active rule pack and route it through the native bridge. It is synthetic, advisory, and cannot inspect or alter another app.',
+    [{ text: 'Cancel', style: 'cancel' }, { text: 'Run controlled device demo', onPress: () => void runControlledTemporalDemo() }],
   );
 
   return (
@@ -116,6 +121,9 @@ export default function OverviewScreen() {
           <View style={styles.demoCopy}><Text style={styles.demoTitle}>Explore without confusing simulation with observation.</Text><Text style={styles.cardBody}>Run 50 deterministic rounds to see how the active rule pack classifies evidence. Demo events never claim to be observed device activity.</Text></View>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Run controlled synthetic demo" accessibilityHint="Explains what will be added before the demo begins" accessibilityState={{ disabled: isRunning }} disabled={isRunning} onPress={confirmControlledEvaluation} style={styles.demoButton}>
             <Ionicons name="flask-outline" size={20} color={T.colors.primary} /><Text style={styles.demoButtonText}>Run demo</Text>
+          </TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Run controlled device temporal demo" accessibilityHint="Uses the debug native bridge and labels all resulting evidence as synthetic" accessibilityState={{ disabled: isRunning || !nativeCapabilityAvailable }} disabled={isRunning || !nativeCapabilityAvailable} onPress={confirmControlledTemporalDemo} style={[styles.demoButton, !nativeCapabilityAvailable && styles.disabled]}>
+            <Ionicons name="phone-portrait-outline" size={20} color={T.colors.primary} /><Text style={styles.demoButtonText}>Run controlled device demo</Text>
           </TouchableOpacity>
           {evaluationSummary && <Text style={styles.resultText}>50 rounds · Precision {(evaluationSummary.precision * 100).toFixed(0)}% · Recall {(evaluationSummary.recall * 100).toFixed(0)}% · FP {evaluationSummary.falsePositive}</Text>}
         </View>

@@ -53,5 +53,6 @@ yarn-error.*
 .pnpm-store/
 .codex-tmp/
 tmp/pdfs/
+tmp/
 node_modules.pnpm-backup/
 

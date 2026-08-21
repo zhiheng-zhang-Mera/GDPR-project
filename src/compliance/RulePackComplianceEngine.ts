@@ -17,6 +17,18 @@ const OBSERVATION_DESTINATIONS = new Set(['LOCAL', 'NETWORK', 'UNKNOWN']);
 const MAX_HISTORY_ENTRIES = 4_096;
 const MAX_TEMPORAL_ENTRIES = 10_000;
 
+export interface TemporalLedgerSnapshot {
+  schema: 'privacy-lens.temporal-ledger.v1';
+  regulationId: string;
+  packVersion: string;
+  savedAt: number;
+  entries: { packageName: string; observation: PrivacyObservation; dedupeKey: string }[];
+}
+
+function temporalDedupeKey(event: PrivacyObservation): string {
+  return `${event.type}|${event.occurredAt}|${event.count ?? 1}|${event.source ?? ''}|${event.channel ?? ''}|${event.context ?? ''}|${event.destination ?? ''}`;
+}
+
 export class ComplianceInputError extends Error {
   constructor(readonly code: ComplianceErrorCode, message: string) {
     super(message);
@@ -53,6 +65,9 @@ function parseAudit(value: unknown): PermissionAudit | ComplianceEvaluation {
       if (event.destination !== undefined && (typeof event.destination !== 'string' || !OBSERVATION_DESTINATIONS.has(event.destination))) return reject('INVALID_CONTEXT', 'Unknown observation destination.');
     }
   }
+  if (x.evidenceKind !== undefined && x.evidenceKind !== 'OBSERVED' && x.evidenceKind !== 'CONTROLLED_DEMO') return reject('INVALID_CONTEXT', 'Unknown evidence kind.');
+  if (x.controlledDemo !== undefined && typeof x.controlledDemo !== 'boolean') return reject('INVALID_CONTEXT', 'controlledDemo must be a boolean.');
+  if ((x.controlledDemo === true) !== (x.evidenceKind === 'CONTROLLED_DEMO')) return reject('INVALID_CONTEXT', 'Controlled demos must be explicitly and consistently labelled.');
   if (x.processingContext !== undefined) {
     if (!x.processingContext || typeof x.processingContext !== 'object' || Array.isArray(x.processingContext)) return reject('INVALID_CONTEXT', 'processingContext must be an object.');
     const context = x.processingContext as Record<string, unknown>;
@@ -131,6 +146,39 @@ export class RulePackComplianceEngine implements IComplianceEngine {
     this.legalReview = assessPackLegalReview(pack, evaluatedAt, trustStore, sourceArtifacts);
   }
 
+  private maxWindowMs(): number { return Math.max(1, ...this.temporalRules.map(({ windowMs }) => windowMs)); }
+
+  /** Export minimal, app-private state. No raw sensor payloads are retained. */
+  exportTemporalLedger(savedAt = Date.now()): TemporalLedgerSnapshot {
+    const cutoff = savedAt - this.maxWindowMs();
+    return {
+      schema: 'privacy-lens.temporal-ledger.v1', regulationId: this.pack.id, packVersion: this.pack.versionLabel, savedAt,
+      entries: [...this.temporalHistory.entries()].flatMap(([packageName, observations]) => observations
+        .filter(({ occurredAt }) => occurredAt >= cutoff && occurredAt <= savedAt)
+        .map((observation) => ({ packageName, observation, dedupeKey: temporalDedupeKey(observation) }))),
+    };
+  }
+
+  /** Fail closed on malformed, cross-pack, expired, future, or duplicate state. */
+  restoreTemporalLedger(value: unknown, restoredAt = Date.now()): boolean {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+    const snapshot = value as Partial<TemporalLedgerSnapshot>;
+    if (snapshot.schema !== 'privacy-lens.temporal-ledger.v1' || snapshot.regulationId !== this.pack.id || snapshot.packVersion !== this.pack.versionLabel || !Array.isArray(snapshot.entries)) return false;
+    const cutoff = restoredAt - this.maxWindowMs();
+    const restored = new Map<string, Map<string, PrivacyObservation>>();
+    for (const entry of snapshot.entries.slice(0, MAX_TEMPORAL_ENTRIES)) {
+      if (!entry || typeof entry.packageName !== 'string' || !/^[A-Za-z0-9_.-]{1,255}$/.test(entry.packageName) || !entry.observation) return false;
+      const event = entry.observation;
+      if (!SUPPORTED_OBSERVATION_TYPES.has(event.type) || !Number.isSafeInteger(event.occurredAt) || event.occurredAt < cutoff || event.occurredAt > restoredAt || (event.count !== undefined && (!Number.isSafeInteger(event.count) || event.count <= 0)) || (event.source !== undefined && !SOURCES.has(event.source))) return false;
+      if (entry.dedupeKey !== temporalDedupeKey(event)) return false;
+      const bucket = restored.get(entry.packageName) ?? new Map<string, PrivacyObservation>();
+      bucket.set(entry.dedupeKey, event); restored.set(entry.packageName, bucket);
+    }
+    this.temporalHistory.clear();
+    for (const [packageName, events] of restored) this.temporalHistory.set(packageName, [...events.values()].sort((a, b) => a.occurredAt - b.occurredAt || a.type.localeCompare(b.type)));
+    return true;
+  }
+
   evaluate(audit: PermissionAudit): ComplianceFinding {
     const result = this.evaluateSafe(audit);
     if (!result.accepted) throw new ComplianceInputError(result.code, result.message);
@@ -179,11 +227,11 @@ export class RulePackComplianceEngine implements IComplianceEngine {
       }]) : []);
     const oldTemporal = this.temporalHistory.get(audit.packageName) ?? [];
     const temporalWatermark = Math.max(audit.windowEnd, ...oldTemporal.map(({ occurredAt }) => occurredAt), ...incomingObservations.map(({ occurredAt }) => occurredAt));
-    const maxWindow = Math.max(1, ...this.temporalRules.map(({ windowMs }) => windowMs));
+    const maxWindow = this.maxWindowMs();
     const temporalByKey = new Map<string, PrivacyObservation>();
     for (const event of [...oldTemporal, ...incomingObservations]) {
       if (event.occurredAt < temporalWatermark - maxWindow || event.occurredAt > temporalWatermark) continue;
-      const eventKey = `${event.type}|${event.occurredAt}|${event.count ?? 1}|${event.source ?? ''}|${event.channel ?? ''}|${event.context ?? ''}|${event.destination ?? ''}`;
+      const eventKey = temporalDedupeKey(event);
       temporalByKey.set(eventKey, event);
     }
     const temporalLedger = [...temporalByKey.values()].sort((a, b) => a.occurredAt - b.occurredAt || a.type.localeCompare(b.type)).slice(-MAX_TEMPORAL_ENTRIES);
@@ -226,7 +274,7 @@ export class RulePackComplianceEngine implements IComplianceEngine {
       detectedAt: audit.windowEnd,
       signals,
       temporalEvidence: temporalEvidence.length > 0 ? temporalEvidence : undefined,
-      evidence: { dailyCount: audit.accessCount, peakCallsPerMinute: peak, rollingCount, source: audit.source ?? 'SIMULATOR' },
+      evidence: { dailyCount: audit.accessCount, peakCallsPerMinute: peak, rollingCount, source: audit.source ?? 'SIMULATOR', evidenceKind: audit.evidenceKind ?? 'OBSERVED' },
       compliance: {
         status,
         applicablePrinciples: this.pack.principles,

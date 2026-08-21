@@ -8,7 +8,7 @@ Privacy Lens is an on-device privacy-review research application.
 
 ## Data handled
 
-The app may process locally generated permission-audit summaries containing an application package identifier, permission category, event counts, time-window metadata, evidence source, and rule-evaluation result. The controlled demonstration generates synthetic records that are explicitly labelled as synthetic.
+The app may process locally generated permission-audit summaries containing an application package identifier, permission category, event counts, time-window metadata, evidence source, and rule-evaluation result. The controlled demonstration generates synthetic records that are explicitly labelled as synthetic. A Debug-only controlled temporal route retains only normalised package-scoped observation type, timestamp, count, source category, active regulation-pack identifier/version, and a deduplication key for the active window; it never stores raw sensor content.
 
 ## Collection, sharing, and sale
 
@@ -18,7 +18,7 @@ Opening an official legal source uses the device browser and is then governed by
 
 ## Storage and deletion
 
-Findings and the active rule-pack choice are stored in app-private local storage. Android backup is disabled. Users can delete the local findings from Settings or remove all app data by uninstalling the app.
+Findings, the active rule-pack choice, and the bounded temporal ledger are stored in app-private local storage. Android backup is disabled. Users can delete the local findings and temporal ledger from Settings or remove all app data by uninstalling the app. Incompatible, expired, future, or malformed temporal snapshots are discarded at restart.
 
 The optional decision-pause interaction does not collect research data. Its interpretation choice and context checkboxes exist only while the evidence card remains open, are cleared when that card closes, and are not written to storage or uploaded.
 

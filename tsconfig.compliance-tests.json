@@ -19,6 +19,7 @@
     "src/compliance/DashboardModel.ts",
     "src/compliance/DecisionReadiness.ts",
     "src/compliance/TemporalCooccurrenceEngine.ts",
+    "src/compliance/ControlledTemporalFixture.ts",
     "tests/runComplianceTests.ts",
     "tests/runExtendedComplianceTests.ts",
     "tests/runGovernanceAndPropertyTests.ts",

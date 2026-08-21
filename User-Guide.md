@@ -31,6 +31,7 @@ Privacy Lens is a research and accountability aid. A warning is a technical revi
 - **Observed device**: supplied through the native bridge. Android visibility may still be incomplete.
 - **Imported**: supplied from an external workflow; provenance must be reviewed independently.
 - **Synthetic demo**: generated locally for deterministic evaluation and never represented as device observation.
+- **Controlled device demo**: available only in a Debug Android build; it derives a fixture from the active rule pack, routes it through the native bridge, and labels the finding synthetic. It does not inspect another app.
 
 ### Rule packs and legal-review gates
 
@@ -47,6 +48,7 @@ The 50-round demonstration creates labelled synthetic records and evaluates dete
 Findings, the active rule-pack choice, and minimal trust-store rollback state are stored in app-private local storage. Android backup is disabled. The app has no account, analytics, advertising, evidence upload, or Internet permission.
 
 - **Clear local findings** removes the finding ledger.
+- Clearing findings also removes the bounded temporal-window ledger; incompatible, expired, future, or malformed restart state is discarded rather than restored.
 - Decision-pause answers disappear when the finding closes and are never persisted.
 - Uninstalling or clearing app data removes all app-private state, including rollback history.
 
@@ -89,6 +91,7 @@ Privacy Lens 是研究和问责辅助工具。警告只是技术复核提示，�
 - **Observed device**：通过原生桥接提供，但 Android 可见性仍可能不完整。
 - **Imported**：由外部流程提供，必须单独复核其来源。
 - **Synthetic demo**：本地生成的确定性测试数据，绝不表示设备观测。
+- **Controlled device demo**：仅在 Debug Android 构建中可用；它从当前法规包生成 fixture，经原生桥接回送，并将发现标记为合成证据；不会检查其他 App。
 
 ### 法规包和法律复核门
 
@@ -105,6 +108,7 @@ Privacy Lens 是研究和问责辅助工具。警告只是技术复核提示，�
 发现、当前法规包选择和最小信任库回滚状态保存在应用私有空间，Android 备份已关闭。应用没有账户、分析、广告、证据上传或互联网权限。
 
 - **Clear local findings** 删除本地发现账本；
+- 清空发现同时删除有界时间窗口账本；重启状态不兼容、过期、未来或损坏时会被丢弃，不会恢复；
 - 决策暂停答案只存在于打开的卡片中，关闭即清除且不会持久化；
 - 卸载或清除应用数据会删除全部应用私有状态，包括回滚历史。
 
