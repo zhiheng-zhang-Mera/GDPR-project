@@ -8,7 +8,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'privacy-lens-corpus-'));
 try {
-  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js']) {
+  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
