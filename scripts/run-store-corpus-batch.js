@@ -15,6 +15,7 @@ const oemInstaller = path.join(root, 'scripts', 'install-authorized-apk-with-oem
 if (!catalogPath || !serial) throw new Error('Usage: node scripts/run-store-corpus-batch.js --catalog <100-to-500-app.json> --serial <adb-serial> [--execute --allow-device-installs] [--output-dir <dir>]');
 const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+const settle = (milliseconds) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
 function validateCatalog(value) {
   if (value?.schema !== 'privacy-lens.android-store-corpus.v1' || !Array.isArray(value.apps) || value.apps.length < 100 || value.apps.length > 500) throw new Error('Corpus must declare 100 to 500 apps with the v1 schema.');
   const benchmark = value.corpusKind === 'ACADEMIC_BENCHMARK';
@@ -81,6 +82,9 @@ for (const app of catalog.apps) {
     const activity = adb(['shell', 'cmd', 'package', 'resolve-activity', '--brief', app.packageName]).split(/\r?\n/).at(-1);
     if (!activity || !activity.includes('/')) throw new Error('No launchable activity was resolved.');
     adb(['shell', 'am', 'start', '-n', activity]);
+    // `am start` returns before many app processes have been spawned. A small,
+    // fixed settle period avoids treating that normal race as zero memory.
+    settle(1_000);
     item.afterLaunch = snapshot(app.packageName);
     item.runtimePermissionPrompt = observedRuntimePermissionPrompt(app.packageName, app.displayName);
     const permissions = adb(['shell', 'dumpsys', 'package', app.packageName]);
