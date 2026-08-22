@@ -16,7 +16,7 @@ Across both receipts, the OEM runtime-permission UI was observed but not granted
 
 ## Static review signals and robustness boundary
 
-`dex-manifest-census-148.json` retains the original static Manifest and DEX-reference census over 148 signed, verified APKs. The expanded `dex-manifest-census-verified-stage3.json` snapshot scanned 298/298 signed, verified APKs with zero static failures. It found 32 declared multi-process cases, 49 sensitive-permission-plus-background-execution review signals, and 42 sensitive-permission-plus-network review signals. These are review prompts, not proof that a flow executed, that a controller collected data, or that the GDPR was breached.
+`dex-manifest-census-148.json` and `dex-manifest-census-verified-stage3.json` retain the earlier 148- and 298-APK snapshots. The final `dex-manifest-census-verified-final-495.json` snapshot scanned 495/495 signed, verified APKs with zero static failures. It found 54 declared multi-process cases, 74 sensitive-permission-plus-background-execution review signals, and 74 sensitive-permission-plus-network review signals. These are review prompts, not proof that a flow executed, that a controller collected data, or that the GDPR was breached.
 
 The formal information-flow model is tested separately with adversarial fixtures for obfuscated node identifiers, reflection edges, dynamic runtime-permission evidence, and Binder/Worker cross-process paths. The fixture oracle produces TP=3, FP=0, TN=1, FN=0, precision=1.0000, recall=1.0000, and F1=1.0000 only for that controlled semantic conformance suite. It is not a field estimate.
 
