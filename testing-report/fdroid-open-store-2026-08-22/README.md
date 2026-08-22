@@ -8,11 +8,11 @@ This folder contains sanitised reproducibility reports for the authorised Androi
 
 ## Authorised device execution
 
-`device-batch-aggregate.json` aggregates two non-overlapping execution receipts by receipt SHA-256. It reports 121 unique package identities: 112 install-launch-uninstall cycles completed with uninstall verification, 9 failures, and zero removal failures. Eight failures were installer timeouts and one was a pre-existing-package protection; a protected pre-existing package is never overwritten or uninstalled by the runner.
+`device-batch-aggregate-final.json` aggregates three non-overlapping execution receipts by receipt SHA-256. It reports 233 unique package identities: 203 install-launch-uninstall cycles completed with uninstall verification, 30 failures, and zero removal failures. Failures comprise 26 installer timeouts, two no-launchable-activity cases, one package-manager rejection, and one pre-existing-package protection; a protected pre-existing package is never overwritten or uninstalled by the runner.
 
-The initial 110-entry batch produced 102 verified removals. A 138-entry follow-up catalog reserved all 110 original package identities, then used an explicit `MAX_SUCCESSES_REACHED` bound to collect ten additional non-overlapping samples. The follow-up has 10/10 usable post-launch memory readings, with mean PSS 61,060 KB, and mean end-to-end wall-clock overhead of 27,386 ms. These are engineering measurements of the test workflow, not application performance benchmarks.
+The final expanded 112-entry batch produced 91 verified removals, mean post-launch PSS 60,953 KB over 88 observed readings, and mean end-to-end workflow overhead 24,554 ms. Across all three receipts, PSS was observed for 98 completed samples (mean 60,964 KB), and wall-clock overhead for 101 (mean 24,834 ms). These are engineering measurements of the test workflow, not application performance benchmarks.
 
-Across both receipts, the OEM runtime-permission UI was observed but not granted for 40 package runs, was not observed for 72, and was unavailable for the 9 failed runs. This is evidence that the runner preserved a dynamic-permission prompt boundary during the authorised workflow; it does not prove that a permission was requested, granted, or used by every application.
+Across all receipts, the OEM runtime-permission UI was observed but not granted for 48 package runs, was not observed for 155, and was unavailable for the 30 failed runs. A catalog-bound observer separately dismissed 31 exact notification prompts by selecting only the denial control, never a grant control. This is evidence that the runner preserved a dynamic-permission prompt boundary during the authorised workflow; it does not prove that a permission was requested, granted, or used by every application.
 
 ## Static review signals and robustness boundary
 

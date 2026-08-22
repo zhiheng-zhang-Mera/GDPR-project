@@ -1,0 +1,50 @@
+{
+  "schema": "privacy-lens.authorised-device-batch-summary.v1",
+  "corpusId": "fdroid-open-source-store-500-seed-8222026-verified-233-unattempted-112",
+  "corpusKind": "OPEN_SOURCE_APP_STORE",
+  "generatedAt": "2026-08-22T13:21:17.438Z",
+  "catalogEntriesProcessed": 112,
+  "installAttempts": 112,
+  "preExistingProtected": 0,
+  "completedAndVerifiedRemoved": 91,
+  "failed": 21,
+  "cleanup": {
+    "verifiedRemoved": 91,
+    "removalFailures": 0
+  },
+  "installerPrompts": {
+    "continueInstall": 38,
+    "optionalProtectionCancelled": 0,
+    "installerCompleted": 34
+  },
+  "runtimePermissionPrompts": {
+    "observedNotGranted": 8,
+    "notObserved": 83,
+    "unavailable": 21,
+    "dismissed": 0
+  },
+  "notificationPromptDismissals": {
+    "reported": true,
+    "count": 31
+  },
+  "failuresByCategory": {
+    "TIMEOUT": 18,
+    "NO_LAUNCHABLE_ACTIVITY": 2,
+    "PACKAGE_MANAGER_REJECTED": 1
+  },
+  "executionOverhead": {
+    "wallClockElapsedMs": {
+      "mean": 24553.82085384615,
+      "observed": 91,
+      "unavailable": 0
+    }
+  },
+  "telemetry": {
+    "afterLaunchMemoryPssKb": {
+      "mean": 60953.10227272727,
+      "observed": 88,
+      "unavailable": 3
+    }
+  },
+  "caveat": "This summary reports authorised device execution and engineering overhead only. It does not label GDPR compliance, data collection, or legal violations. Missing memory values remain unavailable."
+}

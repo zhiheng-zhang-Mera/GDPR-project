@@ -7,8 +7,9 @@ const path = require('path');
 const args = process.argv.slice(2);
 const values = (flag) => args.flatMap((value, index) => value === flag && args[index + 1] ? [args[index + 1]] : []);
 const inputs = values('--input');
+const notificationDismissalInputs = values('--notification-dismissals');
 const output = values('--output')[0];
-if (inputs.length < 1 || !output) throw new Error('Usage: node scripts/aggregate-authorized-device-batches.js --input <results.json> [--input <results.json> ...] --output <aggregate.json>');
+if (inputs.length < 1 || !output) throw new Error('Usage: node scripts/aggregate-authorized-device-batches.js --input <results.json> [--input <results.json> ...] [--notification-dismissals <dismissals.json> ...] --output <aggregate.json>');
 
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const numberValues = (items, select) => items.map(select).filter((value) => Number.isFinite(value));
@@ -32,7 +33,7 @@ const memory = numberValues(completed, (item) => item.afterLaunch?.memoryPssKb);
 const elapsed = numberValues(completed, (item) => item.wallClockElapsedMs);
 const failureCategories = {};
 for (const failure of failures) {
-  const category = /timed out/i.test(failure.error || '') ? 'TIMEOUT' : failure.preExistingPackage ? 'PREEXISTING_PACKAGE_PROTECTED' : failure.cleanup === 'REMOVAL_FAILED' ? 'REMOVAL_FAILURE' : 'OTHER';
+  const category = /timed out/i.test(failure.error || '') ? 'TIMEOUT' : /Failure \[-?\d+\]/.test(failure.error || '') ? 'PACKAGE_MANAGER_REJECTED' : /No launchable activity/i.test(failure.error || '') ? 'NO_LAUNCHABLE_ACTIVITY' : failure.preExistingPackage ? 'PREEXISTING_PACKAGE_PROTECTED' : failure.cleanup === 'REMOVAL_FAILED' ? 'REMOVAL_FAILURE' : 'OTHER';
   failureCategories[category] = (failureCategories[category] || 0) + 1;
 }
 const runtimePermissionPrompts = [...records, ...failures].reduce((total, item) => {
@@ -41,12 +42,19 @@ const runtimePermissionPrompts = [...records, ...failures].reduce((total, item) 
   else total.unavailable += 1;
   return total;
 }, { observedNotGranted: 0, notObserved: 0, unavailable: 0, dismissed: [...records, ...failures].filter((item) => item.runtimePermissionPromptDismissed === true).length });
+const corpusIds = new Set(receipts.map((receipt) => receipt.corpusId));
+const notificationPromptDismissals = notificationDismissalInputs.map((input) => {
+  const receipt = JSON.parse(fs.readFileSync(input, 'utf8'));
+  if (receipt?.schema !== 'privacy-lens.authorised-notification-prompt-dismissals.v1' || !corpusIds.has(receipt.catalogId) || !Array.isArray(receipt.dismissals) || receipt.dismissals.some((item) => item?.action !== 'DENY_NOTIFICATION_PERMISSION' || typeof item.app !== 'string' || !item.app.trim())) throw new Error(`Invalid or unmatched notification-dismissal receipt: ${input}`);
+  return { path: path.normalize(input), sha256: sha256(input), count: receipt.dismissals.length };
+});
 const aggregate = {
   schema: 'privacy-lens.authorised-device-batch-aggregate.v1', generatedAt: new Date().toISOString(), receipts,
   corpusKind: [...new Set(receipts.map((item) => item.corpusKind))], uniquePackagesProcessed: packageIdentities.size,
   completedAndVerifiedRemoved: completed.length, failed: failures.length,
   cleanup: { verifiedRemoved: completed.length, removalFailures: failures.filter((item) => item.cleanup === 'REMOVAL_FAILED').length },
   failuresByCategory: failureCategories, runtimePermissionPrompts,
+  notificationPromptDismissals: { reportedReceipts: notificationPromptDismissals.length, count: notificationPromptDismissals.reduce((total, item) => total + item.count, 0), receipts: notificationPromptDismissals },
   telemetry: {
     afterLaunchMemoryPssKb: { mean: mean(memory), observed: memory.length, unavailable: completed.length - memory.length },
     wallClockElapsedMs: { mean: mean(elapsed), observed: elapsed.length, unavailable: completed.length - elapsed.length },

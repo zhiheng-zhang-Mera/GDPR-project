@@ -1,0 +1,76 @@
+{
+  "schema": "privacy-lens.authorised-device-batch-aggregate.v1",
+  "generatedAt": "2026-08-22T13:23:27.833Z",
+  "receipts": [
+    {
+      "path": ".codex-tools\\fdroid\\device-batch-110-authorized-r1\\results.json",
+      "sha256": "5557d6ebb9bb79f900e851e3dd8b0c5699bcd007627d3648115c8d57d74e1c4d",
+      "corpusId": "fdroid-open-source-store-110-seed-8222026",
+      "corpusKind": "OPEN_SOURCE_APP_STORE",
+      "results": 102,
+      "failures": 8
+    },
+    {
+      "path": ".codex-tools\\fdroid\\device-batch-followup-telemetry-r1\\results.json",
+      "sha256": "e7146af6ee3ed0a103b9ee790b09aefa91b209c5a5acbbcead0ee4dea96d2efc",
+      "corpusId": "fdroid-open-source-store-250-seed-8222026-verified-248-unattempted-138",
+      "corpusKind": "OPEN_SOURCE_APP_STORE",
+      "results": 10,
+      "failures": 1
+    },
+    {
+      "path": ".codex-tools\\fdroid\\device-batch-112-new-r1\\results.json",
+      "sha256": "5d3293ba03f6665da077e030914fd6e6c779ae2a7dbd2cf81cbd9987887e86b6",
+      "corpusId": "fdroid-open-source-store-500-seed-8222026-verified-233-unattempted-112",
+      "corpusKind": "OPEN_SOURCE_APP_STORE",
+      "results": 91,
+      "failures": 21
+    }
+  ],
+  "corpusKind": [
+    "OPEN_SOURCE_APP_STORE"
+  ],
+  "uniquePackagesProcessed": 233,
+  "completedAndVerifiedRemoved": 203,
+  "failed": 30,
+  "cleanup": {
+    "verifiedRemoved": 203,
+    "removalFailures": 0
+  },
+  "failuresByCategory": {
+    "TIMEOUT": 26,
+    "PREEXISTING_PACKAGE_PROTECTED": 1,
+    "NO_LAUNCHABLE_ACTIVITY": 2,
+    "PACKAGE_MANAGER_REJECTED": 1
+  },
+  "runtimePermissionPrompts": {
+    "observedNotGranted": 48,
+    "notObserved": 155,
+    "unavailable": 30,
+    "dismissed": 0
+  },
+  "notificationPromptDismissals": {
+    "reportedReceipts": 1,
+    "count": 31,
+    "receipts": [
+      {
+        "path": ".codex-tools\\fdroid\\device-batch-112-new-r1\\notification-prompt-dismissals.json",
+        "sha256": "620a4965164c7f4ebd282bcb20c8ef38485efeeed8f78e6148137b6233652bbc",
+        "count": 31
+      }
+    ]
+  },
+  "telemetry": {
+    "afterLaunchMemoryPssKb": {
+      "mean": 60964.010204081635,
+      "observed": 98,
+      "unavailable": 105
+    },
+    "wallClockElapsedMs": {
+      "mean": 24834.266665346535,
+      "observed": 101,
+      "unavailable": 102
+    }
+  },
+  "caveat": "This aggregate counts authorised install-launch-uninstall engineering runs. It does not label GDPR compliance or legal infringement. Missing memory remains unavailable, and receipts must be non-overlapping."
+}

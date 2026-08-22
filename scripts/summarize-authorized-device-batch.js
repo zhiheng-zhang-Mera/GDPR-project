@@ -5,9 +5,16 @@ const path = require('path');
 const args = process.argv.slice(2);
 const value = (flag) => { const index = args.indexOf(flag); return index < 0 ? undefined : args[index + 1]; };
 const input = value('--input'); const output = value('--output');
-if (!input || !output) throw new Error('Usage: node scripts/summarize-authorized-device-batch.js --input <results.json> --output <summary.json>');
+const notificationDismissalsInput = value('--notification-dismissals');
+if (!input || !output) throw new Error('Usage: node scripts/summarize-authorized-device-batch.js --input <results.json> --output <summary.json> [--notification-dismissals <dismissals.json>]');
 const report = JSON.parse(fs.readFileSync(input, 'utf8'));
 if (report?.schema !== 'privacy-lens.android-store-corpus-run.v1' || !Array.isArray(report.results) || !Array.isArray(report.failures)) throw new Error('Input is not a supported device-batch report.');
+let notificationPromptDismissals = { reported: false, count: 0 };
+if (notificationDismissalsInput) {
+  const dismissalReceipt = JSON.parse(fs.readFileSync(notificationDismissalsInput, 'utf8'));
+  if (dismissalReceipt?.schema !== 'privacy-lens.authorised-notification-prompt-dismissals.v1' || dismissalReceipt.catalogId !== report.corpusId || !Array.isArray(dismissalReceipt.dismissals) || dismissalReceipt.dismissals.some((item) => item?.action !== 'DENY_NOTIFICATION_PERMISSION' || typeof item.app !== 'string' || !item.app.trim())) throw new Error('Notification-dismissal receipt is invalid or does not bind to this corpus.');
+  notificationPromptDismissals = { reported: true, count: dismissalReceipt.dismissals.length };
+}
 const numeric = (records, selector) => records.map(selector).filter((value) => Number.isFinite(value));
 const mean = (values) => values.length ? values.reduce((total, value) => total + value, 0) / values.length : undefined;
 const failureCategory = (message) => {
@@ -47,7 +54,7 @@ const summary = {
   catalogEntriesProcessed: all.length, installAttempts: installAttempts.length, preExistingProtected: preExistingProtected.length,
   completedAndVerifiedRemoved: completed.length, failed: report.failures.length,
   cleanup: { verifiedRemoved: completed.length, removalFailures: report.failures.filter((record) => record.cleanup === 'REMOVAL_FAILED').length },
-  installerPrompts, runtimePermissionPrompts, failuresByCategory,
+  installerPrompts, runtimePermissionPrompts, notificationPromptDismissals, failuresByCategory,
   executionOverhead: { wallClockElapsedMs: { mean: mean(elapsed), observed: elapsed.length, unavailable: completed.length - elapsed.length } },
   telemetry: {
     afterLaunchMemoryPssKb: { mean: mean(memory), observed: memory.length, unavailable: completed.length - memory.length },
