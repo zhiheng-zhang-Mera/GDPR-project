@@ -1,0 +1,17 @@
+# Baseline scope and comparison boundary
+
+This matrix prevents heterogeneous Android privacy tools from being ranked as if they answered the same question. It records what was executed in this repository and what an evidence claim may support.
+
+| System | Analytic object | Executed evidence | Comparable outcome | Non-comparable claim |
+| --- | --- | --- | --- | --- |
+| Privacy Lens formal policy model | Typed evidence predicates and source-to-sink review prompts | Adversarial conformance tests cover obfuscated identifiers, reflection, dynamic runtime-permission evidence, and Binder/Worker multi-process paths | Declarative policy compilation, fail-closed admission, and review-prompt semantics | Static taint-flow recall, tracker identification, or real-app legal accuracy |
+| Android SDK `aapt` + `apkanalyzer` | Manifest declarations and bounded DEX references | 148 signed F-Droid APKs scanned; 16 multi-process, 21 sensitive-plus-background, and 19 sensitive-plus-network review signals | Static declaration/API-reference census | Runtime execution, controller intent, recipient, or legal violation |
+| [FlowDroid](https://github.com/secure-software-engineering/FlowDroid) 2.15.1 | Static potential source-to-sink taint paths | Seven bounded DroidBench receipts plus one WPS Office receipt; three DroidBench runs produced one XML result and four completed without an artifact | Version-pinned CLI execution and bounded elapsed time | A missing XML artifact is not zero flow; a static flow is not GDPR infringement |
+| [Exodus Privacy](https://github.com/Exodus-Privacy/exodus) | Embedded tracker code signatures | Method-only baseline; no matching local tracker-signature database was executed against the 148 APKs | Tracker-library signature interpretation when an immutable signature database is supplied | Effective tracker use, data transmission, or legal result |
+| [Argus-SAF/Amandroid](https://github.com/arguslab/Argus-SAF) | Inter-component static analysis | Not executed: a compatible, version-pinned CLI and Android-platform configuration are not provisioned | Future replication target | Any result or comparative performance claim |
+
+## Comparability decision
+
+No repository artifact supports an end-to-end superiority claim in precision, recall, F1, TP, FP, TN, FN, energy, memory, or wall-clock cost over FlowDroid, Exodus, or Argus-SAF. A valid comparison would require: (1) one version-pinned APK corpus, (2) one independently labelled task definition, (3) identical inclusion/exclusion and timeout rules, (4) per-tool outputs on every retained item, and (5) separate reporting for static flows, tracker signatures, policy-review prompts, and authorised runtime traces.
+
+The available evidence supports a narrower contribution: Privacy Lens adds regulation-owned formal predicates, missing-evidence disclosure, and advisory review semantics that static program-analysis and signature tools do not themselves provide. It is complementary to, not empirically demonstrated as superior to, those tools. The experiment report and thesis use this wording deliberately.
