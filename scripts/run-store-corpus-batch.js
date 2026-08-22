@@ -12,9 +12,10 @@ const serial = arg('--serial');
 const execute = args.includes('--execute') && args.includes('--allow-device-installs');
 const maxSuccessesArg = arg('--max-successes');
 const maxSuccesses = maxSuccessesArg === undefined ? Infinity : Number(maxSuccessesArg);
+const installTimeoutMs = Number(arg('--install-timeout-ms') || 120_000);
 const outputDir = arg('--output-dir') || path.join(root, 'commercial-app-batch', `store-corpus-${new Date().toISOString().replace(/[:.]/g, '-')}`);
 const oemInstaller = path.join(root, 'scripts', 'install-authorized-apk-with-oem-confirmation.js');
-if (!catalogPath || !serial || !(maxSuccesses === Infinity || (Number.isInteger(maxSuccesses) && maxSuccesses > 0))) throw new Error('Usage: node scripts/run-store-corpus-batch.js --catalog <100-to-500-app.json> --serial <adb-serial> [--execute --allow-device-installs] [--max-successes positive-integer] [--output-dir <dir>]');
+if (!catalogPath || !serial || !(maxSuccesses === Infinity || (Number.isInteger(maxSuccesses) && maxSuccesses > 0)) || !Number.isInteger(installTimeoutMs) || installTimeoutMs < 30_000 || installTimeoutMs > 120_000) throw new Error('Usage: node scripts/run-store-corpus-batch.js --catalog <100-to-500-app.json> --serial <adb-serial> [--execute --allow-device-installs] [--install-timeout-ms 30000..120000] [--max-successes positive-integer] [--output-dir <dir>]');
 const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const settle = (milliseconds) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
@@ -93,7 +94,7 @@ for (const app of catalog.apps) {
     if (!execute) { item.cleanup = 'NOT_EXECUTED'; report.results.push(item); continue; }
     if (isInstalled(app.packageName)) { item.preExistingPackage = true; throw new Error('Refusing to replace or uninstall a pre-existing package.'); }
     item.installAttempted = true;
-    const installerOutput = execFileSync(process.execPath, [oemInstaller, '--serial', serial, '--timeout-ms', '75000', '--apk', ...app.apkFiles.map((file) => file.path)], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 90_000 });
+    const installerOutput = execFileSync(process.execPath, [oemInstaller, '--serial', serial, '--timeout-ms', String(installTimeoutMs), '--apk', ...app.apkFiles.map((file) => file.path)], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: installTimeoutMs + 15_000 });
     item.installer = JSON.parse(installerOutput);
     item.installedByRunner = true;
     item.afterInstall = snapshot(app.packageName);

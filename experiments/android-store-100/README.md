@@ -4,6 +4,8 @@ This directory contains the contract for a 100-application research corpus, not 
 
 `scripts/run-store-corpus-batch.js` defaults to validation-only mode. Execution requires both `--execute` and `--allow-device-installs`, rejects a corpus outside 100–500 unique entries, verifies every file digest before installation, refuses to replace a pre-existing package, force-stops then uninstalls only the package it just installed, and verifies removal. It never uninstalls system packages or a pre-existing user app. If an installer times out, it rechecks only that just-attempted package and removes it if it appeared after the attempt.
 
+The installer wait is bounded to 120 seconds by default (configurable only within 30--120 seconds). This accounts for an OEM page that is explicitly still installing; a timeout remains a recorded failure and triggers the same just-attempted-package cleanup check.
+
 `scripts/build-fdroid-store-catalog.js` constructs an `OPEN_SOURCE_APP_STORE` catalog from the official F-Droid `index-v2.json` and signer index. Its selection is fixed-seed, category-balanced, hash-pinned, constrained to 100–500 APKs, Android 12-compatible minimum SDKs, and `arm64-v8a`/no-native-code packages. `scripts/download-verified-store-corpus.js` downloads only those catalogued URLs and accepts an APK only when both its SHA-256 and its Android signing-certificate SHA-256 match the F-Droid metadata. The resulting corpus is an open-source app-store sample, not a commercial-app sample and not legal evidence of a GDPR violation.
 
 The runner records install/launch/cleanup state, permission declarations, process count, and PSS memory snapshots. Every result remains an engineering measurement and potential-review signal, not evidence of a GDPR infringement.
