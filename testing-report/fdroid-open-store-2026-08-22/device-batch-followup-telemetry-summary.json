@@ -1,0 +1,43 @@
+{
+  "schema": "privacy-lens.authorised-device-batch-summary.v1",
+  "corpusId": "fdroid-open-source-store-250-seed-8222026-verified-248-unattempted-138",
+  "corpusKind": "OPEN_SOURCE_APP_STORE",
+  "generatedAt": "2026-08-22T11:16:58.286Z",
+  "catalogEntriesProcessed": 11,
+  "installAttempts": 11,
+  "preExistingProtected": 0,
+  "completedAndVerifiedRemoved": 10,
+  "failed": 1,
+  "cleanup": {
+    "verifiedRemoved": 10,
+    "removalFailures": 0
+  },
+  "installerPrompts": {
+    "continueInstall": 10,
+    "optionalProtectionCancelled": 0,
+    "installerCompleted": 10
+  },
+  "failuresByCategory": {
+    "TIMEOUT": 1
+  },
+  "executionOverhead": {
+    "wallClockElapsedMs": {
+      "mean": 27386.32355,
+      "observed": 10,
+      "unavailable": 0
+    },
+    "batteryStatsResetRequested": 10
+  },
+  "telemetry": {
+    "afterLaunchMemoryPssKb": {
+      "mean": 61060,
+      "observed": 10,
+      "unavailable": 0
+    },
+    "afterLaunchEstimatedPowerMah": {
+      "observed": 0,
+      "unavailable": 10
+    }
+  },
+  "caveat": "This summary reports authorised device execution and engineering overhead only. It does not label GDPR compliance, data collection, or legal violations. Missing memory/energy values remain unavailable."
+}

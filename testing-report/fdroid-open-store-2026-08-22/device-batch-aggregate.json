@@ -1,0 +1,53 @@
+{
+  "schema": "privacy-lens.authorised-device-batch-aggregate.v1",
+  "generatedAt": "2026-08-22T11:19:08.937Z",
+  "receipts": [
+    {
+      "path": ".codex-tools\\fdroid\\device-batch-110-authorized-r1\\results.json",
+      "sha256": "5557d6ebb9bb79f900e851e3dd8b0c5699bcd007627d3648115c8d57d74e1c4d",
+      "corpusId": "fdroid-open-source-store-110-seed-8222026",
+      "corpusKind": "OPEN_SOURCE_APP_STORE",
+      "results": 102,
+      "failures": 8
+    },
+    {
+      "path": ".codex-tools\\fdroid\\device-batch-followup-telemetry-r1\\results.json",
+      "sha256": "e7146af6ee3ed0a103b9ee790b09aefa91b209c5a5acbbcead0ee4dea96d2efc",
+      "corpusId": "fdroid-open-source-store-250-seed-8222026-verified-248-unattempted-138",
+      "corpusKind": "OPEN_SOURCE_APP_STORE",
+      "results": 10,
+      "failures": 1
+    }
+  ],
+  "corpusKind": [
+    "OPEN_SOURCE_APP_STORE"
+  ],
+  "uniquePackagesProcessed": 121,
+  "completedAndVerifiedRemoved": 112,
+  "failed": 9,
+  "cleanup": {
+    "verifiedRemoved": 112,
+    "removalFailures": 0
+  },
+  "failuresByCategory": {
+    "TIMEOUT": 8,
+    "PREEXISTING_PACKAGE_PROTECTED": 1
+  },
+  "telemetry": {
+    "afterLaunchMemoryPssKb": {
+      "mean": 61060,
+      "observed": 10,
+      "unavailable": 102
+    },
+    "afterLaunchEstimatedPowerMah": {
+      "observed": 0,
+      "unavailable": 112
+    },
+    "wallClockElapsedMs": {
+      "mean": 27386.32355,
+      "observed": 10,
+      "unavailable": 102
+    }
+  },
+  "caveat": "This aggregate counts authorised install-launch-uninstall engineering runs. It does not label GDPR compliance or legal infringement. Missing energy and memory remain unavailable, and receipts must be non-overlapping."
+}

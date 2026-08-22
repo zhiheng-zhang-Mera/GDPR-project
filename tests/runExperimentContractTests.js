@@ -8,7 +8,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'privacy-lens-corpus-'));
 try {
-  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js']) {
+  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
@@ -69,10 +69,14 @@ try {
   const summary = JSON.parse(fs.readFileSync(summaryFile, 'utf8'));
   if (summary.tools.privacyLens.confusionMatrix.tp !== 50 || summary.tools.privacyLens.confusionMatrix.fp !== 0 || summary.tools.privacyLens.confusionMatrix.tn !== 50 || summary.tools.privacyLens.confusionMatrix.fn !== 0 || summary.tools.privacyLens.telemetry.estimatedPowerMah.observed !== 0) throw new Error('Evaluation summarisation contract failed.');
   const deviceInput = path.join(temp, 'device.json'); const deviceOutput = path.join(temp, 'device-summary.json');
-  fs.writeFileSync(deviceInput, JSON.stringify({ schema: 'privacy-lens.android-store-corpus-run.v1', corpusId: 'device-fixture', corpusKind: 'ACADEMIC_BENCHMARK', results: [{ cleanup: 'VERIFIED_REMOVED', wallClockElapsedMs: 5, batteryStatsReset: 'REQUESTED', installer: { oemPrompts: { continueInstall: 1, installerCompleted: 1 } }, afterLaunch: { memoryPssKb: 0 } }], failures: [{ cleanup: 'NOT_STARTED', error: 'Failure [-99]' }] }));
+  fs.writeFileSync(deviceInput, JSON.stringify({ schema: 'privacy-lens.android-store-corpus-run.v1', corpusId: 'device-fixture', corpusKind: 'ACADEMIC_BENCHMARK', execution: 'AUTHORISED_DEVICE_RUN', results: [{ id: 'device-1', packageName: 'org.fixture.device1', cleanup: 'VERIFIED_REMOVED', wallClockElapsedMs: 5, batteryStatsReset: 'REQUESTED', installer: { oemPrompts: { continueInstall: 1, installerCompleted: 1 } }, afterLaunch: { memoryPssKb: 0 } }], failures: [{ id: 'device-2', packageName: 'org.fixture.device2', cleanup: 'NOT_STARTED', error: 'Failure [-99]' }] }));
   execFileSync(process.execPath, [path.join(root, 'scripts/summarize-authorized-device-batch.js'), '--input', deviceInput, '--output', deviceOutput], { stdio: 'pipe' });
   const deviceSummary = JSON.parse(fs.readFileSync(deviceOutput, 'utf8'));
   if (deviceSummary.completedAndVerifiedRemoved !== 1 || deviceSummary.failuresByCategory.PACKAGE_MANAGER_REJECTED !== 1 || deviceSummary.executionOverhead.wallClockElapsedMs.mean !== 5 || deviceSummary.executionOverhead.batteryStatsResetRequested !== 1 || deviceSummary.telemetry.afterLaunchMemoryPssKb.mean !== 0 || deviceSummary.telemetry.afterLaunchEstimatedPowerMah.observed !== 0) throw new Error('Device batch summarisation contract failed.');
+  const aggregateOutput = path.join(temp, 'aggregate.json');
+  execFileSync(process.execPath, [path.join(root, 'scripts/aggregate-authorized-device-batches.js'), '--input', deviceInput, '--output', aggregateOutput], { stdio: 'pipe' });
+  const aggregate = JSON.parse(fs.readFileSync(aggregateOutput, 'utf8'));
+  if (aggregate.completedAndVerifiedRemoved !== 1 || aggregate.failed !== 1 || aggregate.uniquePackagesProcessed !== 2 || aggregate.telemetry.afterLaunchMemoryPssKb.mean !== 0 || aggregate.telemetry.afterLaunchEstimatedPowerMah.observed !== 0) throw new Error('Device batch aggregation contract failed.');
   console.log('Experiment contracts passed: 100-entry catalog validates without ADB installation, and labelled metrics preserve missing telemetry.');
 } finally {
   fs.rmSync(temp, { recursive: true, force: true });
