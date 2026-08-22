@@ -313,3 +313,27 @@ The evidential split is intentional. Automated tests establish temporal rule sem
 \subsection{Iteration V4 verification protocol}
 
 V4 adds deterministic fixtures for both the GDPR and non-legal research packs, proving that a controlled fixture is compiled from the mounted profile rather than a fixed GDPR rule. The restart test compares the evidence receipt after a simulated process restart with an uninterrupted evaluation. Negative tests reject cross-pack snapshots, expired state, and forged deduplication keys. A release-privacy contract checks that the native controlled method is gated by \texttt{BuildConfig.DEBUG}; the JavaScript bridge delegates this decision to that native boundary so an offline debug bundle cannot suppress a valid debug-only test. Continuous integration runs these checks from a clean dependency installation. A physical-device acceptance remains limited to the actual build, installation, UI tree, screenshot, logcat, and crash-buffer evidence collected for that build; a controlled card is synthetic and cannot be reported as an observed privacy event.
+
+\subsection{Loadable formal policy and commercial-APK baseline comparison}
+
+The final iteration separates a second policy family from the temporal evaluator. A loadable constraint declares a conjunction of evidence predicates, the further contextual evidence that is required, legal references, a rationale, and the only permitted result: a review request. The predicate vocabulary distinguishes static APK capabilities such as \texttt{MANIFEST\_LOCATION} and a tracker code signature from time-scoped observed facts and from context that an APK cannot supply, including purpose, lawful basis, transparency, minimisation, retention, Article~9 condition, and DPIA screening. Invalid policy data fails closed before a pack is mounted. This makes the legal-to-logic mapping inspectable and reusable without turning a missing document or a declared permission into a legal conclusion.
+
+On 22 August 2026, a read-only batch examined the installed base APKs of Meituan, Microsoft Edge, and WPS Office on the same OPPO PERM00 handset. Android SDK \texttt{apkanalyzer} supplied manifest and bounded DEX-package evidence. A second baseline applied a deliberately limited offline subset of the Exodus Privacy code-signature method, under which a signature indicates embedded code rather than effective tracking \cite{exodusprivacy2026}. Privacy Lens then evaluated only derived predicates against the loaded GDPR constraints. Table~\ref{tab:commercial-apk-baseline} records the bounded result.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Read-only commercial APK baseline comparison; static observations are not GDPR findings}
+\label{tab:commercial-apk-baseline}
+\begin{tabular}{p{0.20\textwidth}p{0.14\textwidth}p{0.20\textwidth}p{0.34\textwidth}}
+\toprule
+Application & Manifest permissions & Baseline result & Formal-policy output \\
+\midrule
+Meituan & 146 & DEX tracker listing exceeded the bounded collector; no tracker absence inferred. & Location capability requested purpose, lawful-basis, transparency, minimisation, and retention evidence. \\
+Microsoft Edge & 60 & Offline signature subset matched Adjust; embedded code only. & Location and tracker constraints requested review evidence; no violation asserted. \\
+WPS Office & 11 & No match in the limited completed signature subset. & No constraint antecedent was satisfied; this is not a compliance result. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The comparison is intentionally asymmetric. The Android SDK baseline provides static declaration and code-package evidence; the signature baseline provides a limited embedded-code indicator; Privacy Lens supplies a versioned legal trace and an explicit missing-evidence request. None observes runtime collection, server destinations, actual tracker use, controller identity, legal applicability, or consent. The results are retained with APK hashes, tool-method status, and no APK binaries, so another authorised reviewer can repeat the bounded experiment without treating it as a legal audit. This evidence strengthens reproducibility and comparative interpretation, not a claim that any commercial application infringed the GDPR.

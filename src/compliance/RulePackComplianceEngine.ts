@@ -5,6 +5,8 @@ import { assessPackLegalReview, assessPackSourceReview } from '../regulations/go
 import { assessPackSourceContent } from '../regulations/sourceContent';
 import { CompiledTemporalRule, evaluateTemporalCooccurrence, SUPPORTED_OBSERVATION_TYPES } from './TemporalCooccurrenceEngine';
 import { compileTemporalRuleMapping } from '../regulations/temporalRuleMapping';
+import { compileFormalPolicyModel, evaluateFormalPolicy, FormalPolicyAssessment } from '../regulations/formalPolicy';
+import { FormalEvidencePredicate } from '../regulations/types';
 
 const DAY_MS = 86_400_000;
 const BURST_LIMIT: Record<SensitivePermission, number> = { LOCATION: 12, MICROPHONE: 6, CONTACTS: 4 };
@@ -133,6 +135,8 @@ export class RulePackComplianceEngine implements IComplianceEngine {
   private readonly history = new Map<string, { start: number; end: number; count: number }[]>();
   private readonly temporalHistory = new Map<string, PrivacyObservation[]>();
   private readonly temporalRules: CompiledTemporalRule[];
+  /** Mounted data-only constraints, shared by runtime and offline batch use. */
+  readonly formalPolicyModel;
 
   private readonly sourceReview: ReturnType<typeof assessPackSourceReview>;
   private readonly sourceContent: ReturnType<typeof assessPackSourceContent>;
@@ -141,9 +145,19 @@ export class RulePackComplianceEngine implements IComplianceEngine {
   constructor(readonly pack: RegulationPack, evaluatedAt = new Date().toISOString().slice(0, 10), trustStore?: LegalReviewTrustStoreAssessment, sourceArtifacts?: SourceContentArtifacts) {
     this.regulation = pack.shortName;
     this.temporalRules = compileTemporalRuleMapping(pack);
+    this.formalPolicyModel = compileFormalPolicyModel(pack);
     this.sourceReview = assessPackSourceReview(pack, evaluatedAt);
     this.sourceContent = assessPackSourceContent(pack, sourceArtifacts, evaluatedAt);
     this.legalReview = assessPackLegalReview(pack, evaluatedAt, trustStore, sourceArtifacts);
+  }
+
+  /**
+   * Evaluates a loaded formal policy without accepting an acquisition claim.
+   * Callers provide only the predicates their provenance can support; an empty
+   * result is not a compliance decision.
+   */
+  evaluateFormalEvidence(evidence: ReadonlySet<FormalEvidencePredicate>): FormalPolicyAssessment[] {
+    return evaluateFormalPolicy(this.formalPolicyModel, evidence);
   }
 
   private maxWindowMs(): number { return Math.max(1, ...this.temporalRules.map(({ windowMs }) => windowMs)); }

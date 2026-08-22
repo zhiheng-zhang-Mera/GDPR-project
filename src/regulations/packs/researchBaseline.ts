@@ -43,6 +43,17 @@ export const GLOBAL_RESEARCH_BASELINE_PACK: RegulationPack = {
       notificationPriority: 'STANDARD',
     },
   ],
+  formalPolicyConstraints: [
+    {
+      id: 'RESEARCH_LOCATION_CONTEXT',
+      title: 'Location capability requires study-context documentation',
+      legalReferences: ['Research demonstrator: no legal mapping'],
+      whenAll: ['MANIFEST_LOCATION'],
+      requiresAll: ['PROCESSING_PURPOSE', 'RETENTION_JUSTIFICATION'],
+      rationale: 'This non-legal control proves that the generic evaluator can load a different evidence contract without inheriting GDPR meaning.',
+      outcome: 'REVIEW_REQUIRED',
+    },
+  ],
   principles: ['Purpose clarity', 'Data minimisation', 'User expectation', 'Human accountability'],
   legalCaveat: 'This region-neutral research baseline is not law, legal advice, or a compliance determination.',
   findMissingEvidence: ({ processingContext: context }) => {

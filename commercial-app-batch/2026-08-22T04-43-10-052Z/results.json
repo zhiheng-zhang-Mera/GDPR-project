@@ -1,0 +1,373 @@
+{
+  "schema": "privacy-lens.commercial-app-batch.v1",
+  "generatedAt": "2026-08-22T04:43:10.059Z",
+  "methodology": {
+    "acquisition": "ADB pull of the installed base APK only; no target app was launched, changed, uploaded, or redistributed.",
+    "baselines": [
+      "Android SDK apkanalyzer manifest/dex static analysis",
+      "Exodus Privacy code-signature methodology using a documented offline curated subset"
+    ],
+    "formalModelSha256": "427db0f61df466776fe62195e79a890ee4a609e3b8b3bc2f69f290c41dafd3df"
+  },
+  "results": [
+    {
+      "packageName": "com.sankuai.meituan",
+      "apk": {
+        "sha256": "0f644b79dda283220875b5f953288d1ff311eb2077e8e23c3e69f4596a82fc08",
+        "byteLength": 96611855,
+        "retainedInGit": false
+      },
+      "androidSdkApkAnalyzer": {
+        "permissions": [
+          "android.permission.ACCESS_BACKGROUND_LOCATION",
+          "android.permission.ACCESS_COARSE_LOCATION",
+          "android.permission.ACCESS_FINE_LOCATION",
+          "android.permission.ACCESS_LOCATION_EXTRA_COMMANDS",
+          "android.permission.ACCESS_MEDIA_LOCATION",
+          "android.permission.ACCESS_NETWORK_STATE",
+          "android.permission.ACCESS_WIFI_STATE",
+          "android.permission.ACTIVITY_RECOGNITION",
+          "android.permission.AUTHENTICATE_ACCOUNTS' maxSdkVersion='22",
+          "android.permission.BLUETOOTH",
+          "android.permission.BLUETOOTH_ADMIN",
+          "android.permission.CALL_PHONE",
+          "android.permission.CAMERA",
+          "android.permission.CHANGE_NETWORK_STATE",
+          "android.permission.CHANGE_WIFI_STATE",
+          "android.permission.DISABLE_KEYGUARD",
+          "android.permission.FLASHLIGHT",
+          "android.permission.FOREGROUND_SERVICE",
+          "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+          "android.permission.INTERNET",
+          "android.permission.MODIFY_AUDIO_SETTINGS",
+          "android.permission.MOUNT_UNMOUNT_FILESYSTEMS",
+          "android.permission.NFC",
+          "android.permission.POST_NOTIFICATIONS",
+          "android.permission.QUERY_ALL_PACKAGES",
+          "android.permission.READ_CONTACTS",
+          "android.permission.READ_EXTERNAL_STORAGE",
+          "android.permission.READ_MEDIA_IMAGES",
+          "android.permission.RECEIVE_BOOT_COMPLETED",
+          "android.permission.RECORD_AUDIO",
+          "android.permission.REORDER_TASKS",
+          "android.permission.REQUEST_INSTALL_PACKAGES",
+          "android.permission.SCHEDULE_EXACT_ALARM",
+          "android.permission.SYSTEM_ALERT_WINDOW",
+          "android.permission.SYSTEM_OVERLAY_WINDOW",
+          "android.permission.USE_BIOMETRIC",
+          "android.permission.USE_FINGERPRINT",
+          "android.permission.VIBRATE",
+          "android.permission.WAKE_LOCK",
+          "android.permission.WRITE_CALENDAR",
+          "android.permission.WRITE_EXTERNAL_STORAGE",
+          "android.permission.WRITE_SETTINGS",
+          "android.permission.WRITE_SYNC_SETTINGS",
+          "cn.nubia.launcher.permission.READ_SETTINGS",
+          "cn.nubia.launcher.permission.UNINSTALL_SHORTCUT",
+          "cn.nubia.launcher.permission.WRITE_SETTINGS",
+          "cn.nubia.launcher2.permission.READ_SETTINGS",
+          "cn.nubia.launcher2.permission.WRITE_SETTINGS",
+          "com.anddoes.launcher.permission.READ_SETTINGS",
+          "com.anddoes.launcher.permission.WRITE_SETTINGS",
+          "com.android.launcher.permission.INSTALL_SHORTCUT",
+          "com.android.launcher.permission.READ_SETTINGS",
+          "com.android.launcher.permission.UNINSTALL_SHORTCUT",
+          "com.android.launcher.permission.WRITE_SETTINGS",
+          "com.android.launcher2.permission.READ_SETTINGS",
+          "com.android.launcher2.permission.WRITE_SETTINGS",
+          "com.android.launcher3.permission.READ_SETTINGS",
+          "com.android.launcher3.permission.WRITE_SETTINGS",
+          "com.android.mylauncher.permission.READ_SETTINGS",
+          "com.android.mylauncher.permission.WRITE_SETTINGS",
+          "com.bbk.launcher2.permission.JUMP_ORIGIN",
+          "com.bbk.launcher2.permission.READ_SETTINGS",
+          "com.bbk.launcher2.permission.UNINSTALL_SHORTCUT",
+          "com.bbk.launcher2.permission.WRITE_SETTINGS",
+          "com.coloros.mcs.permission.RECIEVE_MCS_MESSAGE",
+          "com.ebproductions.android.launcher.permission.READ_SETTINGS",
+          "com.ebproductions.android.launcher.permission.WRITE_SETTINGS",
+          "com.fede.launcher.permission.READ_SETTINGS",
+          "com.fede.launcher.permission.WRITE_SETTINGS",
+          "com.google.android.apps.nexuslauncher.permission.READ_SETTINGS",
+          "com.google.android.apps.nexuslauncher.permission.WRITE_SETTINGS",
+          "com.heytap.mcs.permission.RECIEVE_MCS_MESSAGE",
+          "com.hihonor.android.launcher.permission.CHANGE_BADGE",
+          "com.hihonor.brain.permission.KIT_SERVICE_ACCESS",
+          "com.hihonor.onetouchshare.permission.BIND_ONETOUCHSHARE_SERVICE",
+          "com.hihonor.push.permission.READ_PUSH_NOTIFICATION_INFO",
+          "com.hihonor.security.permission.ACCESS_THREAT_DETECTION",
+          "com.htc.launcher.permission.READ_SETTINGS",
+          "com.htc.launcher.permission.WRITE_SETTINGS",
+          "com.huawei.android.launcher.permission.CHANGE_BADGE",
+          "com.huawei.android.launcher.permission.READ_SETTINGS",
+          "com.huawei.android.launcher.permission.UNINSTALL_SHORTCUT",
+          "com.huawei.android.launcher.permission.WRITE_SETTINGS",
+          "com.huawei.appmarket.service.commondata.permission.GET_COMMON_DATA",
+          "com.huawei.launcher2.permission.READ_SETTINGS",
+          "com.huawei.launcher2.permission.WRITE_SETTINGS",
+          "com.huawei.launcher3.permission.READ_SETTINGS",
+          "com.huawei.launcher3.permission.WRITE_SETTINGS",
+          "com.lenovo.launcher.permission.READ_SETTINGS",
+          "com.lenovo.launcher.permission.WRITE_SETTINGS",
+          "com.lge.launcher.permission.READ_SETTINGS",
+          "com.lge.launcher.permission.WRITE_SETTINGS",
+          "com.meituan.android.privacy.interfaces.PermissionGuard#PERMISSION_BLUETOOTH",
+          "com.meituan.android.privacy.interfaces.PermissionGuard#PERMISSION_BLUETOOTH_ADMIN",
+          "com.meizu.c2dm.permission.RECEIVE",
+          "com.meizu.flyme.launcher.permission.READ_SETTINGS",
+          "com.meizu.flyme.launcher.permission.UNINSTALL_SHORTCUT",
+          "com.meizu.flyme.launcher.permission.WRITE_SETTINGS",
+          "com.meizu.flyme.permission.PUSH",
+          "com.meizu.flyme.push.permission.RECEIVE",
+          "com.miui.home.launcher.permission.INSTALL_WIDGET",
+          "com.miui.home.launcher.permission.UNINSTALL_SHORTCUT",
+          "com.miui.home.permission.READ_SETTINGS",
+          "com.miui.home.permission.WRITE_SETTINGS",
+          "com.miui.mihome2.permission.READ_SETTINGS",
+          "com.miui.mihome2.permission.WRITE_SETTINGS",
+          "com.oplus.flashback.permission.FLASH_VIEWS_SERVICE",
+          "com.oplus.metis.factdata.permission.DATABASE",
+          "com.oplus.ocs.permission.third",
+          "com.oppo.launcher.permission.READ_SETTINGS",
+          "com.oppo.launcher.permission.UNINSTALL_SHORTCUT",
+          "com.oppo.launcher.permission.WRITE_SETTINGS",
+          "com.qihoo360.launcher.permission.READ_SETTINGS",
+          "com.qihoo360.launcher.permission.WRITE_SETTINGS",
+          "com.samsung.android.launcher.permission.READ_SETTINGS",
+          "com.samsung.android.launcher.permission.WRITE_SETTINGS",
+          "com.sankuai.common.PERMISSION",
+          "com.sankuai.meituan.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+          "com.sankuai.meituan.permission.C2D_MESSAGE",
+          "com.sankuai.meituan.permission.MIPUSH_RECEIVE",
+          "com.sankuai.meituan.permission.PROCESS_PUSH_MSG",
+          "com.sankuai.meituan.permission.PUSH_PROVIDER",
+          "com.sankuai.meituan.ptcommonim.permission.VIDEO_CONTAINER",
+          "com.sankuai.meituan.push.permission.MESSAGE",
+          "com.sec.android.app.launcher.permission.READ_SETTINGS",
+          "com.sec.android.app.launcher.permission.WRITE_SETTINGS",
+          "com.sec.android.app.twlauncher.settings.READ_SETTINGS",
+          "com.sec.android.app.twlauncher.settings.WRITE_SETTINGS",
+          "com.tencent.qqlauncher.permission.READ_SETTINGS",
+          "com.tencent.qqlauncher.permission.WRITE_SETTINGS",
+          "com.vivo.notification.permission.BADGE_ICON",
+          "com.xiaomi.security.permission.ACCESS_XSOF",
+          "dianxin.permission.ACCESS_LAUNCHER_DATA",
+          "intelligent.permission.SHARE_INTENT",
+          "net.oneplus.launcher.permission.READ_SETTINGS",
+          "net.oneplus.launcher.permission.WRITE_SETTINGS",
+          "net.qihoo.launcher.permission.READ_SETTINGS",
+          "net.qihoo.launcher.permission.WRITE_SETTINGS",
+          "org.adw.launcher.permission.READ_SETTINGS",
+          "org.adw.launcher.permission.WRITE_SETTINGS",
+          "org.adw.launcher_donut.permission.READ_SETTINGS",
+          "org.adw.launcher_donut.permission.WRITE_SETTINGS",
+          "org.adwfreak.launcher.permission.READ_SETTINGS",
+          "org.adwfreak.launcher.permission.WRITE_SETTINGS",
+          "telecom.mdesk.permission.READ_SETTINGS",
+          "telecom.mdesk.permission.WRITE_SETTINGS"
+        ],
+        "dexPackageAnalysis": {
+          "status": "NOT_COMPLETED_OUTPUT_OVER_LIMIT",
+          "reason": "The Android SDK package listing exceeded the bounded collector; no tracker absence is inferred."
+        }
+      },
+      "exodusPrivacySignatureBaseline": {
+        "mode": "NOT_COMPLETED",
+        "matches": [],
+        "caveat": "No tracker result was produced because the bounded Android SDK DEX listing did not complete."
+      },
+      "privacyLensFormalPolicy": {
+        "suppliedPredicates": [
+          "MANIFEST_CAMERA",
+          "MANIFEST_CONTACTS",
+          "MANIFEST_LOCATION",
+          "MANIFEST_MICROPHONE"
+        ],
+        "prompts": [
+          {
+            "constraintId": "LOCATION_ACCOUNTABILITY_CONTEXT",
+            "legalReferences": [
+              "GDPR Art. 5(1)(a)",
+              "GDPR Art. 5(1)(c)",
+              "GDPR Art. 6",
+              "GDPR Arts. 13-14"
+            ],
+            "missingEvidence": [
+              "PROCESSING_PURPOSE",
+              "LAWFUL_BASIS",
+              "TRANSPARENCY_NOTICE",
+              "MINIMISATION_ASSESSMENT",
+              "RETENTION_JUSTIFICATION"
+            ],
+            "outcome": "REVIEW_REQUIRED_NOT_A_VIOLATION"
+          }
+        ],
+        "caveat": "Static APK evidence cannot establish processing, legal applicability, GDPR compliance, or a legal violation."
+      }
+    },
+    {
+      "packageName": "com.microsoft.emmx",
+      "apk": {
+        "sha256": "21643dc42f3ad83be7d758de4de82e28da2a3eaaa24adb983e63a70ae4e09453",
+        "byteLength": 262480887,
+        "retainedInGit": false
+      },
+      "androidSdkApkAnalyzer": {
+        "permissions": [
+          "android.permission.ACCESS_COARSE_LOCATION",
+          "android.permission.ACCESS_FINE_LOCATION",
+          "android.permission.ACCESS_NETWORK_STATE",
+          "android.permission.ACCESS_WIFI_STATE",
+          "android.permission.AUTHENTICATE_ACCOUNTS",
+          "android.permission.CAMERA",
+          "android.permission.CAPTURE_KEYBOARD",
+          "android.permission.CREDENTIAL_MANAGER_QUERY_CANDIDATE_CREDENTIALS",
+          "android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS",
+          "android.permission.CREDENTIAL_MANAGER_SET_ORIGIN",
+          "android.permission.DETECT_SCREEN_CAPTURE",
+          "android.permission.DOWNLOAD_WITHOUT_NOTIFICATION",
+          "android.permission.FLASHLIGHT",
+          "android.permission.FOREGROUND_SERVICE",
+          "android.permission.FOREGROUND_SERVICE_CAMERA",
+          "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+          "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+          "android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION",
+          "android.permission.FOREGROUND_SERVICE_MICROPHONE",
+          "android.permission.GET_ACCOUNTS",
+          "android.permission.HIGH_SAMPLING_RATE_SENSORS",
+          "android.permission.INTERNET",
+          "android.permission.MANAGE_ACCOUNTS",
+          "android.permission.MODIFY_AUDIO_SETTINGS",
+          "android.permission.NFC",
+          "android.permission.POST_NOTIFICATIONS",
+          "android.permission.QUERY_ADVANCED_PROTECTION_MODE",
+          "android.permission.QUERY_ALL_PACKAGES",
+          "android.permission.READ_EXTERNAL_STORAGE",
+          "android.permission.RECEIVE_BOOT_COMPLETED",
+          "android.permission.RECORD_AUDIO",
+          "android.permission.REPOSITION_SELF_WINDOWS",
+          "android.permission.RUN_USER_INITIATED_JOBS",
+          "android.permission.USE_BIOMETRIC",
+          "android.permission.USE_CREDENTIALS",
+          "android.permission.USE_FINGERPRINT",
+          "android.permission.USE_LOOPBACK_INTERFACE",
+          "android.permission.USE_PINNED_WINDOWING_LAYER",
+          "android.permission.VIBRATE",
+          "android.permission.WAKE_LOCK",
+          "android.permission.WRITE_EXTERNAL_STORAGE' maxSdkVersion='29",
+          "com.android.alarm.permission.SET_ALARM",
+          "com.android.launcher.permission.INSTALL_SHORTCUT",
+          "com.android.vending.BILLING",
+          "com.asus.msa.SupplementaryDID.ACCESS",
+          "com.chrome.permission.DEVICE_EXTRAS",
+          "com.google.android.apps.aicore.service.BIND_SERVICE",
+          "com.google.android.apps.now.CURRENT_ACCOUNT_ACCESS",
+          "com.google.android.c2dm.permission.RECEIVE",
+          "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
+          "com.google.android.gms.permission.AD_ID",
+          "com.google.android.providers.gsf.permission.READ_GSERVICES",
+          "com.microsoft.emmx.TOS_ACKED",
+          "com.microsoft.emmx.permission.C2D_MESSAGE",
+          "com.microsoft.emmx.permission.MIPUSH_RECEIVE",
+          "com.microsoft.emmx.permission.PROCESS_PUSH_MSG",
+          "com.microsoft.emmx.permission.PUSH_PROVIDER",
+          "com.microsoft.emmx.permission.READ_WRITE_BOOKMARK_FOLDERS",
+          "com.orange.update.permission.READ_ATTRIBUTION",
+          "freemme.permission.msa"
+        ],
+        "dexPackageAnalysis": {
+          "status": "COMPLETED",
+          "listingSha256": "c6fbf75ea971a76dc776a0aa2dc0fbad85ceef0530ec79e1d2b866098ff1425a"
+        }
+      },
+      "exodusPrivacySignatureBaseline": {
+        "mode": "OFFLINE_CURATED_SUBSET",
+        "matches": [
+          "Adjust"
+        ],
+        "caveat": "A code-signature match indicates embedded code only; it does not prove tracker execution or data transfer."
+      },
+      "privacyLensFormalPolicy": {
+        "suppliedPredicates": [
+          "MANIFEST_CAMERA",
+          "MANIFEST_LOCATION",
+          "MANIFEST_MICROPHONE",
+          "TRACKER_SIGNATURE"
+        ],
+        "prompts": [
+          {
+            "constraintId": "LOCATION_ACCOUNTABILITY_CONTEXT",
+            "legalReferences": [
+              "GDPR Art. 5(1)(a)",
+              "GDPR Art. 5(1)(c)",
+              "GDPR Art. 6",
+              "GDPR Arts. 13-14"
+            ],
+            "missingEvidence": [
+              "PROCESSING_PURPOSE",
+              "LAWFUL_BASIS",
+              "TRANSPARENCY_NOTICE",
+              "MINIMISATION_ASSESSMENT",
+              "RETENTION_JUSTIFICATION"
+            ],
+            "outcome": "REVIEW_REQUIRED_NOT_A_VIOLATION"
+          },
+          {
+            "constraintId": "TRACKER_TRANSPARENCY_CONTEXT",
+            "legalReferences": [
+              "GDPR Art. 5(1)(a)-(b)",
+              "GDPR Art. 6",
+              "GDPR Arts. 13-14"
+            ],
+            "missingEvidence": [
+              "PROCESSING_PURPOSE",
+              "LAWFUL_BASIS",
+              "TRANSPARENCY_NOTICE",
+              "RETENTION_JUSTIFICATION"
+            ],
+            "outcome": "REVIEW_REQUIRED_NOT_A_VIOLATION"
+          }
+        ],
+        "caveat": "Static APK evidence cannot establish processing, legal applicability, GDPR compliance, or a legal violation."
+      }
+    },
+    {
+      "packageName": "cn.wps.moffice.lite",
+      "apk": {
+        "sha256": "526403d2b975db6e57e287ee22eb2baeee7792b984b190c588fed56b78d22582",
+        "byteLength": 15773550,
+        "retainedInGit": false
+      },
+      "androidSdkApkAnalyzer": {
+        "permissions": [
+          "android.permission.ACCESS_NETWORK_STATE",
+          "android.permission.ACCESS_WIFI_STATE",
+          "android.permission.INTERNET",
+          "android.permission.MANAGE_EXTERNAL_STORAGE",
+          "android.permission.MODIFY_AUDIO_SETTINGS",
+          "android.permission.READ_EXTERNAL_STORAGE",
+          "android.permission.READ_PHONE_STATE",
+          "android.permission.SYSTEM_ALERT_WINDOW",
+          "android.permission.WRITE_EXTERNAL_STORAGE",
+          "com.android.email.permission.READ_ATTACHMENT",
+          "com.oppo.permission.safe.SAU"
+        ],
+        "dexPackageAnalysis": {
+          "status": "COMPLETED",
+          "listingSha256": "3ddae8e7f0cdaf63ecc0382210f23ea3dbe16c8330a8081922ddef8c86d12c4b"
+        }
+      },
+      "exodusPrivacySignatureBaseline": {
+        "mode": "OFFLINE_CURATED_SUBSET",
+        "matches": [],
+        "caveat": "A code-signature match indicates embedded code only; it does not prove tracker execution or data transfer."
+      },
+      "privacyLensFormalPolicy": {
+        "suppliedPredicates": [],
+        "prompts": [],
+        "caveat": "Static APK evidence cannot establish processing, legal applicability, GDPR compliance, or a legal violation."
+      }
+    }
+  ],
+  "failures": []
+}

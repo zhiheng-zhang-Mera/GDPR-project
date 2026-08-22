@@ -283,6 +283,41 @@ export interface RegulationTemporalProfile {
   notificationPriority: 'STANDARD' | 'URGENT';
 }
 
+/**
+ * A portable, auditable predicate vocabulary.  A predicate is evidence about
+ * an app or processing context, never a conclusion that a law was breached.
+ */
+export type FormalEvidencePredicate =
+  | 'MANIFEST_LOCATION'
+  | 'MANIFEST_MICROPHONE'
+  | 'MANIFEST_CONTACTS'
+  | 'MANIFEST_CAMERA'
+  | 'MANIFEST_BODY_SENSORS'
+  | 'TRACKER_SIGNATURE'
+  | 'NETWORK_DESTINATION'
+  | 'OBSERVED_LOCATION'
+  | 'OBSERVED_BODY_SENSORS'
+  | 'OBSERVED_MICROPHONE'
+  | 'PROCESSING_PURPOSE'
+  | 'LAWFUL_BASIS'
+  | 'TRANSPARENCY_NOTICE'
+  | 'MINIMISATION_ASSESSMENT'
+  | 'RETENTION_JUSTIFICATION'
+  | 'ARTICLE_9_CONDITION'
+  | 'DPIA_SCREENING';
+
+export interface FormalPolicyConstraint {
+  id: string;
+  title: string;
+  legalReferences: readonly string[];
+  /** All of these observed capabilities/context facts activate the review. */
+  whenAll: readonly FormalEvidencePredicate[];
+  /** Evidence that must be supplied before a reassuring result is possible. */
+  requiresAll: readonly FormalEvidencePredicate[];
+  rationale: string;
+  outcome: 'REVIEW_REQUIRED';
+}
+
 export interface RegulationPack {
   id: RegulationId;
   name: string;
@@ -296,6 +331,8 @@ export interface RegulationPack {
   governance: PackGovernance;
   rules: Record<SensitivePermission, ComplianceRule>;
   temporalProfiles: readonly RegulationTemporalProfile[];
+  /** Data-only formal constraints compiled before a pack is mounted. */
+  formalPolicyConstraints: readonly FormalPolicyConstraint[];
   principles: string[];
   legalCaveat: string;
   findMissingEvidence: (audit: PermissionAudit) => string[];

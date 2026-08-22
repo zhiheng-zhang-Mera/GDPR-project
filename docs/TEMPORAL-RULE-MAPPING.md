@@ -12,6 +12,14 @@ Privacy Lens 1.15 adds an advisory, order-agnostic temporal detector. It does no
 
 Switching from `EU_GDPR` to another installed pack replaces the temporal mapping for new reviews. Existing stored findings retain the regulation and pack version that produced them.
 
+## Loadable formal policy constraints
+
+Temporal profiles are one policy family. Each `RegulationPack` also owns `formalPolicyConstraints`: declarative `whenAll` predicates, the contextual `requiresAll` evidence that a reviewer must obtain, legal references, rationale, and the only permitted outcome, `REVIEW_REQUIRED`. `src/regulations/formalPolicy.ts` validates and compiles this model before a pack is mounted, independently of Android acquisition or the screen layer.
+
+The portable predicate vocabulary deliberately separates static facts (`MANIFEST_LOCATION`, `TRACKER_SIGNATURE`), observed time-scoped facts (`OBSERVED_LOCATION`, `OBSERVED_BODY_SENSORS`), and missing contextual facts (`LAWFUL_BASIS`, `TRANSPARENCY_NOTICE`, `DPIA_SCREENING`). A static match opens an evidence request. It cannot establish execution, a data transfer, applicability of a legal regime, GDPR compliance, or an infringement. Invalid identifiers, predicates, references, and outcomes fail closed.
+
+This split lets a batch runner, a controlled Android fixture, or a future authorised connector load the same law-owned constraint model without placing GDPR-specific logic in a generic evaluator. A non-legal research pack carries a different declarative constraint to verify that substitution boundary.
+
 ## Adding a mapping
 
 Add a profile to the relevant regulation pack rather than editing the detector. A profile must have a stable uppercase ID, a positive rule-owned window of at most 30 days, one or more unique supported observation requirements with positive counts, and reviewed non-empty references and rationale. Increment the pack version and complete the existing source/legal governance process when the legal mapping changes.

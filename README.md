@@ -2,7 +2,7 @@
 
 > Evidence before conclusions · 证据先于结论
 
-[English](#english) · [中文](#中文) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Temporal rule cards](docs/rule-cards.md) · [Final thesis source / 最终论文源](Thesis/Iteration-V4/main.tex)
+[English](#english) · [中文](#中文) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Temporal rule cards](docs/rule-cards.md) · [Formal policy mapping](docs/TEMPORAL-RULE-MAPPING.md) · [Commercial APK baseline method](docs/COMMERCIAL-APK-BASELINE-METHOD.md) · [Commercial batch results](commercial-app-batch/2026-08-22T04-43-10-052Z/README.md) · [Final thesis source / 最终论文源](Thesis/Iteration-V4/main.tex)
 
 ## English
 
@@ -22,6 +22,8 @@ Version 1.15.0 is the current repository delivery candidate:
 - a minimal local temporal ledger that restores only same-pack, same-version, in-window, de-duplicated observations and fails closed on invalid state;
 - five GDPR temporal rule cards with assumptions, counterexamples, sources, and explicit non-assurance review status;
 - a separate regulation-to-temporal-rule mapping compiler, so mounting another valid pack changes the detection configuration without hard-coding GDPR combinations in the evaluator;
+- a loadable, validated formal-policy model whose legal constraints request missing evidence rather than infer a legal violation from static or observed predicates;
+- a read-only commercial-APK comparison with Android SDK static analysis and a bounded Exodus-signature-method baseline; results preserve hashes and limitations but never APK binaries;
 - deterministic compliance, governance, accessibility-source, privacy-release, TypeScript, lint, and delivery checks;
 - physical-device evidence from one OPPO PERM00 handset, clearly bounded to a short acceptance sample.
 
@@ -56,7 +58,7 @@ Prerequisites: Node.js 20+, npm, Java 21, Android SDK 36, and an Expo 54-compati
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
-git switch 8-20
+git switch 8-22
 npm ci
 npm run verify
 npm start
@@ -114,6 +116,8 @@ Privacy Lens 是一款离线运行、证据优先的 Android 隐私审查研究�
 - 决策暂停答案仅存在于当前打开的卡片中，关闭卡片即清除；
 - 法规包分别声明检测窗口与无序传感器/数据组合，结果仅作提示且不拦截 App；
 - 法规包与通用时间组合评估器之间采用独立转换模块，切换有效法规包即可切换检测配置，而不在评估器中写死 GDPR 组合；
+- 可加载且经过校验的形式化策略模型将法律约束表达为“需要补充的证据”，不会从静态或观测谓词直接推断法律违规；
+- 使用 Android SDK 静态分析和有界 Exodus 签名方法对商业 APK 进行只读横向比较；结果仅保留哈希与限制，不保存 APK 二进制；
 - 具备确定性合规、治理、无障碍源代码、发布隐私、TypeScript、Lint 和交付结构检查；
 - 实体设备证据来自一台 OPPO PERM00，仅证明短时验收样本中的观察结果。
 
@@ -126,7 +130,7 @@ Privacy Lens 是一款离线运行、证据优先的 Android 隐私审查研究�
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
-git switch 8-20
+git switch 8-22
 npm ci
 npm run verify
 npm start

@@ -52,6 +52,8 @@ yarn-error.*
 .gradle-real-device/
 .pnpm-store/
 .codex-tmp/
+.codex-tools/
+commercial-app-batch/*/apks/
 tmp/pdfs/
 tmp/
 node_modules.pnpm-backup/

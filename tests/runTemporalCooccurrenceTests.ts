@@ -5,6 +5,7 @@ import { getRegulationPack } from '../src/regulations/registry';
 import { compileTemporalRuleMapping, validateTemporalRuleMapping } from '../src/regulations/temporalRuleMapping';
 import { RegulationPack } from '../src/regulations/types';
 import { createControlledTemporalFixture } from '../src/compliance/ControlledTemporalFixture';
+import { compileFormalPolicyModel, evaluateFormalPolicy, validateFormalPolicyConstraints } from '../src/regulations/formalPolicy';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -17,6 +18,13 @@ function permutations<T>(values: T[]): T[][] {
 
 const gdpr = getRegulationPack('EU_GDPR');
 const gdprRules = compileTemporalRuleMapping(gdpr);
+const gdprFormalModel = compileFormalPolicyModel(gdpr);
+const staticLocationReview = evaluateFormalPolicy(gdprFormalModel, new Set(['MANIFEST_LOCATION']));
+assert(staticLocationReview.length === 1 && staticLocationReview[0].constraintId === 'LOCATION_ACCOUNTABILITY_CONTEXT', 'A loadable GDPR policy model must activate from a static location capability.');
+assert(staticLocationReview[0].missingEvidence.includes('LAWFUL_BASIS'), 'Static capability evidence must request, not invent, a lawful basis.');
+assert(staticLocationReview[0].outcome === 'REVIEW_REQUIRED', 'The formal policy layer must remain advisory.');
+assert(evaluateFormalPolicy(gdprFormalModel, new Set(['MANIFEST_CAMERA'])).length === 0, 'A non-matching capability must not create a reassuring or adverse legal result.');
+assert(validateFormalPolicyConstraints([{ ...gdpr.formalPolicyConstraints[0], id: 'bad' }]).some((error) => error.includes('stable identifier')), 'Malformed formal constraints must fail closed.');
 const biometricRule = gdprRules.find(({ id }) => id === 'MULTIMODAL_BIOMETRIC_CAPTURE');
 assert(biometricRule, 'GDPR biometric temporal mapping must compile.');
 const evaluatedAt = Date.now() - 1_000;
@@ -73,6 +81,7 @@ assert(invalidErrors.some((error) => error.includes('windowMs')), 'Invalid windo
 assert(invalidErrors.some((error) => error.includes('minCount')), 'Invalid occurrence thresholds must fail closed.');
 
 const engine = new RulePackComplianceEngine(gdpr, '2026-08-20');
+assert(engine.evaluateFormalEvidence(new Set(['MANIFEST_LOCATION'])).some(({ constraintId }) => constraintId === 'LOCATION_ACCOUNTABILITY_CONTEXT'), 'The mounted app engine must expose the active pack formal model.');
 let finding;
 const integrationTypes = ['BODY_SENSORS', 'CAMERA', 'MICROPHONE'] as const satisfies readonly PrivacyObservation['type'][];
 for (let index = 0; index < integrationTypes.length; index += 1) {

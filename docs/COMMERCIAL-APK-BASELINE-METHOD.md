@@ -1,0 +1,9 @@
+# Commercial Android APK baseline method
+
+`scripts/run-commercial-app-batch.js` performs a read-only static experiment over explicitly named, already-installed third-party applications. It uses ADB only to obtain each application's base APK, does not launch, modify, upload, redistribute, or retain an APK in Git, and writes committed result metadata below `commercial-app-batch/`. The retained metadata contains only a SHA-256, byte length, static summaries, and method status.
+
+The Android SDK `apkanalyzer` baseline extracts manifest permissions and a bounded DEX package listing. The privacy baseline follows Exodus Privacy's published code-signature approach with a deliberately small offline signature subset. A completed signature match means that code matching a signature was embedded; it does not demonstrate runtime use, a network transfer, data collection, a tracker report from Exodus, or a legal outcome. If the bounded DEX listing exceeds the collector limit, the tracker baseline is recorded as `NOT_COMPLETED_OUTPUT_OVER_LIMIT`; the experiment never rewrites that condition as an empty result.
+
+Privacy Lens receives only derived predicates. The GDPR formal model can turn a static location capability or a tracker signature into an explicit list of context that is missing for review. Its output is always `REVIEW_REQUIRED_NOT_A_VIOLATION`. It cannot infer processing purpose, controller identity, lawful basis, transparency, minimisation, retention, special-category condition, DPIA screening, or user expectation from an APK.
+
+The current experiment is an engineering comparison, not a commercial-app compliance study. It is limited to the installed versions, base splits, Android SDK tool version, curated tracker signatures, bounded DEX output, and date recorded in `results.json`. It should not be generalised to all versions, all splits, actual runtime behaviour, every tracker, GDPR applicability, or legal compliance.
