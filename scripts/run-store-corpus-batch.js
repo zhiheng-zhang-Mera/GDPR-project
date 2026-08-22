@@ -10,11 +10,12 @@ const arg = (flag) => { const i = args.indexOf(flag); return i < 0 ? undefined :
 const catalogPath = arg('--catalog');
 const serial = arg('--serial');
 const execute = args.includes('--execute') && args.includes('--allow-device-installs');
+const resetBatteryStats = args.includes('--reset-batterystats');
 const maxSuccessesArg = arg('--max-successes');
 const maxSuccesses = maxSuccessesArg === undefined ? Infinity : Number(maxSuccessesArg);
 const outputDir = arg('--output-dir') || path.join(root, 'commercial-app-batch', `store-corpus-${new Date().toISOString().replace(/[:.]/g, '-')}`);
 const oemInstaller = path.join(root, 'scripts', 'install-authorized-apk-with-oem-confirmation.js');
-if (!catalogPath || !serial || !(maxSuccesses === Infinity || (Number.isInteger(maxSuccesses) && maxSuccesses > 0))) throw new Error('Usage: node scripts/run-store-corpus-batch.js --catalog <100-to-500-app.json> --serial <adb-serial> [--execute --allow-device-installs] [--max-successes positive-integer] [--output-dir <dir>]');
+if (!catalogPath || !serial || !(maxSuccesses === Infinity || (Number.isInteger(maxSuccesses) && maxSuccesses > 0))) throw new Error('Usage: node scripts/run-store-corpus-batch.js --catalog <100-to-500-app.json> --serial <adb-serial> [--execute --allow-device-installs] [--reset-batterystats] [--max-successes positive-integer] [--output-dir <dir>]');
 const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const settle = (milliseconds) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
@@ -53,7 +54,9 @@ function snapshot(packageName) {
   // A freshly installed APK often has no process until its launch activity is
   // started. Treat this as a valid zero-process snapshot, not an ADB failure.
   const pids = adb(['shell', 'sh', '-c', `pidof ${packageName} || true`]).split(/\s+/).filter(Boolean);
-  const mem = pids.length ? adb(['shell', 'dumpsys', 'meminfo', pids[0]]) : '';
+  // The package-scoped fallback still yields a useful PSS observation for an
+  // app whose launcher quickly hands work to another process.
+  const mem = pids.length ? adb(['shell', 'dumpsys', 'meminfo', pids[0]]) : adb(['shell', 'dumpsys', 'meminfo', packageName]);
   const pssMatch = mem.match(/TOTAL\s+PSS:\s*([\d,]+)/i);
   const pss = pssMatch ? Number(pssMatch[1].replace(/,/g, '')) : undefined;
   const battery = adb(['shell', 'dumpsys', 'batterystats', packageName]);
@@ -70,12 +73,14 @@ function observedRuntimePermissionPrompt(packageName, displayName) {
 }
 validateCatalog(catalog);
 fs.mkdirSync(outputDir, { recursive: true });
-const report = { schema: 'privacy-lens.android-store-corpus-run.v1', corpusId: catalog.corpusId, corpusKind: catalog.corpusKind ?? 'APP_STORE_COMMERCIAL', generatedAt: new Date().toISOString(), execution: execute ? 'AUTHORISED_DEVICE_RUN' : 'VALIDATION_ONLY', plannedApps: catalog.apps.length, maxSuccesses: Number.isFinite(maxSuccesses) ? maxSuccesses : null, results: [], failures: [] };
+const report = { schema: 'privacy-lens.android-store-corpus-run.v1', corpusId: catalog.corpusId, corpusKind: catalog.corpusKind ?? 'APP_STORE_COMMERCIAL', generatedAt: new Date().toISOString(), execution: execute ? 'AUTHORISED_DEVICE_RUN' : 'VALIDATION_ONLY', plannedApps: catalog.apps.length, maxSuccesses: Number.isFinite(maxSuccesses) ? maxSuccesses : null, batteryStatsResetPerSample: resetBatteryStats, results: [], failures: [] };
 for (const app of catalog.apps) {
   const item = { id: app.id, displayName: app.displayName, packageName: app.packageName, storeUrl: app.storeUrl, apkSha256: app.apkFiles.map((file) => file.sha256), installAttempted: false, installedByRunner: false, cleanup: 'NOT_STARTED' };
+  const sampleStartedAt = process.hrtime.bigint();
   try {
     if (!execute) { item.cleanup = 'NOT_EXECUTED'; report.results.push(item); continue; }
     if (isInstalled(app.packageName)) { item.preExistingPackage = true; throw new Error('Refusing to replace or uninstall a pre-existing package.'); }
+    if (resetBatteryStats) { adb(['shell', 'dumpsys', 'batterystats', '--reset']); item.batteryStatsReset = 'REQUESTED'; }
     item.installAttempted = true;
     const installerOutput = execFileSync(process.execPath, [oemInstaller, '--serial', serial, '--timeout-ms', '75000', '--apk', ...app.apkFiles.map((file) => file.path)], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 90_000 });
     item.installer = JSON.parse(installerOutput);
@@ -96,6 +101,7 @@ for (const app of catalog.apps) {
     adb(['uninstall', app.packageName]);
     if (isInstalled(app.packageName)) throw new Error('Uninstall verification failed.');
     item.cleanup = 'VERIFIED_REMOVED';
+    item.wallClockElapsedMs = Number(process.hrtime.bigint() - sampleStartedAt) / 1e6;
     report.results.push(item);
     if (report.results.length >= maxSuccesses) {
       report.stopReason = 'MAX_SUCCESSES_REACHED';
@@ -113,6 +119,7 @@ for (const app of catalog.apps) {
     if (runnerPackagePresent) {
       try { adb(['shell', 'am', 'force-stop', app.packageName]); adb(['uninstall', app.packageName]); item.cleanup = isInstalled(app.packageName) ? 'REMOVAL_FAILED' : 'REMOVED_AFTER_FAILURE'; } catch { item.cleanup = 'REMOVAL_FAILED'; }
     }
+    item.wallClockElapsedMs = Number(process.hrtime.bigint() - sampleStartedAt) / 1e6;
     report.failures.push({ ...item, error: error instanceof Error ? error.message : String(error) });
   }
   fs.writeFileSync(path.join(outputDir, 'results.partial.json'), `${JSON.stringify(report, null, 2)}\n`);

@@ -14,6 +14,7 @@ try {
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
   if (!runnerSource.includes('item.installAttempted = true;') || !runnerSource.includes('if (item.installAttempted && !runnerPackagePresent && execute)')) throw new Error('Runner cleanup must be gated on a successful pre-install absence check and an actual install attempt.');
   if (!runnerSource.includes("report.stopReason = 'MAX_SUCCESSES_REACHED';")) throw new Error('Runner must report an explicit bounded-success stop, never silently omit unattempted apps.');
+  if (!runnerSource.includes("['shell', 'dumpsys', 'meminfo', packageName]") || !runnerSource.includes("['shell', 'dumpsys', 'batterystats', '--reset']")) throw new Error('Runner must preserve package-scoped memory fallback and opt-in per-sample battery reset mechanics.');
   const fixtureApk = path.join(temp, 'fixture.apk');
   fs.writeFileSync(fixtureApk, 'fixture-not-an-apk');
   const digest = createHash('sha256').update(fs.readFileSync(fixtureApk)).digest('hex');
@@ -63,10 +64,10 @@ try {
   const summary = JSON.parse(fs.readFileSync(summaryFile, 'utf8'));
   if (summary.tools.privacyLens.confusionMatrix.tp !== 50 || summary.tools.privacyLens.confusionMatrix.fp !== 0 || summary.tools.privacyLens.confusionMatrix.tn !== 50 || summary.tools.privacyLens.confusionMatrix.fn !== 0 || summary.tools.privacyLens.telemetry.estimatedPowerMah.observed !== 0) throw new Error('Evaluation summarisation contract failed.');
   const deviceInput = path.join(temp, 'device.json'); const deviceOutput = path.join(temp, 'device-summary.json');
-  fs.writeFileSync(deviceInput, JSON.stringify({ schema: 'privacy-lens.android-store-corpus-run.v1', corpusId: 'device-fixture', corpusKind: 'ACADEMIC_BENCHMARK', results: [{ cleanup: 'VERIFIED_REMOVED', installer: { oemPrompts: { continueInstall: 1, installerCompleted: 1 } }, afterLaunch: { memoryPssKb: 0 } }], failures: [{ cleanup: 'NOT_STARTED', error: 'Failure [-99]' }] }));
+  fs.writeFileSync(deviceInput, JSON.stringify({ schema: 'privacy-lens.android-store-corpus-run.v1', corpusId: 'device-fixture', corpusKind: 'ACADEMIC_BENCHMARK', results: [{ cleanup: 'VERIFIED_REMOVED', wallClockElapsedMs: 5, batteryStatsReset: 'REQUESTED', installer: { oemPrompts: { continueInstall: 1, installerCompleted: 1 } }, afterLaunch: { memoryPssKb: 0 } }], failures: [{ cleanup: 'NOT_STARTED', error: 'Failure [-99]' }] }));
   execFileSync(process.execPath, [path.join(root, 'scripts/summarize-authorized-device-batch.js'), '--input', deviceInput, '--output', deviceOutput], { stdio: 'pipe' });
   const deviceSummary = JSON.parse(fs.readFileSync(deviceOutput, 'utf8'));
-  if (deviceSummary.completedAndVerifiedRemoved !== 1 || deviceSummary.failuresByCategory.PACKAGE_MANAGER_REJECTED !== 1 || deviceSummary.telemetry.afterLaunchMemoryPssKb.mean !== 0 || deviceSummary.telemetry.afterLaunchEstimatedPowerMah.observed !== 0) throw new Error('Device batch summarisation contract failed.');
+  if (deviceSummary.completedAndVerifiedRemoved !== 1 || deviceSummary.failuresByCategory.PACKAGE_MANAGER_REJECTED !== 1 || deviceSummary.executionOverhead.wallClockElapsedMs.mean !== 5 || deviceSummary.executionOverhead.batteryStatsResetRequested !== 1 || deviceSummary.telemetry.afterLaunchMemoryPssKb.mean !== 0 || deviceSummary.telemetry.afterLaunchEstimatedPowerMah.observed !== 0) throw new Error('Device batch summarisation contract failed.');
   console.log('Experiment contracts passed: 100-entry catalog validates without ADB installation, and labelled metrics preserve missing telemetry.');
 } finally {
   fs.rmSync(temp, { recursive: true, force: true });
