@@ -10,9 +10,11 @@ const arg = (flag) => { const i = args.indexOf(flag); return i < 0 ? undefined :
 const catalogPath = arg('--catalog');
 const serial = arg('--serial');
 const execute = args.includes('--execute') && args.includes('--allow-device-installs');
+const maxSuccessesArg = arg('--max-successes');
+const maxSuccesses = maxSuccessesArg === undefined ? Infinity : Number(maxSuccessesArg);
 const outputDir = arg('--output-dir') || path.join(root, 'commercial-app-batch', `store-corpus-${new Date().toISOString().replace(/[:.]/g, '-')}`);
 const oemInstaller = path.join(root, 'scripts', 'install-authorized-apk-with-oem-confirmation.js');
-if (!catalogPath || !serial) throw new Error('Usage: node scripts/run-store-corpus-batch.js --catalog <100-to-500-app.json> --serial <adb-serial> [--execute --allow-device-installs] [--output-dir <dir>]');
+if (!catalogPath || !serial || !(maxSuccesses === Infinity || (Number.isInteger(maxSuccesses) && maxSuccesses > 0))) throw new Error('Usage: node scripts/run-store-corpus-batch.js --catalog <100-to-500-app.json> --serial <adb-serial> [--execute --allow-device-installs] [--max-successes positive-integer] [--output-dir <dir>]');
 const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const settle = (milliseconds) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
@@ -68,7 +70,7 @@ function observedRuntimePermissionPrompt(packageName, displayName) {
 }
 validateCatalog(catalog);
 fs.mkdirSync(outputDir, { recursive: true });
-const report = { schema: 'privacy-lens.android-store-corpus-run.v1', corpusId: catalog.corpusId, corpusKind: catalog.corpusKind ?? 'APP_STORE_COMMERCIAL', generatedAt: new Date().toISOString(), execution: execute ? 'AUTHORISED_DEVICE_RUN' : 'VALIDATION_ONLY', results: [], failures: [] };
+const report = { schema: 'privacy-lens.android-store-corpus-run.v1', corpusId: catalog.corpusId, corpusKind: catalog.corpusKind ?? 'APP_STORE_COMMERCIAL', generatedAt: new Date().toISOString(), execution: execute ? 'AUTHORISED_DEVICE_RUN' : 'VALIDATION_ONLY', plannedApps: catalog.apps.length, maxSuccesses: Number.isFinite(maxSuccesses) ? maxSuccesses : null, results: [], failures: [] };
 for (const app of catalog.apps) {
   const item = { id: app.id, displayName: app.displayName, packageName: app.packageName, storeUrl: app.storeUrl, apkSha256: app.apkFiles.map((file) => file.sha256), installAttempted: false, installedByRunner: false, cleanup: 'NOT_STARTED' };
   try {
@@ -95,6 +97,11 @@ for (const app of catalog.apps) {
     if (isInstalled(app.packageName)) throw new Error('Uninstall verification failed.');
     item.cleanup = 'VERIFIED_REMOVED';
     report.results.push(item);
+    if (report.results.length >= maxSuccesses) {
+      report.stopReason = 'MAX_SUCCESSES_REACHED';
+      fs.writeFileSync(path.join(outputDir, 'results.partial.json'), `${JSON.stringify(report, null, 2)}\n`);
+      break;
+    }
   } catch (error) {
     // A timed-out installer may still complete after its caller exits. The
     // package was confirmed absent before this attempt, so a present package

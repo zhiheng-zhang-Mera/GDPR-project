@@ -13,6 +13,7 @@ try {
   }
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
   if (!runnerSource.includes('item.installAttempted = true;') || !runnerSource.includes('if (item.installAttempted && !runnerPackagePresent && execute)')) throw new Error('Runner cleanup must be gated on a successful pre-install absence check and an actual install attempt.');
+  if (!runnerSource.includes("report.stopReason = 'MAX_SUCCESSES_REACHED';")) throw new Error('Runner must report an explicit bounded-success stop, never silently omit unattempted apps.');
   const fixtureApk = path.join(temp, 'fixture.apk');
   fs.writeFileSync(fixtureApk, 'fixture-not-an-apk');
   const digest = createHash('sha256').update(fs.readFileSync(fixtureApk)).digest('hex');
