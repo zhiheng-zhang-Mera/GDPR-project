@@ -327,7 +327,7 @@ export type InformationCategory =
   | 'BODY_SENSORS'
   | 'DEVICE_IDENTIFIER';
 
-export type InformationSink = 'NETWORK' | 'IPC' | 'FILE' | 'LOG';
+export type InformationSink = 'NETWORK' | 'SMS' | 'IPC' | 'FILE' | 'LOG';
 
 export interface InformationFlowPolicyConstraint {
   id: string;

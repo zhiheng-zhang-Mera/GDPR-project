@@ -8,7 +8,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'privacy-lens-corpus-'));
 try {
-  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
+  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/convert-flowdroid-results-to-information-flow.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
@@ -94,6 +94,11 @@ try {
   execFileSync(process.execPath, [path.join(root, 'scripts/summarize-droidbench-flowdroid.js'), '--input', droidbenchInput, '--output', droidbenchOutput], { stdio: 'pipe' });
   const droidbenchSummary = JSON.parse(fs.readFileSync(droidbenchOutput, 'utf8'));
   if (droidbenchSummary.evaluation.evaluatedCases !== 3 || droidbenchSummary.evaluation.unresolvedCases !== 1 || droidbenchSummary.evaluation.confusionMatrix.tp !== 1 || droidbenchSummary.evaluation.confusionMatrix.fp !== 1 || droidbenchSummary.evaluation.confusionMatrix.tn !== 1 || droidbenchSummary.evaluation.confusionMatrix.fn !== 0 || droidbenchSummary.evaluation.precision !== 0.5) throw new Error('DroidBench baseline scoring contract failed.');
+  const flowXml = path.join(temp, 'flowdroid.xml'); const typedFlow = path.join(temp, 'typed-flow.json');
+  fs.writeFileSync(flowXml, '<?xml version="1.0"?><DataFlowResults><Results><Result><Sink MethodSourceSinkDefinition="&lt;android.telephony.SmsManager: void sendTextMessage()&gt;"/><Sources><Source MethodSourceSinkDefinition="&lt;android.telephony.TelephonyManager: java.lang.String getDeviceId()&gt;"/></Sources></Result><Result><Sink MethodSourceSinkDefinition="&lt;android.util.Log: int i()&gt;"/><Sources><Source MethodSourceSinkDefinition="&lt;android.telephony.TelephonyManager: java.lang.String getLine1Number()&gt;"/></Sources></Result></Results></DataFlowResults>');
+  execFileSync(process.execPath, [path.join(root, 'scripts/convert-flowdroid-results-to-information-flow.js'), '--input', flowXml, '--output', typedFlow], { stdio: 'pipe' });
+  const typed = JSON.parse(fs.readFileSync(typedFlow, 'utf8'));
+  if (typed.nodes.length !== 4 || typed.edges.length !== 2 || typed.nodes[1].sink !== 'SMS' || typed.nodes[3].sink !== 'LOG' || typed.unmappedResults.length !== 0) throw new Error('FlowDroid typed-flow conversion contract failed.');
   console.log('Experiment contracts passed: 100-entry catalog validates without ADB installation, and labelled metrics preserve missing telemetry.');
 } finally {
   fs.rmSync(temp, { recursive: true, force: true });

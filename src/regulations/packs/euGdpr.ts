@@ -212,12 +212,12 @@ export const EU_GDPR_PACK: RegulationPack = {
   informationFlowPolicyConstraints: [
     {
       id: 'SENSITIVE_DATA_TO_NETWORK_REVIEW',
-      title: 'Sensitive Android data reaching a network sink',
+      title: 'Sensitive Android data reaching an external-transfer sink',
       sources: ['LOCATION', 'MICROPHONE', 'CONTACTS', 'CAMERA', 'BODY_SENSORS', 'DEVICE_IDENTIFIER'],
-      sinks: ['NETWORK'],
+      sinks: ['NETWORK', 'SMS'],
       legalReferences: ['GDPR Art. 5(1)(a)-(c)', 'GDPR Art. 6', 'GDPR Arts. 13-14', 'GDPR Art. 25'],
       requiresAll: ['PROCESSING_PURPOSE', 'LAWFUL_BASIS', 'TRANSPARENCY_NOTICE', 'MINIMISATION_ASSESSMENT', 'RETENTION_JUSTIFICATION'],
-      rationale: 'A typed source-to-network reachability result can support an accountability review, but cannot establish the purpose, recipient, transfer, or legality of processing.',
+      rationale: 'A typed source-to-network or SMS reachability result can support an accountability review, but cannot establish the purpose, recipient, transfer, or legality of processing.',
       outcome: 'REVIEW_REQUIRED',
     },
     {

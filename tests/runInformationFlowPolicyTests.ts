@@ -45,6 +45,20 @@ const multiProcessGraph: InformationFlowGraph = {
 const multiProcess = engine.evaluateInformationFlow(multiProcessGraph);
 assert(multiProcess.some(({ crossesProcessBoundary }) => crossesProcessBoundary), 'Binder/worker paths must retain a cross-process boundary.');
 
+// Tool adapters keep SMS distinct from IP/network transport. A potential
+// source-to-SMS result can enter the loaded GDPR policy as an advisory review,
+// without asserting that a transfer actually executed or was unlawful.
+const smsGraph: InformationFlowGraph = {
+  evidenceKind: 'STATIC_ANALYSIS',
+  nodes: [
+    { id: 'flow_0_source', processId: 'UNKNOWN_STATIC_PROCESS', source: 'DEVICE_IDENTIFIER' },
+    { id: 'flow_0_sink', processId: 'UNKNOWN_STATIC_PROCESS', sink: 'SMS' },
+  ],
+  edges: [{ from: 'flow_0_source', to: 'flow_0_sink', mechanism: 'DIRECT' }],
+};
+const sms = engine.evaluateInformationFlow(smsGraph);
+assert(sms.some(({ constraintId, source, sink, missingEvidence }) => constraintId === 'SENSITIVE_DATA_TO_NETWORK_REVIEW' && source === 'DEVICE_IDENTIFIER' && sink === 'SMS' && missingEvidence.includes('LAWFUL_BASIS')), 'Typed source-to-SMS adapter input must preserve an external-transfer review and missing legal evidence.');
+
 let malformedRejected = false;
 try {
   evaluateInformationFlowPolicy(engine.informationFlowPolicyModel, { ...obfuscatedGraph, edges: [{ from: 'a.a.a', to: 'missing', mechanism: 'DIRECT' }] });

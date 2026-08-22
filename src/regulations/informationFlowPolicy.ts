@@ -8,7 +8,7 @@ import {
 
 const ID = /^[A-Z][A-Z0-9_]{2,63}$/;
 const CATEGORIES = new Set<InformationCategory>(['LOCATION', 'MICROPHONE', 'CONTACTS', 'CAMERA', 'BODY_SENSORS', 'DEVICE_IDENTIFIER']);
-const SINKS = new Set<InformationSink>(['NETWORK', 'IPC', 'FILE', 'LOG']);
+const SINKS = new Set<InformationSink>(['NETWORK', 'SMS', 'IPC', 'FILE', 'LOG']);
 
 export interface InformationFlowNode {
   id: string;

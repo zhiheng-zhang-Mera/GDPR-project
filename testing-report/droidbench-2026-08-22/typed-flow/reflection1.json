@@ -1,0 +1,35 @@
+{
+  "schema": "privacy-lens.flowdroid-information-flow-graph.v1",
+  "evidenceKind": "STATIC_ANALYSIS",
+  "sourceTool": "FlowDroid",
+  "nodes": [
+    {
+      "id": "flow_0_source_0_source",
+      "processId": "UNKNOWN_STATIC_PROCESS",
+      "source": "DEVICE_IDENTIFIER",
+      "provenance": {
+        "kind": "FLOWDROID_METHOD_DEFINITION",
+        "definition": "<android.telephony.TelephonyManager: java.lang.String getDeviceId()>"
+      }
+    },
+    {
+      "id": "flow_0_source_0_sink",
+      "processId": "UNKNOWN_STATIC_PROCESS",
+      "sink": "SMS",
+      "provenance": {
+        "kind": "FLOWDROID_METHOD_DEFINITION",
+        "definition": "<android.telephony.SmsManager: void sendTextMessage(java.lang.String,java.lang.String,java.lang.String,android.app.PendingIntent,android.app.PendingIntent)>"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "flow_0_source_0_source",
+      "to": "flow_0_source_0_sink",
+      "mechanism": "DIRECT",
+      "provenance": "FLOWDROID_POTENTIAL_STATIC_FLOW"
+    }
+  ],
+  "unmappedResults": [],
+  "caveat": "Nodes represent only FlowDroid potential static source-to-sink results whose method definitions map to the public typed vocabulary. UNKNOWN_STATIC_PROCESS is not evidence of a process boundary. This conversion neither executes an APK nor establishes a transfer, recipient, processing purpose, lawful basis, or GDPR infringement."
+}
