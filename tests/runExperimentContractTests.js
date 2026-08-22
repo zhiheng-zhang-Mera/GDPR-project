@@ -8,7 +8,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'privacy-lens-corpus-'));
 try {
-  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/summarize-authorized-device-batch.js']) {
+  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
   const fixtureApk = path.join(temp, 'fixture.apk');
@@ -32,6 +32,12 @@ try {
   execFileSync(process.execPath, [path.join(root, 'scripts/run-store-corpus-batch.js'), '--catalog', benchmarkFile, '--serial', 'not-used-in-validation', '--output-dir', benchmarkOutput], { stdio: 'pipe' });
   const benchmarkReport = JSON.parse(fs.readFileSync(path.join(benchmarkOutput, 'results.json'), 'utf8'));
   if (benchmarkReport.corpusKind !== 'ACADEMIC_BENCHMARK' || benchmarkReport.results.length !== 100) throw new Error('Academic benchmark corpus contract failed.');
+  const openSourceCatalog = { ...catalog, corpusKind: 'OPEN_SOURCE_APP_STORE' };
+  const openSourceFile = path.join(temp, 'open-source-catalog.json'); const openSourceOutput = path.join(temp, 'open-source-output');
+  fs.writeFileSync(openSourceFile, JSON.stringify(openSourceCatalog));
+  execFileSync(process.execPath, [path.join(root, 'scripts/run-store-corpus-batch.js'), '--catalog', openSourceFile, '--serial', 'not-used-in-validation', '--output-dir', openSourceOutput], { stdio: 'pipe' });
+  const openSourceReport = JSON.parse(fs.readFileSync(path.join(openSourceOutput, 'results.json'), 'utf8'));
+  if (openSourceReport.corpusKind !== 'OPEN_SOURCE_APP_STORE' || openSourceReport.results.length !== 100) throw new Error('Open-source app-store corpus contract failed.');
   const evaluation = {
     schema: 'privacy-lens.android-store-evaluation.v1', corpusId: 'contract-fixture',
     cases: Array.from({ length: 100 }, (_, index) => ({

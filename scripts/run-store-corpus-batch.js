@@ -12,13 +12,14 @@ const serial = arg('--serial');
 const execute = args.includes('--execute') && args.includes('--allow-device-installs');
 const outputDir = arg('--output-dir') || path.join(root, 'commercial-app-batch', `store-corpus-${new Date().toISOString().replace(/[:.]/g, '-')}`);
 const oemInstaller = path.join(root, 'scripts', 'install-authorized-apk-with-oem-confirmation.js');
-if (!catalogPath || !serial) throw new Error('Usage: node scripts/run-store-corpus-batch.js --catalog <100-app.json> --serial <adb-serial> [--execute --allow-device-installs] [--output-dir <dir>]');
+if (!catalogPath || !serial) throw new Error('Usage: node scripts/run-store-corpus-batch.js --catalog <100-to-500-app.json> --serial <adb-serial> [--execute --allow-device-installs] [--output-dir <dir>]');
 const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 function validateCatalog(value) {
-  if (value?.schema !== 'privacy-lens.android-store-corpus.v1' || !Array.isArray(value.apps) || value.apps.length !== 100) throw new Error('Corpus must declare exactly 100 apps with the v1 schema.');
+  if (value?.schema !== 'privacy-lens.android-store-corpus.v1' || !Array.isArray(value.apps) || value.apps.length < 100 || value.apps.length > 500) throw new Error('Corpus must declare 100 to 500 apps with the v1 schema.');
   const benchmark = value.corpusKind === 'ACADEMIC_BENCHMARK';
-  if (value.corpusKind !== undefined && value.corpusKind !== 'APP_STORE_COMMERCIAL' && !benchmark) throw new Error('Corpus kind must be APP_STORE_COMMERCIAL or ACADEMIC_BENCHMARK.');
+  const openSourceStore = value.corpusKind === 'OPEN_SOURCE_APP_STORE';
+  if (value.corpusKind !== undefined && value.corpusKind !== 'APP_STORE_COMMERCIAL' && !benchmark && !openSourceStore) throw new Error('Corpus kind must be APP_STORE_COMMERCIAL, OPEN_SOURCE_APP_STORE, or ACADEMIC_BENCHMARK.');
   const ids = new Set(); const packages = new Set();
   for (const app of value.apps) {
     if (!app?.id || !app.displayName || !/^[A-Za-z0-9_.-]+$/.test(app.packageName || '') || !/^https:\/\//.test(app.storeUrl || '') || !Array.isArray(app.apkFiles) || !app.apkFiles.length) throw new Error(`Invalid corpus entry: ${app?.id ?? 'unknown'}`);
@@ -82,7 +83,14 @@ for (const app of catalog.apps) {
     item.cleanup = 'VERIFIED_REMOVED';
     report.results.push(item);
   } catch (error) {
-    if (item.installedByRunner) {
+    // A timed-out installer may still complete after its caller exits. The
+    // package was confirmed absent before this attempt, so a present package
+    // here is attributable to this runner and must be cleaned up as well.
+    let runnerPackagePresent = item.installedByRunner;
+    if (!runnerPackagePresent && execute) {
+      try { runnerPackagePresent = isInstalled(app.packageName); } catch { /* retain the original failure */ }
+    }
+    if (runnerPackagePresent) {
       try { adb(['shell', 'am', 'force-stop', app.packageName]); adb(['uninstall', app.packageName]); item.cleanup = isInstalled(app.packageName) ? 'REMOVAL_FAILED' : 'REMOVED_AFTER_FAILURE'; } catch { item.cleanup = 'REMOVAL_FAILED'; }
     }
     report.failures.push({ ...item, error: error instanceof Error ? error.message : String(error) });

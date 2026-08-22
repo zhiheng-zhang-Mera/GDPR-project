@@ -9,7 +9,7 @@
     "apps": {
       "type": "array",
       "minItems": 100,
-      "maxItems": 100,
+      "maxItems": 500,
       "items": {
         "type": "object",
         "required": ["id", "displayName", "packageName", "storeUrl", "apkFiles"],
