@@ -49,6 +49,16 @@ The three primary destinations rendered at the device's captured application res
 
 The controlled demonstration completed a 50-record synthetic workflow. The populated overview displayed four review items, zero evidence gaps, two no-concern items, and descriptive precision and recall of 100\% for the simulator's known labels. The Findings screen marked the source as synthetic and displayed the EU GDPR pack. These values validate the demonstration path only; they are not device-observation accuracy.
 
+\subsubsection{Verified Open-Source App-Store Execution}
+
+To test the engineering workflow beyond the project APK, a separate authorised corpus was constructed from the official F-Droid repository. This is an \emph{open-source app-store} corpus, not a closed-source commercial-store sample. Two hundred and forty-eight APKs passed both the repository content SHA-256 check and the published signing-certificate SHA-256 check; two entries were rejected because their certificates did not match the signer index. The catalogue, rejection boundary, and static census are recorded in \path{testing-report/fdroid-open-store-2026-08-22/}.
+
+The physical-device runner processed 121 distinct package identities over two non-overlapping receipts. It completed 112 install--launch--force-stop--uninstall cycles and verified that every completed package was removed. There were nine failures: eight installer timeouts and one pre-existing-package protection. No removal failure was observed. The protection is important: a package present before the runner reaches it is neither replaced nor uninstalled, even on the controlled test device.
+
+A 148-APK static Manifest and DEX-reference census found 16 declared multi-process applications, 21 sensitive-permission-plus-background-execution review signals, and 19 sensitive-permission-plus-network review signals. These results establish corpus diversity and static review coverage only. They do not establish a runtime source-to-sink flow, controller purpose, lawful basis, necessity, or GDPR infringement. The information-flow model was instead stress-tested through controlled adversarial graphs: obfuscated node identifiers, reflection edges, dynamic runtime-permission evidence, and Binder/Worker cross-process paths preserve a typed review prompt; malformed graph edges fail closed. Its $(TP,FP,TN,FN)=(3,0,1,0)$ result is a fixture-oracle conformance result, not a field estimate.
+
+The follow-up device receipt collected post-launch memory for ten non-overlapping packages, with mean PSS 61,060 KB and mean end-to-end workflow time 27,386 ms. Energy in mAh was unavailable. The device was USB-powered and exposed zero battery current, so a battery-statistics value could not be de-biased into application energy. Missing energy was retained as unavailable rather than recorded as zero. Likewise, the real-app corpus has no independent legal ground truth, so precision, recall, F1, TP, FP, TN, and FN are not computed for it. This protects the distinction between reproducible engineering execution and a validated legal or privacy classifier.
+
 \subsubsection{Usability and Trust Assessment}
 
 The product was assessed against three release-candidate questions.
