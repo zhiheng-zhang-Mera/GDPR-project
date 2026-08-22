@@ -8,7 +8,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'privacy-lens-corpus-'));
 try {
-  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/convert-flowdroid-results-to-information-flow.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/select-store-corpus-subset.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
+  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/dismiss-authorized-notification-prompts.js', 'scripts/run-flowdroid-baseline.js', 'scripts/convert-flowdroid-results-to-information-flow.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/select-store-corpus-subset.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
@@ -16,6 +16,8 @@ try {
   if (!runnerSource.includes("report.stopReason = 'MAX_SUCCESSES_REACHED';")) throw new Error('Runner must report an explicit bounded-success stop, never silently omit unattempted apps.');
   if (!runnerSource.includes("['shell', 'dumpsys', 'meminfo', packageName]") || runnerSource.includes("['shell', 'dumpsys', 'batterystats'")) throw new Error('Runner must preserve package-scoped memory fallback and omit batterystats collection.');
   if (!runnerSource.includes("node['resource-id'] === 'android:id/button2'") || !runnerSource.includes("runtimePermissionPromptDismissed") || runnerSource.includes("android:id/button1")) throw new Error('Runtime-permission handling must target only the exact deny control and record its disposition.');
+  const watcherSource = fs.readFileSync(path.join(root, 'scripts', 'dismiss-authorized-notification-prompts.js'), 'utf8');
+  if (!watcherSource.includes("node['resource-id'] === 'android:id/button2'") || !watcherSource.includes('authorisedNames.has(quotedName)') || watcherSource.includes("android:id/button1")) throw new Error('Prompt watcher must target only authorised denial controls.');
   const fixtureApk = path.join(temp, 'fixture.apk');
   fs.writeFileSync(fixtureApk, 'fixture-not-an-apk');
   const digest = createHash('sha256').update(fs.readFileSync(fixtureApk)).digest('hex');
