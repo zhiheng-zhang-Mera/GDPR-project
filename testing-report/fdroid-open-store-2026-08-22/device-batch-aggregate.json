@@ -1,6 +1,6 @@
 {
   "schema": "privacy-lens.authorised-device-batch-aggregate.v1",
-  "generatedAt": "2026-08-22T11:19:08.937Z",
+  "generatedAt": "2026-08-22T11:26:47.770Z",
   "receipts": [
     {
       "path": ".codex-tools\\fdroid\\device-batch-110-authorized-r1\\results.json",
@@ -32,6 +32,11 @@
   "failuresByCategory": {
     "TIMEOUT": 8,
     "PREEXISTING_PACKAGE_PROTECTED": 1
+  },
+  "runtimePermissionPrompts": {
+    "observedNotGranted": 40,
+    "notObserved": 72,
+    "unavailable": 9
   },
   "telemetry": {
     "afterLaunchMemoryPssKb": {

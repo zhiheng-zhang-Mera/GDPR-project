@@ -33,6 +33,13 @@ const installerPrompts = all.reduce((total, record) => ({
   optionalProtectionCancelled: total.optionalProtectionCancelled + (record.installer?.oemPrompts?.optionalProtectionCancelled ?? 0),
   installerCompleted: total.installerCompleted + (record.installer?.oemPrompts?.installerCompleted ?? 0),
 }), { continueInstall: 0, optionalProtectionCancelled: 0, installerCompleted: 0 });
+const runtimePermissionPrompts = all.reduce((total, record) => {
+  const state = record.runtimePermissionPrompt;
+  if (state === 'OBSERVED_NOT_GRANTED') total.observedNotGranted += 1;
+  else if (state === 'NOT_OBSERVED') total.notObserved += 1;
+  else total.unavailable += 1;
+  return total;
+}, { observedNotGranted: 0, notObserved: 0, unavailable: 0 });
 const memory = numeric(completed, (record) => record.afterLaunch?.memoryPssKb);
 const energy = numeric(completed, (record) => record.afterLaunch?.estimatedPowerMah);
 const elapsed = numeric(completed, (record) => record.wallClockElapsedMs);
@@ -41,7 +48,7 @@ const summary = {
   catalogEntriesProcessed: all.length, installAttempts: installAttempts.length, preExistingProtected: preExistingProtected.length,
   completedAndVerifiedRemoved: completed.length, failed: report.failures.length,
   cleanup: { verifiedRemoved: completed.length, removalFailures: report.failures.filter((record) => record.cleanup === 'REMOVAL_FAILED').length },
-  installerPrompts, failuresByCategory,
+  installerPrompts, runtimePermissionPrompts, failuresByCategory,
   executionOverhead: { wallClockElapsedMs: { mean: mean(elapsed), observed: elapsed.length, unavailable: completed.length - elapsed.length }, batteryStatsResetRequested: completed.filter((record) => record.batteryStatsReset === 'REQUESTED').length },
   telemetry: {
     afterLaunchMemoryPssKb: { mean: mean(memory), observed: memory.length, unavailable: completed.length - memory.length },

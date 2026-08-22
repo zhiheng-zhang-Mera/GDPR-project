@@ -36,12 +36,18 @@ for (const failure of failures) {
   const category = /timed out/i.test(failure.error || '') ? 'TIMEOUT' : failure.preExistingPackage ? 'PREEXISTING_PACKAGE_PROTECTED' : failure.cleanup === 'REMOVAL_FAILED' ? 'REMOVAL_FAILURE' : 'OTHER';
   failureCategories[category] = (failureCategories[category] || 0) + 1;
 }
+const runtimePermissionPrompts = [...records, ...failures].reduce((total, item) => {
+  if (item.runtimePermissionPrompt === 'OBSERVED_NOT_GRANTED') total.observedNotGranted += 1;
+  else if (item.runtimePermissionPrompt === 'NOT_OBSERVED') total.notObserved += 1;
+  else total.unavailable += 1;
+  return total;
+}, { observedNotGranted: 0, notObserved: 0, unavailable: 0 });
 const aggregate = {
   schema: 'privacy-lens.authorised-device-batch-aggregate.v1', generatedAt: new Date().toISOString(), receipts,
   corpusKind: [...new Set(receipts.map((item) => item.corpusKind))], uniquePackagesProcessed: packageIdentities.size,
   completedAndVerifiedRemoved: completed.length, failed: failures.length,
   cleanup: { verifiedRemoved: completed.length, removalFailures: failures.filter((item) => item.cleanup === 'REMOVAL_FAILED').length },
-  failuresByCategory: failureCategories,
+  failuresByCategory: failureCategories, runtimePermissionPrompts,
   telemetry: {
     afterLaunchMemoryPssKb: { mean: mean(memory), observed: memory.length, unavailable: completed.length - memory.length },
     afterLaunchEstimatedPowerMah: { mean: mean(energy), observed: energy.length, unavailable: completed.length - energy.length },

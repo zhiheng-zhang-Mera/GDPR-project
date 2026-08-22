@@ -12,6 +12,8 @@ This folder contains sanitised reproducibility reports for the authorised Androi
 
 The initial 110-entry batch produced 102 verified removals. A 138-entry follow-up catalog reserved all 110 original package identities, then used an explicit `MAX_SUCCESSES_REACHED` bound to collect ten additional non-overlapping samples. The follow-up has 10/10 usable post-launch memory readings, with mean PSS 61,060 KB, and mean end-to-end wall-clock overhead of 27,386 ms. These are engineering measurements of the test workflow, not application performance benchmarks.
 
+Across both receipts, the OEM runtime-permission UI was observed but not granted for 40 package runs, was not observed for 72, and was unavailable for the 9 failed runs. This is evidence that the runner preserved a dynamic-permission prompt boundary during the authorised workflow; it does not prove that a permission was requested, granted, or used by every application.
+
 Energy in mAh is unavailable for all 112 completed samples. The device was USB-powered and exposed zero battery current, so battery statistics cannot be de-biased into an app energy estimate. The report preserves the missing values rather than substituting zero or deriving a fictitious number.
 
 ## Static review signals and robustness boundary

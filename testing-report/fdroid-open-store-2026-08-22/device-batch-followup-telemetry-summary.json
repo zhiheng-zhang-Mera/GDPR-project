@@ -2,7 +2,7 @@
   "schema": "privacy-lens.authorised-device-batch-summary.v1",
   "corpusId": "fdroid-open-source-store-250-seed-8222026-verified-248-unattempted-138",
   "corpusKind": "OPEN_SOURCE_APP_STORE",
-  "generatedAt": "2026-08-22T11:16:58.286Z",
+  "generatedAt": "2026-08-22T11:26:46.781Z",
   "catalogEntriesProcessed": 11,
   "installAttempts": 11,
   "preExistingProtected": 0,
@@ -16,6 +16,11 @@
     "continueInstall": 10,
     "optionalProtectionCancelled": 0,
     "installerCompleted": 10
+  },
+  "runtimePermissionPrompts": {
+    "observedNotGranted": 2,
+    "notObserved": 8,
+    "unavailable": 1
   },
   "failuresByCategory": {
     "TIMEOUT": 1
