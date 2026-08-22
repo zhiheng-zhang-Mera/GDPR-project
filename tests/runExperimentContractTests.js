@@ -50,6 +50,11 @@ try {
   execFileSync(process.execPath, [path.join(root, 'scripts/exclude-attempted-store-corpus.js'), '--catalog', extendedOpenSourceFile, '--prior', priorFile, '--output', followUpFile], { stdio: 'pipe' });
   const followUp = JSON.parse(fs.readFileSync(followUpFile, 'utf8'));
   if (followUp.apps.length !== 100 || followUp.apps.some((app) => app.packageName === 'org.fixture.app0' || app.packageName === 'org.fixture.app1') || followUp.source.priorRunExclusions.attemptedPackages !== 2) throw new Error('Follow-up corpus exclusion contract failed.');
+  const catalogExclusionFile = path.join(temp, 'catalog-exclusion.json'); const catalogFollowUpFile = path.join(temp, 'catalog-follow-up.json');
+  fs.writeFileSync(catalogExclusionFile, JSON.stringify({ ...openSourceCatalog, apps: openSourceCatalog.apps.slice(0, 1) }));
+  execFileSync(process.execPath, [path.join(root, 'scripts/exclude-attempted-store-corpus.js'), '--catalog', extendedOpenSourceFile, '--exclude-catalog', catalogExclusionFile, '--output', catalogFollowUpFile], { stdio: 'pipe' });
+  const catalogFollowUp = JSON.parse(fs.readFileSync(catalogFollowUpFile, 'utf8'));
+  if (catalogFollowUp.apps.length !== 101 || catalogFollowUp.apps.some((app) => app.packageName === 'org.fixture.app0') || catalogFollowUp.source.priorRunExclusions.excludedCatalogs.length !== 1) throw new Error('Reserved-catalog exclusion contract failed.');
   const evaluation = {
     schema: 'privacy-lens.android-store-evaluation.v1', corpusId: 'contract-fixture',
     cases: Array.from({ length: 100 }, (_, index) => ({
