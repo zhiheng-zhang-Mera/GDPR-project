@@ -1,0 +1,81 @@
+{
+  "schema": "privacy-lens.droidbench-flowdroid-summary.v1",
+  "generatedAt": "2026-08-22T11:50:35.649Z",
+  "groundTruth": {
+    "path": "experiments\\baselines\\droidbench-ground-truth.json",
+    "sha256": "ca1051169a296e4b7eb1d71b193b3b5b5296212f23e50771a3c0ccbeddf101ec",
+    "suite": {
+      "name": "DroidBench",
+      "revision": "a57fa6f42f278591695672f1aa8b37c275139370",
+      "upstream": "https://github.com/secure-software-engineering/DroidBench",
+      "labellingMethod": "The expected source-to-sink outcome is transcribed from the suite's case description at the pinned revision; it is not a legal label."
+    }
+  },
+  "evaluation": {
+    "labelledCases": 7,
+    "evaluatedCases": 3,
+    "unresolvedCases": 4,
+    "confusionMatrix": {
+      "tp": 2,
+      "fp": 1,
+      "tn": 0,
+      "fn": 0
+    },
+    "precision": 0.666667,
+    "recall": 1,
+    "f1": 0.8
+  },
+  "evaluated": [
+    {
+      "id": "obfuscation1",
+      "expectedLeak": true,
+      "predictedLeak": true,
+      "resultCount": 1,
+      "receiptPath": "testing-report/droidbench-2026-08-22/obfuscation1/flowdroid-receipt.json",
+      "receiptSha256": "b8f0922c709fd99a239c99e519b57fab3d962a73acf2a094d2e35a2a99585cf8"
+    },
+    {
+      "id": "reflection1",
+      "expectedLeak": true,
+      "predictedLeak": true,
+      "resultCount": 1,
+      "receiptPath": "testing-report/droidbench-2026-08-22/reflection1/flowdroid-receipt.json",
+      "receiptSha256": "47035360584ef0c0fe9da632f197a4b86dfff24f83a7ea9da4d862510712f045"
+    },
+    {
+      "id": "reflection10-no-flow",
+      "expectedLeak": false,
+      "predictedLeak": true,
+      "resultCount": 1,
+      "receiptPath": "testing-report/droidbench-2026-08-22/reflection10-no-flow/flowdroid-receipt.json",
+      "receiptSha256": "854aaf8aec832e81cefc4710fed44e9149879582506bc48edfdefe026c80b2c2"
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "log-no-leak",
+      "reason": "COMPLETED_NO_RESULT_ARTIFACT",
+      "receiptPath": "testing-report/droidbench-2026-08-22/log-no-leak/flowdroid-receipt.json",
+      "receiptSha256": "64db64c6609a8473fb7a19bd320f058483165e58dd296da27642acad88a2b3bf"
+    },
+    {
+      "id": "dynamic-loading-both1",
+      "reason": "COMPLETED_NO_RESULT_ARTIFACT",
+      "receiptPath": "testing-report/droidbench-2026-08-22/dynamic-loading-both1/flowdroid-receipt.json",
+      "receiptSha256": "5ea357c8cae2be9ff5beb73444d1759b9c4763329ab0fd98e924024ae6276d77"
+    },
+    {
+      "id": "reflection-icc-dynamic",
+      "reason": "COMPLETED_NO_RESULT_ARTIFACT",
+      "receiptPath": "testing-report/droidbench-2026-08-22/reflection-icc-dynamic/flowdroid-receipt.json",
+      "receiptSha256": "79f09770488a32c9cd9c3c2db9c496dda84d354360056025768b57d8f1f48406"
+    },
+    {
+      "id": "service-event-sequence1",
+      "reason": "COMPLETED_NO_RESULT_ARTIFACT",
+      "receiptPath": "testing-report/droidbench-2026-08-22/service-event-sequence1/flowdroid-receipt.json",
+      "receiptSha256": "f8574da8585302c80e078e439b6b3dac1d3005f58006cd385f89346094e41422"
+    }
+  ],
+  "caveat": "This is a small public benchmark score for FlowDroid only. It excludes completed runs that emitted no result artifact rather than treating them as zero flows. It is neither an evaluation of Privacy Lens nor a GDPR-compliance or commercial-app accuracy claim."
+}

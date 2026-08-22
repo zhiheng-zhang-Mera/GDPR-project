@@ -14,8 +14,6 @@ The initial 110-entry batch produced 102 verified removals. A 138-entry follow-u
 
 Across both receipts, the OEM runtime-permission UI was observed but not granted for 40 package runs, was not observed for 72, and was unavailable for the 9 failed runs. This is evidence that the runner preserved a dynamic-permission prompt boundary during the authorised workflow; it does not prove that a permission was requested, granted, or used by every application.
 
-Energy in mAh is unavailable for all 112 completed samples. The device was USB-powered and exposed zero battery current, so battery statistics cannot be de-biased into an app energy estimate. The report preserves the missing values rather than substituting zero or deriving a fictitious number.
-
 ## Static review signals and robustness boundary
 
 `dex-manifest-census-148.json` contains a static Manifest and DEX-reference census over 148 signed, verified APKs. It found 16 declared multi-process cases, 21 sensitive-permission-plus-background-execution review signals, and 19 sensitive-permission-plus-network review signals. These are review prompts, not proof that a flow executed, that a controller collected data, or that the GDPR was breached.

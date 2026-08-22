@@ -1,0 +1,60 @@
+{
+  "schema": "privacy-lens.droidbench-ground-truth.v1",
+  "suite": {
+    "name": "DroidBench",
+    "revision": "a57fa6f42f278591695672f1aa8b37c275139370",
+    "upstream": "https://github.com/secure-software-engineering/DroidBench",
+    "labellingMethod": "The expected source-to-sink outcome is transcribed from the suite's case description at the pinned revision; it is not a legal label."
+  },
+  "cases": [
+    {
+      "id": "obfuscation1",
+      "expectedLeak": true,
+      "evidence": "README.md line 197 describes the device implementation returning a real IMEI; the case has a source-to-sink path.",
+      "sourcePath": "projects/AndroidSpecific/Obfuscation1/app/src/main/java/de/ecspride/MainActivity.java",
+      "receiptPath": "testing-report/droidbench-2026-08-22/obfuscation1/flowdroid-receipt.json"
+    },
+    {
+      "id": "reflection1",
+      "expectedLeak": true,
+      "evidence": "README.md line 218 says sensitive data is reflectively read and leaked.",
+      "sourcePath": "projects/Reflection/Reflection1/app/src/main/java/de/ecspride/MainActivity.java",
+      "receiptPath": "testing-report/droidbench-2026-08-22/reflection1/flowdroid-receipt.json"
+    },
+    {
+      "id": "reflection10-no-flow",
+      "expectedLeak": false,
+      "evidence": "README.md line 228 explicitly states that no sensitive data is leaked.",
+      "sourcePath": "projects/Reflection/Reflection10-NoFlow/app/src/main/java/com/example/network_reflection/MainActivity.java",
+      "receiptPath": "testing-report/droidbench-2026-08-22/reflection10-no-flow/flowdroid-receipt.json"
+    },
+    {
+      "id": "log-no-leak",
+      "expectedLeak": false,
+      "evidence": "README.md line 196 says that only untainted data is written to the log.",
+      "sourcePath": "projects/AndroidSpecific/LogNoLeak/app/src/main/java/de/ecspride/LogNoLeak.java",
+      "receiptPath": "testing-report/droidbench-2026-08-22/log-no-leak/flowdroid-receipt.json"
+    },
+    {
+      "id": "dynamic-loading-both1",
+      "expectedLeak": true,
+      "evidence": "README.md lines 294-297 state that both the source and sink are dynamically loaded.",
+      "sourcePath": "projects/DynamicLoading/DynamicBoth1/app/src/main/java/edu/wayne/cs/MainActivity.java",
+      "receiptPath": "testing-report/droidbench-2026-08-22/dynamic-loading-both1/flowdroid-receipt.json"
+    },
+    {
+      "id": "reflection-icc-dynamic",
+      "expectedLeak": true,
+      "evidence": "README.md line 241 describes a reflected, runtime-constructed getDeviceId call followed by transmission to a second activity where it leaks.",
+      "sourcePath": "projects/Reflection_ICC/OnlyTelephony_Dynamic/app/src/main/java/com/example/onlytelephony/MainActivity.java",
+      "receiptPath": "testing-report/droidbench-2026-08-22/reflection-icc-dynamic/flowdroid-receipt.json"
+    },
+    {
+      "id": "service-event-sequence1",
+      "expectedLeak": true,
+      "evidence": "README.md line 154 describes IMEI acquisition, lifecycle copying, and a later leak.",
+      "sourcePath": "projects/Lifecycle/ServiceEventSequence1/app/src/main/java/edu/uta/ServiceEventSequence1.java",
+      "receiptPath": "testing-report/droidbench-2026-08-22/service-event-sequence1/flowdroid-receipt.json"
+    }
+  ]
+}

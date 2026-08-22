@@ -8,7 +8,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'privacy-lens-corpus-'));
 try {
-  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
+  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
@@ -77,6 +77,23 @@ try {
   execFileSync(process.execPath, [path.join(root, 'scripts/aggregate-authorized-device-batches.js'), '--input', deviceInput, '--output', aggregateOutput], { stdio: 'pipe' });
   const aggregate = JSON.parse(fs.readFileSync(aggregateOutput, 'utf8'));
   if (aggregate.completedAndVerifiedRemoved !== 1 || aggregate.failed !== 1 || aggregate.uniquePackagesProcessed !== 2 || aggregate.runtimePermissionPrompts.unavailable !== 2 || aggregate.telemetry.afterLaunchMemoryPssKb.mean !== 0 || aggregate.telemetry.afterLaunchEstimatedPowerMah.observed !== 0) throw new Error('Device batch aggregation contract failed.');
+  const droidbenchReceipts = path.join(temp, 'droidbench-receipts');
+  const writeReceipt = (id, status, resultCount) => {
+    const directory = path.join(droidbenchReceipts, id); fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(path.join(directory, 'receipt.json'), JSON.stringify({ schema: 'privacy-lens.flowdroid-baseline.v1', status, resultCount }));
+  };
+  writeReceipt('positive', 'COMPLETED', 1); writeReceipt('negative', 'COMPLETED', 0); writeReceipt('false-positive', 'COMPLETED', 1); writeReceipt('unresolved', 'COMPLETED_NO_RESULT_ARTIFACT');
+  const droidbenchManifest = { schema: 'privacy-lens.droidbench-ground-truth.v1', suite: { name: 'fixture', revision: 'fixture' }, cases: [
+    { id: 'positive', expectedLeak: true, receiptPath: path.relative(root, path.join(droidbenchReceipts, 'positive', 'receipt.json')) },
+    { id: 'negative', expectedLeak: false, receiptPath: path.relative(root, path.join(droidbenchReceipts, 'negative', 'receipt.json')) },
+    { id: 'false-positive', expectedLeak: false, receiptPath: path.relative(root, path.join(droidbenchReceipts, 'false-positive', 'receipt.json')) },
+    { id: 'unresolved', expectedLeak: true, receiptPath: path.relative(root, path.join(droidbenchReceipts, 'unresolved', 'receipt.json')) },
+  ] };
+  const droidbenchInput = path.join(temp, 'droidbench.json'); const droidbenchOutput = path.join(temp, 'droidbench-summary.json');
+  fs.writeFileSync(droidbenchInput, JSON.stringify(droidbenchManifest));
+  execFileSync(process.execPath, [path.join(root, 'scripts/summarize-droidbench-flowdroid.js'), '--input', droidbenchInput, '--output', droidbenchOutput], { stdio: 'pipe' });
+  const droidbenchSummary = JSON.parse(fs.readFileSync(droidbenchOutput, 'utf8'));
+  if (droidbenchSummary.evaluation.evaluatedCases !== 3 || droidbenchSummary.evaluation.unresolvedCases !== 1 || droidbenchSummary.evaluation.confusionMatrix.tp !== 1 || droidbenchSummary.evaluation.confusionMatrix.fp !== 1 || droidbenchSummary.evaluation.confusionMatrix.tn !== 1 || droidbenchSummary.evaluation.confusionMatrix.fn !== 0 || droidbenchSummary.evaluation.precision !== 0.5) throw new Error('DroidBench baseline scoring contract failed.');
   console.log('Experiment contracts passed: 100-entry catalog validates without ADB installation, and labelled metrics preserve missing telemetry.');
 } finally {
   fs.rmSync(temp, { recursive: true, force: true });
