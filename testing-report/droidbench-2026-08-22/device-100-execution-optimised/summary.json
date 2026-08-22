@@ -1,0 +1,33 @@
+{
+  "schema": "privacy-lens.authorised-device-batch-summary.v1",
+  "corpusId": "droidbench-100-device-2026-08-22",
+  "corpusKind": "ACADEMIC_BENCHMARK",
+  "generatedAt": "2026-08-22T07:27:50.817Z",
+  "attempted": 100,
+  "completedAndVerifiedRemoved": 0,
+  "failed": 100,
+  "cleanup": {
+    "verifiedRemoved": 0,
+    "removalFailures": 0
+  },
+  "installerPrompts": {
+    "continueInstall": 0,
+    "optionalProtectionCancelled": 0,
+    "installerCompleted": 0
+  },
+  "failuresByCategory": {
+    "TIMEOUT": 31,
+    "PACKAGE_MANAGER_REJECTED": 69
+  },
+  "telemetry": {
+    "afterLaunchMemoryPssKb": {
+      "observed": 0,
+      "unavailable": 0
+    },
+    "afterLaunchEstimatedPowerMah": {
+      "observed": 0,
+      "unavailable": 0
+    }
+  },
+  "caveat": "This summary reports authorised device execution and engineering overhead only. It does not label GDPR compliance, data collection, or legal violations. Missing memory/energy values remain unavailable."
+}

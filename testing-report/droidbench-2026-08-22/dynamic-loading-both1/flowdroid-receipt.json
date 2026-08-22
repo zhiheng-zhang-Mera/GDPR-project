@@ -1,0 +1,26 @@
+{
+  "schema": "privacy-lens.flowdroid-baseline.v1",
+  "tool": {
+    "name": "FlowDroid",
+    "version": "2.15.1",
+    "jarSha256": "51dadead47a173c494c2fa4855b1e8bd3b54e702a2c4b5ed58e60153009ae218"
+  },
+  "startedAt": "2026-08-22T06:25:04.269Z",
+  "elapsedMs": 2250.542,
+  "apk": {
+    "sha256": "009ab3254991d1acc08684e3d5dbec24cb88836e1a2bb7049082c885869c4477",
+    "byteLength": 48947
+  },
+  "sourcesAndSinksSha256": "06e288dd12067a9068458b0abf664dc2878760077786044436210b1875b6e6ef",
+  "androidPlatformsDirectory": "C:\\Users\\15601\\AppData\\Local\\Android\\Sdk\\platforms",
+  "command": {
+    "reflectionEnabled": true,
+    "mainTimeoutSeconds": 120,
+    "callbackTimeoutSeconds": 60,
+    "resultTimeoutSeconds": 30,
+    "maxThreads": 2
+  },
+  "status": "COMPLETED_NO_RESULT_ARTIFACT",
+  "exitCode": 0,
+  "caveat": "FlowDroid reports potential static source-to-sink paths under the supplied source/sink definition. A completed invocation without an XML artifact is not interpreted as zero flows. No output proves runtime execution, recipient identity, data transfer, or GDPR infringement."
+}
