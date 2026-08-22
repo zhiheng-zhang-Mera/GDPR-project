@@ -58,15 +58,23 @@ function snapshot(packageName) {
   const mah = mahMatch ? Number(mahMatch[1]) : undefined;
   return { processCount: pids.length, memoryPssKb: pss, batteryStatsSha256: createHash('sha256').update(battery).digest('hex'), estimatedPowerMah: mah };
 }
+function observedRuntimePermissionPrompt(packageName, displayName) {
+  try {
+    const xml = adb(['exec-out', 'uiautomator', 'dump', '/dev/tty']);
+    const packageMatch = xml.includes('package="com.oplus.notificationmanager"') && (xml.includes(packageName) || xml.includes(displayName));
+    return packageMatch ? 'OBSERVED_NOT_GRANTED' : 'NOT_OBSERVED';
+  } catch { return 'UNAVAILABLE'; }
+}
 validateCatalog(catalog);
 fs.mkdirSync(outputDir, { recursive: true });
 const report = { schema: 'privacy-lens.android-store-corpus-run.v1', corpusId: catalog.corpusId, corpusKind: catalog.corpusKind ?? 'APP_STORE_COMMERCIAL', generatedAt: new Date().toISOString(), execution: execute ? 'AUTHORISED_DEVICE_RUN' : 'VALIDATION_ONLY', results: [], failures: [] };
 for (const app of catalog.apps) {
-  const item = { id: app.id, displayName: app.displayName, packageName: app.packageName, storeUrl: app.storeUrl, apkSha256: app.apkFiles.map((file) => file.sha256), installedByRunner: false, cleanup: 'NOT_STARTED' };
+  const item = { id: app.id, displayName: app.displayName, packageName: app.packageName, storeUrl: app.storeUrl, apkSha256: app.apkFiles.map((file) => file.sha256), installAttempted: false, installedByRunner: false, cleanup: 'NOT_STARTED' };
   try {
     if (!execute) { item.cleanup = 'NOT_EXECUTED'; report.results.push(item); continue; }
-    if (isInstalled(app.packageName)) throw new Error('Refusing to replace or uninstall a pre-existing package.');
-    const installerOutput = execFileSync(process.execPath, [oemInstaller, '--serial', serial, '--apk', ...app.apkFiles.map((file) => file.path)], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 75_000 });
+    if (isInstalled(app.packageName)) { item.preExistingPackage = true; throw new Error('Refusing to replace or uninstall a pre-existing package.'); }
+    item.installAttempted = true;
+    const installerOutput = execFileSync(process.execPath, [oemInstaller, '--serial', serial, '--timeout-ms', '75000', '--apk', ...app.apkFiles.map((file) => file.path)], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 90_000 });
     item.installer = JSON.parse(installerOutput);
     item.installedByRunner = true;
     item.afterInstall = snapshot(app.packageName);
@@ -74,6 +82,7 @@ for (const app of catalog.apps) {
     if (!activity || !activity.includes('/')) throw new Error('No launchable activity was resolved.');
     adb(['shell', 'am', 'start', '-n', activity]);
     item.afterLaunch = snapshot(app.packageName);
+    item.runtimePermissionPrompt = observedRuntimePermissionPrompt(app.packageName, app.displayName);
     const permissions = adb(['shell', 'dumpsys', 'package', app.packageName]);
     item.packageDumpSha256 = createHash('sha256').update(permissions).digest('hex');
     item.cleanup = 'PENDING';
@@ -87,7 +96,7 @@ for (const app of catalog.apps) {
     // package was confirmed absent before this attempt, so a present package
     // here is attributable to this runner and must be cleaned up as well.
     let runnerPackagePresent = item.installedByRunner;
-    if (!runnerPackagePresent && execute) {
+    if (item.installAttempted && !runnerPackagePresent && execute) {
       try { runnerPackagePresent = isInstalled(app.packageName); } catch { /* retain the original failure */ }
     }
     if (runnerPackagePresent) {

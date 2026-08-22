@@ -12,7 +12,8 @@ const value = (flag) => { const index = args.indexOf(flag); return index < 0 ? u
 const serial = value('--serial');
 const apkIndex = args.indexOf('--apk');
 const apks = apkIndex < 0 ? [] : args.slice(apkIndex + 1);
-if (!serial || apks.length === 0) throw new Error('Usage: node scripts/install-authorized-apk-with-oem-confirmation.js --serial <adb-serial> --apk <verified.apk> [additional-split.apk...]');
+const installTimeoutMs = Number(value('--timeout-ms') || 75_000);
+if (!serial || apks.length === 0 || !Number.isFinite(installTimeoutMs) || installTimeoutMs < 30_000 || installTimeoutMs > 120_000) throw new Error('Usage: node scripts/install-authorized-apk-with-oem-confirmation.js --serial <adb-serial> --apk <verified.apk> [additional-split.apk...] [--timeout-ms 30000..120000]');
 
 const sleep = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 const attribute = (node, name) => (new RegExp(`${name}="([^"]*)"`).exec(node) ?? [])[1];
@@ -53,7 +54,7 @@ async function main() {
   child.stderr.on('data', (chunk) => { stderr += chunk; });
   const started = Date.now();
   while (child.exitCode === null || child.exitCode === undefined) {
-    if (Date.now() - started > 30_000) { child.kill(); throw new Error('ADB install timed out after 30 seconds.'); }
+    if (Date.now() - started > installTimeoutMs) { child.kill(); throw new Error(`ADB install timed out after ${installTimeoutMs} ms.`); }
     // Package-manager rejection usually arrives before any OEM UI exists.
     // Avoid a slow UI dump for that terminal path.
     await sleep(750);
