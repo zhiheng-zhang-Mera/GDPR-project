@@ -25,6 +25,9 @@ for (const failure of report.failures) {
 }
 const completed = report.results.filter((record) => record.cleanup === 'VERIFIED_REMOVED');
 const all = [...report.results, ...report.failures];
+const preExistingProtected = report.failures.filter((record) => record.preExistingPackage === true);
+// Legacy reports omit installAttempted; preserve their historical denominator.
+const installAttempts = all.filter((record) => record.installAttempted !== false);
 const installerPrompts = all.reduce((total, record) => ({
   continueInstall: total.continueInstall + (record.installer?.oemPrompts?.continueInstall ?? 0),
   optionalProtectionCancelled: total.optionalProtectionCancelled + (record.installer?.oemPrompts?.optionalProtectionCancelled ?? 0),
@@ -34,7 +37,8 @@ const memory = numeric(completed, (record) => record.afterLaunch?.memoryPssKb);
 const energy = numeric(completed, (record) => record.afterLaunch?.estimatedPowerMah);
 const summary = {
   schema: 'privacy-lens.authorised-device-batch-summary.v1', corpusId: report.corpusId, corpusKind: report.corpusKind, generatedAt: new Date().toISOString(),
-  attempted: all.length, completedAndVerifiedRemoved: completed.length, failed: report.failures.length,
+  catalogEntriesProcessed: all.length, installAttempts: installAttempts.length, preExistingProtected: preExistingProtected.length,
+  completedAndVerifiedRemoved: completed.length, failed: report.failures.length,
   cleanup: { verifiedRemoved: completed.length, removalFailures: report.failures.filter((record) => record.cleanup === 'REMOVAL_FAILED').length },
   installerPrompts, failuresByCategory,
   telemetry: {
@@ -45,4 +49,4 @@ const summary = {
 };
 fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.writeFileSync(output, `${JSON.stringify(summary, null, 2)}\n`);
-console.log(`Device batch summary: attempted=${summary.attempted}, completed=${summary.completedAndVerifiedRemoved}, failed=${summary.failed}.`);
+console.log(`Device batch summary: installAttempts=${summary.installAttempts}, completed=${summary.completedAndVerifiedRemoved}, failed=${summary.failed}.`);
