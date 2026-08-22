@@ -40,7 +40,7 @@ const runtimePermissionPrompts = [...records, ...failures].reduce((total, item) 
   else if (item.runtimePermissionPrompt === 'NOT_OBSERVED') total.notObserved += 1;
   else total.unavailable += 1;
   return total;
-}, { observedNotGranted: 0, notObserved: 0, unavailable: 0 });
+}, { observedNotGranted: 0, notObserved: 0, unavailable: 0, dismissed: [...records, ...failures].filter((item) => item.runtimePermissionPromptDismissed === true).length });
 const aggregate = {
   schema: 'privacy-lens.authorised-device-batch-aggregate.v1', generatedAt: new Date().toISOString(), receipts,
   corpusKind: [...new Set(receipts.map((item) => item.corpusKind))], uniquePackagesProcessed: packageIdentities.size,

@@ -64,8 +64,24 @@ function observedRuntimePermissionPrompt(packageName, displayName) {
   try {
     const xml = adb(['exec-out', 'uiautomator', 'dump', '/dev/tty']);
     const packageMatch = xml.includes('package="com.oplus.notificationmanager"') && (xml.includes(packageName) || xml.includes(displayName));
-    return packageMatch ? 'OBSERVED_NOT_GRANTED' : 'NOT_OBSERVED';
-  } catch { return 'UNAVAILABLE'; }
+    if (!packageMatch) return { state: 'NOT_OBSERVED', dismissed: false };
+    // A runtime-permission page from the just-launched package can remain
+    // foregrounded after force-stop and block the next installer page.  Only
+    // dismiss the exact notification-manager denial control; never grant a
+    // permission, never touch a different package's dialog, and retain the
+    // observation as not granted.
+    const nodes = xml.match(/<node\b[^>]*>/g) ?? [];
+    const attributes = (node) => Object.fromEntries([...node.matchAll(/([\w:-]+)="([^"]*)"/g)].map((match) => [match[1], match[2]]));
+    const deny = nodes.map(attributes).find((node) => node['resource-id'] === 'android:id/button2' && ['拒绝', 'Deny', "Don't allow", 'Don’t allow'].includes(node.text) && /^\[\d+,\d+\]\[\d+,\d+\]$/.test(node.bounds || ''));
+    const bounds = deny?.bounds?.match(/^\[(\d+),(\d+)\]\[(\d+),(\d+)\]$/);
+    if (bounds) {
+      const x = Math.round((Number(bounds[1]) + Number(bounds[3])) / 2);
+      const y = Math.round((Number(bounds[2]) + Number(bounds[4])) / 2);
+      adb(['shell', 'input', 'tap', String(x), String(y)]);
+      return { state: 'OBSERVED_NOT_GRANTED', dismissed: true };
+    }
+    return { state: 'OBSERVED_NOT_GRANTED', dismissed: false };
+  } catch { return { state: 'UNAVAILABLE', dismissed: false }; }
 }
 validateCatalog(catalog);
 fs.mkdirSync(outputDir, { recursive: true });
@@ -88,7 +104,9 @@ for (const app of catalog.apps) {
     // fixed settle period avoids treating that normal race as zero memory.
     settle(1_000);
     item.afterLaunch = snapshot(app.packageName);
-    item.runtimePermissionPrompt = observedRuntimePermissionPrompt(app.packageName, app.displayName);
+    const runtimePermission = observedRuntimePermissionPrompt(app.packageName, app.displayName);
+    item.runtimePermissionPrompt = runtimePermission.state;
+    item.runtimePermissionPromptDismissed = runtimePermission.dismissed;
     const permissions = adb(['shell', 'dumpsys', 'package', app.packageName]);
     item.packageDumpSha256 = createHash('sha256').update(permissions).digest('hex');
     item.cleanup = 'PENDING';

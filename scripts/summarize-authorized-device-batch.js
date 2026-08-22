@@ -39,7 +39,7 @@ const runtimePermissionPrompts = all.reduce((total, record) => {
   else if (state === 'NOT_OBSERVED') total.notObserved += 1;
   else total.unavailable += 1;
   return total;
-}, { observedNotGranted: 0, notObserved: 0, unavailable: 0 });
+}, { observedNotGranted: 0, notObserved: 0, unavailable: 0, dismissed: all.filter((record) => record.runtimePermissionPromptDismissed === true).length });
 const memory = numeric(completed, (record) => record.afterLaunch?.memoryPssKb);
 const elapsed = numeric(completed, (record) => record.wallClockElapsedMs);
 const summary = {
