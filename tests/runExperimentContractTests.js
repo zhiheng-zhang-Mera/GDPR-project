@@ -8,7 +8,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'privacy-lens-corpus-'));
 try {
-  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js']) {
+  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
@@ -40,6 +40,14 @@ try {
   execFileSync(process.execPath, [path.join(root, 'scripts/run-store-corpus-batch.js'), '--catalog', openSourceFile, '--serial', 'not-used-in-validation', '--output-dir', openSourceOutput], { stdio: 'pipe' });
   const openSourceReport = JSON.parse(fs.readFileSync(path.join(openSourceOutput, 'results.json'), 'utf8'));
   if (openSourceReport.corpusKind !== 'OPEN_SOURCE_APP_STORE' || openSourceReport.results.length !== 100) throw new Error('Open-source app-store corpus contract failed.');
+  const extendedOpenSourceFile = path.join(temp, 'extended-open-source-catalog.json');
+  const extraApps = [100, 101].map((index) => ({ ...openSourceCatalog.apps[index - 100], id: `fixture-${index}`, displayName: `Fixture ${index}`, packageName: `org.fixture.app${index}`, storeUrl: `https://example.invalid/store/${index}` }));
+  fs.writeFileSync(extendedOpenSourceFile, JSON.stringify({ ...openSourceCatalog, apps: [...openSourceCatalog.apps, ...extraApps] }));
+  const priorFile = path.join(temp, 'prior.json'); const followUpFile = path.join(temp, 'follow-up.json');
+  fs.writeFileSync(priorFile, JSON.stringify({ ...openSourceReport, results: openSourceReport.results.slice(0, 1), failures: [{ ...openSourceReport.results[1], error: 'fixture failure' }] }));
+  execFileSync(process.execPath, [path.join(root, 'scripts/exclude-attempted-store-corpus.js'), '--catalog', extendedOpenSourceFile, '--prior', priorFile, '--output', followUpFile], { stdio: 'pipe' });
+  const followUp = JSON.parse(fs.readFileSync(followUpFile, 'utf8'));
+  if (followUp.apps.length !== 100 || followUp.apps.some((app) => app.packageName === 'org.fixture.app0' || app.packageName === 'org.fixture.app1') || followUp.source.priorRunExclusions.attemptedPackages !== 2) throw new Error('Follow-up corpus exclusion contract failed.');
   const evaluation = {
     schema: 'privacy-lens.android-store-evaluation.v1', corpusId: 'contract-fixture',
     cases: Array.from({ length: 100 }, (_, index) => ({
