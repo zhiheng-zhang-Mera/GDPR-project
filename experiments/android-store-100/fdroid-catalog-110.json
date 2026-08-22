@@ -1,0 +1,2114 @@
+{
+  "schema": "privacy-lens.android-store-corpus.v1",
+  "corpusId": "fdroid-open-source-store-110-seed-8222026",
+  "corpusKind": "OPEN_SOURCE_APP_STORE",
+  "source": {
+    "repository": "https://f-droid.org/repo/",
+    "indexUrl": "https://f-droid.org/repo/index-v2.json",
+    "indexSha256": "90e5c2a72a50189126a1f85b29c25f4c23fffef09aad2cc38a9db97954369611",
+    "signerIndexUrl": "https://f-droid.org/repo/signer-index.json",
+    "signerIndexSha256": "98cde2c3513d0f75a370881bc2f097fce7aba2e4fb096ad5bf9b0471b730ae1d",
+    "selection": {
+      "seed": 8222026,
+      "count": 110,
+      "maxApkBytes": 12000000,
+      "minDeviceSdk": 31,
+      "architecture": "arm64-v8a-or-none",
+      "strategy": "deterministic-random-category-round-robin",
+      "selectedCategories": [
+        "Browser",
+        "Habit Tracker",
+        "Translation & Dictionary",
+        "News",
+        "Timer",
+        "Wallet",
+        "Dice",
+        "File Transfer",
+        "Draw",
+        "Graphics",
+        "Science & Education",
+        "Card Game",
+        "Podcast",
+        "DNS & Hosts",
+        "Multimedia",
+        "Task",
+        "Sports & Health",
+        "Internet",
+        "Navigation",
+        "Role-Playing Game",
+        "Download",
+        "Pass Wallet",
+        "App Manager",
+        "Recipe Manager",
+        "Email",
+        "Messaging",
+        "Health Manager",
+        "Time Tracker",
+        "Lyrics",
+        "Text Editor",
+        "Voice & Video Chat",
+        "Cloud Storage & File Sync",
+        "Remote Controller",
+        "Emulator",
+        "Music Practice Tool",
+        "Inventory",
+        "Schedule",
+        "Calculator",
+        "AI Chat",
+        "Calendar & Agenda",
+        "Flashlight",
+        "Radio",
+        "Educational Game",
+        "Writing",
+        "Password & 2FA",
+        "Sport Game",
+        "Security",
+        "Stopwatch",
+        "Unit Convertor",
+        "Reading",
+        "Code & Forge",
+        "Local Media Player",
+        "Finance Manager",
+        "Word Game",
+        "Shopping List",
+        "Weather",
+        "Market & Price",
+        "Game Helper",
+        "Launcher",
+        "Social Network",
+        "Recorder",
+        "Diet",
+        "File Encryption & Vault",
+        "Board Game",
+        "Icon Pack",
+        "Shooter Game",
+        "Online Media Player",
+        "File Manager",
+        "Location Tracker & Sharer",
+        "Alarm Clock",
+        "Workout",
+        "Forum",
+        "Gallery",
+        "Bookmark",
+        "Meditation",
+        "Strategy Game",
+        "Remote Access",
+        "Action Game",
+        "Cast",
+        "Development",
+        "Wallpaper",
+        "Theming",
+        "Battery",
+        "Religion",
+        "Clock",
+        "System",
+        "Connectivity",
+        "Push",
+        "Casual Game",
+        "Contact",
+        "Phone & SMS",
+        "Text to Speech",
+        "Ebook Reader",
+        "Public Transport",
+        "Notification",
+        "Network Analyzer",
+        "Party Game",
+        "VPN & Proxy",
+        "Keyboard & IME",
+        "App Store & Updater",
+        "Volume",
+        "Firewall",
+        "Camera",
+        "Puzzle Game",
+        "Note",
+        "Visual Novel",
+        "Browser",
+        "Habit Tracker",
+        "Translation & Dictionary",
+        "News"
+      ]
+    }
+  },
+  "apps": [
+    {
+      "id": "fdroid-001",
+      "displayName": "EinkBro",
+      "packageName": "info.plateaukao.einkbro",
+      "storeUrl": "https://f-droid.org/packages/info.plateaukao.einkbro",
+      "downloadUrl": "https://f-droid.org/repo/info.plateaukao.einkbro_160301.apk",
+      "expectedSignerSha256": "5ed1905785aef4e02bcaa99f26c76e8f6a78044a033efc3003549e747b6879c1",
+      "category": "Browser",
+      "versionCode": 160301,
+      "versionName": "16.3.1",
+      "size": 10140200,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\info.plateaukao.einkbro_160301.apk",
+          "sha256": "8fafa319657111f033c902e681a38238dc03c2954e7ffd1b7e32fa0fd5310e5f"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-002",
+      "displayName": "Petals: Cannabis Use Tracker",
+      "packageName": "br.com.colman.petals",
+      "storeUrl": "https://f-droid.org/packages/br.com.colman.petals",
+      "downloadUrl": "https://f-droid.org/repo/br.com.colman.petals_3043004.apk",
+      "expectedSignerSha256": "4ff7db0e73a378db1570ec9bc802f37902188c27b8171e0cb6d0bbd7fa96371f",
+      "category": "Habit Tracker",
+      "versionCode": 3043004,
+      "versionName": "3.43.4",
+      "size": 11155991,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\br.com.colman.petals_3043004.apk",
+          "sha256": "a1031fa32056a1f323ea3d786eef2a909de4cb5bfa9eaaae1f2cdadb65f51236"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-003",
+      "displayName": "SilverDict",
+      "packageName": "com.gmail.blandilyte.silverdict",
+      "storeUrl": "https://f-droid.org/packages/com.gmail.blandilyte.silverdict",
+      "downloadUrl": "https://f-droid.org/repo/com.gmail.blandilyte.silverdict_133.apk",
+      "expectedSignerSha256": "ef2c33d12ab0947824051edd0394153f92d8d9dcf0cc304ee7a9f15f92ddf951",
+      "category": "Translation & Dictionary",
+      "versionCode": 133,
+      "versionName": "1.5.0",
+      "size": 9269333,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.gmail.blandilyte.silverdict_133.apk",
+          "sha256": "66a22251681e2221f18988e0a812fb64f7dc27d2caf6e1a0d6e674b616c4dabd"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-004",
+      "displayName": "Flym DecSync",
+      "packageName": "org.decsync.flym",
+      "storeUrl": "https://f-droid.org/packages/org.decsync.flym",
+      "downloadUrl": "https://f-droid.org/repo/org.decsync.flym_46.apk",
+      "expectedSignerSha256": "bcf558e6eee7bf3f9e37fea4e475872808a9154917c3e6e3495c1180af77f98f",
+      "category": "News",
+      "versionCode": 46,
+      "versionName": "2.7.2",
+      "size": 4367654,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.decsync.flym_46.apk",
+          "sha256": "6193ca84795c09dcdfe11725a2aa7f01f22780c1553c6e3f7a40f05da0a0855a"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-005",
+      "displayName": "Meditation",
+      "packageName": "com.nyxkn.meditation",
+      "storeUrl": "https://f-droid.org/packages/com.nyxkn.meditation",
+      "downloadUrl": "https://f-droid.org/repo/com.nyxkn.meditation_1603.apk",
+      "expectedSignerSha256": "0f4cf9bf9c3c7def80b081a554f5975bf91b490103b8126fca67d95eb4e42035",
+      "category": "Timer",
+      "versionCode": 1603,
+      "versionName": "1.4.2",
+      "size": 11175054,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.nyxkn.meditation_1603.apk",
+          "sha256": "552a4f62d5034d252a3969e52b82305d92b3b179ab2eea2e44f7e518c007d523"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-006",
+      "displayName": "Android XMRig Miner",
+      "packageName": "org.elijaxapps.androidxmrigminer",
+      "storeUrl": "https://f-droid.org/packages/org.elijaxapps.androidxmrigminer",
+      "downloadUrl": "https://f-droid.org/repo/org.elijaxapps.androidxmrigminer_5.apk",
+      "expectedSignerSha256": "a3cb85ce9a10a9f0eac4583a1b4774418cc89c5adf026d08c0f7079c78cde072",
+      "category": "Wallet",
+      "versionCode": 5,
+      "versionName": "1.02",
+      "size": 7369147,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.elijaxapps.androidxmrigminer_5.apk",
+          "sha256": "7ad4b182757b4e177c2e27975764cc0e94273076283e6c881e2b1d8cdc149b7c"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-007",
+      "displayName": "Iam Pirate Dice",
+      "packageName": "com.igormaznitsa.piratedice",
+      "storeUrl": "https://f-droid.org/packages/com.igormaznitsa.piratedice",
+      "downloadUrl": "https://f-droid.org/repo/com.igormaznitsa.piratedice_4.apk",
+      "expectedSignerSha256": "5f0adffc6acda033f707d776cdfc058160d8371797d422d8c23df308e52ca703",
+      "category": "Dice",
+      "versionCode": 4,
+      "versionName": "1.0.3",
+      "size": 2900105,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.igormaznitsa.piratedice_4.apk",
+          "sha256": "941667347996da2bd9885f81b58d684abc7ec856eff2dc85988144542f89c259"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-008",
+      "displayName": "NitroShare",
+      "packageName": "net.nitroshare.android",
+      "storeUrl": "https://f-droid.org/packages/net.nitroshare.android",
+      "downloadUrl": "https://f-droid.org/repo/net.nitroshare.android_40.apk",
+      "expectedSignerSha256": "965cc77c06acc120333fe3489b5ed1160b6d57911245316b2eb09b2a0723ed84",
+      "category": "File Transfer",
+      "versionCode": 40,
+      "versionName": "0.4.0.39",
+      "size": 2614438,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\net.nitroshare.android_40.apk",
+          "sha256": "8344b5416272d4485c02a0738345a58a67807b5150170e5db3abbc5f397f888c"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-009",
+      "displayName": "Quick Draw Everywhere",
+      "packageName": "com.tomer.draw",
+      "storeUrl": "https://f-droid.org/packages/com.tomer.draw",
+      "downloadUrl": "https://f-droid.org/repo/com.tomer.draw_100.apk",
+      "expectedSignerSha256": "121f4eefa88dd62df65e8bf701393cac351bed2aa22b6afcce7330be18451998",
+      "category": "Draw",
+      "versionCode": 100,
+      "versionName": "1.9",
+      "size": 1323275,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.tomer.draw_100.apk",
+          "sha256": "94c00af4ba040409e46914c2e095d93bc4e92dc8b6cbbef2a1b801aab7199382"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-010",
+      "displayName": "Pixel Artist",
+      "packageName": "rodrigodavy.com.github.pixelartist",
+      "storeUrl": "https://f-droid.org/packages/rodrigodavy.com.github.pixelartist",
+      "downloadUrl": "https://f-droid.org/repo/rodrigodavy.com.github.pixelartist_4.apk",
+      "expectedSignerSha256": "fd71bef0ac6fc73f8ef5ca4af95fb6152ca0649005505adfb8d50449155ffcb5",
+      "category": "Graphics",
+      "versionCode": 4,
+      "versionName": "3.1",
+      "size": 1862246,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\rodrigodavy.com.github.pixelartist_4.apk",
+          "sha256": "b42c28195e9ae448ecff530516c023da32b2dfde8d8892ff76eea987d35dd45f"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-011",
+      "displayName": "S2TDroid Pro",
+      "packageName": "com.npes87184.s2tdroid.donate",
+      "storeUrl": "https://f-droid.org/packages/com.npes87184.s2tdroid.donate",
+      "downloadUrl": "https://f-droid.org/repo/com.npes87184.s2tdroid.donate_28.apk",
+      "expectedSignerSha256": "c8560f12bb61c6bba6cbab01d7cec7c6ea49f5f8ef22778777cf40ea816135c4",
+      "category": "Science & Education",
+      "versionCode": 28,
+      "versionName": "1.10.0",
+      "size": 1650939,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.npes87184.s2tdroid.donate_28.apk",
+          "sha256": "61a45d29e63592aadc9df15a150b0369b27f9bc30cc33a6194e82dad920405dc"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-012",
+      "displayName": "Vitosha Blackjack",
+      "packageName": "eu.veldsoft.vitosha.blackjack",
+      "storeUrl": "https://f-droid.org/packages/eu.veldsoft.vitosha.blackjack",
+      "downloadUrl": "https://f-droid.org/repo/eu.veldsoft.vitosha.blackjack_2.apk",
+      "expectedSignerSha256": "a679aefa61d58a3d8f67c31f41b4d93e9ee3d2955d31f52f2f490e3bd0b9ebad",
+      "category": "Card Game",
+      "versionCode": 2,
+      "versionName": "2.0.0",
+      "size": 1610836,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\eu.veldsoft.vitosha.blackjack_2.apk",
+          "sha256": "87bf55d4eab43c7f2b0c0fd5e15f9adb69adec90aac33397f7c97637cdad7184"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-013",
+      "displayName": "Öffi Sounds",
+      "packageName": "de.oeffisounds.app",
+      "storeUrl": "https://f-droid.org/packages/de.oeffisounds.app",
+      "downloadUrl": "https://f-droid.org/repo/de.oeffisounds.app_36.apk",
+      "expectedSignerSha256": "b77265ab887a80e98e8c42582006d5da7ead7741039aeb30d039178a7d2dfb66",
+      "category": "Podcast",
+      "versionCode": 36,
+      "versionName": "2.8.4",
+      "size": 10423235,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\de.oeffisounds.app_36.apk",
+          "sha256": "79a4525bf1c2852ab2fdf6c4edf4bfba72cba5bb6bbb67af3099411c230fdbd3"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-014",
+      "displayName": "NetGuard",
+      "packageName": "eu.faircode.netguard",
+      "storeUrl": "https://f-droid.org/packages/eu.faircode.netguard",
+      "downloadUrl": "https://f-droid.org/repo/eu.faircode.netguard_2026080101.apk",
+      "expectedSignerSha256": "cd775f59ee5aebba18d9f20aa5d69c7b6952958224b7c93f597e174b57b4dd8f",
+      "category": "DNS & Hosts",
+      "versionCode": 2026080101,
+      "versionName": "2.337",
+      "size": 2852296,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\eu.faircode.netguard_2026080101.apk",
+          "sha256": "158b4308da0006298d22ed557adbff24b282fddeb1bc0b3468829a60f405a8c4"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-015",
+      "displayName": "CineLog",
+      "packageName": "com.ulicae.cinelog",
+      "storeUrl": "https://f-droid.org/packages/com.ulicae.cinelog",
+      "downloadUrl": "https://f-droid.org/repo/com.ulicae.cinelog_45.apk",
+      "expectedSignerSha256": "5db7bb3d7481e5409919305860861f73d2f640558dc38f666cd64f9528a1d73d",
+      "category": "Multimedia",
+      "versionCode": 45,
+      "versionName": "3.0.0",
+      "size": 7335915,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.ulicae.cinelog_45.apk",
+          "sha256": "4f02fb8f50f5c910659c65c56c1612954fc663678c091f54ebaaca7275106113"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-016",
+      "displayName": "Todo List (PFA)",
+      "packageName": "org.secuso.privacyfriendlytodolist",
+      "storeUrl": "https://f-droid.org/packages/org.secuso.privacyfriendlytodolist",
+      "downloadUrl": "https://f-droid.org/repo/org.secuso.privacyfriendlytodolist_103.apk",
+      "expectedSignerSha256": "c1ef57684f78c5475dfbfafb34e961e31d3b5fff393bf82577e1fe5fa7eac3fe",
+      "category": "Task",
+      "versionCode": 103,
+      "versionName": "3.4.0",
+      "size": 8758556,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.secuso.privacyfriendlytodolist_103.apk",
+          "sha256": "80c6f68ec94a561157ad8db4d335003d2b2c8aeba2b649ab9f446b44743fc0af"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-017",
+      "displayName": "AFReplacer",
+      "packageName": "ru.ifproject.android.afr",
+      "storeUrl": "https://f-droid.org/packages/ru.ifproject.android.afr",
+      "downloadUrl": "https://f-droid.org/repo/ru.ifproject.android.afr_14.apk",
+      "expectedSignerSha256": "33563f93c320c8be9c10b31c6db1adc93010cbad8ef005e807db9cadeaf0e868",
+      "category": "Sports & Health",
+      "versionCode": 14,
+      "versionName": "0.4.1",
+      "size": 800438,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\ru.ifproject.android.afr_14.apk",
+          "sha256": "1b51730887e1b83ae00c1709c4fc9988a81b3aed187ec98f64fca41ec2417df6"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-018",
+      "displayName": "pOT-Droid",
+      "packageName": "com.mde.potdroid",
+      "storeUrl": "https://f-droid.org/packages/com.mde.potdroid",
+      "downloadUrl": "https://f-droid.org/repo/com.mde.potdroid_94.apk",
+      "expectedSignerSha256": "2059557fa5f56a6d3eb976130696397b0b777b9f3d843c6e2c8591417a3ea6c9",
+      "category": "Internet",
+      "versionCode": 94,
+      "versionName": "5.6.0",
+      "size": 3787297,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.mde.potdroid_94.apk",
+          "sha256": "e03f93a5934b403c051a82143560fa9671fe1d696a0d344b801d06a91d682eeb"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-019",
+      "displayName": "RegisCat",
+      "packageName": "com.example.regis_cat",
+      "storeUrl": "https://f-droid.org/packages/com.example.regis_cat",
+      "downloadUrl": "https://f-droid.org/repo/com.example.regis_cat_1.apk",
+      "expectedSignerSha256": "712bb4f8ca6b53366453f0dd08e6460d5ba7d7ea83156f3805e3a0bcf8cea4f7",
+      "category": "Navigation",
+      "versionCode": 1,
+      "versionName": "1.0",
+      "size": 5397111,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.example.regis_cat_1.apk",
+          "sha256": "d0ea53e8f72ac0eac3c5a06957f126cc54413b0d16c7d190275d199c41b2431c"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-020",
+      "displayName": "FLARE",
+      "packageName": "org.flare.app",
+      "storeUrl": "https://f-droid.org/packages/org.flare.app",
+      "downloadUrl": "https://f-droid.org/repo/org.flare.app_115.apk",
+      "expectedSignerSha256": "593188f2ff67026928cc6fd2a4c2436275544af095f5afe714c4af29dfdf687d",
+      "category": "Role-Playing Game",
+      "versionCode": 115,
+      "versionName": "1.15",
+      "size": 10909948,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.flare.app_115.apk",
+          "sha256": "43dbb18ebcbadde99254851d1bde0263814e26bb167a9e66a3060e34b37fbc4e"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-021",
+      "displayName": "Transdrone",
+      "packageName": "org.transdroid.lite",
+      "storeUrl": "https://f-droid.org/packages/org.transdroid.lite",
+      "downloadUrl": "https://f-droid.org/repo/org.transdroid.lite_249.apk",
+      "expectedSignerSha256": "32a28e3ba8ad180a217d12c7f57d68355ab890195bd9e444212d18bd68dad90f",
+      "category": "Download",
+      "versionCode": 249,
+      "versionName": "2.5.29",
+      "size": 3668271,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.transdroid.lite_249.apk",
+          "sha256": "f0d01efdfc5f47caf254e705011cd45f75de1cf724328bc4141eb659cfefd2f2"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-022",
+      "displayName": "PassAndroid",
+      "packageName": "org.ligi.passandroid",
+      "storeUrl": "https://f-droid.org/packages/org.ligi.passandroid",
+      "downloadUrl": "https://f-droid.org/repo/org.ligi.passandroid_373.apk",
+      "expectedSignerSha256": "5fc75c1dc489562314eee00c9d057133f00b4b1dc35f8cf6d200a6837570b7a8",
+      "category": "Pass Wallet",
+      "versionCode": 373,
+      "versionName": "3.7.3",
+      "size": 3663282,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.ligi.passandroid_373.apk",
+          "sha256": "1b2f35f99dff9c26812c3650b6c2754dabd85b024dcd692e6f2c3aea698b8bda"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-023",
+      "displayName": "Stanley",
+      "packageName": "fr.xgouchet.packageexplorer",
+      "storeUrl": "https://f-droid.org/packages/fr.xgouchet.packageexplorer",
+      "downloadUrl": "https://f-droid.org/repo/fr.xgouchet.packageexplorer_19.apk",
+      "expectedSignerSha256": "ff8ae0178f755db0bf4487bc39601b93de177f3747284d161c3e069901947511",
+      "category": "App Manager",
+      "versionCode": 19,
+      "versionName": "2.7",
+      "size": 5013418,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\fr.xgouchet.packageexplorer_19.apk",
+          "sha256": "397598f76b609271d738dc12559e42700d2ad51beba1f31881e46707b641ee6a"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-024",
+      "displayName": "Nextcloud Cookbook",
+      "packageName": "de.lukasneugebauer.nextcloudcookbook",
+      "storeUrl": "https://f-droid.org/packages/de.lukasneugebauer.nextcloudcookbook",
+      "downloadUrl": "https://f-droid.org/repo/de.lukasneugebauer.nextcloudcookbook_64.apk",
+      "expectedSignerSha256": "76c29d9a8791ffd9363836968960fd6d63b3d441fe9695f3668adbe384e36474",
+      "category": "Recipe Manager",
+      "versionCode": 64,
+      "versionName": "0.30.0",
+      "size": 8522641,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\de.lukasneugebauer.nextcloudcookbook_64.apk",
+          "sha256": "f9cecf15ac08c0b25f4b71d397e924a1b366f451f122f4597483d22db77ef085"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-025",
+      "displayName": "SimpleEmail",
+      "packageName": "org.dystopia.email",
+      "storeUrl": "https://f-droid.org/packages/org.dystopia.email",
+      "downloadUrl": "https://f-droid.org/repo/org.dystopia.email_121.apk",
+      "expectedSignerSha256": "1e249dad0e6aa1a6b3896073f6f8ece2b3515c6005d820d088948066bb5bb803",
+      "category": "Email",
+      "versionCode": 121,
+      "versionName": "1.5.4",
+      "size": 2870232,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.dystopia.email_121.apk",
+          "sha256": "e1545a2f2d3aab4b36c7f6ef6ac08a06fea37ac2de11415073cf7085917075b3"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-026",
+      "displayName": "Revolution IRC",
+      "packageName": "io.mrarm.irc",
+      "storeUrl": "https://f-droid.org/packages/io.mrarm.irc",
+      "downloadUrl": "https://f-droid.org/repo/io.mrarm.irc_13.apk",
+      "expectedSignerSha256": "adfa8420866d134e4b73528a166edddb4a3b46d32e343ee814e0c57cbd4e6dee",
+      "category": "Messaging",
+      "versionCode": 13,
+      "versionName": "0.5.5",
+      "size": 3785301,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\io.mrarm.irc_13.apk",
+          "sha256": "f38b00937449f180d1fd6a0712df05b47320c53d087b554be25b526bac2ce8a5"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-027",
+      "displayName": "MediLog (Non-reproducible build)",
+      "packageName": "com.zell_mbc.medilog",
+      "storeUrl": "https://f-droid.org/packages/com.zell_mbc.medilog",
+      "downloadUrl": "https://f-droid.org/repo/com.zell_mbc.medilog_5528.apk",
+      "expectedSignerSha256": "4535b52b526f50b9cd3e3d8b9fc658bb959a9fe8ee0450154085e28d4b004198",
+      "category": "Health Manager",
+      "versionCode": 5528,
+      "versionName": "3.7.2",
+      "size": 10417110,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.zell_mbc.medilog_5528.apk",
+          "sha256": "5563ea7fbdbed54a8f9bbb66c8023285e61c617b71dd5fc26336c743c1ecdf22"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-028",
+      "displayName": "Yeeemp",
+      "packageName": "art.pegasko.yeeemp",
+      "storeUrl": "https://f-droid.org/packages/art.pegasko.yeeemp",
+      "downloadUrl": "https://f-droid.org/repo/art.pegasko.yeeemp_1009.apk",
+      "expectedSignerSha256": "cd3bb6f8b051f6540a56efc6b3badf17a05939a3b3d5fc4de6e8443c8c4b5288",
+      "category": "Time Tracker",
+      "versionCode": 1009,
+      "versionName": "1.009",
+      "size": 2212043,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\art.pegasko.yeeemp_1009.apk",
+          "sha256": "612d5cd3580621bce1db3a7a2dab69f6f778dcbc630c5a48d7fbbca8c73c4547"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-029",
+      "displayName": "LRC Editor",
+      "packageName": "com.cg.lrceditor",
+      "storeUrl": "https://f-droid.org/packages/com.cg.lrceditor",
+      "downloadUrl": "https://f-droid.org/repo/com.cg.lrceditor_57.apk",
+      "expectedSignerSha256": "4f315e475f404467a76a93fb5a6f1b0717a95932d4570da40c8d2a84d145077e",
+      "category": "Lyrics",
+      "versionCode": 57,
+      "versionName": "3.2.7",
+      "size": 1246051,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.cg.lrceditor_57.apk",
+          "sha256": "ea720cf8ae77d9dcae2f5639654ae03f9309c9de49b6abb166d4a93c1d20f016"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-030",
+      "displayName": "SimpleTextEditor",
+      "packageName": "com.maxistar.textpad",
+      "storeUrl": "https://f-droid.org/packages/com.maxistar.textpad",
+      "downloadUrl": "https://f-droid.org/repo/com.maxistar.textpad_62.apk",
+      "expectedSignerSha256": "8a910ff97bef2a933a5e08ce4c23ddb142b8d585a75f6082c204d1ff0633278e",
+      "category": "Text Editor",
+      "versionCode": 62,
+      "versionName": "1.31.1",
+      "size": 2880760,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.maxistar.textpad_62.apk",
+          "sha256": "682c671c8b619102b59e71c38b9c50002678f167524bc2c4e0185eceea59a78b"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-031",
+      "displayName": "Sipdroid",
+      "packageName": "org.sipdroid.sipua",
+      "storeUrl": "https://f-droid.org/packages/org.sipdroid.sipua",
+      "downloadUrl": "https://f-droid.org/repo/org.sipdroid.sipua_146.apk",
+      "expectedSignerSha256": "534883ad19ff09e9ce5cf4b6b190e13ba03487a817225705cbf111840fce3b84",
+      "category": "Voice & Video Chat",
+      "versionCode": 146,
+      "versionName": "6.5",
+      "size": 1039673,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.sipdroid.sipua_146.apk",
+          "sha256": "7129183d4fed20a0f93cc80c56850804912dbce2d3918bef75fd406a83edc072"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-032",
+      "displayName": "Ghost Commander",
+      "packageName": "com.ghostsq.commander",
+      "storeUrl": "https://f-droid.org/packages/com.ghostsq.commander",
+      "downloadUrl": "https://f-droid.org/repo/com.ghostsq.commander_479.apk",
+      "expectedSignerSha256": "42b1741542b9b8e22d4f0f0336c9688d3b695eef1d79135135d539521d7e8a20",
+      "category": "Cloud Storage & File Sync",
+      "versionCode": 479,
+      "versionName": "1.64.2b4",
+      "size": 4988095,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.ghostsq.commander_479.apk",
+          "sha256": "7e80608184f463d0837328998983beb30799d13de2d5b28dca8f76978dc8a05c"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-033",
+      "displayName": "mythmote",
+      "packageName": "tkj.android.homecontrol.mythmote",
+      "storeUrl": "https://f-droid.org/packages/tkj.android.homecontrol.mythmote",
+      "downloadUrl": "https://f-droid.org/repo/tkj.android.homecontrol.mythmote_3014.apk",
+      "expectedSignerSha256": "24fae2c138e89af639f741b3539e43c2e54fee9ff47e59c60ef7d17402a2b94f",
+      "category": "Remote Controller",
+      "versionCode": 3014,
+      "versionName": "1.11.0.0",
+      "size": 1814109,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\tkj.android.homecontrol.mythmote_3014.apk",
+          "sha256": "d065798344c08202e634d412b6a9e6537068fa31087354f5a3def888a8f39c1d"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-034",
+      "displayName": "Lemuroid",
+      "packageName": "com.swordfish.lemuroid",
+      "storeUrl": "https://f-droid.org/packages/com.swordfish.lemuroid",
+      "downloadUrl": "https://f-droid.org/repo/com.swordfish.lemuroid_252.apk",
+      "expectedSignerSha256": "36e9853f4884e55c35803dbf671e1493e8b0b4d33e635ed84dbaa83bcad8303c",
+      "category": "Emulator",
+      "versionCode": 252,
+      "versionName": "1.17.0",
+      "size": 11970354,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.swordfish.lemuroid_252.apk",
+          "sha256": "f83912a5c276f3616833fcf1b44a8e40c61d5a20f76db3f4297d6c1f63805c42"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-035",
+      "displayName": "Chubby Click - Metronome",
+      "packageName": "agrigolo.chubbyclick",
+      "storeUrl": "https://f-droid.org/packages/agrigolo.chubbyclick",
+      "downloadUrl": "https://f-droid.org/repo/agrigolo.chubbyclick_28.apk",
+      "expectedSignerSha256": "9690c304e34234c8485c877f9ee473eb10355e4e36f02f1595c5ec3ffed51408",
+      "category": "Music Practice Tool",
+      "versionCode": 28,
+      "versionName": "v2.7.1",
+      "size": 5077516,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\agrigolo.chubbyclick_28.apk",
+          "sha256": "f5e01afc74656ae3d18973b274abacf4efb63b794062785542474d874b7fe383"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-036",
+      "displayName": "Grocery manager",
+      "packageName": "com.grocerymanager",
+      "storeUrl": "https://f-droid.org/packages/com.grocerymanager",
+      "downloadUrl": "https://f-droid.org/repo/com.grocerymanager_1.apk",
+      "expectedSignerSha256": "949fc1ccf22c83bfab5eb99bc0bcda506762b330363a07347c0b539ba0972fa6",
+      "category": "Inventory",
+      "versionCode": 1,
+      "versionName": "1.0",
+      "size": 2298327,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.grocerymanager_1.apk",
+          "sha256": "63d981a5b864c228d5a6e6189ca835b7923b0afe442a742d55acf4142cf0f573"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-037",
+      "displayName": "LibreOffice 2024 Schedule",
+      "packageName": "info.metadude.android.libreoffice.schedule",
+      "storeUrl": "https://f-droid.org/packages/info.metadude.android.libreoffice.schedule",
+      "downloadUrl": "https://f-droid.org/repo/info.metadude.android.libreoffice.schedule_106.apk",
+      "expectedSignerSha256": "00ef5a1539900d32262c44349b939368282febbe5a2755cf39569a82eca2e711",
+      "category": "Schedule",
+      "versionCode": 106,
+      "versionName": "1.66.2-LibreOffice-Edition",
+      "size": 6194555,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\info.metadude.android.libreoffice.schedule_106.apk",
+          "sha256": "76935960bfc259fecece0e1cb368802f01ca114596fbae6a68052a9a0b0e84fc"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-038",
+      "displayName": "RPN",
+      "packageName": "org.scoutant.rpn",
+      "storeUrl": "https://f-droid.org/packages/org.scoutant.rpn",
+      "downloadUrl": "https://f-droid.org/repo/org.scoutant.rpn_4.apk",
+      "expectedSignerSha256": "2dc56f71271d76cfad3147fab2b856353817617d2e8d31ec6b8f9a94e5740a5c",
+      "category": "Calculator",
+      "versionCode": 4,
+      "versionName": "1.3",
+      "size": 7027241,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.scoutant.rpn_4.apk",
+          "sha256": "7d32f8509d4f74dec70151dbf9adb4b549e9d56614dd9d9fb56ed808f36b5778"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-039",
+      "displayName": "TypeAssist",
+      "packageName": "com.typeassist.app",
+      "storeUrl": "https://f-droid.org/packages/com.typeassist.app",
+      "downloadUrl": "https://f-droid.org/repo/com.typeassist.app_11.apk",
+      "expectedSignerSha256": "f924aad27148901ec76277f1984a479f8150c8b55134a9338f704438628ed0d9",
+      "category": "AI Chat",
+      "versionCode": 11,
+      "versionName": "4.2.0",
+      "size": 8488898,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.typeassist.app_11.apk",
+          "sha256": "aa6ccc014d7f827d3382c3974b5af50863caa30ab79620f740a95ccc2a5f79a0"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-040",
+      "displayName": "Todo Agenda",
+      "packageName": "org.andstatus.todoagenda",
+      "storeUrl": "https://f-droid.org/packages/org.andstatus.todoagenda",
+      "downloadUrl": "https://f-droid.org/repo/org.andstatus.todoagenda_717.apk",
+      "expectedSignerSha256": "9577dfe6de7ae7ce7b6be263548cf5f35f6abead640ca3895ad4e1c0b951c788",
+      "category": "Calendar & Agenda",
+      "versionCode": 717,
+      "versionName": "4.13.3",
+      "size": 4280770,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.andstatus.todoagenda_717.apk",
+          "sha256": "ab228dab8e350c74c73991cff165ff9b755477c812c6e2a7f4f8f6d3ce13a85a"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-041",
+      "displayName": "Torchie",
+      "packageName": "in.blogspot.anselmbros.torchie",
+      "storeUrl": "https://f-droid.org/packages/in.blogspot.anselmbros.torchie",
+      "downloadUrl": "https://f-droid.org/repo/in.blogspot.anselmbros.torchie_34.apk",
+      "expectedSignerSha256": "07090ef40ae9dc7e2d05ea5facf0084a75dac835d13d494d8cee533906578024",
+      "category": "Flashlight",
+      "versionCode": 34,
+      "versionName": "3.2.1",
+      "size": 1567924,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\in.blogspot.anselmbros.torchie_34.apk",
+          "sha256": "31c30fe95915cd5775972d3ce42ab789c576d9b62fada5172f6babeb15bf90e6"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-042",
+      "displayName": "WebSDR client",
+      "packageName": "ru.natsuru.websdr",
+      "storeUrl": "https://f-droid.org/packages/ru.natsuru.websdr",
+      "downloadUrl": "https://f-droid.org/repo/ru.natsuru.websdr_1.apk",
+      "expectedSignerSha256": "12098a7ecf0fe0f95715b76de92f0600bef848d2643be278e71eac6a64a1b488",
+      "category": "Radio",
+      "versionCode": 1,
+      "versionName": "1.8.11",
+      "size": 3565471,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\ru.natsuru.websdr_1.apk",
+          "sha256": "bd3bf8704e2c079ec6cfef605c69552612f2c289dd5903985202de7856be2614"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-043",
+      "displayName": "Memory",
+      "packageName": "com.sanskritbasics.memory",
+      "storeUrl": "https://f-droid.org/packages/com.sanskritbasics.memory",
+      "downloadUrl": "https://f-droid.org/repo/com.sanskritbasics.memory_34.apk",
+      "expectedSignerSha256": "0e3ad96aae742f7caf8c088a1968424c9c00b44c306912acaf15cf1c73d1fa73",
+      "category": "Educational Game",
+      "versionCode": 34,
+      "versionName": "3.4",
+      "size": 2787649,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.sanskritbasics.memory_34.apk",
+          "sha256": "830798a6e70653d64fdf74a8f33beed448ffb2b22ca0736adf7cf6a07289e83c"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-044",
+      "displayName": "OpenTasks",
+      "packageName": "org.dmfs.tasks",
+      "storeUrl": "https://f-droid.org/packages/org.dmfs.tasks",
+      "downloadUrl": "https://f-droid.org/repo/org.dmfs.tasks_82200.apk",
+      "expectedSignerSha256": "056b298fcfe8c3804b448653e8558bb473af42ceea0d9c31e94ab203f0d725e2",
+      "category": "Writing",
+      "versionCode": 82200,
+      "versionName": "1.4.2",
+      "size": 3685910,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.dmfs.tasks_82200.apk",
+          "sha256": "7f3a1528142c8a8a0ab1ecf6b83f0620eb31cd8daa94b299149c21982e3c2f14"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-045",
+      "displayName": "Nextcloud Passwords",
+      "packageName": "com.hegocre.nextcloudpasswords",
+      "storeUrl": "https://f-droid.org/packages/com.hegocre.nextcloudpasswords",
+      "downloadUrl": "https://f-droid.org/repo/com.hegocre.nextcloudpasswords_38.apk",
+      "expectedSignerSha256": "4a8702c9928cd8c688856d7d4f361b9f5645ec32eaa426497b08b5ad37eff01d",
+      "category": "Password & 2FA",
+      "versionCode": 38,
+      "versionName": "1.0.12",
+      "size": 6431390,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.hegocre.nextcloudpasswords_38.apk",
+          "sha256": "7661ceccfa530cb725d7de6450f72b9cbc19a35a7a0e69be6f6090b49da96356"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-046",
+      "displayName": "Tux Rider",
+      "packageName": "com.drodin.tuxrider",
+      "storeUrl": "https://f-droid.org/packages/com.drodin.tuxrider",
+      "downloadUrl": "https://f-droid.org/repo/com.drodin.tuxrider_15.apk",
+      "expectedSignerSha256": "07f456d12014f4b668994d2f1da10cf4910d19d8af20cd157c19e2cd7c5a5ebd",
+      "category": "Sport Game",
+      "versionCode": 15,
+      "versionName": "1.5.0",
+      "size": 9917362,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.drodin.tuxrider_15.apk",
+          "sha256": "bc6f1767a49f0752b9eab887cb6c3835e917e199a914d41388fbab92c4486a3c"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-047",
+      "displayName": "Diceware Password Generator",
+      "packageName": "com.aptasystems.dicewarepasswordgenerator",
+      "storeUrl": "https://f-droid.org/packages/com.aptasystems.dicewarepasswordgenerator",
+      "downloadUrl": "https://f-droid.org/repo/com.aptasystems.dicewarepasswordgenerator_9.apk",
+      "expectedSignerSha256": "3ff5d4d496e988314761654b442e0d8ae9949bdba643e79ae5e3fe1ece30247a",
+      "category": "Security",
+      "versionCode": 9,
+      "versionName": "1.8",
+      "size": 2451776,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.aptasystems.dicewarepasswordgenerator_9.apk",
+          "sha256": "ebd1b03c53790301db4b29230079421ca17b54bc756f765154f11035673e829c"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-048",
+      "displayName": "DataStopwatch",
+      "packageName": "io.github.datastopwatch",
+      "storeUrl": "https://f-droid.org/packages/io.github.datastopwatch",
+      "downloadUrl": "https://f-droid.org/repo/io.github.datastopwatch_10.apk",
+      "expectedSignerSha256": "5f609a319fedd988009b6e8d69d5a0ab9e638e996a17beb3896ce91ffb10e71a",
+      "category": "Stopwatch",
+      "versionCode": 10,
+      "versionName": "1.0",
+      "size": 3563967,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\io.github.datastopwatch_10.apk",
+          "sha256": "37a00bf88373920fca6b53985fc4825fe9d6b25871645108e4dab49826c542d9"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-049",
+      "displayName": "Unit Converter Ultimate",
+      "packageName": "com.physphil.android.unitconverterultimate",
+      "storeUrl": "https://f-droid.org/packages/com.physphil.android.unitconverterultimate",
+      "downloadUrl": "https://f-droid.org/repo/com.physphil.android.unitconverterultimate_50703.apk",
+      "expectedSignerSha256": "1132634b4871563bdc9f5e70c0ccee018f03998d3eac925f14028d3a67fe9c0f",
+      "category": "Unit Convertor",
+      "versionCode": 50703,
+      "versionName": "5.7.3",
+      "size": 3466886,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.physphil.android.unitconverterultimate_50703.apk",
+          "sha256": "2569924fcb71d96699f48cbc06620bb5708b88b36624df72c4badb7a2c6ebbcb"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-050",
+      "displayName": "Thud",
+      "packageName": "com.aerotoad.thud",
+      "storeUrl": "https://f-droid.org/packages/com.aerotoad.thud",
+      "downloadUrl": "https://f-droid.org/repo/com.aerotoad.thud_11.apk",
+      "expectedSignerSha256": "b68dbf6b5fd41438b92b45a7ffc327b3b0073dcd61e3c34b041c319b499c7510",
+      "category": "Reading",
+      "versionCode": 11,
+      "versionName": "1.3.1",
+      "size": 11252838,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.aerotoad.thud_11.apk",
+          "sha256": "c0b1514febba412d2ec4ada351d41cdb88e40ec4de93bafacec52682e456d1cd"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-051",
+      "displayName": "MGit",
+      "packageName": "com.manichord.mgit",
+      "storeUrl": "https://f-droid.org/packages/com.manichord.mgit",
+      "downloadUrl": "https://f-droid.org/repo/com.manichord.mgit_240.apk",
+      "expectedSignerSha256": "c96d51524159b0cbfc371eeefdaa4514fa409bc1a7da0d433e11f64d5aece2bf",
+      "category": "Code & Forge",
+      "versionCode": 240,
+      "versionName": "1.7.0",
+      "size": 10936001,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.manichord.mgit_240.apk",
+          "sha256": "39120843da48bb63ac665eefa3020ea85c4a5b7826f403295be49f97e57e00ba"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-052",
+      "displayName": "SicMu Player",
+      "packageName": "souch.smp",
+      "storeUrl": "https://f-droid.org/packages/souch.smp",
+      "downloadUrl": "https://f-droid.org/repo/souch.smp_33.apk",
+      "expectedSignerSha256": "9ca9d4b92579890c8962714ede001d1b8ec50697e7c3b0a0d3e91c129c03e8fd",
+      "category": "Local Media Player",
+      "versionCode": 33,
+      "versionName": "2.4",
+      "size": 4012852,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\souch.smp_33.apk",
+          "sha256": "3df323ffaf70d2918af1ae17e5572c0c98daf420940b25881206718ae8d9014f"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-053",
+      "displayName": "minedmonero",
+      "packageName": "com.vgorcum.minedmonero",
+      "storeUrl": "https://f-droid.org/packages/com.vgorcum.minedmonero",
+      "downloadUrl": "https://f-droid.org/repo/com.vgorcum.minedmonero_2.apk",
+      "expectedSignerSha256": "6953cc3fdf88da8c44810739471f07b9b59be8760764705321e7c7f96f0d3d5d",
+      "category": "Finance Manager",
+      "versionCode": 2,
+      "versionName": "1.1",
+      "size": 1573305,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.vgorcum.minedmonero_2.apk",
+          "sha256": "721b5ff3fb3d9b21a31495c7a37da5f3daf212547cc92bafc800f7adeccd18ca"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-054",
+      "displayName": "9P",
+      "packageName": "se.tube42.p9.android",
+      "storeUrl": "https://f-droid.org/packages/se.tube42.p9.android",
+      "downloadUrl": "https://f-droid.org/repo/se.tube42.p9.android_11.apk",
+      "expectedSignerSha256": "38ff69a9bfc725fcd7971d3203c285b060f1e7a83d66ee5c2a00a841b08e9eed",
+      "category": "Word Game",
+      "versionCode": 11,
+      "versionName": "0.1.1",
+      "size": 6819578,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\se.tube42.p9.android_11.apk",
+          "sha256": "e69e40836e31337eb6d536b5637a3f6ba7b6484b54d172dd24238c0cb2dd5a76"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-055",
+      "displayName": "Shopping List",
+      "packageName": "com.woefe.shoppinglist",
+      "storeUrl": "https://f-droid.org/packages/com.woefe.shoppinglist",
+      "downloadUrl": "https://f-droid.org/repo/com.woefe.shoppinglist_12.apk",
+      "expectedSignerSha256": "c7dc3aee4e13016fc6a8b7153ea5ee8dcb1b3a6ff29bcd70e112c566ece57e49",
+      "category": "Shopping List",
+      "versionCode": 12,
+      "versionName": "0.11.0",
+      "size": 1825624,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.woefe.shoppinglist_12.apk",
+          "sha256": "3f14bbc5b38a66e0030fbc0ed7eb23a7ba5d7345325b66fae77bd2543fb02576"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-056",
+      "displayName": "Weather Radar",
+      "packageName": "com.danhasting.radar",
+      "storeUrl": "https://f-droid.org/packages/com.danhasting.radar",
+      "downloadUrl": "https://f-droid.org/repo/com.danhasting.radar_9.apk",
+      "expectedSignerSha256": "8216785e3e2d99a1087651088365bcabfaff009c0524a6359f2ec9ab3b86005b",
+      "category": "Weather",
+      "versionCode": 9,
+      "versionName": "2.1",
+      "size": 6463753,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.danhasting.radar_9.apk",
+          "sha256": "0b05bfa93902203b37cfcf2431781fb342018fba0132acf1aa9d9feb857cfbb0"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-057",
+      "displayName": "TripleCamel",
+      "packageName": "com.ebaschiera.triplecamel",
+      "storeUrl": "https://f-droid.org/packages/com.ebaschiera.triplecamel",
+      "downloadUrl": "https://f-droid.org/repo/com.ebaschiera.triplecamel_17.apk",
+      "expectedSignerSha256": "869b02dba91bf4043cac84ceb5b16026a0e3650e5820e0d78447a88bccd87a4f",
+      "category": "Market & Price",
+      "versionCode": 17,
+      "versionName": "1.0.16",
+      "size": 2832526,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.ebaschiera.triplecamel_17.apk",
+          "sha256": "50ed7833c7051b71c836fefb92e5a79b18d4d046dbd6ef56bf1d3186d8b1785e"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-058",
+      "displayName": "Dart Checker",
+      "packageName": "com.DartChecker",
+      "storeUrl": "https://f-droid.org/packages/com.DartChecker",
+      "downloadUrl": "https://f-droid.org/repo/com.DartChecker_48.apk",
+      "expectedSignerSha256": "544930c4bfb9cf161d7848f65ca7e5a46cd39bc79abd79fa6b7fb07524ff1abc",
+      "category": "Game Helper",
+      "versionCode": 48,
+      "versionName": "0.9",
+      "size": 4967060,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.DartChecker_48.apk",
+          "sha256": "72dbed948215263c7b236c53c5ad62956f7a6234d2b1e6b50d5ac928320f059d"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-059",
+      "displayName": "Alt Launcher",
+      "packageName": "com.szchoiceway.aios.bridge",
+      "storeUrl": "https://f-droid.org/packages/com.szchoiceway.aios.bridge",
+      "downloadUrl": "https://f-droid.org/repo/com.szchoiceway.aios.bridge_8.apk",
+      "expectedSignerSha256": "b49d10e8c5f56872756cead3708d4897ff9c81b21ac734a4adfa6990a7261966",
+      "category": "Launcher",
+      "versionCode": 8,
+      "versionName": "1.0.6",
+      "size": 2891698,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.szchoiceway.aios.bridge_8.apk",
+          "sha256": "2d34bf80b34cf13c05b1c5c719591689aeffd0ad0a1f5f0ba17261b2d019fbbc"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-060",
+      "displayName": "monocles social",
+      "packageName": "de.monocles.social",
+      "storeUrl": "https://f-droid.org/packages/de.monocles.social",
+      "downloadUrl": "https://f-droid.org/repo/de.monocles.social_4.apk",
+      "expectedSignerSha256": "a7d3afaa18f1d8c3edd2d661fc0e668f3c8358facbdf2043c557c113f040e899",
+      "category": "Social Network",
+      "versionCode": 4,
+      "versionName": "1.2",
+      "size": 1650807,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\de.monocles.social_4.apk",
+          "sha256": "4d4daf45ea2a2d710115b36b0c1bc34399f9e677b263fd52aa52b24334cc8823"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-061",
+      "displayName": "QSO Again",
+      "packageName": "de.qso.again",
+      "storeUrl": "https://f-droid.org/packages/de.qso.again",
+      "downloadUrl": "https://f-droid.org/repo/de.qso.again_1000002.apk",
+      "expectedSignerSha256": "6883c125076c897b55f5c55a77f0474d72ee457d7f0a01510f0c452236ea2398",
+      "category": "Recorder",
+      "versionCode": 1000002,
+      "versionName": "1.0.2",
+      "size": 4880937,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\de.qso.again_1000002.apk",
+          "sha256": "01e3125e2b547c8881edf10429d67fa9f1df9009c3d57167024c8ddf444d6d29"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-062",
+      "displayName": "Grocy: Self-hosted Grocery Management",
+      "packageName": "xyz.zedler.patrick.grocy",
+      "storeUrl": "https://f-droid.org/packages/xyz.zedler.patrick.grocy",
+      "downloadUrl": "https://f-droid.org/repo/xyz.zedler.patrick.grocy_61.apk",
+      "expectedSignerSha256": "4b656ad485a0d644514a028153c645116cd8948e00f9c43f0e7c88793499a064",
+      "category": "Diet",
+      "versionCode": 61,
+      "versionName": "3.8.1",
+      "size": 9873609,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\xyz.zedler.patrick.grocy_61.apk",
+          "sha256": "7ad9e360c3c13c74205b9834dd6068ecce6bccd799dfec23951a4fe68421f591"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-063",
+      "displayName": "Amaze File Manager",
+      "packageName": "com.amaze.filemanager",
+      "storeUrl": "https://f-droid.org/packages/com.amaze.filemanager",
+      "downloadUrl": "https://f-droid.org/repo/com.amaze.filemanager_123.apk",
+      "expectedSignerSha256": "4d86ad78c71d7d9ac2c64b93b548b8a6fa7fdf683ced023731782d8dcfa7d6bc",
+      "category": "File Encryption & Vault",
+      "versionCode": 123,
+      "versionName": "3.11.1",
+      "size": 11448598,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.amaze.filemanager_123.apk",
+          "sha256": "7d484bffeadac9eb0997835a4c624112af8a4753c0e3ad7bc2573dcaeb67709c"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-064",
+      "displayName": "TicTacToe Game",
+      "packageName": "com.emmanuelmess.tictactoe",
+      "storeUrl": "https://f-droid.org/packages/com.emmanuelmess.tictactoe",
+      "downloadUrl": "https://f-droid.org/repo/com.emmanuelmess.tictactoe_3.apk",
+      "expectedSignerSha256": "3b4d88204b37586cf516cb95780492543349759752bf722bc1923868fbd2089f",
+      "category": "Board Game",
+      "versionCode": 3,
+      "versionName": "1.0.0",
+      "size": 4474946,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.emmanuelmess.tictactoe_3.apk",
+          "sha256": "760fe5acf7b394354bf02b7b3484c3eb442b491c1fa4325603ad3250f0dfa394"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-065",
+      "displayName": "Mondstern Acrylic Icons",
+      "packageName": "de.moooon.acrylicons",
+      "storeUrl": "https://f-droid.org/packages/de.moooon.acrylicons",
+      "downloadUrl": "https://f-droid.org/repo/de.moooon.acrylicons_21.apk",
+      "expectedSignerSha256": "5ee57c88593c5906bbee09d7c6e5b1bc01f767672f7fc3fb91014c8d1cffd590",
+      "category": "Icon Pack",
+      "versionCode": 21,
+      "versionName": "21.0",
+      "size": 4332064,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\de.moooon.acrylicons_21.apk",
+          "sha256": "3b7f6e05aeb51dc483f20fd4e0471e29568405a530001c358a3b83422c96bee3"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-066",
+      "displayName": "Box Smasher",
+      "packageName": "se.voxelmanip.boxsmasher",
+      "storeUrl": "https://f-droid.org/packages/se.voxelmanip.boxsmasher",
+      "downloadUrl": "https://f-droid.org/repo/se.voxelmanip.boxsmasher_4.apk",
+      "expectedSignerSha256": "f79ddc9fae4a8a74144eace5f2fa7564e61e5d56ff678fc45aea7f40b99cb6e7",
+      "category": "Shooter Game",
+      "versionCode": 4,
+      "versionName": "1.1.1",
+      "size": 6257393,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\se.voxelmanip.boxsmasher_4.apk",
+          "sha256": "d72a5db5a5ea3cab851617f5c5380981e13d8ba5ce93f5f3859db27d7a489d2a"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-067",
+      "displayName": "WebTube",
+      "packageName": "cz.martykan.webtube",
+      "storeUrl": "https://f-droid.org/packages/cz.martykan.webtube",
+      "downloadUrl": "https://f-droid.org/repo/cz.martykan.webtube_17.apk",
+      "expectedSignerSha256": "d45c3aec9821950afcba16c2e7b5eaa67bb32e46c3685c9117562aa29919fe85",
+      "category": "Online Media Player",
+      "versionCode": 17,
+      "versionName": "1.2",
+      "size": 2001538,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\cz.martykan.webtube_17.apk",
+          "sha256": "86e76193069ab512c1db5e6463bc55064c827d1441992a36f91f6aa029e56e0f"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-068",
+      "displayName": "Files",
+      "packageName": "com.documentsui.shortcut",
+      "storeUrl": "https://f-droid.org/packages/com.documentsui.shortcut",
+      "downloadUrl": "https://f-droid.org/repo/com.documentsui.shortcut_9.apk",
+      "expectedSignerSha256": "ec717ac97eeaed532d1271f2eecea9de35395543f301bbc8cd3cd88e6ef9bd41",
+      "category": "File Manager",
+      "versionCode": 9,
+      "versionName": "1.0.8",
+      "size": 152815,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.documentsui.shortcut_9.apk",
+          "sha256": "585e5a7e80ec262d42b2836a2d78b1e3848521b74622a2ef210351e74105bc79"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-069",
+      "displayName": "Finder",
+      "packageName": "ru.seva.finder",
+      "storeUrl": "https://f-droid.org/packages/ru.seva.finder",
+      "downloadUrl": "https://f-droid.org/repo/ru.seva.finder_15.apk",
+      "expectedSignerSha256": "98c584e23fcb03deef9361173e3090b208788ad4fb54e86df2603d561dc425af",
+      "category": "Location Tracker & Sharer",
+      "versionCode": 15,
+      "versionName": "2.4",
+      "size": 1285033,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\ru.seva.finder_15.apk",
+          "sha256": "0a7fb3fc3ecc06f7b1bdbff57e4ccc232b77eac2db998cad37e70a37cd0d9dba"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-070",
+      "displayName": "OneTimeAlarm",
+      "packageName": "pl.ascendit.onetimealarm",
+      "storeUrl": "https://f-droid.org/packages/pl.ascendit.onetimealarm",
+      "downloadUrl": "https://f-droid.org/repo/pl.ascendit.onetimealarm_3.apk",
+      "expectedSignerSha256": "295a38ef0e0d650d43a7a9909302581c91c18481521b0b74c637ea499624a030",
+      "category": "Alarm Clock",
+      "versionCode": 3,
+      "versionName": "1.2",
+      "size": 2314877,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\pl.ascendit.onetimealarm_3.apk",
+          "sha256": "77fd4aa9d4f2cbbd65de3783047d6ddc8f80fca76730b6d09bf230d34a625aeb"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-071",
+      "displayName": "Solo Forge",
+      "packageName": "com.kbul.spicycrab",
+      "storeUrl": "https://f-droid.org/packages/com.kbul.spicycrab",
+      "downloadUrl": "https://f-droid.org/repo/com.kbul.spicycrab_12.apk",
+      "expectedSignerSha256": "37bd6252441cb925fa6c0d72013e145e9ed880402b098f194fb55b3f1dbea966",
+      "category": "Workout",
+      "versionCode": 12,
+      "versionName": "0.6.0",
+      "size": 3204244,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.kbul.spicycrab_12.apk",
+          "sha256": "922ac9597135115510fd7a748272723191df96aa02f3a7a3803cc102bcb90af2"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-072",
+      "displayName": "Overchan (fork)",
+      "packageName": "bus.chio.wishmaster",
+      "storeUrl": "https://f-droid.org/packages/bus.chio.wishmaster",
+      "downloadUrl": "https://f-droid.org/repo/bus.chio.wishmaster_1003.apk",
+      "expectedSignerSha256": "2e2127330fb84f3dd072fde881ef76fdc8cb2f5356dfa6f4c7b9763ceb6d8f0b",
+      "category": "Forum",
+      "versionCode": 1003,
+      "versionName": "1.0.3",
+      "size": 3460606,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\bus.chio.wishmaster_1003.apk",
+          "sha256": "39f811f07c238862f100e045154a6f20d99575fe1160c5c61286cee36e5fc9c7"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-073",
+      "displayName": "Photok",
+      "packageName": "dev.leonlatsch.photok",
+      "storeUrl": "https://f-droid.org/packages/dev.leonlatsch.photok",
+      "downloadUrl": "https://f-droid.org/repo/dev.leonlatsch.photok_66.apk",
+      "expectedSignerSha256": "8066f8e4d1c651d26ea60d4779e0ccce90b66bcd1b4795852a8efee232f0174a",
+      "category": "Gallery",
+      "versionCode": 66,
+      "versionName": "3.1.3",
+      "size": 11506750,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\dev.leonlatsch.photok_66.apk",
+          "sha256": "2456e6b73fa13eeaa03b902fe49bb7a544716c707da5eb431b0b0c220633f55c"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-074",
+      "displayName": "LinkHub",
+      "packageName": "com.amrdeveloper.linkhub",
+      "storeUrl": "https://f-droid.org/packages/com.amrdeveloper.linkhub",
+      "downloadUrl": "https://f-droid.org/repo/com.amrdeveloper.linkhub_48.apk",
+      "expectedSignerSha256": "2b9b77345eb3cad8ce36b3d6de152a5705e5e7bf52e80264f82a8ae6f3150666",
+      "category": "Bookmark",
+      "versionCode": 48,
+      "versionName": "2.2.1",
+      "size": 3914928,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.amrdeveloper.linkhub_48.apk",
+          "sha256": "af99136317b28facd46fc837777aa1834fdccd27950c2bb4ef510a49331aadfa"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-075",
+      "displayName": "Bodhi Timer",
+      "packageName": "org.yuttadhammo.BodhiTimer",
+      "storeUrl": "https://f-droid.org/packages/org.yuttadhammo.BodhiTimer",
+      "downloadUrl": "https://f-droid.org/repo/org.yuttadhammo.BodhiTimer_98.apk",
+      "expectedSignerSha256": "0fc13f96ab245552d63259b90cff55031d56f05a7d55140ca400414cf6343e0f",
+      "category": "Meditation",
+      "versionCode": 98,
+      "versionName": "6.3.0",
+      "size": 6356772,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.yuttadhammo.BodhiTimer_98.apk",
+          "sha256": "4e6f03e5b4c24042a5dd92d72eeb4069341ce07afef28bfb60b643c862e62e21"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-076",
+      "displayName": "Rocket Guardian",
+      "packageName": "atm.rocketguardian",
+      "storeUrl": "https://f-droid.org/packages/atm.rocketguardian",
+      "downloadUrl": "https://f-droid.org/repo/atm.rocketguardian_1.apk",
+      "expectedSignerSha256": "ddfaba427001d1ae6c6c20e8596310a22d2373b31120c04b1f9aebe00b7178c7",
+      "category": "Strategy Game",
+      "versionCode": 1,
+      "versionName": "1.0",
+      "size": 4921673,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\atm.rocketguardian_1.apk",
+          "sha256": "12d9eefca28a181a44cc6a760c12d838415e6fc8d0fd79c8325cdfbf3315041f"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-077",
+      "displayName": "SshDaemon",
+      "packageName": "com.daemon.ssh",
+      "storeUrl": "https://f-droid.org/packages/com.daemon.ssh",
+      "downloadUrl": "https://f-droid.org/repo/com.daemon.ssh_59.apk",
+      "expectedSignerSha256": "819941d00c329533afbe3a8c5b0839269192c62c886fe2af40dd9741d8ead35c",
+      "category": "Remote Access",
+      "versionCode": 59,
+      "versionName": "2.1.41",
+      "size": 10408268,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.daemon.ssh_59.apk",
+          "sha256": "8f990d6628b8ae493152b8df0cadae45db717fe07bc1f76f80779da36aec02e9"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-078",
+      "displayName": "Poland can into Space",
+      "packageName": "pl.sanszo.pcis",
+      "storeUrl": "https://f-droid.org/packages/pl.sanszo.pcis",
+      "downloadUrl": "https://f-droid.org/repo/pl.sanszo.pcis_2.apk",
+      "expectedSignerSha256": "f5981cf89170928cd134a8f1704d2cada6c03fe387906a94aacfec40e64cf5c1",
+      "category": "Action Game",
+      "versionCode": 2,
+      "versionName": "1.1.0a",
+      "size": 6579304,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\pl.sanszo.pcis_2.apk",
+          "sha256": "ce9ab3f4f308e77bb6e8ff402ce94bfbcc69afe984bc9e0eb7b4fe7f9b84f6b1"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-079",
+      "displayName": "Miracast Shortcut",
+      "packageName": "com.mattgmg.miracastwidget",
+      "storeUrl": "https://f-droid.org/packages/com.mattgmg.miracastwidget",
+      "downloadUrl": "https://f-droid.org/repo/com.mattgmg.miracastwidget_12.apk",
+      "expectedSignerSha256": "07efd2a09a2476f2bdfd24d3c3bf09ae0ba6a21dc64554f42b2b4d9a9042e208",
+      "category": "Cast",
+      "versionCode": 12,
+      "versionName": "3.1",
+      "size": 1439657,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.mattgmg.miracastwidget_12.apk",
+          "sha256": "99ed71b8f28343cc5eabf2fd48f625bcc07a1ddcd79866d8ddf4fbc67ad0e860"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-080",
+      "displayName": "TonUINO NFC Tools",
+      "packageName": "de.mw136.tonuino",
+      "storeUrl": "https://f-droid.org/packages/de.mw136.tonuino",
+      "downloadUrl": "https://f-droid.org/repo/de.mw136.tonuino_30.apk",
+      "expectedSignerSha256": "c677638b09199ea19ad9cd8e7d03683380bc2911f5ae6dda1ed198732ed24f19",
+      "category": "Development",
+      "versionCode": 30,
+      "versionName": "1.0.3",
+      "size": 2360946,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\de.mw136.tonuino_30.apk",
+          "sha256": "4797ed8e54956c704e8f5d1c62207d8de746f60f8ac19df79e44b4b2e7be486f"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-081",
+      "displayName": "HexColorTime Wallpaper",
+      "packageName": "com.eneko.hexcolortimewallpaper",
+      "storeUrl": "https://f-droid.org/packages/com.eneko.hexcolortimewallpaper",
+      "downloadUrl": "https://f-droid.org/repo/com.eneko.hexcolortimewallpaper_2.apk",
+      "expectedSignerSha256": "f5a7a31ec91a0a54d0e86675a7599b12340020ce0949a7371dd2d4f190ba13d6",
+      "category": "Wallpaper",
+      "versionCode": 2,
+      "versionName": "1.1",
+      "size": 1380050,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.eneko.hexcolortimewallpaper_2.apk",
+          "sha256": "22edf720655c011be57c376336ab8eda4981f4acdccc6681256213e983f431a4"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-082",
+      "displayName": "MicroPinner",
+      "packageName": "de.dotwee.micropinner",
+      "storeUrl": "https://f-droid.org/packages/de.dotwee.micropinner",
+      "downloadUrl": "https://f-droid.org/repo/de.dotwee.micropinner_29.apk",
+      "expectedSignerSha256": "eb13fb92661d8b425840e6ad445247dc5b7f1002d5675b2cb13f05f5b9dd2082",
+      "category": "Theming",
+      "versionCode": 29,
+      "versionName": "v2.2.0",
+      "size": 855914,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\de.dotwee.micropinner_29.apk",
+          "sha256": "f973e9a6bcf44b0bddff0cf740129ae5a927af22f58f584859734021e86f73f8"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-083",
+      "displayName": "BatteryBot",
+      "packageName": "com.darshancomputing.BatteryIndicator",
+      "storeUrl": "https://f-droid.org/packages/com.darshancomputing.BatteryIndicator",
+      "downloadUrl": "https://f-droid.org/repo/com.darshancomputing.BatteryIndicator_26016.apk",
+      "expectedSignerSha256": "fcf791887363a5764e69aa84217ce59180abe3f3734d0f536869c2be85be1d9d",
+      "category": "Battery",
+      "versionCode": 26016,
+      "versionName": "12.0.0",
+      "size": 2329347,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.darshancomputing.BatteryIndicator_26016.apk",
+          "sha256": "8f99e444828ef5e0dc74879a9522b81b42b36797f7397f0165a868152cc20d82"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-084",
+      "displayName": "Persian Calendar",
+      "packageName": "com.byagowi.persiancalendar",
+      "storeUrl": "https://f-droid.org/packages/com.byagowi.persiancalendar",
+      "downloadUrl": "https://f-droid.org/repo/com.byagowi.persiancalendar_1020.apk",
+      "expectedSignerSha256": "2539e3b2906b8222b63ef6efd52ef9f74946e9a834b376a605ef1d82ba2712e3",
+      "category": "Religion",
+      "versionCode": 1020,
+      "versionName": "10.2.0",
+      "size": 3586358,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.byagowi.persiancalendar_1020.apk",
+          "sha256": "bbd12819529102bc3849b70d119bb1cef72dbb1cbacb08ba7fee473c8f6167d4"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-085",
+      "displayName": "Just 24 Hours",
+      "packageName": "com.chancehorizon.just24hoursplus",
+      "storeUrl": "https://f-droid.org/packages/com.chancehorizon.just24hoursplus",
+      "downloadUrl": "https://f-droid.org/repo/com.chancehorizon.just24hoursplus_10401.apk",
+      "expectedSignerSha256": "81d91a4a02118b178068bd17516a51f1bfed361926eeb84d8d7bc9712075ec96",
+      "category": "Clock",
+      "versionCode": 10401,
+      "versionName": "1.4.1",
+      "size": 3060176,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.chancehorizon.just24hoursplus_10401.apk",
+          "sha256": "430d72015dcc9c4137d2fdcda33df0ebefb8fc44c0452f3bd2b9081aaead9a6a"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-086",
+      "displayName": "MidniteSolar Classic Monitor",
+      "packageName": "ca.farrelltonsolar.classic",
+      "storeUrl": "https://f-droid.org/packages/ca.farrelltonsolar.classic",
+      "downloadUrl": "https://f-droid.org/repo/ca.farrelltonsolar.classic_314.apk",
+      "expectedSignerSha256": "9384f6eabfdd86637cb69880e439ad7d97afa4084979b0d479155320837f36cd",
+      "category": "System",
+      "versionCode": 314,
+      "versionName": "3.1.4",
+      "size": 2354811,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\ca.farrelltonsolar.classic_314.apk",
+          "sha256": "2d767cdb301fc3cba2d1743492c6e3a33f69934b2316f12951976cf3690f7b02"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-087",
+      "displayName": "WiFi Automatic",
+      "packageName": "de.j4velin.wifiAutoOff",
+      "storeUrl": "https://f-droid.org/packages/de.j4velin.wifiAutoOff",
+      "downloadUrl": "https://f-droid.org/repo/de.j4velin.wifiAutoOff_1910.apk",
+      "expectedSignerSha256": "db0a4ae46bcab0a125b30356583f8ba8f9c829815189d94609b3c9a14199db1a",
+      "category": "Connectivity",
+      "versionCode": 1910,
+      "versionName": "1.9.1",
+      "size": 1076163,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\de.j4velin.wifiAutoOff_1910.apk",
+          "sha256": "76c0c1b51075f901e019d91c1643019442e9359966d5deaba182762ff270d5cc"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-088",
+      "displayName": "NextPush",
+      "packageName": "org.unifiedpush.distributor.nextpush",
+      "storeUrl": "https://f-droid.org/packages/org.unifiedpush.distributor.nextpush",
+      "downloadUrl": "https://f-droid.org/repo/org.unifiedpush.distributor.nextpush_52.apk",
+      "expectedSignerSha256": "be6b681667944be91a62bc0f05200c5fcb9bc776a3a90b5b67ee0b9b9b063db4",
+      "category": "Push",
+      "versionCode": 52,
+      "versionName": "2.4.1",
+      "size": 3597522,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.unifiedpush.distributor.nextpush_52.apk",
+          "sha256": "c012e792bb3529e59445c5daa05d04c35d8dc0225cbfa41f14e6ae66c3320258"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-089",
+      "displayName": "Go To Sleep",
+      "packageName": "com.kaeruct.gotosleep",
+      "storeUrl": "https://f-droid.org/packages/com.kaeruct.gotosleep",
+      "downloadUrl": "https://f-droid.org/repo/com.kaeruct.gotosleep_5.apk",
+      "expectedSignerSha256": "163d04731d33709a1255e01941581da69d247c0d7afc6739cccd342a8b8e78c8",
+      "category": "Casual Game",
+      "versionCode": 5,
+      "versionName": "1.4",
+      "size": 1868256,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.kaeruct.gotosleep_5.apk",
+          "sha256": "e1a6da73d02a5a02d1b3cbfbe2477985357f096bd07c7def3a6ea40900cc2362"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-090",
+      "displayName": "Identiconizer!",
+      "packageName": "com.germainz.identiconizer",
+      "storeUrl": "https://f-droid.org/packages/com.germainz.identiconizer",
+      "downloadUrl": "https://f-droid.org/repo/com.germainz.identiconizer_11.apk",
+      "expectedSignerSha256": "54b3e04e05be780c31b246d477c15c43326ce202919b4746603d51d1e6d35b27",
+      "category": "Contact",
+      "versionCode": 11,
+      "versionName": "1.4",
+      "size": 1832933,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.germainz.identiconizer_11.apk",
+          "sha256": "f7b68f1be7afc4185c102305d63abf1abc3c9428cc6c477cf616f45dba82860e"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-091",
+      "displayName": "ProximitySensorFix",
+      "packageName": "com.ml.proximitysensorfix",
+      "storeUrl": "https://f-droid.org/packages/com.ml.proximitysensorfix",
+      "downloadUrl": "https://f-droid.org/repo/com.ml.proximitysensorfix_32.apk",
+      "expectedSignerSha256": "22dd65e4b1de0963fb56d34307c926091dad4a78f25b60489af7aae13d8020b8",
+      "category": "Phone & SMS",
+      "versionCode": 32,
+      "versionName": "1.1.0",
+      "size": 4535706,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.ml.proximitysensorfix_32.apk",
+          "sha256": "55e81b5da4a0d50040ca5e5922f151dde32ec7796e75b35097cd4b2fbea3426b"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-092",
+      "displayName": "eSpeak",
+      "packageName": "com.reecedunn.espeak",
+      "storeUrl": "https://f-droid.org/packages/com.reecedunn.espeak",
+      "downloadUrl": "https://f-droid.org/repo/com.reecedunn.espeak_22.apk",
+      "expectedSignerSha256": "acdee0a53d94886b9824ad748ceae1d7c8d3e15e1de694dc684dfaae62231ea7",
+      "category": "Text to Speech",
+      "versionCode": 22,
+      "versionName": "1.52.0",
+      "size": 10446659,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.reecedunn.espeak_22.apk",
+          "sha256": "0a7822fec54d7f7ae759ffedc9afeaa77f809587b171fb2101998787821ec790"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-093",
+      "displayName": "Pinyin Web & EPUB and topolects",
+      "packageName": "org.ucam.ssb22.pinyinfdroid",
+      "storeUrl": "https://f-droid.org/packages/org.ucam.ssb22.pinyinfdroid",
+      "downloadUrl": "https://f-droid.org/repo/org.ucam.ssb22.pinyinfdroid_106.apk",
+      "expectedSignerSha256": "53a449f3ed834baeb26815aeaf608c098621883b56a3f623c495c01beece5f35",
+      "category": "Ebook Reader",
+      "versionCode": 106,
+      "versionName": "2.12.71",
+      "size": 9843962,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.ucam.ssb22.pinyinfdroid_106.apk",
+          "sha256": "c07919c6c740ba67fc7747fb24805ba4d31cf9bbfb8ccec83135f2fc9265a847"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-094",
+      "displayName": "Buses",
+      "packageName": "org.billthefarmer.buses",
+      "storeUrl": "https://f-droid.org/packages/org.billthefarmer.buses",
+      "downloadUrl": "https://f-droid.org/repo/org.billthefarmer.buses_110.apk",
+      "expectedSignerSha256": "10513e8b9df6b58d2f6b83a3d937ee5cf8aa9cbbe0d69439e760360ca686f07d",
+      "category": "Public Transport",
+      "versionCode": 110,
+      "versionName": "1.10",
+      "size": 964393,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.billthefarmer.buses_110.apk",
+          "sha256": "d69eda9c9e9401c22b13817148d5b356e21618b45f37936de937d92dbe54a2ea"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-095",
+      "displayName": "Voice Notify",
+      "packageName": "com.pilot51.voicenotify",
+      "storeUrl": "https://f-droid.org/packages/com.pilot51.voicenotify",
+      "downloadUrl": "https://f-droid.org/repo/com.pilot51.voicenotify_34.apk",
+      "expectedSignerSha256": "4dd320bc76f81046fc697782386f6e435580e4aafd20271468760b2e0115542a",
+      "category": "Notification",
+      "versionCode": 34,
+      "versionName": "1.4.4",
+      "size": 3916182,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.pilot51.voicenotify_34.apk",
+          "sha256": "f952a304b4fd5692f2f750fbda5bf13d532bfcba7c6b6a0cb1218e65c8a1479a"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-096",
+      "displayName": "WiFiAnalyzer",
+      "packageName": "com.vrem.wifianalyzer",
+      "storeUrl": "https://f-droid.org/packages/com.vrem.wifianalyzer",
+      "downloadUrl": "https://f-droid.org/repo/com.vrem.wifianalyzer_72.apk",
+      "expectedSignerSha256": "3a14f8bbead3d530ae0aa0b578b945bdd7667b6e2e27da30cd46349356998f3e",
+      "category": "Network Analyzer",
+      "versionCode": 72,
+      "versionName": "3.3.1",
+      "size": 2119103,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.vrem.wifianalyzer_72.apk",
+          "sha256": "282a06fcc5ce5d889799113a1c6edf5e408b0902acc542308ad21051a2a7cc2b"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-097",
+      "displayName": "Subster",
+      "packageName": "app.subster",
+      "storeUrl": "https://f-droid.org/packages/app.subster",
+      "downloadUrl": "https://f-droid.org/repo/app.subster_108.apk",
+      "expectedSignerSha256": "c42473cefd0fadf93c8ba058b72bef25fece9c9cbd0c62a5423413ab22541df6",
+      "category": "Party Game",
+      "versionCode": 108,
+      "versionName": "0.1.8",
+      "size": 3427857,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\app.subster_108.apk",
+          "sha256": "faef4b22240c87c6602558defaaf2073857b2a1007270fbdd1da486738d9665d"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-098",
+      "displayName": "Proxy Exit",
+      "packageName": "com.github.vgaj.proxy",
+      "storeUrl": "https://f-droid.org/packages/com.github.vgaj.proxy",
+      "downloadUrl": "https://f-droid.org/repo/com.github.vgaj.proxy_1.apk",
+      "expectedSignerSha256": "d5e95209bc29920af8d367d7205030ab9a606baecd93b1c6fc655909c4609f72",
+      "category": "VPN & Proxy",
+      "versionCode": 1,
+      "versionName": "1.0",
+      "size": 4485408,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.github.vgaj.proxy_1.apk",
+          "sha256": "a87e465f5d2796e639efe776051b2a4379cb50566c7e19c1fb2df340e5e14559"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-099",
+      "displayName": "Italian for AnySoftKeyboard",
+      "packageName": "com.anysoftkeyboard.languagepack.italian",
+      "storeUrl": "https://f-droid.org/packages/com.anysoftkeyboard.languagepack.italian",
+      "downloadUrl": "https://f-droid.org/repo/com.anysoftkeyboard.languagepack.italian_6158.apk",
+      "expectedSignerSha256": "07c1d131ae8f3014c34660895fef8bfd9cadaa4d15a3c7a8f00d5204bed062b5",
+      "category": "Keyboard & IME",
+      "versionCode": 6158,
+      "versionName": "5.1.6158",
+      "size": 5281746,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.anysoftkeyboard.languagepack.italian_6158.apk",
+          "sha256": "795972d2812f35624438eaae9f96fbe19d24652a585e344c3f8d4c5c27dcae2e"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-100",
+      "displayName": "Droid-ify",
+      "packageName": "com.looker.droidify",
+      "storeUrl": "https://f-droid.org/packages/com.looker.droidify",
+      "downloadUrl": "https://f-droid.org/repo/com.looker.droidify_750.apk",
+      "expectedSignerSha256": "b4f1c8a81e4b9f6e02638e93bead56656502c21fb95c8d3ec93d0cdd1f6e0d3f",
+      "category": "App Store & Updater",
+      "versionCode": 750,
+      "versionName": "0.7.5",
+      "size": 5138160,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.looker.droidify_750.apk",
+          "sha256": "e995b86b7cc4b856f417c1991eaa4c001950b538cca10ef8ca1cdfa73b00941d"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-101",
+      "displayName": "Schlikk Calls",
+      "packageName": "de.schlikk.calls",
+      "storeUrl": "https://f-droid.org/packages/de.schlikk.calls",
+      "downloadUrl": "https://f-droid.org/repo/de.schlikk.calls_100000.apk",
+      "expectedSignerSha256": "46a13bd5eb546980a6044fb689c9b4a055897b1f21bcdb1324038147bf98c47b",
+      "category": "Volume",
+      "versionCode": 100000,
+      "versionName": "1.0",
+      "size": 2334900,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\de.schlikk.calls_100000.apk",
+          "sha256": "594b45eaeb4620b9bfbc01eae625535da4f5c5fd6e6745bc3f401a85621f52fe"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-102",
+      "displayName": "AdGuard Content Blocker",
+      "packageName": "com.adguard.android.contentblocker",
+      "storeUrl": "https://f-droid.org/packages/com.adguard.android.contentblocker",
+      "downloadUrl": "https://f-droid.org/repo/com.adguard.android.contentblocker_22000250.apk",
+      "expectedSignerSha256": "7eee503310909a7012cd0906593b3f414e294fe2e18c11b532444f254648fd4c",
+      "category": "Firewall",
+      "versionCode": 22000250,
+      "versionName": "2.8.0",
+      "size": 6441239,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.adguard.android.contentblocker_22000250.apk",
+          "sha256": "bd60f30ea52954a606de7c446cedee39e8a89de5d18b15b616ebb2e7b33bc26f"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-103",
+      "displayName": "Otoscope",
+      "packageName": "dev.rubec.otoscope",
+      "storeUrl": "https://f-droid.org/packages/dev.rubec.otoscope",
+      "downloadUrl": "https://f-droid.org/repo/dev.rubec.otoscope_9.apk",
+      "expectedSignerSha256": "694d49767b3e3f1a4024072f9b13fefc44fc04362803c55fe03e30ba2707afa9",
+      "category": "Camera",
+      "versionCode": 9,
+      "versionName": "0.6.0",
+      "size": 1929961,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\dev.rubec.otoscope_9.apk",
+          "sha256": "af19bfced6bd9da5a1f13fa1096edf9f1697607e36d6d75368fad20cdfbff7c1"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-104",
+      "displayName": "2048 Open Fun Game",
+      "packageName": "org.andstatus.game2048",
+      "storeUrl": "https://f-droid.org/packages/org.andstatus.game2048",
+      "downloadUrl": "https://f-droid.org/repo/org.andstatus.game2048_47.apk",
+      "expectedSignerSha256": "71d6c438cf63f3515407aa5b36f9c6e859a25ce8b981a01f879290cf5f412113",
+      "category": "Puzzle Game",
+      "versionCode": 47,
+      "versionName": "1.16.2",
+      "size": 1359982,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\org.andstatus.game2048_47.apk",
+          "sha256": "2d6707624623fe8857da271dcc19511ab52472ce1fee6ac23bc7f2ecf2e7eea9"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-105",
+      "displayName": "Omni Notes",
+      "packageName": "it.feio.android.omninotes.foss",
+      "storeUrl": "https://f-droid.org/packages/it.feio.android.omninotes.foss",
+      "downloadUrl": "https://f-droid.org/repo/it.feio.android.omninotes.foss_331.apk",
+      "expectedSignerSha256": "1eee2ba979fb762329c998193df3705c325115c351aeb4caa5631bad7a6702a3",
+      "category": "Note",
+      "versionCode": 331,
+      "versionName": "6.3.1",
+      "size": 7635718,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\it.feio.android.omninotes.foss_331.apk",
+          "sha256": "b39ce6942f208194ad47e40830c6d3f4ef8fea8f3f57a16f3cd72d98a9f0d5fd"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-106",
+      "displayName": "RE:INSTEAD",
+      "packageName": "ru.hugeping.reinstead",
+      "storeUrl": "https://f-droid.org/packages/ru.hugeping.reinstead",
+      "downloadUrl": "https://f-droid.org/repo/ru.hugeping.reinstead_9.apk",
+      "expectedSignerSha256": "c3284e9e1cdd385a6f523817e31a3f2dc9a457d4bc3ebfca706fb63d7d28a39e",
+      "category": "Visual Novel",
+      "versionCode": 9,
+      "versionName": "0.9",
+      "size": 6414532,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\ru.hugeping.reinstead_9.apk",
+          "sha256": "df59408cf65ba8a27e39ab8ea5b239e93c81cc98f7c13c71c6c782075aa7e882"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-107",
+      "displayName": "Buran",
+      "packageName": "corewala.gemini.buran",
+      "storeUrl": "https://f-droid.org/packages/corewala.gemini.buran",
+      "downloadUrl": "https://f-droid.org/repo/corewala.gemini.buran_13.apk",
+      "expectedSignerSha256": "4b6732c4691fa9ccf09c925957755633b9d00ebcefff4f014e20b693abbc4db9",
+      "category": "Browser",
+      "versionCode": 13,
+      "versionName": "v1.12",
+      "size": 2124420,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\corewala.gemini.buran_13.apk",
+          "sha256": "b3df5a28a57592c3541cf54fef3d08b100e9429a69e48d6e436f726cbbf3c914"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-108",
+      "displayName": "AquaDroid",
+      "packageName": "io.github.z3r0c00l_2k.aquadroid",
+      "storeUrl": "https://f-droid.org/packages/io.github.z3r0c00l_2k.aquadroid",
+      "downloadUrl": "https://f-droid.org/repo/io.github.z3r0c00l_2k.aquadroid_5.apk",
+      "expectedSignerSha256": "8b89b588675d6d0d26295e529a92c1e28b42881b967bf9f0856cf50dc92e8f0b",
+      "category": "Habit Tracker",
+      "versionCode": 5,
+      "versionName": "1.3",
+      "size": 3499668,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\io.github.z3r0c00l_2k.aquadroid_5.apk",
+          "sha256": "bf7249c09b422b8a88847abac9d3381b982d2e7bc2a28c264b4dba5b4c853f30"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-109",
+      "displayName": "QDict",
+      "packageName": "com.annie.dictionary.fork",
+      "storeUrl": "https://f-droid.org/packages/com.annie.dictionary.fork",
+      "downloadUrl": "https://f-droid.org/repo/com.annie.dictionary.fork_20210415.apk",
+      "expectedSignerSha256": "54e5c37635306062a99b701b2bb64f1ec905e5a48638b779cddbb5cc55903ee1",
+      "category": "Translation & Dictionary",
+      "versionCode": 20210415,
+      "versionName": "2.1.3",
+      "size": 4338387,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.annie.dictionary.fork_20210415.apk",
+          "sha256": "5ecf1a00ede5b27f555bd6eb992a576d042fcc0526ce7c8d760cdb3cc3152b8f"
+        }
+      ]
+    },
+    {
+      "id": "fdroid-110",
+      "displayName": "FeedFlow - RSS Feed Reader",
+      "packageName": "com.prof18.feedflow",
+      "storeUrl": "https://f-droid.org/packages/com.prof18.feedflow",
+      "downloadUrl": "https://f-droid.org/repo/com.prof18.feedflow_6194.apk",
+      "expectedSignerSha256": "90efeb4f04236a1dd48b830e5b530e47406453935a16b2bdc4f111a483a8147d",
+      "category": "News",
+      "versionCode": 6194,
+      "versionName": "1.16.1",
+      "size": 4932415,
+      "apkFiles": [
+        {
+          "path": "experiments\\android-store-100\\input-apks\\fdroid\\com.prof18.feedflow_6194.apk",
+          "sha256": "b4cfb694371cda9c672e80ae86f3fa709761ddaee1babf906907e0971f23e15a"
+        }
+      ]
+    }
+  ]
+}
