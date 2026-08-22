@@ -41,7 +41,6 @@ const runtimePermissionPrompts = all.reduce((total, record) => {
   return total;
 }, { observedNotGranted: 0, notObserved: 0, unavailable: 0 });
 const memory = numeric(completed, (record) => record.afterLaunch?.memoryPssKb);
-const energy = numeric(completed, (record) => record.afterLaunch?.estimatedPowerMah);
 const elapsed = numeric(completed, (record) => record.wallClockElapsedMs);
 const summary = {
   schema: 'privacy-lens.authorised-device-batch-summary.v1', corpusId: report.corpusId, corpusKind: report.corpusKind, generatedAt: new Date().toISOString(),
@@ -49,12 +48,11 @@ const summary = {
   completedAndVerifiedRemoved: completed.length, failed: report.failures.length,
   cleanup: { verifiedRemoved: completed.length, removalFailures: report.failures.filter((record) => record.cleanup === 'REMOVAL_FAILED').length },
   installerPrompts, runtimePermissionPrompts, failuresByCategory,
-  executionOverhead: { wallClockElapsedMs: { mean: mean(elapsed), observed: elapsed.length, unavailable: completed.length - elapsed.length }, batteryStatsResetRequested: completed.filter((record) => record.batteryStatsReset === 'REQUESTED').length },
+  executionOverhead: { wallClockElapsedMs: { mean: mean(elapsed), observed: elapsed.length, unavailable: completed.length - elapsed.length } },
   telemetry: {
     afterLaunchMemoryPssKb: { mean: mean(memory), observed: memory.length, unavailable: completed.length - memory.length },
-    afterLaunchEstimatedPowerMah: { mean: mean(energy), observed: energy.length, unavailable: completed.length - energy.length },
   },
-  caveat: 'This summary reports authorised device execution and engineering overhead only. It does not label GDPR compliance, data collection, or legal violations. Missing memory/energy values remain unavailable.',
+  caveat: 'This summary reports authorised device execution and engineering overhead only. It does not label GDPR compliance, data collection, or legal violations. Missing memory values remain unavailable.',
 };
 fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.writeFileSync(output, `${JSON.stringify(summary, null, 2)}\n`);

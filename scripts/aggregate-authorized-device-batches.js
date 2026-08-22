@@ -29,7 +29,6 @@ for (const input of inputs) {
 }
 const completed = records.filter((item) => item.cleanup === 'VERIFIED_REMOVED');
 const memory = numberValues(completed, (item) => item.afterLaunch?.memoryPssKb);
-const energy = numberValues(completed, (item) => item.afterLaunch?.estimatedPowerMah);
 const elapsed = numberValues(completed, (item) => item.wallClockElapsedMs);
 const failureCategories = {};
 for (const failure of failures) {
@@ -50,10 +49,9 @@ const aggregate = {
   failuresByCategory: failureCategories, runtimePermissionPrompts,
   telemetry: {
     afterLaunchMemoryPssKb: { mean: mean(memory), observed: memory.length, unavailable: completed.length - memory.length },
-    afterLaunchEstimatedPowerMah: { mean: mean(energy), observed: energy.length, unavailable: completed.length - energy.length },
     wallClockElapsedMs: { mean: mean(elapsed), observed: elapsed.length, unavailable: completed.length - elapsed.length },
   },
-  caveat: 'This aggregate counts authorised install-launch-uninstall engineering runs. It does not label GDPR compliance or legal infringement. Missing energy and memory remain unavailable, and receipts must be non-overlapping.',
+  caveat: 'This aggregate counts authorised install-launch-uninstall engineering runs. It does not label GDPR compliance or legal infringement. Missing memory remains unavailable, and receipts must be non-overlapping.',
 };
 fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.writeFileSync(output, `${JSON.stringify(aggregate, null, 2)}\n`);
