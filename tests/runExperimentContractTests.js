@@ -8,7 +8,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'privacy-lens-corpus-'));
 try {
-  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/convert-flowdroid-results-to-information-flow.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
+  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/run-flowdroid-baseline.js', 'scripts/convert-flowdroid-results-to-information-flow.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/select-store-corpus-subset.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
@@ -55,6 +55,10 @@ try {
   execFileSync(process.execPath, [path.join(root, 'scripts/exclude-attempted-store-corpus.js'), '--catalog', extendedOpenSourceFile, '--exclude-catalog', catalogExclusionFile, '--output', catalogFollowUpFile], { stdio: 'pipe' });
   const catalogFollowUp = JSON.parse(fs.readFileSync(catalogFollowUpFile, 'utf8'));
   if (catalogFollowUp.apps.length !== 101 || catalogFollowUp.apps.some((app) => app.packageName === 'org.fixture.app0') || catalogFollowUp.source.priorRunExclusions.excludedCatalogs.length !== 1) throw new Error('Reserved-catalog exclusion contract failed.');
+  const subsetFile = path.join(temp, 'subset.json'); const isolatedApks = path.join(temp, 'isolated-apks');
+  execFileSync(process.execPath, [path.join(root, 'scripts/select-store-corpus-subset.js'), '--input', catalogFollowUpFile, '--count', '100', '--apk-dir', isolatedApks, '--output', subsetFile], { stdio: 'pipe' });
+  const subset = JSON.parse(fs.readFileSync(subsetFile, 'utf8'));
+  if (subset.apps.length !== 100 || subset.apps.some((app) => app.packageName === 'org.fixture.app0') || !subset.apps.every((app) => path.dirname(app.apkFiles[0].path) === isolatedApks) || new Set(subset.apps.map((app) => app.id)).size !== 100) throw new Error('Isolated subset contract failed.');
   const evaluation = {
     schema: 'privacy-lens.android-store-evaluation.v1', corpusId: 'contract-fixture',
     cases: Array.from({ length: 100 }, (_, index) => ({
