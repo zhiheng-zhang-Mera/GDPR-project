@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Privacy Lens 100-app independently labelled comparison",
+  "type": "object",
+  "required": ["schema", "corpusId", "cases"],
+  "properties": {
+    "schema": { "const": "privacy-lens.android-store-evaluation.v1" },
+    "corpusId": { "type": "string", "minLength": 1 },
+    "cases": {
+      "type": "array", "minItems": 100, "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": ["id", "independentLabel", "predictions"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "independentLabel": { "type": "boolean" },
+          "predictions": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "boolean" } },
+          "measurements": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "elapsedMs": { "type": "number", "minimum": 0 },
+                "memoryPssKb": { "type": "number", "minimum": 0 },
+                "estimatedPowerMah": { "type": "number", "minimum": 0 }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

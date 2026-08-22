@@ -4,6 +4,7 @@ import { assessProductionLegalReviewTrustStore } from './trustAnchors';
 import { LegalReviewGateState, LegalReviewTrustStoreAssessment, PackLegalReviewAssessment, PackSourceReviewAssessment, RegulationPack, RegulatorySource, RegulatorySourceLifecycle, SourceContentArtifacts, SourceContentVerificationState, SourceReviewState } from './types';
 import { validateTemporalRuleMapping } from './temporalRuleMapping';
 import { validateFormalPolicyConstraints } from './formalPolicy';
+import { validateInformationFlowPolicyConstraints } from './informationFlowPolicy';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const SHA256 = /^[A-Fa-f0-9]{64}$/;
@@ -159,6 +160,7 @@ export function validateRegulationPack(pack: RegulationPack, trustStore: LegalRe
 
   errors.push(...validateTemporalRuleMapping(pack));
   errors.push(...validateFormalPolicyConstraints(pack.formalPolicyConstraints));
+  errors.push(...validateInformationFlowPolicyConstraints(pack.informationFlowPolicyConstraints));
 
   return errors;
 }

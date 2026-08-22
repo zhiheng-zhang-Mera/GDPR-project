@@ -1,0 +1,7 @@
+# Academic baseline protocol
+
+Privacy Lens uses different baseline families for different claims. Android SDK `apkanalyzer` establishes manifest and bounded DEX-package facts. Exodus Privacy's published code-signature method establishes possible embedded tracker SDKs, not runtime tracking. FlowDroid is an established open-source static data-flow analyser; its official CLI computes potential Android source-to-sink paths under an explicit source/sink definition. Argus-SAF/Amandroid is retained as a planned inter-component data-flow replication baseline when a version-pinned compatible CLI is provisioned.
+
+The FlowDroid adapter is `scripts/run-flowdroid-baseline.js`. It records tool/JAR and input hashes, platform directory, exact bounded timeout settings, elapsed milliseconds, output hash, and count of static results. A nonzero exit, timeout, unsupported APK, or absent output is `FAILED_OR_TIMED_OUT`, never zero flows. Its outputs are not transformed into legal violations.
+
+For an accuracy comparison, all tools must consume the same version-pinned APK bundle and an independently labelled, published ground-truth corpus. Report TP, FP, TN, FN, precision, recall, and F1 separately for static potential flows, policy-review prompts, and any authorised runtime trace. No comparison may claim superiority from missing values, differing source/sink definitions, a timeout treated as a negative, or synthetic labels presented as commercial-app legal truth.

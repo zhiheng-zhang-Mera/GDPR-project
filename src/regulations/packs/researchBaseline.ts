@@ -54,6 +54,18 @@ export const GLOBAL_RESEARCH_BASELINE_PACK: RegulationPack = {
       outcome: 'REVIEW_REQUIRED',
     },
   ],
+  informationFlowPolicyConstraints: [
+    {
+      id: 'RESEARCH_SENSITIVE_NETWORK_FLOW',
+      title: 'Research source-to-network prompt',
+      sources: ['LOCATION', 'MICROPHONE'],
+      sinks: ['NETWORK'],
+      legalReferences: ['Research demonstrator: no legal mapping'],
+      requiresAll: ['PROCESSING_PURPOSE'],
+      rationale: 'This non-legal source-to-sink constraint verifies that information-flow policy is loaded from the active pack rather than embedded in the evaluator.',
+      outcome: 'REVIEW_REQUIRED',
+    },
+  ],
   principles: ['Purpose clarity', 'Data minimisation', 'User expectation', 'Human accountability'],
   legalCaveat: 'This region-neutral research baseline is not law, legal advice, or a compliance determination.',
   findMissingEvidence: ({ processingContext: context }) => {

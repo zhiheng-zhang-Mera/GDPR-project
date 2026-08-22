@@ -318,6 +318,28 @@ export interface FormalPolicyConstraint {
   outcome: 'REVIEW_REQUIRED';
 }
 
+/** Declarative source-to-sink policy; node names are intentionally irrelevant. */
+export type InformationCategory =
+  | 'LOCATION'
+  | 'MICROPHONE'
+  | 'CONTACTS'
+  | 'CAMERA'
+  | 'BODY_SENSORS'
+  | 'DEVICE_IDENTIFIER';
+
+export type InformationSink = 'NETWORK' | 'IPC' | 'FILE' | 'LOG';
+
+export interface InformationFlowPolicyConstraint {
+  id: string;
+  title: string;
+  sources: readonly InformationCategory[];
+  sinks: readonly InformationSink[];
+  legalReferences: readonly string[];
+  requiresAll: readonly FormalEvidencePredicate[];
+  rationale: string;
+  outcome: 'REVIEW_REQUIRED';
+}
+
 export interface RegulationPack {
   id: RegulationId;
   name: string;
@@ -333,6 +355,8 @@ export interface RegulationPack {
   temporalProfiles: readonly RegulationTemporalProfile[];
   /** Data-only formal constraints compiled before a pack is mounted. */
   formalPolicyConstraints: readonly FormalPolicyConstraint[];
+  /** Source-to-sink constraints for static and authorised runtime flow evidence. */
+  informationFlowPolicyConstraints: readonly InformationFlowPolicyConstraint[];
   principles: string[];
   legalCaveat: string;
   findMissingEvidence: (audit: PermissionAudit) => string[];

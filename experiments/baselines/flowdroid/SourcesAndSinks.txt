@@ -1,0 +1,9 @@
+<android.location.Location: double getLatitude()> -> _SOURCE_
+<android.location.Location: double getLongitude()> -> _SOURCE_
+<android.location.LocationManager: android.location.Location getLastKnownLocation(java.lang.String)> -> _SOURCE_
+<android.telephony.TelephonyManager: java.lang.String getDeviceId()> -> _SOURCE_
+<android.provider.ContactsContract$Contacts: android.net.Uri CONTENT_URI> -> _SOURCE_
+<java.net.URLConnection: java.io.OutputStream getOutputStream()> -> _SINK_
+<java.net.HttpURLConnection: java.io.OutputStream getOutputStream()> -> _SINK_
+<okhttp3.Call: okhttp3.Response execute()> -> _SINK_
+<android.util.Log: int d(java.lang.String,java.lang.String)> -> _SINK_

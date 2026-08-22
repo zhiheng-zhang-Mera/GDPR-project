@@ -209,6 +209,28 @@ export const EU_GDPR_PACK: RegulationPack = {
       outcome: 'REVIEW_REQUIRED',
     },
   ],
+  informationFlowPolicyConstraints: [
+    {
+      id: 'SENSITIVE_DATA_TO_NETWORK_REVIEW',
+      title: 'Sensitive Android data reaching a network sink',
+      sources: ['LOCATION', 'MICROPHONE', 'CONTACTS', 'CAMERA', 'BODY_SENSORS', 'DEVICE_IDENTIFIER'],
+      sinks: ['NETWORK'],
+      legalReferences: ['GDPR Art. 5(1)(a)-(c)', 'GDPR Art. 6', 'GDPR Arts. 13-14', 'GDPR Art. 25'],
+      requiresAll: ['PROCESSING_PURPOSE', 'LAWFUL_BASIS', 'TRANSPARENCY_NOTICE', 'MINIMISATION_ASSESSMENT', 'RETENTION_JUSTIFICATION'],
+      rationale: 'A typed source-to-network reachability result can support an accountability review, but cannot establish the purpose, recipient, transfer, or legality of processing.',
+      outcome: 'REVIEW_REQUIRED',
+    },
+    {
+      id: 'SENSITIVE_CROSS_PROCESS_FLOW_REVIEW',
+      title: 'Sensitive Android data crossing an IPC boundary',
+      sources: ['LOCATION', 'MICROPHONE', 'CONTACTS', 'BODY_SENSORS', 'DEVICE_IDENTIFIER'],
+      sinks: ['IPC', 'NETWORK'],
+      legalReferences: ['GDPR Art. 5(1)(b)-(c)', 'GDPR Art. 25', 'GDPR Art. 32'],
+      requiresAll: ['PROCESSING_PURPOSE', 'MINIMISATION_ASSESSMENT', 'RETENTION_JUSTIFICATION'],
+      rationale: 'A Binder, provider, worker, or other process boundary is retained as evidence for review; it is not evidence that a disclosure was unlawful.',
+      outcome: 'REVIEW_REQUIRED',
+    },
+  ],
   principles: [
     'Art. 5(1)(a) lawfulness, fairness and transparency',
     'Art. 5(1)(b) purpose limitation',

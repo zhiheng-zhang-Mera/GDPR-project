@@ -23,6 +23,7 @@
     "tests/runComplianceTests.ts",
     "tests/runExtendedComplianceTests.ts",
     "tests/runGovernanceAndPropertyTests.ts",
-    "tests/runTemporalCooccurrenceTests.ts"
+    "tests/runTemporalCooccurrenceTests.ts",
+    "tests/runInformationFlowPolicyTests.ts"
   ]
 }

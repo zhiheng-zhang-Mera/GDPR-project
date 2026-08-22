@@ -54,6 +54,7 @@ yarn-error.*
 .codex-tmp/
 .codex-tools/
 commercial-app-batch/*/apks/
+experiments/android-store-100/input-apks/
 tmp/pdfs/
 tmp/
 node_modules.pnpm-backup/

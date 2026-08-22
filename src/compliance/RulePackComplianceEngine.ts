@@ -1,12 +1,12 @@
 import { IComplianceEngine } from './IComplianceEngine';
 import { ComplianceErrorCode, ComplianceEvaluation, ComplianceFinding, PermissionAudit, PrivacyObservation, SensitivePermission } from './types';
-import { LegalReviewTrustStoreAssessment, RegulationPack, SourceContentArtifacts } from '../regulations/types';
+import { FormalEvidencePredicate, InformationFlowPolicyConstraint, LegalReviewTrustStoreAssessment, RegulationPack, SourceContentArtifacts } from '../regulations/types';
 import { assessPackLegalReview, assessPackSourceReview } from '../regulations/governance';
 import { assessPackSourceContent } from '../regulations/sourceContent';
 import { CompiledTemporalRule, evaluateTemporalCooccurrence, SUPPORTED_OBSERVATION_TYPES } from './TemporalCooccurrenceEngine';
 import { compileTemporalRuleMapping } from '../regulations/temporalRuleMapping';
 import { compileFormalPolicyModel, evaluateFormalPolicy, FormalPolicyAssessment } from '../regulations/formalPolicy';
-import { FormalEvidencePredicate } from '../regulations/types';
+import { compileInformationFlowPolicyModel, evaluateInformationFlowPolicy, InformationFlowAssessment, InformationFlowGraph } from '../regulations/informationFlowPolicy';
 
 const DAY_MS = 86_400_000;
 const BURST_LIMIT: Record<SensitivePermission, number> = { LOCATION: 12, MICROPHONE: 6, CONTACTS: 4 };
@@ -137,6 +137,7 @@ export class RulePackComplianceEngine implements IComplianceEngine {
   private readonly temporalRules: CompiledTemporalRule[];
   /** Mounted data-only constraints, shared by runtime and offline batch use. */
   readonly formalPolicyModel;
+  readonly informationFlowPolicyModel: InformationFlowPolicyConstraint[];
 
   private readonly sourceReview: ReturnType<typeof assessPackSourceReview>;
   private readonly sourceContent: ReturnType<typeof assessPackSourceContent>;
@@ -146,6 +147,7 @@ export class RulePackComplianceEngine implements IComplianceEngine {
     this.regulation = pack.shortName;
     this.temporalRules = compileTemporalRuleMapping(pack);
     this.formalPolicyModel = compileFormalPolicyModel(pack);
+    this.informationFlowPolicyModel = compileInformationFlowPolicyModel(pack);
     this.sourceReview = assessPackSourceReview(pack, evaluatedAt);
     this.sourceContent = assessPackSourceContent(pack, sourceArtifacts, evaluatedAt);
     this.legalReview = assessPackLegalReview(pack, evaluatedAt, trustStore, sourceArtifacts);
@@ -158,6 +160,10 @@ export class RulePackComplianceEngine implements IComplianceEngine {
    */
   evaluateFormalEvidence(evidence: ReadonlySet<FormalEvidencePredicate>): FormalPolicyAssessment[] {
     return evaluateFormalPolicy(this.formalPolicyModel, evidence);
+  }
+
+  evaluateInformationFlow(graph: InformationFlowGraph): InformationFlowAssessment[] {
+    return evaluateInformationFlowPolicy(this.informationFlowPolicyModel, graph);
   }
 
   private maxWindowMs(): number { return Math.max(1, ...this.temporalRules.map(({ windowMs }) => windowMs)); }
