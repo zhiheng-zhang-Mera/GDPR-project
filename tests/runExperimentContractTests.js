@@ -8,7 +8,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'privacy-lens-corpus-'));
 try {
-  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/dismiss-authorized-notification-prompts.js', 'scripts/run-flowdroid-baseline.js', 'scripts/convert-flowdroid-results-to-information-flow.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/build-androzoo-play-catalog.js', 'scripts/download-authorized-androzoo-corpus.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/select-store-corpus-subset.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
+  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/dismiss-authorized-notification-prompts.js', 'scripts/run-flowdroid-baseline.js', 'scripts/run-flowdroid-corpus-baseline.js', 'scripts/convert-flowdroid-results-to-information-flow.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/build-androzoo-play-catalog.js', 'scripts/download-authorized-androzoo-corpus.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/select-store-corpus-subset.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
@@ -46,6 +46,10 @@ try {
   execFileSync(process.execPath, [path.join(root, 'scripts/run-store-corpus-batch.js'), '--catalog', openSourceFile, '--serial', 'not-used-in-validation', '--output-dir', openSourceOutput], { stdio: 'pipe' });
   const openSourceReport = JSON.parse(fs.readFileSync(path.join(openSourceOutput, 'results.json'), 'utf8'));
   if (openSourceReport.corpusKind !== 'OPEN_SOURCE_APP_STORE' || openSourceReport.results.length !== 100) throw new Error('Open-source app-store corpus contract failed.');
+  const flowdroidCorpusOutput = path.join(temp, 'flowdroid-corpus');
+  execFileSync(process.execPath, [path.join(root, 'scripts/run-flowdroid-corpus-baseline.js'), '--catalog', openSourceFile, '--output-dir', flowdroidCorpusOutput], { stdio: 'pipe' });
+  const flowdroidCorpus = JSON.parse(fs.readFileSync(path.join(flowdroidCorpusOutput, 'corpus-baseline.json'), 'utf8'));
+  if (flowdroidCorpus.execution !== 'VALIDATION_ONLY' || flowdroidCorpus.summary.notExecuted !== 100 || flowdroidCorpus.runs.some((run) => run.status !== 'NOT_EXECUTED')) throw new Error('FlowDroid corpus validation-only contract failed.');
   const androzooMetadata = path.join(temp, 'androzoo.csv'); const androzooAccess = path.join(temp, 'androzoo-access.json'); const androzooCatalogFile = path.join(temp, 'androzoo-catalog.json');
   const androzooHeader = 'sha256,sha1,md5,apk_size,dex_size,dex_date,pkg_name,vercode,vt_detection,vt_scan_date,markets';
   const androzooRows = Array.from({ length: 103 }, (_, index) => `${index.toString(16).padStart(64, '0')},sha1,md5,1048576,1,2025-01-01,org.fixture.play${index},${index + 1},0,2025-01-02,play.google.com`).join('\n');

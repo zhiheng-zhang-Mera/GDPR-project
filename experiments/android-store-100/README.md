@@ -12,6 +12,8 @@ For the requested commercial-app experiment, `docs/ANDROZOO-COMMERCIAL-CORPUS-PR
 
 `evaluation.schema.json` and `docs/INDEPENDENT-LABELLING-PROTOCOL.md` define the post-acquisition accuracy gate. The scorer accepts only two-reviewer consensus or an independently adjudicated disagreement; it preserves missing tool output and excludes energy from the authorised scope.
 
+For the FlowDroid comparison, `scripts/run-flowdroid-corpus-baseline.js` validates or runs every retained APK using the version-pinned single-APK FlowDroid receipt generator. It records all failures and no-artifact outcomes separately; neither may be scored as a negative flow.
+
 The runner records install/launch/cleanup state, permission declarations, process count, and PSS memory snapshots. Every result remains an engineering measurement and potential-review signal, not evidence of a GDPR infringement.
 
 On devices where a just-launched app's notification-permission dialog remains foregrounded and blocks the next installer page, `scripts/dismiss-authorized-notification-prompts.js` may be run with the same authorised catalog. It accepts only an exact Oplus notification-manager dialog whose title matches a catalog application and taps only the explicit denial control. It never selects an allow/grant button, never acts on an app outside that catalog, and writes a dismissal receipt.
