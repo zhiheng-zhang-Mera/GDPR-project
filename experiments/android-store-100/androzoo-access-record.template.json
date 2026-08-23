@@ -1,0 +1,10 @@
+{
+  "schema": "privacy-lens.authorized-commercial-corpus-access.v1",
+  "provider": "AndroZoo",
+  "authorizedForResearch": false,
+  "noRedistributionAcknowledged": false,
+  "commercialCorpusApproved": false,
+  "approvedBy": "REPLACE_WITH_ACCOUNTABLE_APPROVER",
+  "approvalReference": "REPLACE_WITH_INSTITUTIONAL_OR_DATASET_APPROVAL_REFERENCE",
+  "notes": "This template is intentionally invalid. Do not commit a personal API key, credentials, APK binary, or approval document containing unnecessary personal data. AndroZoo market metadata alone does not establish commercial or closed-source status."
+}

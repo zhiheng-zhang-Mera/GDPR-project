@@ -8,7 +8,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'privacy-lens-corpus-'));
 try {
-  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/dismiss-authorized-notification-prompts.js', 'scripts/run-flowdroid-baseline.js', 'scripts/convert-flowdroid-results-to-information-flow.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/select-store-corpus-subset.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
+  for (const file of ['scripts/run-store-corpus-batch.js', 'scripts/dismiss-authorized-notification-prompts.js', 'scripts/run-flowdroid-baseline.js', 'scripts/convert-flowdroid-results-to-information-flow.js', 'scripts/summarize-droidbench-flowdroid.js', 'scripts/install-authorized-apk-with-oem-confirmation.js', 'scripts/build-droidbench-100-catalog.js', 'scripts/build-fdroid-store-catalog.js', 'scripts/build-androzoo-play-catalog.js', 'scripts/download-authorized-androzoo-corpus.js', 'scripts/download-verified-store-corpus.js', 'scripts/filter-verified-store-corpus.js', 'scripts/exclude-attempted-store-corpus.js', 'scripts/select-store-corpus-subset.js', 'scripts/scan-verified-store-corpus.js', 'scripts/summarize-authorized-device-batch.js', 'scripts/aggregate-authorized-device-batches.js']) {
     execFileSync(process.execPath, ['--check', path.join(root, file)], { stdio: 'pipe' });
   }
   const runnerSource = fs.readFileSync(path.join(root, 'scripts', 'run-store-corpus-batch.js'), 'utf8');
@@ -46,6 +46,18 @@ try {
   execFileSync(process.execPath, [path.join(root, 'scripts/run-store-corpus-batch.js'), '--catalog', openSourceFile, '--serial', 'not-used-in-validation', '--output-dir', openSourceOutput], { stdio: 'pipe' });
   const openSourceReport = JSON.parse(fs.readFileSync(path.join(openSourceOutput, 'results.json'), 'utf8'));
   if (openSourceReport.corpusKind !== 'OPEN_SOURCE_APP_STORE' || openSourceReport.results.length !== 100) throw new Error('Open-source app-store corpus contract failed.');
+  const androzooMetadata = path.join(temp, 'androzoo.csv'); const androzooAccess = path.join(temp, 'androzoo-access.json'); const androzooCatalogFile = path.join(temp, 'androzoo-catalog.json');
+  const androzooHeader = 'sha256,sha1,md5,apk_size,dex_size,dex_date,pkg_name,vercode,vt_detection,vt_scan_date,markets';
+  const androzooRows = Array.from({ length: 103 }, (_, index) => `${index.toString(16).padStart(64, '0')},sha1,md5,1048576,1,2025-01-01,org.fixture.play${index},${index + 1},0,2025-01-02,play.google.com`).join('\n');
+  fs.writeFileSync(androzooMetadata, `${androzooHeader}\n${androzooRows}\nmalformed`);
+  fs.writeFileSync(androzooAccess, JSON.stringify({ schema: 'privacy-lens.authorized-commercial-corpus-access.v1', provider: 'AndroZoo', authorizedForResearch: true, noRedistributionAcknowledged: true, commercialCorpusApproved: true, approvedBy: 'fixture approver', approvalReference: 'fixture approval' }));
+  execFileSync(process.execPath, [path.join(root, 'scripts/build-androzoo-play-catalog.js'), '--metadata', androzooMetadata, '--access-record', androzooAccess, '--output', androzooCatalogFile, '--apk-dir', path.join(temp, 'androzoo-apks'), '--count', '100', '--seed', 'fixture'], { stdio: 'pipe' });
+  const androzooCatalog = JSON.parse(fs.readFileSync(androzooCatalogFile, 'utf8'));
+  if (androzooCatalog.corpusKind !== 'APP_STORE_COMMERCIAL' || androzooCatalog.apps.length !== 100 || new Set(androzooCatalog.apps.map((app) => app.packageName)).size !== 100 || androzooCatalog.source.commercialStatus !== 'OPERATOR_ATTESTED_WITH_EVIDENCE' || androzooCatalog.apps.some((app) => app.provenance.vtDetection !== 0 || !app.provenance.markets.includes('play.google.com'))) throw new Error('AndroZoo authorised commercial-corpus catalog contract failed.');
+  const androzooReceipt = path.join(temp, 'androzoo-validation.json');
+  execFileSync(process.execPath, [path.join(root, 'scripts/download-authorized-androzoo-corpus.js'), '--catalog', androzooCatalogFile, '--output', androzooReceipt, '--validation-only'], { stdio: 'pipe' });
+  const androzooValidation = JSON.parse(fs.readFileSync(androzooReceipt, 'utf8'));
+  if (androzooValidation.execution !== 'VALIDATION_ONLY' || androzooValidation.planned.length !== 100 || androzooValidation.verified.length !== 0 || androzooValidation.rejected.length !== 0) throw new Error('AndroZoo downloader validation-only contract failed.');
   const extendedOpenSourceFile = path.join(temp, 'extended-open-source-catalog.json');
   const extraApps = [100, 101].map((index) => ({ ...openSourceCatalog.apps[index - 100], id: `fixture-${index}`, displayName: `Fixture ${index}`, packageName: `org.fixture.app${index}`, storeUrl: `https://example.invalid/store/${index}` }));
   fs.writeFileSync(extendedOpenSourceFile, JSON.stringify({ ...openSourceCatalog, apps: [...openSourceCatalog.apps, ...extraApps] }));
