@@ -1,0 +1,9 @@
+# Independent labelling protocol for same-corpus comparison
+
+This protocol governs the 100-APK accuracy evaluation. Its unit is a pre-registered technical task, not a legal conclusion about GDPR infringement. The task definition must specify the exact evidence threshold for a positive case (for example, a version-pinned static source-to-sink path matching an enumerated source/sink taxonomy) and must be identical for Privacy Lens and every baseline.
+
+Before inspecting tool outputs, retain the APK SHA-256 manifest, the tool versions, shared timeout, source/sink configuration, inclusion/exclusion decisions, and task definition under one preregistration reference. Two named independent reviewers label each application from the same evidence bundle. Each review records a boolean task label plus a private or public evidence reference. Reviewer identifiers and evidence references may be pseudonymous in the committed summary; raw personal data, APKs, credentials, and restricted reports must remain outside Git.
+
+When both reviewers agree, the case is recorded as `CONSENSUS`. When they disagree, a third person who is not one of the reviewers records `ADJUDICATED`, the selected label, and a rationale reference. The scorer refuses one-reviewer labels, duplicate reviewers, undocumented consensus, self-adjudication, and unresolved disagreements.
+
+`experiments/android-store-100/evaluation.schema.json` is the v2 interchange contract. `scripts/summarize-store-corpus-evaluation.js` emits TP, FP, TN, FN, precision, recall, F1, coverage, elapsed time, and PSS memory only from the adjudicated labels. Missing tool outputs are counted as unreported rather than negatives. Energy is intentionally outside the authorised scope and is not emitted by the scorer. No result may claim tool superiority unless every compared tool has been run against the same version-pinned retained corpus under the same task and timeout policy.

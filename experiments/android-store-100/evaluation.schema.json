@@ -1,19 +1,35 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Privacy Lens 100-app independently labelled comparison",
+  "title": "Privacy Lens 100-app independently adjudicated comparison",
   "type": "object",
-  "required": ["schema", "corpusId", "cases"],
+  "required": ["schema", "corpusId", "labellingProtocol", "cases"],
   "properties": {
-    "schema": { "const": "privacy-lens.android-store-evaluation.v1" },
+    "schema": { "const": "privacy-lens.android-store-evaluation.v2" },
     "corpusId": { "type": "string", "minLength": 1 },
+    "labellingProtocol": {
+      "type": "object",
+      "required": ["taskDefinitionId", "preregistrationReference", "reviewerIds"],
+      "properties": {
+        "taskDefinitionId": { "type": "string", "minLength": 1 },
+        "preregistrationReference": { "type": "string", "minLength": 1 },
+        "reviewerIds": { "type": "array", "minItems": 2, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
     "cases": {
       "type": "array", "minItems": 100, "maxItems": 100,
       "items": {
         "type": "object",
-        "required": ["id", "independentLabel", "predictions"],
+        "required": ["id", "independentReviews", "adjudication", "predictions"],
         "properties": {
           "id": { "type": "string", "minLength": 1 },
-          "independentLabel": { "type": "boolean" },
+          "independentReviews": {
+            "type": "array", "minItems": 2,
+            "items": { "type": "object", "required": ["reviewerId", "label", "evidenceReference"], "properties": { "reviewerId": { "type": "string", "minLength": 1 }, "label": { "type": "boolean" }, "evidenceReference": { "type": "string", "minLength": 1 } } }
+          },
+          "adjudication": {
+            "type": "object", "required": ["label", "method"],
+            "properties": { "label": { "type": "boolean" }, "method": { "enum": ["CONSENSUS", "ADJUDICATED"] }, "adjudicatorId": { "type": "string", "minLength": 1 }, "rationaleReference": { "type": "string", "minLength": 1 } }
+          },
           "predictions": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "boolean" } },
           "measurements": {
             "type": "object",
@@ -21,8 +37,7 @@
               "type": "object",
               "properties": {
                 "elapsedMs": { "type": "number", "minimum": 0 },
-                "memoryPssKb": { "type": "number", "minimum": 0 },
-                "estimatedPowerMah": { "type": "number", "minimum": 0 }
+                "memoryPssKb": { "type": "number", "minimum": 0 }
               }
             }
           }

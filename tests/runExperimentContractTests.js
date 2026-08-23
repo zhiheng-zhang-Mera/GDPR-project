@@ -76,9 +76,12 @@ try {
   const subset = JSON.parse(fs.readFileSync(subsetFile, 'utf8'));
   if (subset.apps.length !== 100 || subset.apps.some((app) => app.packageName === 'org.fixture.app0') || !subset.apps.every((app) => path.dirname(app.apkFiles[0].path) === isolatedApks) || new Set(subset.apps.map((app) => app.id)).size !== 100) throw new Error('Isolated subset contract failed.');
   const evaluation = {
-    schema: 'privacy-lens.android-store-evaluation.v1', corpusId: 'contract-fixture',
+    schema: 'privacy-lens.android-store-evaluation.v2', corpusId: 'contract-fixture',
+    labellingProtocol: { taskDefinitionId: 'fixture-policy-task-v1', preregistrationReference: 'fixture-preregistered', reviewerIds: ['reviewer-a', 'reviewer-b'] },
     cases: Array.from({ length: 100 }, (_, index) => ({
-      id: `case-${index}`, independentLabel: index < 50,
+      id: `case-${index}`,
+      independentReviews: index === 0 ? [{ reviewerId: 'reviewer-a', label: true, evidenceReference: 'fixture-evidence-0-a' }, { reviewerId: 'reviewer-b', label: false, evidenceReference: 'fixture-evidence-0-b' }] : [{ reviewerId: 'reviewer-a', label: index < 50, evidenceReference: `fixture-evidence-${index}-a` }, { reviewerId: 'reviewer-b', label: index < 50, evidenceReference: `fixture-evidence-${index}-b` }],
+      adjudication: index === 0 ? { label: true, method: 'ADJUDICATED', adjudicatorId: 'adjudicator-c', rationaleReference: 'fixture-rationale-0' } : { label: index < 50, method: 'CONSENSUS' },
       predictions: { privacyLens: index < 50, flowdroid: index < 40 },
       measurements: { privacyLens: { elapsedMs: 2, memoryPssKb: 0 }, flowdroid: { elapsedMs: 3 } },
     })),
@@ -87,7 +90,7 @@ try {
   fs.writeFileSync(evaluationInput, JSON.stringify(evaluation));
   execFileSync(process.execPath, [path.join(root, 'scripts/summarize-store-corpus-evaluation.js'), '--input', evaluationInput, '--output', summaryFile], { stdio: 'pipe' });
   const summary = JSON.parse(fs.readFileSync(summaryFile, 'utf8'));
-  if (summary.tools.privacyLens.confusionMatrix.tp !== 50 || summary.tools.privacyLens.confusionMatrix.fp !== 0 || summary.tools.privacyLens.confusionMatrix.tn !== 50 || summary.tools.privacyLens.confusionMatrix.fn !== 0 || summary.tools.privacyLens.telemetry.estimatedPowerMah.observed !== 0) throw new Error('Evaluation summarisation contract failed.');
+  if (summary.schema !== 'privacy-lens.android-store-evaluation-summary.v2' || summary.tools.privacyLens.confusionMatrix.tp !== 50 || summary.tools.privacyLens.confusionMatrix.fp !== 0 || summary.tools.privacyLens.confusionMatrix.tn !== 50 || summary.tools.privacyLens.confusionMatrix.fn !== 0 || Object.prototype.hasOwnProperty.call(summary.tools.privacyLens.telemetry, 'estimatedPowerMah')) throw new Error('Evaluation summarisation contract failed.');
   const deviceInput = path.join(temp, 'device.json'); const deviceOutput = path.join(temp, 'device-summary.json');
   const dismissalInput = path.join(temp, 'dismissals.json');
   fs.writeFileSync(deviceInput, JSON.stringify({ schema: 'privacy-lens.android-store-corpus-run.v1', corpusId: 'device-fixture', corpusKind: 'ACADEMIC_BENCHMARK', execution: 'AUTHORISED_DEVICE_RUN', results: [{ id: 'device-1', packageName: 'org.fixture.device1', cleanup: 'VERIFIED_REMOVED', wallClockElapsedMs: 5, runtimePermissionPrompt: 'OBSERVED_NOT_GRANTED', runtimePermissionPromptDismissed: true, installer: { oemPrompts: { continueInstall: 1, installerCompleted: 1 } }, afterLaunch: { memoryPssKb: 0 } }], failures: [{ id: 'device-2', packageName: 'org.fixture.device2', cleanup: 'NOT_STARTED', error: 'Failure [-99]' }] }));
@@ -121,7 +124,7 @@ try {
   execFileSync(process.execPath, [path.join(root, 'scripts/convert-flowdroid-results-to-information-flow.js'), '--input', flowXml, '--output', typedFlow], { stdio: 'pipe' });
   const typed = JSON.parse(fs.readFileSync(typedFlow, 'utf8'));
   if (typed.nodes.length !== 4 || typed.edges.length !== 2 || typed.nodes[1].sink !== 'SMS' || typed.nodes[3].sink !== 'LOG' || typed.unmappedResults.length !== 0) throw new Error('FlowDroid typed-flow conversion contract failed.');
-  console.log('Experiment contracts passed: 100-entry catalog validates without ADB installation, and labelled metrics preserve missing telemetry.');
+  console.log('Experiment contracts passed: 100-entry catalog validates without ADB installation, adjudicated labels preserve missing telemetry, and energy remains excluded.');
 } finally {
   fs.rmSync(temp, { recursive: true, force: true });
 }
