@@ -2,7 +2,7 @@
 
 > Evidence before conclusions · 证据先于结论
 
-[English](#english) · [中文](#中文) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Temporal rule cards](docs/rule-cards.md) · [Formal policy mapping](docs/TEMPORAL-RULE-MAPPING.md) · [Commercial APK baseline method](docs/COMMERCIAL-APK-BASELINE-METHOD.md) · [Commercial batch results](commercial-app-batch/2026-08-22T04-43-10-052Z/README.md) · [Final thesis source / 最终论文源](Thesis/Iteration-V4/main.tex)
+[English](#english) · [中文](#中文) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Temporal rule cards](docs/rule-cards.md) · [Formal policy mapping](docs/TEMPORAL-RULE-MAPPING.md) · [Commercial APK baseline method](docs/COMMERCIAL-APK-BASELINE-METHOD.md) · [Commercial batch results](commercial-app-batch/2026-08-22T04-43-10-052Z/README.md) · [Final thesis source / 最终论文源](Thesis/Final/main.tex)
 
 ## English
 
@@ -58,7 +58,7 @@ Prerequisites: Node.js 20+, npm, Java 21, Android SDK 36, and an Expo 54-compati
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
-git switch 8-22
+git switch 8-24
 npm ci
 npm run verify
 npm start
@@ -130,7 +130,7 @@ Privacy Lens 是一款离线运行、证据优先的 Android 隐私审查研究�
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
-git switch 8-22
+git switch 8-24
 npm ci
 npm run verify
 npm start

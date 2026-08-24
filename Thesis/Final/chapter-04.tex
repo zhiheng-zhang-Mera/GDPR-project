@@ -123,7 +123,7 @@ Accessibility labels are supplied for navigation and important actions. Icons do
 
 \subsection{Release Configuration and Privacy Controls}
 
-The Android build sets minimum SDK 24, compile and target SDK 36, version code 2, and version name 1.1.0. Release tasks produce an APK for controlled device installation and an AAB for Play delivery. The build reads upload-store path, passwords, and alias from environment variables. If they are absent, a local QA fallback signs with the debug configuration. The build can therefore be tested without placing secrets in source, while its output remains clearly distinguished from a production upload artefact.
+The Android build sets minimum SDK 24, compile and target SDK 36, version code 16, and version name 1.15.0. Release tasks produce an APK for controlled device installation and an AAB for Play delivery. The build reads upload-store path, passwords, and alias from environment variables. If they are absent, a local QA fallback signs with the debug configuration. The build can therefore be tested without placing secrets in source, while its output remains clearly distinguished from a production upload artefact.
 
 The source manifest requests Internet access and explicitly removes inherited legacy external-storage permissions using manifest-merger directives. The final merged manifest also contains operational declarations contributed by WorkManager and AndroidX. Android backup and data extraction are disabled for the application. Inspection of the installed release package confirms that no sensitive runtime permission is requested.
 

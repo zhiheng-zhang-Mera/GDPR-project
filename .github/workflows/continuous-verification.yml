@@ -2,9 +2,9 @@ name: Continuous verification
 
 on:
   push:
-    branches: [8-20, 8-21, 8-22]
+    branches: [8-20, 8-21, 8-22, 8-24]
   pull_request:
-    branches: [8-20, 8-21, 8-22]
+    branches: [8-20, 8-21, 8-22, 8-24]
 
 permissions:
   contents: read

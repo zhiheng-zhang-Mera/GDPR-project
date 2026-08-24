@@ -26,7 +26,7 @@ Two common design errors follow from ignoring this gap. The first is semantic in
 
 Privacy Lens introduces an intermediate output: a review finding. A finding can say that the available count crossed a research threshold, that evidence is unavailable, or that no technical concern was identified within the observed window. It can also state which contextual facts are missing. This format preserves utility without claiming certainty. The distinction is comparable to the difference between a screening instrument and a diagnosis: screening can identify cases that deserve attention, but its result must be interpreted in context and by an appropriately qualified actor.
 
-The design also recognises that explanation is not an optional layer added after computation. Explanation begins with data modelling. If the repository stores only a severity colour and a message, the interface cannot later reconstruct the source, rule version, temporal scope, or missing context. the final delivery consequently defines provenance fields as part of the decision object. The interface is a view of that object rather than a separate narrative that can drift away from it.
+The design also recognises that explanation is not an optional layer added after computation. Explanation begins with data modelling. If the repository stores only a severity colour and a message, the interface cannot later reconstruct the source, rule version, temporal scope, or missing context. The system consequently defines provenance fields as part of the decision object. The interface is a view of that object rather than a separate narrative that can drift away from it.
 
 \subsection{Consent, Attention, and Interface Burden}
 

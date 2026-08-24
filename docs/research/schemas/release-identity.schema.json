@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/privacy-lens/release-identity.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "project", "repository", "branch", "sourceBaseline", "releaseVersion", "android", "status", "claimBoundary"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "project": { "const": "Privacy Lens" },
+    "repository": { "const": "zhiheng-zhang-Mera/GDPR-project" },
+    "branch": { "const": "8-24" },
+    "sourceBaseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["branch", "gitCommitSha"],
+      "properties": {
+        "branch": { "const": "8-22" },
+        "gitCommitSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      }
+    },
+    "releaseVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "android": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["packageName", "versionCode", "minSdk", "targetSdk"],
+      "properties": {
+        "packageName": { "type": "string", "minLength": 1 },
+        "versionCode": { "type": "integer", "minimum": 1 },
+        "minSdk": { "type": "integer", "minimum": 1 },
+        "targetSdk": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "status": { "const": "RESEARCH_PROTOTYPE" },
+    "claimBoundary": { "type": "string", "minLength": 1 }
+  }
+}
