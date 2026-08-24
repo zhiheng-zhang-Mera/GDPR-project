@@ -1,0 +1,13 @@
+Observed ColorOS node after selecting the rightmost font-size stop:
+resource-id=com.android.settings:id/current_font_value
+text=超大
+bounds=[555,1390][1019,1428]
+
+Observed apply node:
+resource-id=com.android.settings:id/apply_change
+text=应用
+bounds=[0,0][0,0]
+clickable=true
+enabled=true
+
+Persisted system font scale after the attempted interaction: 0.9
