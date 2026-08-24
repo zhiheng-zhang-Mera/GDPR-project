@@ -2,10 +2,12 @@
 /* Converts FlowDroid XML findings into a portable typed graph; it never adds a legal verdict. */
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const args = process.argv.slice(2);
 const value = (flag) => { const index = args.indexOf(flag); return index < 0 ? undefined : args[index + 1]; };
 const input = value('--input'); const output = value('--output');
+const receipt = value('--receipt');
 const processId = value('--process-id') || 'UNKNOWN_STATIC_PROCESS';
 if (!input || !output) throw new Error('Usage: node scripts/convert-flowdroid-results-to-information-flow.js --input <flowdroid-results.xml> --output <typed-flow.json> [--process-id <id>]');
 if (!fs.existsSync(input)) throw new Error(`Input is unavailable: ${input}`);
@@ -33,6 +35,7 @@ const sinkCategory = (definition = '') => {
   return undefined;
 };
 const xml = fs.readFileSync(input, 'utf8');
+const sha256 = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
 const resultBlocks = [...xml.matchAll(/<Result>([\s\S]*?)<\/Result>/g)].map((match) => match[1]);
 if (resultBlocks.length === 0 && !/<DataFlowResults\b/.test(xml)) throw new Error('Input is not a FlowDroid results document.');
 const nodes = []; const edges = []; const unmappedResults = [];
@@ -63,6 +66,11 @@ const typed = {
   schema: 'privacy-lens.flowdroid-information-flow-graph.v1',
   evidenceKind: 'STATIC_ANALYSIS',
   sourceTool: 'FlowDroid',
+  provenance: {
+    inputXmlSha256: sha256(Buffer.from(xml, 'utf8')),
+    sourceReceiptPath: receipt || null,
+    sourceReceiptSha256: receipt ? sha256(fs.readFileSync(receipt)) : null,
+  },
   nodes, edges, unmappedResults,
   caveat: 'Nodes represent only FlowDroid potential static source-to-sink results whose method definitions map to the public typed vocabulary. UNKNOWN_STATIC_PROCESS is not evidence of a process boundary. This conversion neither executes an APK nor establishes a transfer, recipient, processing purpose, lawful basis, or GDPR infringement.',
 };

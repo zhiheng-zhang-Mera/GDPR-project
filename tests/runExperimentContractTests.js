@@ -127,7 +127,7 @@ try {
   fs.writeFileSync(flowXml, '<?xml version="1.0"?><DataFlowResults><Results><Result><Sink MethodSourceSinkDefinition="&lt;android.telephony.SmsManager: void sendTextMessage()&gt;"/><Sources><Source MethodSourceSinkDefinition="&lt;android.telephony.TelephonyManager: java.lang.String getDeviceId()&gt;"/></Sources></Result><Result><Sink MethodSourceSinkDefinition="&lt;android.util.Log: int i()&gt;"/><Sources><Source MethodSourceSinkDefinition="&lt;android.telephony.TelephonyManager: java.lang.String getLine1Number()&gt;"/></Sources></Result></Results></DataFlowResults>');
   execFileSync(process.execPath, [path.join(root, 'scripts/convert-flowdroid-results-to-information-flow.js'), '--input', flowXml, '--output', typedFlow], { stdio: 'pipe' });
   const typed = JSON.parse(fs.readFileSync(typedFlow, 'utf8'));
-  if (typed.nodes.length !== 4 || typed.edges.length !== 2 || typed.nodes[1].sink !== 'SMS' || typed.nodes[3].sink !== 'LOG' || typed.unmappedResults.length !== 0) throw new Error('FlowDroid typed-flow conversion contract failed.');
+  if (typed.nodes.length !== 4 || typed.edges.length !== 2 || typed.nodes[1].sink !== 'SMS' || typed.nodes[3].sink !== 'LOG' || typed.unmappedResults.length !== 0 || !/^[0-9a-f]{64}$/.test(typed.provenance.inputXmlSha256) || typed.provenance.sourceReceiptPath !== null) throw new Error('FlowDroid typed-flow conversion and provenance contract failed.');
   console.log('Experiment contracts passed: 100-entry catalog validates without ADB installation, adjudicated labels preserve missing telemetry, and energy remains excluded.');
 } finally {
   fs.rmSync(temp, { recursive: true, force: true });
