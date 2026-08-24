@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["schemaVersion","reviewer","independentOfImplementation","toolOutputsHiddenBeforeRating","ratings","signedAt"],
+  "properties":{
+    "schemaVersion":{"const":1},
+    "reviewer":{"type":"object","required":["reviewerId","role","qualificationScope"],"properties":{"reviewerId":{"type":"string","minLength":1},"role":{"type":"string","minLength":1},"qualificationScope":{"type":"string","minLength":1}}},
+    "independentOfImplementation":{"const":true},
+    "toolOutputsHiddenBeforeRating":{"const":true},
+    "ratings":{"type":"array","minItems":13,"maxItems":13,"items":{"type":"object","required":["itemId","decision","severity","rationale"],"properties":{"itemId":{"type":"string"},"decision":{"enum":["SUPPORTED","PARTIAL","UNSUPPORTED","NOT_QUALIFIED"]},"severity":{"enum":["NONE","MINOR","MAJOR","CRITICAL"]},"rationale":{"type":"string","minLength":1},"proposedRevision":{"type":["string","null"]}}}},
+    "signedAt":{"type":"string","format":"date-time"}
+  }
+}
