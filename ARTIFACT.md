@@ -51,3 +51,5 @@ Hardware evidence is retained under `testing-report/` with denominators, failure
 APK and AAB binaries are intentionally excluded from Git. The F-Droid corpus APKs and any commercial APK records are not redistributed. The FlowDroid JAR, Android SDK platforms, Java runtime, Node/npm distributions, and device firmware are external dependencies governed by their own licences. No top-level repository redistribution licence was found during this freeze, so the artifact must not be assumed to grant rights beyond inspection and the rights attached to each dependency or source.
 
 Production signing keys, Play Console declarations, public policy/support endpoints, independent reviewer records, AndroZoo credentials and packages, and participant data are unavailable. Their absence is a release or study boundary, not a negative result.
+
+Optional post-thesis studies and their authority, acceptance, and stop conditions are preregistered in `docs/research/P2-EXTENSION-REGISTER.md`. Every item remains deferred; the register contains no experimental result.
