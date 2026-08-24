@@ -1,0 +1,59 @@
+{
+  "$schema": "./schemas/evidence-manifest.schema.json",
+  "schemaVersion": 1,
+  "projectIdentity": {
+    "name": "Privacy Lens",
+    "branch": "8-24",
+    "sourceBaselineSha": "727056c4b29065a4c21ab9bc291c85ca8fa93d5f",
+    "releaseVersion": "1.15.0",
+    "packageName": "com.zhihengzhang.privacylens",
+    "androidVersionCode": 16,
+    "androidMinSdk": 24,
+    "androidTargetSdk": 36
+  },
+  "empiricalEvidence": {
+    "fdroidStaticCorpusN": 495,
+    "fdroidSensitivePermissionN": 125,
+    "fdroidSensitiveAndNetworkN": 74,
+    "fdroidSensitiveAndBackgroundN": 74,
+    "fdroidMultiProcessN": 54,
+    "deviceDistinctPackagesN": 233,
+    "completedEndToEndWorkflowsN": 203,
+    "failedDeviceWorkflowsN": 30,
+    "validPssTelemetryN": 98,
+    "flowdroidReceiptsN": 1,
+    "flowdroidXmlArtifactsN": 0
+  },
+  "evidenceSources": [
+    {
+      "id": "FDROID_STATIC_CENSUS",
+      "path": "testing-report/fdroid-open-store-2026-08-22/dex-manifest-census-verified-final-495.json",
+      "sha256": "29bfd73f910b8d674729da9ff8cba9bd14255580f2037450060bbdeab794d376"
+    },
+    {
+      "id": "DEVICE_BATCH_AGGREGATE",
+      "path": "testing-report/fdroid-open-store-2026-08-22/device-batch-aggregate-final.json",
+      "sha256": "e6066c44fc81ba78ff2ed82a9e849df815d095ba70962e4370675eefc110b10c"
+    },
+    {
+      "id": "FLOWDROID_BASELINE_RECEIPT",
+      "path": "testing-report/academic-baseline-2026-08-22/flowdroid-wps-rerun/flowdroid-receipt.json",
+      "sha256": "1bc7781903d2fccc85ad5ea7a45a0b32769409ce05318a4b8d95d2adc9c0baf0"
+    }
+  ],
+  "formalEvidence": {
+    "propertyIds": [],
+    "mutationCases": [],
+    "mutationScore": null,
+    "stressReceipt": "testing-report/final-thesis-evidence-2026-08-21.md"
+  },
+  "independentReview": {
+    "status": "NOT_RUN",
+    "reviewedItemsN": null,
+    "reviewersN": null,
+    "rawAgreement": null,
+    "cohensKappa": null,
+    "unresolvedCriticalDisagreements": null
+  },
+  "claimBoundary": "Counts describe a hash-pinned, purposively selected open-source corpus and bounded device/tool executions. They are not Android-population prevalence, commercial-app evidence, legal ground truth, GDPR compliance, or cross-device reliability."
+}

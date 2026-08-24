@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/privacy-lens/evidence-manifest.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "projectIdentity", "empiricalEvidence", "evidenceSources", "formalEvidence", "independentReview", "claimBoundary"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "projectIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "branch", "sourceBaselineSha", "releaseVersion", "packageName", "androidVersionCode", "androidMinSdk", "androidTargetSdk"],
+      "properties": {
+        "name": { "const": "Privacy Lens" },
+        "branch": { "const": "8-24" },
+        "sourceBaselineSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "releaseVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "packageName": { "type": "string", "minLength": 1 },
+        "androidVersionCode": { "type": "integer", "minimum": 1 },
+        "androidMinSdk": { "type": "integer", "minimum": 1 },
+        "androidTargetSdk": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "empiricalEvidence": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "evidenceSources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "sha256"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Z0-9_]+$" },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "formalEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["propertyIds", "mutationCases", "mutationScore", "stressReceipt"],
+      "properties": {
+        "propertyIds": { "type": "array", "items": { "type": "string" } },
+        "mutationCases": { "type": "array", "items": { "type": "string" } },
+        "mutationScore": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "stressReceipt": { "type": "string", "minLength": 1 }
+      }
+    },
+    "independentReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reviewedItemsN", "reviewersN", "rawAgreement", "cohensKappa", "unresolvedCriticalDisagreements"],
+      "properties": {
+        "status": { "enum": ["NOT_RUN", "RUNNING", "COMPLETE"] },
+        "reviewedItemsN": { "type": ["integer", "null"], "minimum": 0 },
+        "reviewersN": { "type": ["integer", "null"], "minimum": 0 },
+        "rawAgreement": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "cohensKappa": { "type": ["number", "null"], "minimum": -1, "maximum": 1 },
+        "unresolvedCriticalDisagreements": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "claimBoundary": { "type": "string", "minLength": 1 }
+  }
+}
