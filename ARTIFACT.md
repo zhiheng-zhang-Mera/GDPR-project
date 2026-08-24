@@ -9,7 +9,7 @@ npm ci
 npm run reproduce:thesis-core
 ```
 
-This is the only canonical core entry point. It compiles and runs the semantic suites; checks accessibility-source, release-privacy, experiment, TypeScript, lint, and delivery contracts; verifies the nine formal safety properties and curated mutants; validates the mapping-review packet; regenerates corpus/device/FlowDroid summaries and LaTeX result macros; verifies the thesis evidence manifest; and checks TeX inputs, labels, references, citations, and bibliography keys.
+This is the only canonical core entry point. It compiles and runs the semantic suites; checks accessibility-source, release-privacy, experiment, TypeScript, lint, and delivery contracts; verifies the nine formal safety properties and curated mutants; validates the mapping-review packet; regenerates corpus/device/FlowDroid summaries and LaTeX result macros; verifies the thesis evidence manifest and claim boundaries; and checks TeX inputs, labels, references, citations, bibliography keys, stale markers, figure paths, and duplicate long paragraphs.
 
 Expected terminal summaries include `Safety properties verified: 9 properties, 9/9 curated mutants detected`, `Thesis results verified: F-Droid N=495, device N=233, PSS N=98`, `Thesis evidence verified`, and `Thesis references verified`. A successful run must leave tracked generated files unchanged.
 

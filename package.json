@@ -24,8 +24,10 @@
     "verify:mapping-review": "node scripts/generate-mapping-review.js",
     "verify:generated-results": "node scripts/summarize-thesis-results.js",
     "verify:thesis-references": "node scripts/verify-thesis-references.js",
-    "reproduce:thesis-core": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:formal-properties && npm run verify:mapping-review && node scripts/summarize-thesis-results.js --write && node scripts/verify-thesis-evidence.js --write && npm run verify:generated-results && npm run verify:thesis-evidence && npm run verify:thesis-references",
-    "verify": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:thesis-evidence && npm run verify:formal-properties && npm run verify:mapping-review && npm run verify:generated-results && npm run verify:thesis-references"
+    "verify:claim-boundaries": "node scripts/verify-claim-boundaries.js",
+    "verify:latex": "node scripts/verify-latex-quality.js",
+    "reproduce:thesis-core": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:formal-properties && npm run verify:mapping-review && node scripts/summarize-thesis-results.js --write && node scripts/verify-thesis-evidence.js --write && npm run verify:generated-results && npm run verify:thesis-evidence && npm run verify:claim-boundaries && npm run verify:latex",
+    "verify": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:thesis-evidence && npm run verify:formal-properties && npm run verify:mapping-review && npm run verify:generated-results && npm run verify:claim-boundaries && npm run verify:latex"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

@@ -45,7 +45,7 @@ function accessRecord() {
   }
   return record;
 }
-const approval = accessRecord();
+accessRecord();
 const candidates = []; const reserve = count * 16;
 function retain(candidate) {
   candidates.push(candidate);

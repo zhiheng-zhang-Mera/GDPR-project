@@ -135,7 +135,7 @@ Figure~\ref{fig:conceptual-boundary} makes the permitted direction and the missi
 \begin{tikzpicture}[
   node distance=0.65cm,
   box/.style={draw, rounded corners, align=center, text width=0.18\textwidth, minimum height=1.55cm, font=\small},
-  note/.style={draw, dashed, rounded corners, align=center, text width=0.34\textwidth, font=\small},
+  note/.style={draw, dashed, rounded corners, align=center, text width=0.72\textwidth, font=\small},
   arrow/.style={-latex, thick}
 ]
 \node[box, fill=blue!7] (evidence) {Evidence\\source, time, count, context};
@@ -145,10 +145,9 @@ Figure~\ref{fig:conceptual-boundary} makes the permitted direction and the missi
 \draw[arrow] (evidence) -- node[above,font=\scriptsize]{admits} (rule);
 \draw[arrow] (rule) -- node[above,font=\scriptsize]{constrains} (claim);
 \draw[arrow] (claim) -- node[above,font=\scriptsize]{justifies} (action);
-\node[note, below=0.85cm of claim] (missing) {Missing legal facts remain visible: purpose, lawful basis, controller, retention, recipients, necessity, and jurisdiction};
-\draw[dashed,-latex] (missing) -- (claim);
-\node[note, below=0.85cm of rule] (prohibited) {Prohibited automated conclusion: lawful, compliant, or infringing};
-\draw[dashed] (rule) -- (prohibited);
+\node[note, below=1.05cm of $(rule)!0.5!(claim)$] (missing) {Missing legal facts remain visible: purpose, lawful basis, controller, retention, recipients, necessity, and jurisdiction};
+\draw[dashed,-latex] (missing.north) -- (claim.south);
+\node[note, below=0.45cm of missing] (prohibited) {Prohibited automated conclusion: lawful, compliant, or infringing};
 \end{tikzpicture}
 \caption{Evidence-to-action conceptual boundary}
 \label{fig:conceptual-boundary}
