@@ -11,7 +11,7 @@ Table~\ref{tab:r11-requirements} defines the requirements used for implementatio
 \begin{table}[H]
 \centering
 \small
-\caption{the final delivery requirements and acceptance evidence}
+\caption{Evaluated-system requirements and acceptance evidence}
 \label{tab:r11-requirements}
 \begin{tabular}{p{0.13\textwidth}p{0.50\textwidth}p{0.27\textwidth}}
 \toprule
@@ -155,7 +155,7 @@ Optional features include cloud synchronisation, accounts, remote pack updates, 
 
 The release gate follows dependency order. A source-level failure blocks package evaluation because the binary would not represent an accepted program. A package or manifest failure blocks device acceptance. A device crash or broken primary journey blocks visual promotion. A missing legal or usability study does not turn an engineering check red; it keeps the associated substantive claim explicitly unverified.
 
-This priority model avoids two extremes. It does not delay all prototype learning until every production activity is complete, and it does not allow a successful demonstration to erase unresolved authority or legal questions. Each gate authorises a named next activity. The the final delivery candidate is designed to authorise controlled store-submission preparation, internal-track testing, and participant evaluation.
+This priority model avoids two extremes. It does not delay all prototype learning until every production activity is complete, and it does not allow a successful demonstration to erase unresolved authority or legal questions. Each gate authorises a named next activity. The evaluated candidate supports controlled internal testing and participant-study preparation, subject to the unresolved owner and ethics gates.
 
 \subsection{Stakeholders and Functional Requirements}
 
@@ -183,7 +183,7 @@ Security requirements include fail-closed input handling, conservative identifie
 
 Usability requirements include a clear initial action, a stable three-destination navigation model, non-colour status semantics, concise summaries, optional detail, meaningful accessibility labels, and separation of destructive controls. Maintainability requirements include one authoritative compliance path, typed interfaces, registry-based packs, reusable theme constants, tests for new packs, and removal of duplicate legacy services. Deployability requirements include a stable application identifier, explicit version, current target SDK, release APK and AAB generation, upload-key configuration, privacy-policy content, and documented owner actions.
 
-Performance is treated as a constraint rather than a validated claim. The decision engine operates on bounded in-memory arrays and simple rule lookup. Storage is local and capped per package-permission key. WorkManager is selected for deferrable periodic work rather than exact scheduling. No quantitative battery, long-duration memory, or startup objective is claimed in the final delivery because the available evidence does not cover those dimensions broadly enough.
+Performance is treated as a constraint rather than a validated claim. The decision engine operates on bounded in-memory arrays and simple rule lookup. Storage is local and capped per package-permission key. WorkManager is selected for deferrable periodic work rather than exact scheduling. No quantitative battery, long-duration memory, or startup objective is claimed for the evaluated prototype because the available evidence does not cover those dimensions broadly enough.
 
 \subsection{Evidence and Regulation-Pack Design}
 
@@ -232,7 +232,7 @@ Fail-closed does not mean the application crashes. It means the system returns a
 
 \subsubsection{Temporal Isolation Model}
 
-Aggregate windows create a double-counting problem. Suppose two records report counts for intervals that overlap. Without event identifiers, the system cannot know whether events in the shared interval appear in both counts. Summing them could manufacture a cross-window threshold. the final delivery therefore aggregates only completed, non-overlapping windows for the same package and permission.
+Aggregate windows create a double-counting problem. Suppose two records report counts for intervals that overlap. Without event identifiers, the system cannot know whether events in the shared interval appear in both counts. Summing them could manufacture a cross-window threshold. The evaluated implementation therefore aggregates only completed, non-overlapping windows for the same package and permission.
 
 For windows \(w_i=[s_i,e_i)\) and \(w_j=[s_j,e_j)\), compatibility is defined as
 
@@ -290,7 +290,7 @@ Evaluation is deliberately layered. Source-level checks establish type and lint 
 
 The architecture is governed by invariants that should remain true even when screens, acquisition connectors, or legal packs change. First, no accepted finding exists without an admitted evidence source and bounded temporal scope. Second, no legal or research rule exists without a pack identifier and version. Third, unknown, malformed, or unavailable evidence cannot be translated into a reassuring status. Fourth, simulator provenance cannot be upgraded by persistence or presentation. Fifth, historical findings retain the rule identity used at evaluation time. Sixth, local deletion remains available without requiring an account or remote approval.
 
-These invariants are more stable than component names. A future implementation could replace AsyncStorage with Room, React Native with another presentation framework, or bundled packs with signed declarative packages while preserving the same assurance properties. Conversely, a refactor that keeps every current class name but drops source identity or silent-fallback protection would violate the design. Stating invariants therefore makes architectural review less dependent on the incidental code structure of the final delivery.
+These invariants are more stable than component names. A future implementation could replace AsyncStorage with Room, React Native with another presentation framework, or bundled packs with signed declarative packages while preserving the same assurance properties. Conversely, a refactor that keeps every current class name but drops source identity or silent-fallback protection would violate the design. Stating invariants therefore makes architectural review less dependent on incidental implementation structure.
 
 The invariants also guide test selection. Admission tests challenge the first and third invariants. Pack-switch and persistence tests challenge the second and fifth. Simulator and cross-window tests challenge the fourth. Manifest, backup, and clear-data checks contribute to the sixth. This mapping helps maintainers decide which evidence to renew after a change. It also reveals gaps: authentication of an external producer, for example, is not yet an invariant guaranteed by the prototype and must not be implied by the controlled source label.
 
@@ -308,7 +308,7 @@ The first required record for a new acquisition connector should describe deploy
 
 \subsection{Temporal-combination model}
 
-The final delivery adds a narrow temporal inference layer between observation capture and the human-review workflow. Let an observation be $e=(p,t,k,c,s)$, where $p$ is a package-scoped subject, $t$ an observed time, $k$ a normalised observation type, $c$ a non-negative count, and $s$ an evidence source. The domain of $k$ includes permission-relevant data and sensor activities such as location, microphone, contacts, camera, body sensors, activity recognition, media-related access, clipboard reads, device identifiers, backgrounding, and data transfer. It is an engineering vocabulary, not a claim that every Android API call has been observed or legally classified.
+The evaluated implementation adds a narrow temporal inference layer between observation capture and the human-review workflow. Let an observation be $e=(p,t,k,c,s)$, where $p$ is a package-scoped subject, $t$ an observed time, $k$ a normalised observation type, $c$ a non-negative count, and $s$ an evidence source. The domain of $k$ includes permission-relevant data and sensor activities such as location, microphone, contacts, camera, body sensors, activity recognition, media-related access, clipboard reads, device identifiers, backgrounding, and data transfer. It is an engineering vocabulary, not a claim that every Android API call has been observed or legally classified.
 
 A temporal profile $r=(id,W,M,L,q)$ is supplied by the active regulation pack, not by the generic detector. $W$ is the rule-specific positive window length, $M$ is a multiset of required types with minimum counts, $L$ contains the rule-owned legal references, and $q$ is a short rationale. For a candidate time $T$, the detector considers the per-package ledger $E_{p,T,W}=\{e \mid T-W \leq t \leq T\}$. A profile matches precisely when, for every $(k,n)\in M$, the summed count of observations of type $k$ in $E_{p,T,W}$ is at least $n$. No requirement is imposed on the order in which the members of $M$ occur. This makes a combination such as location, activity recognition, and body-sensor access equivalent under every permutation while retaining its observed timestamps and sources as evidence.
 
