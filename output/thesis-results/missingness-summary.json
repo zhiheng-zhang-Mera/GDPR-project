@@ -1,0 +1,40 @@
+{
+  "schema": "privacy-lens.missingness-summary.v1",
+  "metrics": [
+    {
+      "metric": "terminalStatus",
+      "eligibleN": 233,
+      "observedN": 233,
+      "missingN": 0,
+      "reasons": {}
+    },
+    {
+      "metric": "memoryPssKb",
+      "eligibleN": 203,
+      "observedN": 98,
+      "missingN": 105,
+      "reasons": {
+        "TELEMETRY_UNAVAILABLE": 105
+      }
+    },
+    {
+      "metric": "wallClockElapsedMs",
+      "eligibleN": 203,
+      "observedN": 101,
+      "missingN": 102,
+      "reasons": {
+        "TELEMETRY_UNAVAILABLE": 102
+      }
+    },
+    {
+      "metric": "flowdroidXmlArtifact",
+      "eligibleN": 1,
+      "observedN": 0,
+      "missingN": 1,
+      "reasons": {
+        "TOOL_NO_ARTIFACT": 1
+      }
+    }
+  ],
+  "caveat": "Operational reason taxonomy only; no MCAR, MAR, or MNAR mechanism is asserted."
+}

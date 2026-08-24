@@ -18,7 +18,8 @@
     "verify:thesis-evidence": "node scripts/verify-thesis-evidence.js",
     "verify:formal-properties": "node scripts/verify-safety-properties.js",
     "verify:mapping-review": "node scripts/generate-mapping-review.js",
-    "verify": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:thesis-evidence && npm run verify:formal-properties && npm run verify:mapping-review"
+    "verify:generated-results": "node scripts/summarize-thesis-results.js",
+    "verify": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:thesis-evidence && npm run verify:formal-properties && npm run verify:mapping-review && npm run verify:generated-results"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

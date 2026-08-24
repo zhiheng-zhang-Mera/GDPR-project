@@ -1,0 +1,1408 @@
+{
+  "schema": "privacy-lens.device-metrics-redacted.v1",
+  "sourceReceiptSha256": [
+    "5557d6ebb9bb79f900e851e3dd8b0c5699bcd007627d3648115c8d57d74e1c4d",
+    "e7146af6ee3ed0a103b9ee790b09aefa91b209c5a5acbbcead0ee4dea96d2efc",
+    "5d3293ba03f6665da077e030914fd6e6c779ae2a7dbd2cf81cbd9987887e86b6"
+  ],
+  "samples": [
+    {
+      "sampleId": "ad393ca1119ddde8",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "ef75e0841481e231",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "83919bf2fec5b649",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "9ed30f59dfd28e83",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "dfa7d811ba971ded",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "7fe684167e09605b",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "868bc5c0ad626b3b",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "df0f9662285b8496",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "6f772525449e17ce",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "f2f7bf7e13bac583",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "3b9c7bc21d2ae578",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "928d20efa3309a59",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "46fb1d29d3084279",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "49f7c2617ce5766a",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "be015725fc95c9af",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "a57155d0cabe6906",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "fd44d89c9012977d",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "b0fa176e2d0adb24",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "b982470fe133f328",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "10d47451f864b25c",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "f92d3f3e9d2ae301",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "8931515554033246",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "cb689c1c73adba86",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "46d1733bcb793b7f",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "51dfb2f40af4f3b4",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "e6a7b3e074fed199",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "171d9c672e9fbeb2",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "e3e4a4b6f0884a65",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "9e1035d4baec3aec",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "bb3e4300969f1da6",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "8f7b5d79ef84092e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "85fd597489431fed",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "dfa367bbc8dd9d9e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "02e58a4fba03d15d",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "db02eb9ce72035a2",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "6967f2f3cad90738",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "076125b56089b10d",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "208fbf8fcaab676c",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "aedc145e17bc71a7",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "451e3a56baff4a02",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "00836ff77987d403",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "83883083addb64ef",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "ec16ba2f37fbb6f0",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "0ff67fd3eab7bf0c",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "6574933a0ecf273b",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "943c8e67f260900b",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "33c9edae3507e65b",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "436c369ee621c144",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "32bdc2a7a35c734d",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "897e2a25a0e6e2c9",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "4f4e1cad9b0c3226",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "3a92196190214ef6",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "994ca434d2debacb",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "1586f196c0483e4d",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "8ea85dc614212569",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "3e67f1d4a49bb8ab",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "c405b4f7304aa353",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "ebc8f6c89672683f",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "505ae0d6a11e539e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "1527084ebc83df11",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "125983608f9de754",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "85defc381886fe68",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "92fd14393ba808c8",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "069394181cfc0ae3",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "1cdab3a18bf61a32",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "5e3d663f3017adc5",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "02ab0082c0d56077",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "ebb5df1d98aa75d2",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "b0ec3f59b21f0574",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "5800f7c3d780798e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "e85ffc60372a5e8a",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "410f33ddd455e2f6",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "ab9f99cdf70a864e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "c26dbf4374223d24",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "0fe336ef2b0d4a52",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "cfd06549d46e2509",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "b632f38a4c91af95",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "51bf442f14bd7d84",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "f90c22df00a1bdeb",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "39ed773cf2c09928",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "239de313cec1bd45",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "ed8bccfa9b98ed5e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "fa409b10635ab6d4",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "96a40acb26272d0d",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "b751d509738e4507",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "d9a9107d9435d182",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "d7cede001f726d58",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "591cc3bd247c8574",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "cc19feb365c2fb1e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "5ac6a3f0e7329a92",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "d40039b6272f66e3",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "6788eb14c4dd5678",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "2af0c7f0c57685f8",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "073672c6c3ac627c",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "0b4174ec26241a57",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "de497d4a813b73fc",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "b082c0a6b7524271",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "0ac1f0059fac4461",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "920423acd4365ebf",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "43a69dc15e1b3fdb",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "0451fccc11455de4",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "4118cfeb88fb5271",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "30d93ddbd4e772a7",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "50660ca6cdeb84be",
+      "terminalStatus": "PRE_EXISTING_PROTECTION",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "0c207902990b71bf",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "970bcb7b8cb03bf2",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "6c6bd2ec064def3f",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "c0271d14dc2ec6e9",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "cd6702b5409deb5b",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "7936430fb1d1e0c1",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": null
+    },
+    {
+      "sampleId": "1a1daf9a983bc8e6",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 49278,
+      "wallClockElapsedMs": 26370.8946
+    },
+    {
+      "sampleId": "c004276bfbf72c5f",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 115286,
+      "wallClockElapsedMs": 25458.377
+    },
+    {
+      "sampleId": "d5e8406cd77656bd",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 71792,
+      "wallClockElapsedMs": 24848.1071
+    },
+    {
+      "sampleId": "de13316183795c6a",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 49529,
+      "wallClockElapsedMs": 24237.1429
+    },
+    {
+      "sampleId": "90722bc0dbdbbf40",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 48851,
+      "wallClockElapsedMs": 25174.1335
+    },
+    {
+      "sampleId": "ed90f09442766820",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 63041,
+      "wallClockElapsedMs": 24866.2252
+    },
+    {
+      "sampleId": "578771edff854425",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 65268,
+      "wallClockElapsedMs": 47911.2987
+    },
+    {
+      "sampleId": "62cbdc193f4c7714",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 45885,
+      "wallClockElapsedMs": 24746.4061
+    },
+    {
+      "sampleId": "e9c27ea6c9cc249c",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 50034,
+      "wallClockElapsedMs": 24281.618
+    },
+    {
+      "sampleId": "3469615a11d92ccb",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 51636,
+      "wallClockElapsedMs": 25969.0324
+    },
+    {
+      "sampleId": "db554fc8f10521b9",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 81810.4787
+    },
+    {
+      "sampleId": "407833b07e57340d",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 68398,
+      "wallClockElapsedMs": 25052.88
+    },
+    {
+      "sampleId": "6014557fa776c7e1",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 50374,
+      "wallClockElapsedMs": 23893.6351
+    },
+    {
+      "sampleId": "770e50079952218b",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 23177.0026
+    },
+    {
+      "sampleId": "1249f7215686c07e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 62011,
+      "wallClockElapsedMs": 24177.1528
+    },
+    {
+      "sampleId": "59e8a2494dbbc2d0",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 42816,
+      "wallClockElapsedMs": 23217.3731
+    },
+    {
+      "sampleId": "7731e17c624ca28e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 56535,
+      "wallClockElapsedMs": 22759.724
+    },
+    {
+      "sampleId": "aa3cba25e182a080",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 50685,
+      "wallClockElapsedMs": 24051.9308
+    },
+    {
+      "sampleId": "9c234afc7b91d334",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 46265,
+      "wallClockElapsedMs": 23441.1799
+    },
+    {
+      "sampleId": "e1207b5a21fd4109",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 53952,
+      "wallClockElapsedMs": 24200.2637
+    },
+    {
+      "sampleId": "888e30dcfe12b479",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 47347,
+      "wallClockElapsedMs": 23406.008
+    },
+    {
+      "sampleId": "5bdbb6f22f1f9267",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 43882,
+      "wallClockElapsedMs": 23734.5555
+    },
+    {
+      "sampleId": "d0040088f5c6f74e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 55905,
+      "wallClockElapsedMs": 30356.3069
+    },
+    {
+      "sampleId": "cb05ad301eda5b88",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 117319,
+      "wallClockElapsedMs": 24943.8543
+    },
+    {
+      "sampleId": "e91ae42b751ef8d1",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 59082,
+      "wallClockElapsedMs": 24768.6877
+    },
+    {
+      "sampleId": "68fa21258d173b7a",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 47043,
+      "wallClockElapsedMs": 19935.1134
+    },
+    {
+      "sampleId": "1c3240902e50fb48",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 56570,
+      "wallClockElapsedMs": 23960.5423
+    },
+    {
+      "sampleId": "3e22230dc261c364",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 63108,
+      "wallClockElapsedMs": 24900.9972
+    },
+    {
+      "sampleId": "49ada61ee25e9a26",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 46558,
+      "wallClockElapsedMs": 23804.492
+    },
+    {
+      "sampleId": "e4e69f43ae2929b4",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 52672,
+      "wallClockElapsedMs": 25290.2623
+    },
+    {
+      "sampleId": "2978ee00fd1e1647",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 145460,
+      "wallClockElapsedMs": 24348.4322
+    },
+    {
+      "sampleId": "db66bca6e6d7770b",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 20132.7942
+    },
+    {
+      "sampleId": "6c064a99093cf468",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 63470,
+      "wallClockElapsedMs": 30759.3961
+    },
+    {
+      "sampleId": "951979bdb03a6bac",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 140165,
+      "wallClockElapsedMs": 23943.3118
+    },
+    {
+      "sampleId": "7cd3d973ca95d0e0",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 120388,
+      "wallClockElapsedMs": 24444.1306
+    },
+    {
+      "sampleId": "d6ddcb59a110f1c8",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 80844,
+      "wallClockElapsedMs": 24575.1076
+    },
+    {
+      "sampleId": "bdf7985c00ed3a43",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 52369,
+      "wallClockElapsedMs": 24205.3419
+    },
+    {
+      "sampleId": "956d37c16db2e12e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 48970,
+      "wallClockElapsedMs": 23799.0135
+    },
+    {
+      "sampleId": "aa8817d3cada7438",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 78407,
+      "wallClockElapsedMs": 23906.8754
+    },
+    {
+      "sampleId": "f3c33ff4c4f7a1ac",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 47983,
+      "wallClockElapsedMs": 23966.5511
+    },
+    {
+      "sampleId": "34abced9061c5639",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 53543,
+      "wallClockElapsedMs": 24446.3297
+    },
+    {
+      "sampleId": "8939635edf74b361",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 49012,
+      "wallClockElapsedMs": 23636.4658
+    },
+    {
+      "sampleId": "8ff4e9afc876c3b6",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 64712,
+      "wallClockElapsedMs": 25115.4851
+    },
+    {
+      "sampleId": "0208ba1472a78153",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 117994,
+      "wallClockElapsedMs": 24120.5949
+    },
+    {
+      "sampleId": "188ce034ede7c5ab",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 47676,
+      "wallClockElapsedMs": 20203.5207
+    },
+    {
+      "sampleId": "7be4f31ed3a39154",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 69848,
+      "wallClockElapsedMs": 26441.791
+    },
+    {
+      "sampleId": "f782497d46b72bc3",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 79108,
+      "wallClockElapsedMs": 25227.605
+    },
+    {
+      "sampleId": "9d1bb9816f5cad09",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 63445,
+      "wallClockElapsedMs": 39067.3816
+    },
+    {
+      "sampleId": "be6925c69d855949",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 40183,
+      "wallClockElapsedMs": 22158.6912
+    },
+    {
+      "sampleId": "2714fa9cff226f86",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 108232,
+      "wallClockElapsedMs": 20792.886
+    },
+    {
+      "sampleId": "3a97c7e327fd0176",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 70382,
+      "wallClockElapsedMs": 20729.1268
+    },
+    {
+      "sampleId": "e30653df22d95a00",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 37365,
+      "wallClockElapsedMs": 19574.5918
+    },
+    {
+      "sampleId": "2ca89c9bb5fc9bd1",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 66926,
+      "wallClockElapsedMs": 20267.2829
+    },
+    {
+      "sampleId": "befef1c6683b5002",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 61115,
+      "wallClockElapsedMs": 18591.5824
+    },
+    {
+      "sampleId": "5b31682a17464563",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 58729,
+      "wallClockElapsedMs": 15590.091
+    },
+    {
+      "sampleId": "aa5417eebabcda7a",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 51006,
+      "wallClockElapsedMs": 22582.686
+    },
+    {
+      "sampleId": "d3107907dc772d98",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 47318,
+      "wallClockElapsedMs": 18094.6059
+    },
+    {
+      "sampleId": "b65b5db290ac1804",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 41679,
+      "wallClockElapsedMs": 19024.5316
+    },
+    {
+      "sampleId": "3dfd0e88942b6940",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 43221,
+      "wallClockElapsedMs": 41556.7551
+    },
+    {
+      "sampleId": "84df569903f59f16",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 37782,
+      "wallClockElapsedMs": 18784.374
+    },
+    {
+      "sampleId": "321a07d6e0903dcf",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 54420,
+      "wallClockElapsedMs": 19971.2491
+    },
+    {
+      "sampleId": "28fd53c11757657d",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 53626,
+      "wallClockElapsedMs": 15021.4756
+    },
+    {
+      "sampleId": "352331f36f3b3a73",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 64871,
+      "wallClockElapsedMs": 24257.294
+    },
+    {
+      "sampleId": "a5805aa05afd020c",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 54236,
+      "wallClockElapsedMs": 21590.9322
+    },
+    {
+      "sampleId": "add864f33c6acb92",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 66139,
+      "wallClockElapsedMs": 29832.3007
+    },
+    {
+      "sampleId": "bc2eec78e31c75a9",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 77772,
+      "wallClockElapsedMs": 27308.6579
+    },
+    {
+      "sampleId": "72eed1497dc1ff17",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 65469,
+      "wallClockElapsedMs": 29400.8366
+    },
+    {
+      "sampleId": "eb59a6cf82b0b8b7",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 53930,
+      "wallClockElapsedMs": 23971.0814
+    },
+    {
+      "sampleId": "fcee719012cf1372",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 49730,
+      "wallClockElapsedMs": 20457.2463
+    },
+    {
+      "sampleId": "baf07c3ce9104754",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 54975,
+      "wallClockElapsedMs": 36603.8062
+    },
+    {
+      "sampleId": "69daf89ac632a5ab",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 40020,
+      "wallClockElapsedMs": 26802.6771
+    },
+    {
+      "sampleId": "93e92bea0eb18d56",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 44131,
+      "wallClockElapsedMs": 52369.7534
+    },
+    {
+      "sampleId": "8afaa61a0463d6b2",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 84853,
+      "wallClockElapsedMs": 58173.3657
+    },
+    {
+      "sampleId": "cbe2252fa927c83c",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 41475,
+      "wallClockElapsedMs": 42606.5149
+    },
+    {
+      "sampleId": "5dfee196d36ec4d2",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 38222,
+      "wallClockElapsedMs": 20528.1193
+    },
+    {
+      "sampleId": "cff4d5c773a8a658",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 45787,
+      "wallClockElapsedMs": 28681.2703
+    },
+    {
+      "sampleId": "bb96c5495110661e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 110931,
+      "wallClockElapsedMs": 28704.7451
+    },
+    {
+      "sampleId": "9b631fe0fd9930a5",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 47851,
+      "wallClockElapsedMs": 16879.3291
+    },
+    {
+      "sampleId": "1035e53dcc6bf08c",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 27568.7562
+    },
+    {
+      "sampleId": "c98c14fe976411c1",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 52938,
+      "wallClockElapsedMs": 22280.3095
+    },
+    {
+      "sampleId": "5d53ba5999763ae9",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 48031,
+      "wallClockElapsedMs": 17383.5261
+    },
+    {
+      "sampleId": "ec7581509c04965b",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 52140,
+      "wallClockElapsedMs": 22532.7745
+    },
+    {
+      "sampleId": "975c4403db97c920",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 59776,
+      "wallClockElapsedMs": 24199.0415
+    },
+    {
+      "sampleId": "0fb9b13ca998a63e",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 42210,
+      "wallClockElapsedMs": 25336.5473
+    },
+    {
+      "sampleId": "6307ec1f96aa4a33",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 58632,
+      "wallClockElapsedMs": 22964.6918
+    },
+    {
+      "sampleId": "961e4b1972d1e385",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 64529,
+      "wallClockElapsedMs": 21280.625
+    },
+    {
+      "sampleId": "1d6e346766f65b94",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 99996,
+      "wallClockElapsedMs": 21567.1004
+    },
+    {
+      "sampleId": "7fcfcb568b6abbcd",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 49001,
+      "wallClockElapsedMs": 24044.4674
+    },
+    {
+      "sampleId": "77d20043c7a2a093",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 43697,
+      "wallClockElapsedMs": 31898.7536
+    },
+    {
+      "sampleId": "2c8698e1442ef62d",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 51902,
+      "wallClockElapsedMs": 22847.2052
+    },
+    {
+      "sampleId": "5cc4885bb57095f4",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 57642,
+      "wallClockElapsedMs": 22448.7685
+    },
+    {
+      "sampleId": "a81a03dab8f8d432",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 52199,
+      "wallClockElapsedMs": 21494.4533
+    },
+    {
+      "sampleId": "f30c706423d131e8",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 44971,
+      "wallClockElapsedMs": 21295.5651
+    },
+    {
+      "sampleId": "ec15281f245fdb94",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 37758,
+      "wallClockElapsedMs": 17811.6346
+    },
+    {
+      "sampleId": "dcb4469ee7f97d9b",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 41270,
+      "wallClockElapsedMs": 21209.6277
+    },
+    {
+      "sampleId": "d386157e20c96792",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 55507,
+      "wallClockElapsedMs": 20577.4616
+    },
+    {
+      "sampleId": "3bfababf67579dd3",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 109772,
+      "wallClockElapsedMs": 22062.6479
+    },
+    {
+      "sampleId": "19b1486528f2c55c",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 66313,
+      "wallClockElapsedMs": 24549.8381
+    },
+    {
+      "sampleId": "0578805093c32efc",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 51601,
+      "wallClockElapsedMs": 22651.6309
+    },
+    {
+      "sampleId": "bce591900311fa48",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 52924,
+      "wallClockElapsedMs": 22781.7631
+    },
+    {
+      "sampleId": "11320ea5237fa9ab",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 53581,
+      "wallClockElapsedMs": 19851.7264
+    },
+    {
+      "sampleId": "3f9156022dbb0051",
+      "terminalStatus": "COMPLETED",
+      "memoryPssKb": 61191,
+      "wallClockElapsedMs": 21438.8326
+    },
+    {
+      "sampleId": "6fff39b851083be1",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 81654.7108
+    },
+    {
+      "sampleId": "2140a9724e1578ee",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 81518.6389
+    },
+    {
+      "sampleId": "787640c1fbfca975",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 81405.6885
+    },
+    {
+      "sampleId": "df59538c54b98119",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 81145.4571
+    },
+    {
+      "sampleId": "f71ab2248f2c5a41",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 80984.8587
+    },
+    {
+      "sampleId": "588e240f92c30c37",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 78412.8687
+    },
+    {
+      "sampleId": "18414884b259104f",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 79276.3916
+    },
+    {
+      "sampleId": "992c84feed465368",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 78759.5534
+    },
+    {
+      "sampleId": "8f473d33c3da7e47",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 78397.9011
+    },
+    {
+      "sampleId": "e35ba3b96ac9f736",
+      "terminalStatus": "NO_LAUNCHABLE_ACTIVITY",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 14005.4582
+    },
+    {
+      "sampleId": "c7f7996e33d44b47",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 82292.1992
+    },
+    {
+      "sampleId": "cf32c5ed4308fb46",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 79052.6426
+    },
+    {
+      "sampleId": "6cb3ee4a03bc27e0",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 80338.9307
+    },
+    {
+      "sampleId": "fced1fa92cafde37",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 78716.9059
+    },
+    {
+      "sampleId": "c96d0e0fb4e09c5f",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 79898.6217
+    },
+    {
+      "sampleId": "cc8e6ab89adeebf2",
+      "terminalStatus": "PACKAGE_MANAGER_REJECTION",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 10089.4927
+    },
+    {
+      "sampleId": "21ec924a1730fa9e",
+      "terminalStatus": "NO_LAUNCHABLE_ACTIVITY",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 11315.3987
+    },
+    {
+      "sampleId": "5b248c073b09c033",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 76883.4946
+    },
+    {
+      "sampleId": "8a91e6d60da57e07",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 79956.9865
+    },
+    {
+      "sampleId": "3f9da4b72a144bee",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 76725.4681
+    },
+    {
+      "sampleId": "9517d2ce60a8f019",
+      "terminalStatus": "INSTALL_TIMEOUT",
+      "memoryPssKb": null,
+      "wallClockElapsedMs": 81322.381
+    }
+  ]
+}

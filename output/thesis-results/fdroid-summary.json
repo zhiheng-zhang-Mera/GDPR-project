@@ -1,0 +1,12 @@
+{
+  "schema": "privacy-lens.fdroid-summary.v1",
+  "corpusKind": "OPEN_SOURCE_APP_STORE",
+  "corpusId": "fdroid-open-source-store-500-seed-8222026-verified-495",
+  "selectedN": 495,
+  "staticCompletedN": 495,
+  "sensitivePermissionN": 125,
+  "sensitiveAndNetworkN": 74,
+  "sensitiveAndBackgroundN": 74,
+  "multiProcessN": 54,
+  "caveat": "Purposively selected hash-pinned open-source app-store corpus; not an Android population or legal-ground-truth sample."
+}

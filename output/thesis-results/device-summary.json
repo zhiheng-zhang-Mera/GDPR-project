@@ -1,0 +1,37 @@
+{
+  "schema": "privacy-lens.device-summary.v1",
+  "eligibleN": 233,
+  "terminalStatuses": {
+    "COMPLETED": 203,
+    "INSTALL_TIMEOUT": 26,
+    "NO_LAUNCHABLE_ACTIVITY": 2,
+    "PACKAGE_MANAGER_REJECTION": 1,
+    "PRE_EXISTING_PROTECTION": 1
+  },
+  "completedN": 203,
+  "memoryPssKb": {
+    "observedN": 98,
+    "mean": 60964.010204081635,
+    "sd": 22334.910487495377,
+    "median": 53603.5,
+    "q1": 47884,
+    "q3": 64831.25,
+    "iqr": 16947.25,
+    "p95": 115590.94999999998,
+    "min": 37365,
+    "max": 145460
+  },
+  "wallClockElapsedMs": {
+    "observedN": 101,
+    "mean": 24834.266665346528,
+    "sd": 6691.335382739251,
+    "median": 23960.5423,
+    "q1": 21494.4533,
+    "q3": 25115.4851,
+    "iqr": 3621.0318000000007,
+    "p95": 39067.3816,
+    "min": 15021.4756,
+    "max": 58173.3657
+  },
+  "caveat": "Single OPPO device bounded workflows; metrics are engineering observations, not population performance or causal overhead."
+}

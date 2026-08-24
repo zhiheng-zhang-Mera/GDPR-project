@@ -1,0 +1,14 @@
+{
+  "schema": "privacy-lens.flowdroid-summary.v1",
+  "receiptsN": 1,
+  "statuses": {
+    "COMPLETED_NO_RESULT_ARTIFACT": 1
+  },
+  "xmlArtifactsN": 0,
+  "tool": {
+    "name": "FlowDroid",
+    "version": "2.15.1",
+    "jarSha256": "51dadead47a173c494c2fa4855b1e8bd3b54e702a2c4b5ed58e60153009ae218"
+  },
+  "caveat": "FlowDroid reports potential static source-to-sink paths under the supplied source/sink definition. A completed invocation without an XML artifact is not interpreted as zero flows. No output proves runtime execution, recipient identity, data transfer, or GDPR infringement."
+}
