@@ -20,4 +20,4 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run verify
+      - run: npm run reproduce:thesis-core

@@ -2,6 +2,10 @@
   "name": "privacy-lens",
   "main": "expo-router/entry",
   "version": "1.15.0",
+  "packageManager": "npm@10.8.2",
+  "engines": {
+    "node": ">=20 <25"
+  },
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -19,7 +23,9 @@
     "verify:formal-properties": "node scripts/verify-safety-properties.js",
     "verify:mapping-review": "node scripts/generate-mapping-review.js",
     "verify:generated-results": "node scripts/summarize-thesis-results.js",
-    "verify": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:thesis-evidence && npm run verify:formal-properties && npm run verify:mapping-review && npm run verify:generated-results"
+    "verify:thesis-references": "node scripts/verify-thesis-references.js",
+    "reproduce:thesis-core": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:formal-properties && npm run verify:mapping-review && node scripts/summarize-thesis-results.js --write && node scripts/verify-thesis-evidence.js --write && npm run verify:generated-results && npm run verify:thesis-evidence && npm run verify:thesis-references",
+    "verify": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:thesis-evidence && npm run verify:formal-properties && npm run verify:mapping-review && npm run verify:generated-results && npm run verify:thesis-references"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

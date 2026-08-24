@@ -2,7 +2,7 @@
 
 > Evidence before conclusions · 证据先于结论
 
-[English](#english) · [中文](#中文) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Temporal rule cards](docs/rule-cards.md) · [Formal policy mapping](docs/TEMPORAL-RULE-MAPPING.md) · [Commercial APK baseline method](docs/COMMERCIAL-APK-BASELINE-METHOD.md) · [Commercial batch results](commercial-app-batch/2026-08-22T04-43-10-052Z/README.md) · [Final thesis source / 最终论文源](Thesis/Final/main.tex)
+[English](#english) · [中文](#中文) · [Artifact reproduction](ARTIFACT.md) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Temporal rule cards](docs/rule-cards.md) · [Formal policy mapping](docs/TEMPORAL-RULE-MAPPING.md) · [Commercial APK baseline method](docs/COMMERCIAL-APK-BASELINE-METHOD.md) · [Commercial batch results](commercial-app-batch/2026-08-22T04-43-10-052Z/README.md) · [Final thesis source / 最终论文源](Thesis/Final/main.tex)
 
 ## English
 
@@ -53,14 +53,14 @@ The screen layer cannot create a reassuring result by itself. Regulation metadat
 
 ### Quick start
 
-Prerequisites: Node.js 20+, npm, Java 21, Android SDK 36, and an Expo 54-compatible Android NDK.
+Prerequisites: Node.js 20--24, npm 10, Java 17, Android SDK 36, and an Expo 54-compatible Android NDK.
 
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
 git switch 8-24
 npm ci
-npm run verify
+npm run reproduce:thesis-core
 npm start
 ```
 
@@ -125,14 +125,14 @@ Privacy Lens 是一款离线运行、证据优先的 Android 隐私审查研究�
 
 ### 快速开始
 
-准备 Node.js 20+、npm、Java 21、Android SDK 36，以及兼容 Expo 54 的 Android NDK，然后执行：
+准备 Node.js 20--24、npm 10、Java 17、Android SDK 36，以及兼容 Expo 54 的 Android NDK，然后执行：
 
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
 git switch 8-24
 npm ci
-npm run verify
+npm run reproduce:thesis-core
 npm start
 ```
 
