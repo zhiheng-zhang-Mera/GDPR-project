@@ -16,7 +16,8 @@
     "test:experiments": "node tests/runExperimentContractTests.js",
     "verify:delivery": "node scripts/verify-delivery.js",
     "verify:thesis-evidence": "node scripts/verify-thesis-evidence.js",
-    "verify": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:thesis-evidence"
+    "verify:formal-properties": "node scripts/verify-safety-properties.js",
+    "verify": "npm run test:compliance && npm run test:accessibility && npm run test:release-privacy && npm run test:experiments && npm run typecheck && npm run lint && npm run verify:delivery && npm run verify:thesis-evidence && npm run verify:formal-properties"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

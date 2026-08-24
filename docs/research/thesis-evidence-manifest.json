@@ -42,9 +42,9 @@
     }
   ],
   "formalEvidence": {
-    "propertyIds": [],
-    "mutationCases": [],
-    "mutationScore": null,
+    "propertyIds": ["P1_NO_UNSUPPORTED_VERDICT", "P2_FAIL_CLOSED_ADMISSION", "P3_PROVENANCE_ISOLATION", "P4_REPLAY_IDEMPOTENCE", "P5_ORDER_INVARIANCE", "P6_OVERLAP_NON_AMPLIFICATION", "P7_RESTART_EQUIVALENCE", "P8_PACK_HISTORICAL_BINDING", "P9_MISSING_OUTPUT_PRESERVATION"],
+    "mutationCases": ["M1_VERDICT_ESCALATION", "M2_UNKNOWN_SOURCE_ACCEPTED", "M3_SYNTHETIC_PROMOTION", "M4_REPLAY_INCREMENT", "M5_ORDER_SENSITIVE", "M6_OVERLAP_SUM", "M7_CROSS_PACK_RESTORE", "M8_HISTORY_REWRITE", "M9_MISSING_AS_NEGATIVE"],
+    "mutationScore": 1,
     "stressReceipt": "testing-report/final-thesis-evidence-2026-08-21.md"
   },
   "independentReview": {
