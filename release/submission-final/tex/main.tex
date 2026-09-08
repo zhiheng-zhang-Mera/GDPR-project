@@ -1,0 +1,58 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
+\usepackage{lmodern,microtype,setspace}
+\usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+\usepackage[hidelinks]{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.15em}
+\setlength{\emergencystretch}{2em}
+\hypersetup{pdftitle={Privacy Lens: Regulation-Driven Temporal Privacy Review},pdfauthor={Zhiheng Zhang}}
+\title{Privacy Lens: Evidence-Bounded Android Privacy Review with Regulation-Driven Temporal Combination Notices}
+\newif\ifsubmissionedition
+\ifdefined\PrivacyLensSubmissionEdition
+  \submissioneditiontrue
+\else
+  \submissioneditionfalse
+\fi
+\ifsubmissionedition
+  \IfFileExists{private-submission-metadata.tex}{\input{private-submission-metadata}}{%
+    \newcommand{\PrivacyLensStudentID}{NOT PROVIDED}%
+    \newcommand{\PrivacyLensSupervisor}{NOT PROVIDED}%
+  }
+  \author{Zhiheng Zhang \\ Student ID: \PrivacyLensStudentID \\ Supervisor: \PrivacyLensSupervisor}
+\else
+  \author{Zhiheng Zhang}
+\fi
+\date{September 2026}
+\input{generated-results}
+\begin{document}
+\maketitle
+\begin{abstract}
+\small\singlespacing
+Privacy Lens is a local-first Android research prototype that transforms heterogeneous, bounded privacy evidence into review prompts without treating a technical signal as proof of purpose, necessity, lawful basis, compliance, or intent. Its fail-closed pipeline preserves provenance, temporal scope, regulation-pack identity, missing context, and unavailable outputs through admission, temporal combination, typed policy interpretation, persistence, and presentation.
+
+The contribution is an evidence-bounded architecture and evaluation method connecting executable safety properties to explicit claim limits. Versioned packs own jurisdiction-dependent mappings; a typed graph and policy output space permit review obligations but exclude legal verdicts. Deterministic, adversarial, restart, and curated mutation suites evaluate semantic conformance, while a FlowDroid adapter evaluates provenance-preserving interoperability rather than detector superiority.
+
+The strongest external engineering evidence comprises a hash-pinned open-source census of \FDroidCensusN{} APKs, bounded physical-device workflows for \DevicePackagesN{} package identities with \CompletedWorkflowsN{} completed and \FailedDeviceWorkflowsN{} retained failures, and a one-device interface record for release \PrivacyLensVersion{}. Missing static-analysis artifacts remain missing evidence and corpus-derived counts are not converted into legal labels. These results support reproducible engineering claims only: independent legal mapping review, participant comprehension, multi-OEM replication, population accuracy, production signing, and store acceptance remain unestablished.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+\input{chapter-01}
+\input{chapter-02}
+\input{chapter-03}
+\input{chapter-04}
+\input{chapter-05}
+\input{chapter-06}
+\input{chapter-07}
+{\small
+\bibliographystyle{ieeetr}
+\bibliography{reference}
+}
+\end{document}

@@ -32,6 +32,17 @@ const requiredFiles = [
   'release/submission-final/SUBMISSION-README.md',
   'release/submission-final/REPRODUCIBILITY.md',
   'release/submission-final/SHA256SUMS.txt',
+  'release/submission-final/tex/main.tex',
+  'release/submission-final/tex/chapter-01.tex',
+  'release/submission-final/tex/chapter-02.tex',
+  'release/submission-final/tex/chapter-03.tex',
+  'release/submission-final/tex/chapter-04.tex',
+  'release/submission-final/tex/chapter-05.tex',
+  'release/submission-final/tex/chapter-06.tex',
+  'release/submission-final/tex/chapter-07.tex',
+  'release/submission-final/tex/formal-evidence-model.tex',
+  'release/submission-final/tex/generated-results.tex',
+  'release/submission-final/tex/reference.bib',
   'testing-report/real-device-9-8-finalize-v1.15.0/README.md',
   'testing-report/real-device-9-8-finalize-v1.15.0/overview.png',
   'testing-report/real-device-9-8-finalize-v1.15.0/findings.png',
@@ -43,6 +54,14 @@ const requiredFiles = [
 
 for (const file of requiredFiles) {
   if (!exists(file)) fail(`missing required delivery file: ${file}`);
+}
+
+for (const name of ['main.tex', 'chapter-01.tex', 'chapter-02.tex', 'chapter-03.tex', 'chapter-04.tex', 'chapter-05.tex', 'chapter-06.tex', 'chapter-07.tex', 'formal-evidence-model.tex', 'generated-results.tex', 'reference.bib']) {
+  const canonical = path.join(root, 'Thesis', 'Final', name);
+  const packaged = path.join(root, 'release', 'submission-final', 'tex', name);
+  if (fs.existsSync(canonical) && fs.existsSync(packaged) && !fs.readFileSync(canonical).equals(fs.readFileSync(packaged))) {
+    fail(`chapter-split submission source differs from Thesis/Final: ${name}`);
+  }
 }
 
 const packageJson = JSON.parse(read('package.json'));

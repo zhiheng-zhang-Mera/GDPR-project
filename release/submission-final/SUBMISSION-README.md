@@ -5,6 +5,7 @@ This directory is the public, identity-minimised submission surface for Privacy 
 Contents:
 
 - `Privacy-Lens-Thesis-Final.pdf`: public 85-page thesis, without student ID or supervisor metadata.
+- `tex/`: public, chapter-split TeX source, main file, formal model, generated results, bibliography, and private-metadata placeholder.
 - `ARTIFACT.md`: artifact acquisition, verification, and claim boundaries.
 - `REPRODUCIBILITY.md`: clean-runner and physical-device reproduction commands.
 - `SHA256SUMS.txt`: checksums for package files.
