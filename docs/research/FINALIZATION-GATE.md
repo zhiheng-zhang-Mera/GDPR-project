@@ -15,6 +15,7 @@ Date: 8 September 2026
 | Participant comprehension and accessibility-service study | NOT_RUN | UI structure observed; TalkBack, large-font completion, and participants not established |
 | Multi-OEM, long-run, legal, production-signing, Play Console and store approval | NOT_RUN | outside the collected evidence and owner/external authority |
 | Subject-specific generative-AI authorization | NOT_VERIFIED | declaration draft supplied; coordinator/course authorization is external |
-| Remote branch, tag, release, and terminal CI | PENDING_UNTIL_PUBLICATION | must be replaced by observed GitHub identifiers after publication |
+| Remote branch checkpoint and terminal CI | PASS | `9-8-Finalize` checkpoint `73e9b9fdc0fa3c64043d848e964e1d22513c9a2c`; GitHub Actions run `34199764438` completed successfully |
+| Immutable tag, release, default branch, and historical-branch cleanup | PENDING_UNTIL_FINAL_PUBLICATION | performed only after the final documentation commit and its CI complete |
 
 The project is suitable as a bounded research-prototype and thesis submission artifact. It is not represented as legally certified, production-ready, broadly accessible, population-valid, or store-approved.
