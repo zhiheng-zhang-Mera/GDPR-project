@@ -1,0 +1,2 @@
+List of devices attached
+REDACTED_DEVICE_SERIAL device product:PERM00 model:PERM00 device:OP4E7F transport_id:1

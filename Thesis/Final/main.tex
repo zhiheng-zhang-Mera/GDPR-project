@@ -14,8 +14,22 @@
 \setlength{\emergencystretch}{2em}
 \hypersetup{pdftitle={Privacy Lens: Regulation-Driven Temporal Privacy Review},pdfauthor={Zhiheng Zhang}}
 \title{Privacy Lens: Evidence-Bounded Android Privacy Review with Regulation-Driven Temporal Combination Notices}
-\author{Zhiheng Zhang \\ Student ID: 54560484 \\ Supervisor: Richard Sinnott}
-\date{August 2026}
+\newif\ifsubmissionedition
+\ifdefined\PrivacyLensSubmissionEdition
+  \submissioneditiontrue
+\else
+  \submissioneditionfalse
+\fi
+\ifsubmissionedition
+  \IfFileExists{private-submission-metadata.tex}{\input{private-submission-metadata}}{%
+    \newcommand{\PrivacyLensStudentID}{NOT PROVIDED}%
+    \newcommand{\PrivacyLensSupervisor}{NOT PROVIDED}%
+  }
+  \author{Zhiheng Zhang \\ Student ID: \PrivacyLensStudentID \\ Supervisor: \PrivacyLensSupervisor}
+\else
+  \author{Zhiheng Zhang}
+\fi
+\date{September 2026}
 \input{generated-results}
 \begin{document}
 \maketitle

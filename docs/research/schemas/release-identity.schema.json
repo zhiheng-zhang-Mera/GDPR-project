@@ -9,7 +9,7 @@
     "schemaVersion": { "const": 1 },
     "project": { "const": "Privacy Lens" },
     "repository": { "const": "zhiheng-zhang-Mera/GDPR-project" },
-    "branch": { "const": "8-24" },
+    "branch": { "const": "9-8-Finalize" },
     "sourceBaseline": {
       "type": "object",
       "additionalProperties": false,

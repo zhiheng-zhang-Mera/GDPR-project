@@ -1,0 +1,623 @@
+Activity Resolver Table:
+  Schemes:
+      privacylens:
+        1fe9ec7 com.zhihengzhang.privacylens/.MainActivity filter 8bcec1d
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.DEFAULT"
+          Category: "android.intent.category.BROWSABLE"
+          Scheme: "privacylens"
+
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        1fe9ec7 com.zhihengzhang.privacylens/.MainActivity filter 2b46cf4
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      android.intent.action.BATTERY_OKAY:
+        c256460 com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy filter 2c12d19
+          Action: "android.intent.action.BATTERY_OKAY"
+          Action: "android.intent.action.BATTERY_LOW"
+      android.intent.action.ACTION_POWER_DISCONNECTED:
+        3cf8e92 com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy filter 3bc6063
+          Action: "android.intent.action.ACTION_POWER_CONNECTED"
+          Action: "android.intent.action.ACTION_POWER_DISCONNECTED"
+      androidx.profileinstaller.action.SAVE_PROFILE:
+        ec6fb24 com.zhihengzhang.privacylens/androidx.profileinstaller.ProfileInstallReceiver filter ab62853
+          Action: "androidx.profileinstaller.action.SAVE_PROFILE"
+      android.intent.action.DEVICE_STORAGE_LOW:
+        25401de com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy filter 60a9fbf
+          Action: "android.intent.action.DEVICE_STORAGE_LOW"
+          Action: "android.intent.action.DEVICE_STORAGE_OK"
+      android.net.conn.CONNECTIVITY_CHANGE:
+        bec668c com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy filter 72e81d5
+          Action: "android.net.conn.CONNECTIVITY_CHANGE"
+      android.intent.action.DEVICE_STORAGE_OK:
+        25401de com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy filter 60a9fbf
+          Action: "android.intent.action.DEVICE_STORAGE_LOW"
+          Action: "android.intent.action.DEVICE_STORAGE_OK"
+      androidx.profileinstaller.action.INSTALL_PROFILE:
+        ec6fb24 com.zhihengzhang.privacylens/androidx.profileinstaller.ProfileInstallReceiver filter d16168d
+          Action: "androidx.profileinstaller.action.INSTALL_PROFILE"
+      android.intent.action.BATTERY_LOW:
+        c256460 com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy filter 2c12d19
+          Action: "android.intent.action.BATTERY_OKAY"
+          Action: "android.intent.action.BATTERY_LOW"
+      android.intent.action.TIMEZONE_CHANGED:
+        a1a5dea com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.RescheduleReceiver filter 2d378db
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+      android.intent.action.TIME_SET:
+        a1a5dea com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.RescheduleReceiver filter 2d378db
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+      androidx.profileinstaller.action.SKIP_FILE:
+        ec6fb24 com.zhihengzhang.privacylens/androidx.profileinstaller.ProfileInstallReceiver filter b54c042
+          Action: "androidx.profileinstaller.action.SKIP_FILE"
+      androidx.profileinstaller.action.BENCHMARK_OPERATION:
+        ec6fb24 com.zhihengzhang.privacylens/androidx.profileinstaller.ProfileInstallReceiver filter 30aa590
+          Action: "androidx.profileinstaller.action.BENCHMARK_OPERATION"
+      android.intent.action.BOOT_COMPLETED:
+        a1a5dea com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.RescheduleReceiver filter 2d378db
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+      android.intent.action.ACTION_POWER_CONNECTED:
+        3cf8e92 com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy filter 3bc6063
+          Action: "android.intent.action.ACTION_POWER_CONNECTED"
+          Action: "android.intent.action.ACTION_POWER_DISCONNECTED"
+      androidx.work.diagnostics.REQUEST_DIAGNOSTICS:
+        6386eb6 com.zhihengzhang.privacylens/androidx.work.impl.diagnostics.DiagnosticsReceiver filter e86c7b7
+          Action: "androidx.work.diagnostics.REQUEST_DIAGNOSTICS"
+      androidx.work.impl.background.systemalarm.UpdateProxies:
+        73f5f78 com.zhihengzhang.privacylens/androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver filter 3e26651
+          Action: "androidx.work.impl.background.systemalarm.UpdateProxies"
+
+Domain verification status:
+
+Permissions:
+  Permission [com.zhihengzhang.privacylens.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] (6609b4b):
+    sourcePackage=com.zhihengzhang.privacylens
+    uid=10258 gids=[] type=0 prot=signature
+    perm=PermissionInfo{d205e1a com.zhihengzhang.privacylens.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}
+
+Registered ContentProviders:
+  com.zhihengzhang.privacylens/expo.modules.filesystem.FileSystemFileProvider:
+    Provider{5902d4b com.zhihengzhang.privacylens/expo.modules.filesystem.FileSystemFileProvider}
+  com.zhihengzhang.privacylens/androidx.startup.InitializationProvider:
+    Provider{f325328 com.zhihengzhang.privacylens/androidx.startup.InitializationProvider}
+
+ContentProvider Authorities:
+  [com.zhihengzhang.privacylens.androidx-startup]:
+    Provider{f325328 com.zhihengzhang.privacylens/androidx.startup.InitializationProvider}
+      applicationInfo=ApplicationInfo{d752928 com.zhihengzhang.privacylens}
+  [com.zhihengzhang.privacylens.FileSystemFileProvider]:
+    Provider{5902d4b com.zhihengzhang.privacylens/expo.modules.filesystem.FileSystemFileProvider}
+      applicationInfo=ApplicationInfo{a5ce641 com.zhihengzhang.privacylens}
+
+Key Set Manager:
+  [com.zhihengzhang.privacylens]
+      Signing KeySets: 52
+
+Packages:
+  Package [com.zhihengzhang.privacylens] (35ee732):
+    userId=10258
+    pkg=Package{5325327 com.zhihengzhang.privacylens}
+    codePath=/data/app/~~0B-hqF1WzYePxnnv4dI7xA==/com.zhihengzhang.privacylens-3ViOz41wHykGN4jayXQSZg==
+    resourcePath=/data/app/~~0B-hqF1WzYePxnnv4dI7xA==/com.zhihengzhang.privacylens-3ViOz41wHykGN4jayXQSZg==
+    legacyNativeLibraryDir=/data/app/~~0B-hqF1WzYePxnnv4dI7xA==/com.zhihengzhang.privacylens-3ViOz41wHykGN4jayXQSZg==/lib
+    extractNativeLibs=false
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=16 minSdk=24 targetSdk=36
+    minExtensionVersions=[]
+    versionName=1.15.0
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=2
+    applicationInfo=PackageImpl{5325327 com.zhihengzhang.privacylens}
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    queriesPackages=[]
+    queriesIntents=[Intent { act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https:///... }, Intent { act=android.intent.action.OPEN_DOCUMENT_TREE }]
+    dataDir=/data/user/0/com.zhihengzhang.privacylens
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2026-09-08 17:17:32
+    firstInstallTime=2026-08-11 13:01:21
+    lastUpdateTime=2026-09-08 17:17:32
+    installerPackageName=pc
+    signatures=PackageSignatures{e80fe00 version:2, signatures:[51ed3f60], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    declared permissions:
+      com.zhihengzhang.privacylens.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature, INSTALLED
+    requested permissions:
+      android.permission.WAKE_LOCK
+      android.permission.RECEIVE_BOOT_COMPLETED
+      android.permission.FOREGROUND_SERVICE
+      com.zhihengzhang.privacylens.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    install permissions:
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+      com.zhihengzhang.privacylens.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true
+      android.permission.WAKE_LOCK: granted=true
+    User 0: ceDataInode=44174 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 ofs=0 pdm=false instant=false virtual=false
+      overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+      legacy overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+      runtime permissions:
+      enabledComponents:
+        androidx.work.impl.background.systemalarm.RescheduleReceiver
+        androidx.work.impl.background.systemjob.SystemJobService
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+    com.heytap.market:
+      com.zhihengzhang.privacylens
+    com.heytap.speechassist:
+      com.zhihengzhang.privacylens
+    com.heytap.themestore:
+      com.zhihengzhang.privacylens
+    com.oplus.vip:
+      com.zhihengzhang.privacylens
+    com.coloros.oshare:
+      com.zhihengzhang.privacylens
+    com.oplus.screenshot:
+      com.zhihengzhang.privacylens
+    com.baidu.input_oppo:
+      com.zhihengzhang.privacylens
+    com.finshell.wallet:
+      com.zhihengzhang.privacylens
+    [com.heytap.xgame,com.nearme.instant.platform]:
+      com.zhihengzhang.privacylens
+    com.oplus.pay:
+      com.zhihengzhang.privacylens
+    com.heytap.browser:
+      com.zhihengzhang.privacylens
+    com.heytap.music:
+      com.zhihengzhang.privacylens
+    com.heytap.cloud:
+      com.zhihengzhang.privacylens
+    com.heytap.htms:
+      com.zhihengzhang.privacylens
+    com.heytap.pictorial:
+      com.zhihengzhang.privacylens
+    com.android.systemui:
+      com.zhihengzhang.privacylens
+    com.coloros.assistantscreen:
+      com.zhihengzhang.privacylens
+    com.nearme.gamecenter:
+      com.zhihengzhang.privacylens
+    com.oppo.store:
+      com.zhihengzhang.privacylens
+    com.heytap.health:
+      com.zhihengzhang.privacylens
+    com.oppo.community:
+      com.zhihengzhang.privacylens
+    com.heytap.reader:
+      com.zhihengzhang.privacylens
+    com.redteamobile.roaming:
+      com.zhihengzhang.privacylens
+    com.sankuai.meituan:
+      com.zhihengzhang.privacylens
+    com.zhihengzhang.privacylens:
+      com.google.android.documentsui
+      com.heytap.browser
+      com.microsoft.emmx
+    ru.evgeniy.dpitunnelcli:
+      com.zhihengzhang.privacylens
+    com.drnoob.datamonitor:
+      com.zhihengzhang.privacylens
+  queryable via interaction:
+    User 0:
+      [com.oplus.customize.coreapp,com.android.providers.settings,com.oplus.athena,com.heytap.mcs,com.android.keychain,com.android.server.telecom,com.oplus.obrain,com.oplus.appplatform,com.oplus.subsys,com.oplus.powermonitor,com.oplus.exsystemservice,android,com.oplus.wifibackuprestore,com.oplus.safecenter,com.oplus.engineercamera,com.android.location.fused,com.android.dynsystem,com.oplus.crashbox,com.oplus.sauhelper,com.oplus.postmanservice,com.tencent.soter.soterserver,com.oplus.logkit,com.oplus.lfeh,com.oplus.qualityprotect,com.trustonic.teeservice,com.android.settings,com.fido.fido2client,com.oplus.sau,com.oplus.vdc,com.oplus.healthservice,com.oplus.engineermode,com.oplus.securitypermission,com.mediatek.location.lppe.main,com.oplus.engineernetwork,com.oplus.trafficmonitor,com.oplus.audio.effectcenter,com.oplus.battery,com.oplus.atlas,com.android.wallpaperbackup,com.wapi.wapicertmanager,com.android.localtransport,com.oplus.olc,com.oplus.onetrace,com.android.inputdevices,com.oplus.notificationmanager,com.oplus.wirelesssettings,com.mediatek,oplus]:
+        com.zhihengzhang.privacylens
+      com.baidu.input_oppo:
+        com.zhihengzhang.privacylens
+      [com.google.android.gsf,com.google.android.gms]:
+        com.zhihengzhang.privacylens
+  queryable via uses-library:
+
+Package Changes:
+  Sequence number=1909
+  User 0:
+    seq=0, package=com.oplus.logkit
+    seq=5, package=com.oplus.linker
+    seq=6, package=com.oplus.customize.coreapp
+    seq=7, package=com.oplus.exsystemservice
+    seq=8, package=com.android.permissioncontroller
+    seq=10, package=com.android.systemui
+    seq=14, package=com.coloros.alarmclock
+    seq=20, package=com.android.launcher
+    seq=55, package=com.android.wallpaper.livepicker
+    seq=58, package=com.oplus.cosa
+    seq=60, package=com.android.stk
+    seq=61, package=com.oplus.battery
+    seq=62, package=com.google.android.cellbroadcastreceiver
+    seq=68, package=com.google.android.documentsui
+    seq=75, package=com.android.contacts
+    seq=77, package=com.android.statementservice
+    seq=78, package=com.oplus.safecenter
+    seq=87, package=com.coloros.codebook
+    seq=101, package=com.android.vending
+    seq=146, package=com.google.android.syncadapters.contacts
+    seq=347, package=com.google.android.gsf
+    seq=414, package=com.coloros.bootreg
+    seq=418, package=com.coloros.activation
+    seq=420, package=com.android.mms.service
+    seq=428, package=com.coloros.ocs.opencapabilityservice
+    seq=433, package=cn.wps.moffice.lite
+    seq=439, package=com.coloros.backuprestore
+    seq=442, package=com.coloros.favorite
+    seq=445, package=com.heytap.xgame
+    seq=533, package=com.unionpay.tsmservice
+    seq=540, package=com.coloros.findphone.client2
+    seq=542, package=com.coloros.findmyphone
+    seq=552, package=com.finshell.wallet
+    seq=555, package=com.heytap.smarthome
+    seq=559, package=com.heytap.reader
+    seq=576, package=com.oplus.uiengine
+    seq=609, package=com.coloros.phonemanager
+    seq=623, package=com.heytap.market
+    seq=625, package=com.oplus.crashbox
+    seq=628, package=com.heytap.themestore
+    seq=630, package=com.android.mms
+    seq=633, package=com.coloros.translate.engine
+    seq=634, package=com.heytap.cloud
+    seq=637, package=com.baidu.input_oppo
+    seq=638, package=com.coloros.gallery3d
+    seq=641, package=com.heytap.health
+    seq=646, package=com.heytap.quicksearchbox
+    seq=651, package=com.nearme.instant.platform
+    seq=652, package=com.heytap.yoli
+    seq=654, package=com.oplus.pay
+    seq=658, package=com.oplus.sos
+    seq=659, package=com.oplus.games
+    seq=662, package=com.oplus.statistics.rom
+    seq=663, package=com.oplus.vip
+    seq=664, package=com.oppo.community
+    seq=668, package=com.heytap.htms
+    seq=673, package=com.coloros.focusmode
+    seq=678, package=com.coloros.calendar
+    seq=679, package=com.heytap.speechassist
+    seq=684, package=com.oplus.sauhelper
+    seq=685, package=com.oppo.instant.local.service
+    seq=686, package=com.coloros.sceneservice
+    seq=687, package=com.oplus.ocar
+    seq=719, package=com.android.carrierdefaultapp
+    seq=720, package=com.coloros.childrenspace
+    seq=721, package=com.heytap.mcs
+    seq=726, package=com.sankuai.meituan
+    seq=729, package=com.coloros.assistantscreen
+    seq=730, package=com.oppo.store
+    seq=731, package=com.coloros.weather.service
+    seq=734, package=com.coloros.weather2
+    seq=737, package=com.heytap.browser
+    seq=738, package=com.heytap.pictorial
+    seq=739, package=com.oplus.appdetail
+    seq=740, package=com.nearme.gamecenter
+    seq=743, package=com.oplus.melody
+    seq=746, package=com.oplus.play
+    seq=749, package=com.android.shell
+    seq=750, package=com.android.settings
+    seq=752, package=com.android.bluetooth
+    seq=754, package=com.heytap.music
+    seq=755, package=com.android.traceur
+    seq=757, package=com.google.android.gms
+    seq=773, package=com.microsoft.emmx
+    seq=852, package=com.anonymous.mymobileapp
+    seq=908, package=de.ecspride
+    seq=916, package=edu.mit.application_modeling
+    seq=920, package=edu.mit.parcel
+    seq=924, package=edu.mit.public_api_field
+    seq=928, package=edu.mit.icc_intent_class_modeling
+    seq=932, package=edu.mit.array_copy
+    seq=936, package=edu.mit.to_string
+    seq=940, package=edu.mit.array_slice
+    seq=944, package=edu.mit.button_object_allocation
+    seq=999, package=org.decsync.flym
+    seq=1006, package=info.plateaukao.einkbro
+    seq=1009, package=br.com.colman.petals
+    seq=1011, package=com.gmail.blandilyte.silverdict
+    seq=1015, package=com.nyxkn.meditation
+    seq=1019, package=com.igormaznitsa.piratedice
+    seq=1023, package=net.nitroshare.android
+    seq=1027, package=com.tomer.draw
+    seq=1031, package=rodrigodavy.com.github.pixelartist
+    seq=1035, package=com.npes87184.s2tdroid.donate
+    seq=1039, package=eu.veldsoft.vitosha.blackjack
+    seq=1045, package=de.oeffisounds.app
+    seq=1049, package=eu.faircode.netguard
+    seq=1053, package=com.mde.potdroid
+    seq=1057, package=com.example.regis_cat
+    seq=1061, package=org.flare.app
+    seq=1065, package=org.transdroid.lite
+    seq=1069, package=org.ligi.passandroid
+    seq=1073, package=fr.xgouchet.packageexplorer
+    seq=1077, package=de.lukasneugebauer.nextcloudcookbook
+    seq=1081, package=org.dystopia.email
+    seq=1085, package=io.mrarm.irc
+    seq=1090, package=com.zell_mbc.medilog
+    seq=1094, package=art.pegasko.yeeemp
+    seq=1098, package=com.cg.lrceditor
+    seq=1102, package=com.maxistar.textpad
+    seq=1109, package=com.ghostsq.commander
+    seq=1113, package=tkj.android.homecontrol.mythmote
+    seq=1119, package=com.swordfish.lemuroid
+    seq=1123, package=agrigolo.chubbyclick
+    seq=1127, package=com.grocerymanager
+    seq=1131, package=info.metadude.android.libreoffice.schedule
+    seq=1135, package=org.scoutant.rpn
+    seq=1139, package=com.typeassist.app
+    seq=1143, package=org.andstatus.todoagenda
+    seq=1147, package=in.blogspot.anselmbros.torchie
+    seq=1151, package=com.sanskritbasics.memory
+    seq=1155, package=org.dmfs.tasks
+    seq=1160, package=com.hegocre.nextcloudpasswords
+    seq=1164, package=com.drodin.tuxrider
+    seq=1168, package=com.aptasystems.dicewarepasswordgenerator
+    seq=1172, package=io.github.datastopwatch
+    seq=1176, package=com.physphil.android.unitconverterultimate
+    seq=1180, package=com.aerotoad.thud
+    seq=1184, package=com.manichord.mgit
+    seq=1188, package=com.vgorcum.minedmonero
+    seq=1192, package=se.tube42.p9.android
+    seq=1196, package=com.woefe.shoppinglist
+    seq=1200, package=com.danhasting.radar
+    seq=1204, package=com.ebaschiera.triplecamel
+    seq=1208, package=com.DartChecker
+    seq=1212, package=com.szchoiceway.aios.bridge
+    seq=1216, package=de.monocles.social
+    seq=1220, package=de.qso.again
+    seq=1225, package=xyz.zedler.patrick.grocy
+    seq=1230, package=com.amaze.filemanager
+    seq=1234, package=com.emmanuelmess.tictactoe
+    seq=1238, package=de.moooon.acrylicons
+    seq=1242, package=se.voxelmanip.boxsmasher
+    seq=1246, package=cz.martykan.webtube
+    seq=1250, package=com.documentsui.shortcut
+    seq=1254, package=ru.seva.finder
+    seq=1258, package=pl.ascendit.onetimealarm
+    seq=1262, package=com.kbul.spicycrab
+    seq=1266, package=bus.chio.wishmaster
+    seq=1270, package=dev.leonlatsch.photok
+    seq=1274, package=com.amrdeveloper.linkhub
+    seq=1278, package=org.yuttadhammo.BodhiTimer
+    seq=1282, package=atm.rocketguardian
+    seq=1286, package=com.daemon.ssh
+    seq=1290, package=pl.sanszo.pcis
+    seq=1294, package=com.mattgmg.miracastwidget
+    seq=1298, package=de.mw136.tonuino
+    seq=1302, package=com.eneko.hexcolortimewallpaper
+    seq=1306, package=de.dotwee.micropinner
+    seq=1310, package=com.darshancomputing.BatteryIndicator
+    seq=1316, package=com.byagowi.persiancalendar
+    seq=1320, package=com.chancehorizon.just24hoursplus
+    seq=1324, package=ca.farrelltonsolar.classic
+    seq=1328, package=de.j4velin.wifiAutoOff
+    seq=1344, package=org.unifiedpush.distributor.nextpush
+    seq=1351, package=com.kaeruct.gotosleep
+    seq=1355, package=com.germainz.identiconizer
+    seq=1359, package=com.ml.proximitysensorfix
+    seq=1363, package=com.reecedunn.espeak
+    seq=1367, package=org.ucam.ssb22.pinyinfdroid
+    seq=1371, package=org.billthefarmer.buses
+    seq=1376, package=com.pilot51.voicenotify
+    seq=1380, package=com.vrem.wifianalyzer
+    seq=1384, package=app.subster
+    seq=1388, package=com.github.vgaj.proxy
+    seq=1392, package=com.anysoftkeyboard.languagepack.italian
+    seq=1399, package=com.looker.droidify
+    seq=1403, package=de.schlikk.calls
+    seq=1409, package=com.adguard.android.contentblocker
+    seq=1413, package=dev.rubec.otoscope
+    seq=1417, package=org.andstatus.game2048
+    seq=1421, package=it.feio.android.omninotes.foss
+    seq=1425, package=ru.hugeping.reinstead
+    seq=1429, package=corewala.gemini.buran
+    seq=1433, package=io.github.z3r0c00l_2k.aquadroid
+    seq=1437, package=com.annie.dictionary.fork
+    seq=1442, package=com.prof18.feedflow
+    seq=1446, package=com.sleeptimer
+    seq=1450, package=eu.veldsoft.vitoshadm
+    seq=1454, package=com.fmsys.snapdrop
+    seq=1458, package=eu.quelltext.coloring
+    seq=1462, package=org.secuso.privacyfriendlysketching
+    seq=1466, package=org.woheller69.level
+    seq=1472, package=de.luhmer.owncloudnewsreader
+    seq=1474, package=com.android.email
+    seq=1478, package=dnsfilter.android
+    seq=1480, package=groomiac.voicemailplayer
+    seq=1482, package=com.nononsenseapps.notepad
+    seq=1490, package=it.diab
+    seq=1494, package=me.murks.feedwatcher
+    seq=1498, package=org.woheller69.gpscockpit
+    seq=1503, package=me.kerooker.rpgcharactergenerator
+    seq=1507, package=org.afhdownloader
+    seq=1511, package=org.glucosio.android
+    seq=1515, package=com.oml.recordtimedroid
+    seq=1519, package=de.gabbo.forro_lyrics
+    seq=1523, package=barilyuk.texetescribe
+    seq=1528, package=org.studip.unofficial_app
+    seq=1532, package=ru.nsu.bobrofon.easysshfs
+    seq=1536, package=com.nunosempere.distributioncalculator
+    seq=1540, package=org.woheller69.hugassist
+    seq=1544, package=com.frabon.rememberthedate
+    seq=1546, package=com.secuso.torchlight2
+    seq=1549, package=org.y20k.transistor
+    seq=1551, package=io.github.hathibelagal.eidetic
+    seq=1553, package=com.tiwa.pl
+    seq=1555, package=com.android.keepass
+    seq=1557, package=ardash.lato
+    seq=1559, package=com.oF2pks.classyshark3xodus
+    seq=1561, package=com.github.muellerma.stopwatch
+    seq=1564, package=com.sadellie.unitto
+    seq=1568, package=com.github.niccokunzmann.hanumanchalisa
+    seq=1572, package=com.gitlab.terrakok.gitfox
+    seq=1576, package=org.oxycblt.auxio
+    seq=1580, package=com.github.saikcaskey.pokertracker
+    seq=1584, package=org.billthefarmer.crossword
+    seq=1590, package=dev.otherworld.shoppinglist
+    seq=1594, package=cz.jirkovsky.lukas.chmupocasi
+    seq=1600, package=com.polyalerts
+    seq=1604, package=de.beisteiners.spieleblock
+    seq=1618, package=com.tk.quicksearch
+    seq=1622, package=com.plexer0.nitter
+    seq=1626, package=ch.betzengineering.openvine
+    seq=1630, package=com.tjk104.openfndds
+    seq=1634, package=me.zhanghai.android.files
+    seq=1639, package=com.github.umer0586.sensagram
+    seq=1648, package=com.aragaer.jtt
+    seq=1650, package=com.iTrack.app
+    seq=1654, package=org.softeg.slartus.forpdaplus
+    seq=1661, package=org.voidptr.swpieview
+    seq=1665, package=fr.gaulupeau.apps.InThePoche
+    seq=1671, package=com.github.ashutoshgngwr.noice
+    seq=1673, package=com.lloydtorres.stately
+    seq=1677, package=com.coboltforge.dontmind.multivnc
+    seq=1679, package=com.dozingcatsoftware.dodge
+    seq=1683, package=com.averi.worldscribe
+    seq=1687, package=de.k3b.android.intentintercept
+    seq=1690, package=com.coloros.familyguard
+    seq=1692, package=org.michaelevans.nightmodeenabler
+    seq=1694, package=barilyuk.batterytemperature
+    seq=1696, package=com.correctsyntax.biblenotify
+    seq=1701, package=com.firebirdberlin.nightdream.noGms
+    seq=1703, package=com.coloros.securityguard
+    seq=1705, package=net.pp3345.ykdroid
+    seq=1707, package=be.casperverswijvelt.unifiedinternetqs
+    seq=1713, package=io.heckel.ntfy
+    seq=1716, package=com.google.android.ext.services
+    seq=1717, package=com.sidhant.match3
+    seq=1721, package=opencontacts.open.com.opencontacts
+    seq=1723, package=com.hos_dvk.easyphone.full
+    seq=1725, package=com.danefinlay.ttsutil
+    seq=1729, package=com.chmouel.liseur
+    seq=1733, package=com.redblaster.hsl.main
+    seq=1735, package=com.abhijitvalluri.android.fitnotifications
+    seq=1742, package=org.fdroid.basic
+    seq=1746, package=a2dp.Vol
+    seq=1752, package=com.kin.athena
+    seq=1765, package=com.example.zoomhundred
+    seq=1769, package=eu.veldsoft.hungarian.rings
+    seq=1775, package=com.omgodse.notally
+    seq=1778, package=net.slions.fulguris.full.fdroid
+    seq=1782, package=pl.kuben.progressapp
+    seq=1784, package=uk.co.busydoingnothing.pocketrl
+    seq=1787, package=org.ttrssreader
+    seq=1789, package=org.woheller69.eggtimer
+    seq=1795, package=com.greenaddress.abcore
+    seq=1797, package=com.minar.randomix
+    seq=1801, package=me.ocv.partyup
+    seq=1803, package=org.catrobat.paintroid
+    seq=1807, package=io.github.toolicious.labler
+    seq=1811, package=com.mlkyh.hertz
+    seq=1815, package=de.neuwirthinformatik.alexander.mtuo
+    seq=1817, package=com.cappielloantonio.notquitemy.tempo
+    seq=1819, package=org.itxtech.daedalus
+    seq=1823, package=com.vincentengelsoftware.vesandroidimagecompare
+    seq=1825, package=com.page.bizzle
+    seq=1829, package=eu.quelltext.mundraub
+    seq=1831, package=com.cosmos.unreddit
+    seq=1835, package=com.graphhopper.maps
+    seq=1837, package=com.github.msx80.doorsofdoom
+    seq=1839, package=org.transdroid.full
+    seq=1844, package=cf.playhi.freezeyou
+    seq=1850, package=de.monocles.mail
+    seq=1854, package=com.flxrs.dankchat
+    seq=1867, package=org.elijaxapps.androidxmrigminer
+    seq=1868, package=ua.gardenapple.trylbry
+    seq=1869, package=souch.smp
+    seq=1870, package=org.sipdroid.sipua
+    seq=1871, package=edu.mit.dynamic_dispatch
+    seq=1872, package=com.example.collector
+    seq=1873, package=eu.veldsoft.house.of.cards
+    seq=1874, package=com.ulicae.cinelog
+    seq=1875, package=org.secuso.privacyfriendlytodolist
+    seq=1876, package=ru.evgeniy.dpitunnelcli
+    seq=1877, package=com.drnoob.datamonitor
+    seq=1878, package=edu.mit.string_to_char
+    seq=1879, package=edu.mit.pattern_matcher
+    seq=1880, package=com.kn.paper_foss_theme
+    seq=1881, package=io.github.yawnoc.strokeinput
+    seq=1882, package=com.martinmimigames.simplefileexplorer
+    seq=1883, package=ru.zxalexis.ugaday
+    seq=1884, package=edu.mit.outputstream
+    seq=1885, package=pl.suve.colorful.android
+    seq=1886, package=ru.natsuru.websdr
+    seq=1906, package=com.zhihengzhang.privacylens
+    seq=1908, package=com.coloros.securepay
+
+
+Dexopt state:
+  [com.zhihengzhang.privacylens]
+    path: /data/app/~~0B-hqF1WzYePxnnv4dI7xA==/com.zhihengzhang.privacylens-3ViOz41wHykGN4jayXQSZg==/base.apk
+      arm64: [status=verify] [reason=install]
+
+
+Compiler stats:
+  [com.zhihengzhang.privacylens]
+     base.apk - 1893
+
+APEX session state:
+
+Active APEX packages:
+
+
+Inactive APEX packages:
+
+
+Factory APEX packages:
+
+
+Snapshot statistics
+   Unrecorded-hits: 1286  Cork-level: 0
+   Summary stats               TotBlds     TotUsed     TotCork     BigBlds    ShortLvd     TotTime     MaxTime
+          0:27         now           2       14667           0           0           0           3           1
+          1:27        0:27           9      102211           0           1           0          34          13
+          2:27        1:27           0           0           0           0           0           0           0
+          3:27        2:27           0           0           0           0           0           0           0
+          4:27        3:27           0           0           0           0           0           0           0
+          5:27        4:27           0           0           0           0           0           0           0
+          6:27        5:27           0           0           0           0           0           0           0
+          7:27        6:27           0           0           0           0           0           0           0
+          8:27        7:27           0           0           0           0           0           0           0
+          9:27        8:27           0           0           0           0           0           0           0
+    4:01:42:59         now          73     6447931           0           1           8         125          13
+   23:07:51:53  4:01:42:59        5208    33915271           0         177        1575        8607          65
+
+   Build times                  <= 1ms      <= 2ms      <= 5ms     <= 10ms     <= 20ms     <= 50ms    <= 100ms     > 100ms
+          0:27         now           2           0           0           0           0           0           0           0
+          1:27        0:27           6           0           1           1           1           0           0           0
+          2:27        1:27           0           0           0           0           0           0           0           0
+          3:27        2:27           0           0           0           0           0           0           0           0
+          4:27        3:27           0           0           0           0           0           0           0           0
+          5:27        4:27           0           0           0           0           0           0           0           0
+          6:27        5:27           0           0           0           0           0           0           0           0
+          7:27        6:27           0           0           0           0           0           0           0           0
+          8:27        7:27           0           0           0           0           0           0           0           0
+          9:27        8:27           0           0           0           0           0           0           0           0
+    4:01:42:59         now          62           7           1           2           1           0           0           0
+   23:07:51:53  4:01:42:59        4284         289         244         292          83          15           1           0
+
+   Use counters                   <= 1        <= 2        <= 5       <= 10       <= 20       <= 50      <= 100       > 100
+          0:27         now           0           0           0           0           1           0           0           1
+          1:27        0:27           0           0           0           0           0           0           0           9
+          2:27        1:27           0           0           0           0           0           0           0           0
+          3:27        2:27           0           0           0           0           0           0           0           0
+          4:27        3:27           0           0           0           0           0           0           0           0
+          5:27        4:27           0           0           0           0           0           0           0           0
+          6:27        5:27           0           0           0           0           0           0           0           0
+          7:27        6:27           0           0           0           0           0           0           0           0
+          8:27        7:27           0           0           0           0           0           0           0           0
+          9:27        8:27           0           0           0           0           0           0           0           0
+    4:01:42:59         now           8           0           0           0           2           1          13          49
+   23:07:51:53  4:01:42:59        1462          27          86          67         105         407         426        2628

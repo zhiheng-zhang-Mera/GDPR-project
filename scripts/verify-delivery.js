@@ -21,7 +21,21 @@ const requiredFiles = [
   'docs/FIRST-CONTACT-REVIEW.md',
   'docs/privacy-policy.md',
   'docs/rule-cards.md',
-  'output/pdf/Privacy-Lens-Thesis-Revision-26.pdf',
+  'docs/research/CITATION-AUDIT.md',
+  'docs/research/THESIS-PROVENANCE.md',
+  'docs/research/FINALIZATION-REVIEWS.md',
+  'docs/research/FINALIZATION-GATE.md',
+  'LICENSE.md',
+  'output/pdf/Privacy-Lens-Thesis-Final.pdf',
+  'release/submission-final/Privacy-Lens-Thesis-Final.pdf',
+  'release/submission-final/ARTIFACT.md',
+  'release/submission-final/SUBMISSION-README.md',
+  'release/submission-final/REPRODUCIBILITY.md',
+  'release/submission-final/SHA256SUMS.txt',
+  'testing-report/real-device-9-8-finalize-v1.15.0/README.md',
+  'testing-report/real-device-9-8-finalize-v1.15.0/overview.png',
+  'testing-report/real-device-9-8-finalize-v1.15.0/findings.png',
+  'testing-report/real-device-9-8-finalize-v1.15.0/settings.png',
   'assets/screenshots/product-overview.png',
   'assets/screenshots/findings-summary.png',
   'assets/screenshots/decision-pause.png',
@@ -51,7 +65,9 @@ const forbiddenTracked = tracked.filter((file) =>
   || /(^|\/)project_clean\.zip$/i.test(file)
   || /GDPR-Permission-Audit-1\.0\.0-x86_64\.apk$/i.test(file)
   || /^backend\//.test(file)
-  || /^scripts\/reset-project\.js$/.test(file),
+  || /^scripts\/reset-project\.js$/.test(file)
+  || /^release\/submission-private\//.test(file)
+  || /^Thesis\/Final\/(?:main-submission|private-submission-metadata)\.tex$/.test(file)
 );
 if (forbiddenTracked.length > 0) fail(`forbidden delivery files are tracked: ${forbiddenTracked.join(', ')}`);
 

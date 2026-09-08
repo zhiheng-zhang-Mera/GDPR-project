@@ -1,6 +1,6 @@
 # Final thesis PDF build and visual QA
 
-The current `Thesis/Final/main.tex` was compiled on 2026-08-24 with Tectonic 0.17.0. The output is `output/pdf/Privacy-Lens-Thesis-Revision-27.pdf`.
+The then-current `Thesis/Final/main.tex` was compiled on 2026-08-24 with Tectonic 0.17.0. Its Revision 27 PDF was removed from the public final branch during personal-identifier minimisation; the source revision, this receipt, and Git history remain available. The current public PDF is `output/pdf/Privacy-Lens-Thesis-Final.pdf`.
 
 - SHA-256: `f6f67c4a966fe69671ed062ab5b77b7bcef17cfe34463a43b89b542999958aa4`
 - pages: 82

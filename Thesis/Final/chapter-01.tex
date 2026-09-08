@@ -72,11 +72,50 @@ The thesis answers four questions that connect evidence admission, communication
 
 \textbf{RQ4: What claims are supported when the framework is evaluated across deterministic fixtures, adversarial properties, real application artifacts, static-analysis outputs, and bounded physical-device execution?} This question concerns evidence strength and external validity. It is answered through a claim-to-evidence matrix that keeps semantic, interoperability, external-engineering, human, legal, and deployment claims separate.
 
+Table~\ref{tab:rq-evidence-map} makes the evidential contract for each question explicit. A method can answer only the question assigned to it; evidence is not pooled across rows to manufacture a stronger result.
+
+\begin{table}[H]
+\centering
+\caption{Research-question to evidence map}
+\label{tab:rq-evidence-map}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.055\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}>{\raggedright\arraybackslash}p{0.18\textwidth}>{\raggedright\arraybackslash}p{0.12\textwidth}>{\raggedright\arraybackslash}p{0.16\textwidth}>{\raggedright\arraybackslash}p{0.18\textwidth}}
+\toprule
+RQ & Method & Dataset or evidence & Metric or decision & Result location & Principal limitation \\
+\midrule
+RQ1 & Constructive implementation plus deterministic, adversarial, restart, replay, and mutation tests & Typed fixtures, 1,000 seeded cases, 720 permutations, nine curated mutants & Contract pass/fail, confusion cells, mutant detection & Chapters 3--5; safety-property catalogue & Oracle and implementation remain partly correlated; no field ground truth \\
+RQ2 & Typed policy and presentation contracts plus bounded device walkthrough & Policy graphs, source checks, UI hierarchy, screenshots, decision-pause flow & Reachability of prohibited verdicts; presence of source, caveat, and missing context & Chapters 4--5; claim-evidence matrix & No participant comprehension or assistive-technology study \\
+RQ3 & Pack admission, compiler, cross-pack isolation, historical binding, and mapping-review preparation & EU GDPR and non-legal Research Baseline packs; 13-item review packet & Pack validation, switching, isolation, retained identity & Chapters 3--5; mapping packet & Independent legal mapping review is \texttt{NOT\_RUN} \\
+RQ4 & Triangulation across logical, corpus, static-analysis, package, and device layers & Hash-pinned F-Droid census, device receipts, FlowDroid receipt, final release package & Layer-specific denominators, failures, missing outputs, and package facts & Chapter 5; evidence manifest & No population, commercial-store, cross-device, legal, or human validity \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Research Objectives and Contributions}
 
 The research has four operational objectives. It must make each decision reproducible, communicate uncertainty without neutralising usefulness, isolate regional interpretation from generic product infrastructure, and produce an Android artefact that can be evaluated beyond source code. These objectives are realised through permission, source, time-window, pack, rationale, and missing-context fields; three non-verdict status classes; a registry of immutable pack definitions; and release APK and Android App Bundle outputs targeting SDK 36.
 
 The \textbf{architectural contribution} is an evidence-bounded pipeline in which admission, temporal preparation, typed graph construction, rule evaluation, persistence, projection, and presentation preserve the same claim boundary. The \textbf{semantic contribution} is a set of executable safety properties for malformed input, replay, overlap, provenance mixing, pack drift, restart, and missing outputs, with curated negative implementations showing that the suite detects the registered weakenings. The \textbf{methodological contribution} is a claim-to-evidence record that distinguishes oracle conformance, interoperability, external engineering execution, device behaviour, legal validity, and human comprehension. The \textbf{practical contribution} is a local-first Android prototype whose Overview, Findings, and Settings journeys expose source, selected pack, missing evidence, and data controls without requesting sensitive runtime permission.
+
+\begin{table}[H]
+\centering
+\caption{Contribution, evidence, and claim boundary}
+\label{tab:contribution-map}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.12\textwidth}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}>{\raggedright\arraybackslash}p{0.19\textwidth}}
+\toprule
+Contribution & Gap addressed & Implementation & Evaluation evidence & Claim boundary \\
+\midrule
+C1 Evidence-bounded architecture & Source authority and legal context disappear between observation and UI & Admission, temporal preparation, evaluation, persistence, projection, and presentation retain one typed record & Traceability checks, package evidence, UI hierarchy, and claim-evidence matrix & Does not create unavailable acquisition authority or legal facts \\
+C2 Regulation-owned temporal abstraction & Jurisdictional assumptions become hidden application logic & Versioned pack, mapping compiler, generic order-agnostic evaluator, and historical pack identity & Exact boundaries, 720 permutations, pack switching, and cross-pack rejection & Software replaceability is not comparative-law validity \\
+C3 Fail-closed governance chain & Missing or malformed evidence can become false reassurance & Closed sources, safe numbers, bounded ledger, attestation, trust, rollback, and witness gates & Adversarial suites and nine of nine registered mutant detections & Curated mutants do not prove completeness or production security \\
+C4 Typed claim separation & Technical signals are easily inflated into legal verdicts & Evidence, signal, review obligation, and prohibited conclusion occupy distinct output domains & Formal witnesses and adversarial information-flow fixtures & A review obligation is not proof of infringement or compliance \\
+C5 Reproducible claim-boundary evaluation & Unlike evidence is often collapsed into one score & Hash-pinned manifests, missingness-preserving summaries, receipts, and one canonical reproduction path & F-Droid, FlowDroid, OPPO, deterministic, and source-quality records & Supports bounded engineering reconstruction, not population, human, or legal accuracy \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 The contribution is therefore not an automated GDPR judge. It is an accountability-support prototype that makes a bounded technical inference reconstructable and leaves legal conclusions to an appropriately authorised human reviewer. This positioning is narrower than the strongest claim a compliance application might advertise, but it is the strongest claim supported by the implemented evidence path.
 

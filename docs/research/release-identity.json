@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "project": "Privacy Lens",
   "repository": "zhiheng-zhang-Mera/GDPR-project",
-  "branch": "8-24",
+  "branch": "9-8-Finalize",
   "sourceBaseline": {
     "branch": "8-22",
     "gitCommitSha": "727056c4b29065a4c21ab9bc291c85ca8fa93d5f"
@@ -16,5 +16,5 @@
     "targetSdk": 36
   },
   "status": "RESEARCH_PROTOTYPE",
-  "claimBoundary": "This identity freezes the source baseline used for the 8-24 research-improvement work. It is not a legal-compliance, production-readiness, or cross-device-validity claim."
+  "claimBoundary": "This identity records the finalization branch descended without history loss from the 8-24 research candidate. It is not a legal-compliance, production-readiness, or cross-device-validity claim."
 }

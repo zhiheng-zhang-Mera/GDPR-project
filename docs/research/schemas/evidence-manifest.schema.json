@@ -13,7 +13,7 @@
       "required": ["name", "branch", "sourceBaselineSha", "releaseVersion", "packageName", "androidVersionCode", "androidMinSdk", "androidTargetSdk"],
       "properties": {
         "name": { "const": "Privacy Lens" },
-        "branch": { "const": "8-24" },
+        "branch": { "const": "9-8-Finalize" },
         "sourceBaselineSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
         "releaseVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
         "packageName": { "type": "string", "minLength": 1 },

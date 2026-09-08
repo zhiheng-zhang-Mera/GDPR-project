@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "projectIdentity": {
     "name": "Privacy Lens",
-    "branch": "8-24",
+    "branch": "9-8-Finalize",
     "sourceBaselineSha": "727056c4b29065a4c21ab9bc291c85ca8fa93d5f",
     "releaseVersion": "1.15.0",
     "packageName": "com.zhihengzhang.privacylens",

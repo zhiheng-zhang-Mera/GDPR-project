@@ -2,11 +2,23 @@
 
 > Evidence before conclusions · 证据先于结论
 
-[English](#english) · [中文](#中文) · [Artifact reproduction](ARTIFACT.md) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Temporal rule cards](docs/rule-cards.md) · [Formal policy mapping](docs/TEMPORAL-RULE-MAPPING.md) · [Commercial APK baseline method](docs/COMMERCIAL-APK-BASELINE-METHOD.md) · [Commercial batch results](commercial-app-batch/2026-08-22T04-43-10-052Z/README.md) · [Final thesis source / 最终论文源](Thesis/Final/main.tex)
+[English](#english) · [中文](#中文) · [Final thesis PDF](output/pdf/Privacy-Lens-Thesis-Final.pdf) · [Artifact reproduction](ARTIFACT.md) · [Evidence manifest](docs/research/THESIS-EVIDENCE-MANIFEST.md) · [User guide / 用户指南](User-Guide.md) · [Project manual / 项目手册](docs/PROJECT-MANUAL.md) · [Final thesis source / 最终论文源](Thesis/Final/main.tex) · [Rights notice](LICENSE.md)
 
 ## English
 
 Privacy Lens is an offline, evidence-first Android research prototype for reviewing permission-activity summaries. It keeps observed-device evidence distinct from synthetic demonstrations, exposes missing context, and prepares questions for proportionate human review. It does **not** determine whether the GDPR was infringed.
+
+### Research question
+
+How can heterogeneous Android privacy evidence be transformed into useful, reproducible review prompts while preventing malformed, missing, synthetic, or legally incomplete evidence from becoming an unsupported legal conclusion?
+
+### Key contributions
+
+- An evidence-bounded architecture that preserves source, time, rule identity, missing context, and prohibited inferences from admission to presentation.
+- A fail-closed semantic pipeline with executable safety properties for malformed input, replay, overlap, provenance mixing, pack drift, restart state, and missing tool outputs.
+- A versioned regulation-pack boundary that keeps jurisdiction-dependent mappings outside the generic temporal evaluator.
+- A typed separation between admitted evidence, technical signal, review obligation, and legal verdict.
+- A claim-to-evidence evaluation record spanning deterministic fixtures, curated mutants, a hash-pinned F-Droid corpus, FlowDroid interoperability, and bounded OPPO device observations.
 
 ### Delivery status
 
@@ -58,7 +70,7 @@ Prerequisites: Node.js 20--24, npm 10, Java 17, Android SDK 36, and an Expo 54-c
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
-git switch 8-24
+git switch 9-8-Finalize
 npm ci
 npm run reproduce:thesis-core
 npm start
@@ -89,6 +101,11 @@ APK/AAB files are deliberately excluded from source control. Before public distr
 | `Thesis/Final/` | Self-contained final thesis source: `main.tex`, seven chapters, and bibliography |
 | `Thesis Version/` | Preserved thesis source and review history |
 | `output/pdf/` | Versioned compiled thesis PDFs |
+| `release/submission-final/` | Final public package, reproduction guide, identity, and checksums |
+
+### Citation and immutable archive
+
+Zhang, Z. (2026). *Privacy Lens: Evidence-Bounded Android Privacy Review with Regulation-Driven Temporal Combination Notices*, version 1.15.0. The immutable identity is tag `v1.15.0-thesis-final`; its exact commit and release-asset checksums are published with the GitHub release.
 
 ### Claim boundaries
 
@@ -130,7 +147,7 @@ Privacy Lens 是一款离线运行、证据优先的 Android 隐私审查研究�
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
-git switch 8-24
+git switch 9-8-Finalize
 npm ci
 npm run reproduce:thesis-core
 npm start
@@ -159,4 +176,4 @@ npm start
 - 本地回滚状态不具备防篡改能力，卸载、清除数据、不适当恢复或设备失陷可能使其丢失；
 - 内部评分、自动测试和单设备验收不等于法律意见、真人实验、认证、同行评审或期刊录用。
 
-License information has not yet been supplied by the repository owner; do not assume redistribution rights beyond applicable law and explicit owner permission.
+本仓库采用保守的[权利声明](LICENSE.md)：版权所有，未授予再分发许可。第三方依赖和外部数据仍适用各自条款。

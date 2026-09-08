@@ -12,6 +12,25 @@ This protocol has limits. It does not report database-by-database recall, duplic
 
 The comparison matrix covers specialised but non-equivalent analytical objects. FlowDroid predicts potential static source-to-sink paths, while TaintDroid records selected flows under a modified runtime \cite{flowdroid2014,taintdroid2010}. Exodus matches embedded tracker signatures and expressly cautions that a match does not prove effective use \cite{exodus2026}. PoliCheck relates observed flows to entity-sensitive policy statements, and contextual-integrity analysis exposes omitted or ambiguous transmission parameters \cite{policheck2020,shvartz2019}. Permission-dialog studies measure attention, comprehension, expectation, and decisions that source inspection cannot establish \cite{felt2012,bonne2017}. Android's Privacy Dashboard supplies an operating-system-owned history for supported permissions and windows, not purpose or legal meaning \cite{androiddashboard2026}. These works motivate distinct evidence types; none is treated as a weaker implementation of one common classifier.
 
+\begin{table}[H]
+\centering
+\scriptsize
+\caption{Related-work comparison by evidence object and claim boundary}
+\label{tab:related-work-comparison}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.14\textwidth}>{\raggedright\arraybackslash}p{0.15\textwidth}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.18\textwidth}>{\raggedright\arraybackslash}p{0.13\textwidth}}
+\toprule
+Approach & Evidence object & Supported output & Missing-evidence treatment & Relationship to Privacy Lens \\
+\midrule
+FlowDroid / TaintDroid & potential static paths / selected instrumented runtime flows & program-flow hypotheses / exercised-flow observations & unanalysed paths or executions are not negatives & upstream specialised evidence; no legal verdict \\
+Exodus & embedded tracker signatures & tracker-presence indicators & a match does not prove effective use & complementary package evidence \\
+PoliCheck / contextual integrity & observed flows plus policy or contextual parameters & consistency and contextual questions & omitted actors, purposes, or norms remain material & motivates explicit missing-context prompts \\
+Permission-dialog studies & participant attention, comprehension, expectation, and choice & human-factor findings & untested populations and tasks limit transfer & required future validation of communication \\
+Android Privacy Dashboard & OS-owned selected-permission history & bounded recent access history & unsupported permissions, windows, and context remain absent & possible authorised acquisition input \\
+Privacy Lens & provenance-bound summaries plus versioned rule packs & technical review signals, evidence gaps, and questions & rejects unsafe input and shows unknown legal facts & integration and communication layer; not enforcement or certification \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Regulatory Principles and Technical Signals}
 
 The GDPR regulates processing rather than permission counts. Article 5 establishes principles including lawfulness, transparency, purpose limitation, data minimisation, accuracy, storage limitation, integrity, confidentiality, and accountability. Articles 6 and 9 concern lawful bases and special-category data; Article 25 requires data protection by design and by default \cite{eurlex2016}. EDPB guidance describes Article 25 as a continuing obligation implemented through appropriate technical and organisational measures \cite{edpb2019}. A technical observation may support an accountability inquiry, but cannot by itself demonstrate whether these legal conditions are satisfied.

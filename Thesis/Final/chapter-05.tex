@@ -4,7 +4,7 @@ This chapter evaluates whether the implemented system preserves the evidence bou
 
 \subsection{Evaluation Overview and Headline Results}
 
-The evaluation separates five evidence layers: source conformance, deterministic rule behaviour, adversarial boundary behaviour, Android package integration, and physical-device usability evidence. This separation prevents a passed unit test from being reported as device reliability or legal validity. The final acceptance record is stored at \path{testing-report/release-candidate-2026-08-09.md}; screenshots and UI hierarchies are retained in the adjacent dated folder.
+The evaluation separates seven evidence layers: (1) source and specification conformance; (2) deterministic and adversarial rule behaviour; (3) formal properties and curated mutation detection; (4) corpus-scale static and workflow evidence; (5) assembled-package and physical-device integration; (6) rendered UI and accessibility-oriented inspection; and (7) independent human and legal validation. Layers one to six contain the bounded observations reported below. Layer seven remains \texttt{NOT\_RUN}. This separation prevents a passed unit test from being reported as device reliability, human comprehension, or legal validity. Historical receipts remain under \path{testing-report/}; the final OPPO package and interaction receipt is retained under \path{testing-report/real-device-9-8-finalize-v1.15.0/}.
 
 \subsubsection{Source and Rule Verification}
 
@@ -22,13 +22,13 @@ Extended suites passed for unsafe types and integers, malformed context, unknown
 
 \subsubsection{Release Build and Manifest Verification}
 
-Gradle completed \texttt{assembleRelease} and \texttt{bundleRelease} with target SDK 36 in the recorded build workflow. The 9 August receipt contains binary hashes for an earlier candidate and is retained as historical build-pipeline evidence; those hashes are not attributed to release \PrivacyLensVersion{}. The 8--24 research freeze identifies the source baseline and Android package metadata. A newly signed canonical production binary and its hash remain an owner-controlled release action.
+Gradle completed \texttt{assembleRelease} and \texttt{bundleRelease} with target SDK 36 in the recorded build workflow. The 9 August receipt contains binary hashes for an earlier candidate and is retained as historical build-pipeline evidence; those hashes are not attributed to release \PrivacyLensVersion{}. The 8--24 research freeze identifies the mature source baseline and Android package metadata. The 8 September finalisation rebuilt the release APK and AAB from that source line and recorded their hashes; Play signing and store delivery remain external owner actions.
 
-The merged release manifest contained declarations for Internet access, wake lock, network state, boot rescheduling, foreground service, and an app-scoped signature permission. External-storage read and write permissions were absent. Inspection of the installed package confirmed the same requested-permission set and no runtime permissions. Android backup was disabled in the application declaration.
+The reconciled release manifest contained wake lock, boot rescheduling, foreground service, and an application-scoped dynamic-receiver signature permission. Internet, network-state, and legacy external-storage read/write declarations were absent. APK inspection and the installed-package dump reported the same set, with no dangerous runtime permission requested or granted. Android backup was disabled in the application declaration.
 
 \subsubsection{Physical-Device Evaluation}
 
-The release APK was installed by ADB on one OPPO PERM00 ARM64 device. The installed package reported \texttt{com.zhihengzhang.privacylens}, versionName \PrivacyLensVersion{}, versionCode 16, minSdk 24, and targetSdk 36. Launcher cold start succeeded. The Android crash buffer was empty after the recorded 24 August accessibility and decision-pause flow. This is an observation for one installed build and interval, not a long-run crash-rate estimate.
+The release APK was installed by ADB on one OPPO PERM00 ARM64 device. The installed package reported \texttt{com.zhihengzhang.privacylens}, versionName \PrivacyLensVersion{}, versionCode 16, minSdk 24, and targetSdk 36. Launcher cold start and the overview--findings--settings path succeeded in the bounded 8 September finalisation interval. The filtered crash buffer contained no matching fatal record after that path. This is an observation for one installed build and interval, not a long-run crash-rate estimate.
 
 The three primary destinations rendered at the device's captured application resolution. Coordinate-driven exploration initially appeared to show a navigation-target problem because the physical display and captured application coordinate spaces differed. A bounded coordinate sweep and UI-tree inspection identified the offset; subsequent navigation and custom bottom-bar interaction succeeded. This calibration episode is retained because it demonstrates why raw ADB coordinates must not be interpreted without the target's current window geometry.
 
@@ -176,7 +176,7 @@ Hashes were recorded immediately after the final permission-manifest rebuild. An
 
 Source-manifest inspection alone was insufficient because dependencies contribute declarations through manifest merging. The initial merged manifest exposed legacy external-storage permissions inherited from transitive Expo components. The evaluated source added explicit merger removals for read and write external storage, rebuilt both artefacts, and inspected the merged result again.
 
-The final merged manifest contained Internet, wake-lock, network-state, boot-completed, foreground-service, and an application-scoped dynamic-receiver signature permission. These operational declarations are consistent with linking and WorkManager components. The installed-package dump reported the same requested set and no runtime permission grants. This two-level check supports the documentation statement that no sensitive runtime permission is requested.
+The final merged manifest contained wake-lock, boot-completed, foreground-service, and an application-scoped dynamic-receiver signature permission. Internet, network-state, and external-storage declarations were absent. The installed-package dump and APK inspection reported the same requested set and no dangerous runtime permission grants. This three-level check supports the bounded package claim that the evaluated build requests no sensitive runtime permission.
 
 The package dump also confirmed application identity, version name, version code, minimum SDK, target SDK, primary ABI, install state, and signing version. The release used the QA fallback signing identity because production environment variables were absent. A successful package inspection is therefore not proof of final upload-key configuration.
 

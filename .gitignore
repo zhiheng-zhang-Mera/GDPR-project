@@ -59,3 +59,7 @@ tmp/pdfs/
 tmp/
 node_modules.pnpm-backup/
 
+# private university-submission metadata and locally rendered private edition
+Thesis/Final/private-submission-metadata.tex
+Thesis/Final/main-submission.tex
+release/submission-private/

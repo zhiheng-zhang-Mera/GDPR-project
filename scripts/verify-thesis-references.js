@@ -26,6 +26,7 @@ for (const key of bibKeys) {
 const labels = [];
 const references = [];
 const citations = [];
+const optionalInputs = new Set(['private-submission-metadata.tex']);
 
 for (const file of texFiles) {
   const relative = path.relative(root, file).replaceAll('\\', '/');
@@ -39,7 +40,7 @@ for (const file of texFiles) {
 
   for (const match of matches(text, /\\input\{([^}]+)\}/g)) {
     const target = match[1].endsWith('.tex') ? match[1] : `${match[1]}.tex`;
-    if (!fs.existsSync(path.resolve(thesisDir, target))) {
+    if (!optionalInputs.has(target) && !fs.existsSync(path.resolve(thesisDir, target))) {
       failures.push(`${relative}: missing input ${target}`);
     }
   }
