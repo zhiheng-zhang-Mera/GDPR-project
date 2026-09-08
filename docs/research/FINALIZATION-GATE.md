@@ -15,7 +15,8 @@ Date: 8 September 2026
 | Participant comprehension and accessibility-service study | NOT_RUN | UI structure observed; TalkBack, large-font completion, and participants not established |
 | Multi-OEM, long-run, legal, production-signing, Play Console and store approval | NOT_RUN | outside the collected evidence and owner/external authority |
 | Subject-specific generative-AI authorization | NOT_VERIFIED | declaration draft supplied; coordinator/course authorization is external |
-| Remote branch checkpoint and terminal CI | PASS | `9-8-Finalize` checkpoint `73e9b9fdc0fa3c64043d848e964e1d22513c9a2c`; GitHub Actions run `34199764438` completed successfully |
-| Immutable tag, release, default branch, and historical-branch cleanup | PENDING_UNTIL_FINAL_PUBLICATION | performed only after the final documentation commit and its CI complete |
+| Remote branch and terminal CI | PASS | candidate `0ef733acd454cef34a60239177a82eb96d4f192f`; final-branch run `34199906919` and fast-forwarded-master run `34200280823` completed successfully |
+| Default branch and historical-branch cleanup | PASS | default changed to `9-8-Finalize`; 21 other remote heads were verified as ancestors and deleted after the fast-forwarded master CI passed |
+| Immutable tag and public release | PASS_AT_FINAL_HANDOFF | `v1.15.0-thesis-final` and its release are created only after the commit containing this record passes CI; their observed target and asset digests form the terminal publication receipt |
 
 The project is suitable as a bounded research-prototype and thesis submission artifact. It is not represented as legally certified, production-ready, broadly accessible, population-valid, or store-approved.
