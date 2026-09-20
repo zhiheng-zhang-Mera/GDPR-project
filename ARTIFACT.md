@@ -9,9 +9,11 @@ npm ci
 npm run reproduce:thesis-core
 ```
 
-This is the only canonical core entry point. It compiles and runs the semantic suites; runs the fixed-seed temporal stress campaign and checks its deterministic totals against the evidence manifest; checks accessibility-source, release-privacy, experiment, TypeScript, lint, and delivery contracts; verifies the nine formal safety properties; validates the mapping-review packet; regenerates corpus/device/FlowDroid summaries and LaTeX result macros; verifies the thesis evidence manifest, thesis numeric consistency, and claim boundaries; checks that every repository path cited by the governing documents exists; and checks TeX inputs, labels, references, citations, bibliography keys, stale markers, figure paths, and duplicate long paragraphs.
+This is the only canonical core entry point. It compiles and runs the semantic suites; runs the fixed-seed temporal stress campaign and checks its deterministic totals against the evidence manifest; checks accessibility-source, release-privacy, experiment, TypeScript, lint, and delivery contracts; checks the safety-property catalogue structurally; validates the mapping-review packet; regenerates corpus/device/FlowDroid summaries and LaTeX result macros; recomputes the published device percentiles from the pinned redacted samples; verifies the thesis evidence manifest, thesis numeric consistency, and claim boundaries; checks that every repository path cited by the governing documents exists; and checks TeX inputs, labels, references, citations, bibliography keys, stale markers, figure paths, and duplicate long paragraphs.
 
-Expected terminal summaries include `Safety properties verified: 9 properties, 9/9 curated mutants detected`, `Thesis results verified: F-Droid N=495, device N=233, PSS N=98`, `Thesis evidence verified`, `Thesis numeric consistency verified`, `Claim-evidence path traceability verified`, and `Thesis references verified`. A successful run must leave tracked generated files unchanged.
+Expected terminal summaries include `Safety-property catalogue verified: 9 properties`, `Thesis results verified: F-Droid N=495, device N=233, PSS N=98`, `Thesis evidence verified: 12 receipt-derived metrics, 4 pinned sources`, `Thesis numeric consistency verified`, `Claim-evidence path traceability verified`, and `Thesis references verified`. A successful run must leave tracked generated files unchanged.
+
+Note on `verify:formal-properties`: that command performs a **structural** check of `docs/research/safety-property-catalog.json` — that the catalogue is complete, internally consistent, and that each property names an existing test file containing its evidence marker. It does not execute a property test, and its output says so. The executable form of the curated mutation claim is `npm run verify:mutation` (see below), which is part of `npm run verify` but deliberately kept out of the core path because it recompiles the suite once per mutant.
 
 ### Heavier reproduction commands
 
@@ -56,7 +58,9 @@ The machine-specific Android platform path is receipt evidence, not a portable r
 
 ## Evidence and hashes
 
-The machine-readable authority is `docs/research/thesis-evidence-manifest.json`. It pins the F-Droid census, device aggregate, and FlowDroid receipt by SHA-256. `docs/research/release-identity.json` records package, branch, source baseline, and Android version metadata. `output/thesis-results/` is generated from committed summaries; `Thesis/Final/generated-results.tex` is generated from the evidence manifest.
+The machine-readable authority is `docs/research/thesis-evidence-manifest.json`. It pins the F-Droid census, the device aggregate, the device redacted per-sample metrics, and the FlowDroid receipt by SHA-256. `docs/research/release-identity.json` records package, branch, source baseline, and Android version metadata. `output/thesis-results/` is generated from committed summaries; `Thesis/Final/generated-results.tex` is generated from the evidence manifest.
+
+The published PSS and timing percentiles are **recomputed from the pinned redacted per-sample file** on every run of `verify:thesis-evidence`, not trusted as prose. That file is a redacted per-sample extract: the upstream raw device receipts it summarises are referenced by SHA-256 but are not redistributed, so the percentiles are reproducible from the committed samples rather than from a re-execution of the campaign.
 
 Hardware evidence is retained under `testing-report/` with denominators, failures, UI trees, screenshots, and explicit limitations. CI verifies these committed receipts and transformations but does not pretend to rerun the hardware study.
 

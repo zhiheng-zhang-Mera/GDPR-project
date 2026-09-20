@@ -3,7 +3,14 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '..');
 const productionRoots = ['src', 'app', 'components'];
+/**
+ * Narrative surfaces where an unqualified capability claim would be most
+ * damaging. `README.md` and `ARTIFACT.md` are what a reader sees first, so a
+ * boundary check that skipped them would protect the appendix and not the
+ * abstract.
+ */
 const narrativeRoots = ['docs/research', 'Thesis/Final'];
+const narrativeFiles = ['README.md', 'ARTIFACT.md'];
 const textExtensions = new Set(['.ts', '.tsx', '.js', '.json', '.md', '.tex']);
 const forbiddenRuntimeTokens = /\b(?:GDPR_VIOLATION|LEGAL_COMPLIANCE|COMPLIANT)\b/i;
 const riskyAssertion = /\b(?:proves?|detects?)\b.{0,45}\b(?:GDPR|legal|compliance|violation|accuracy)\b|\b(?:GDPR|legal)\b.{0,45}\b(?:compliant|violation)\b/i;
@@ -31,7 +38,7 @@ for (const file of productionRoots.flatMap(walk)) {
   });
 }
 
-for (const file of narrativeRoots.flatMap(walk)) {
+for (const file of [...narrativeRoots.flatMap(walk), ...narrativeFiles.filter((relative) => fs.existsSync(path.join(root, relative)))]) {
   const lines = fs.readFileSync(path.join(root, file), 'utf8').split(/\r?\n/);
   lines.forEach((line, index) => {
     if ((forbiddenRuntimeTokens.test(line) || riskyAssertion.test(line)) && !boundaryQualifier.test(line)) {

@@ -54,7 +54,49 @@ if (!fs.existsSync(path.join(root, manifest.formalEvidence.stressReceipt))) {
 const census = readJson('testing-report/fdroid-open-store-2026-08-22/dex-manifest-census-verified-final-495.json');
 const device = readJson('testing-report/fdroid-open-store-2026-08-22/device-batch-aggregate-final.json');
 const flowdroid = readJson('testing-report/academic-baseline-2026-08-22/flowdroid-wps-rerun/flowdroid-receipt.json');
+const redacted = readJson('experiments/thesis-results/device-metrics-redacted.json');
 const count = (predicate) => census.apps.filter(predicate).length;
+
+/**
+ * The chapter-5 percentiles are computed from the per-sample redacted metrics,
+ * which the pinned aggregate does not carry. This independent recomputation
+ * means the published median and quartiles are checked against the pinned
+ * samples on every run rather than trusted as prose.
+ */
+const quantile = (sorted, q) => {
+  const index = (sorted.length - 1) * q;
+  const low = Math.floor(index);
+  const high = Math.ceil(index);
+  return sorted[low] + (sorted[high] - sorted[low]) * (index - low);
+};
+const finiteSorted = (values) => values.filter(Number.isFinite).sort((a, b) => a - b);
+const pssValues = finiteSorted(redacted.samples.map((sample) => sample.memoryPssKb));
+const timingValues = finiteSorted(redacted.samples.filter((sample) => sample.terminalStatus === 'COMPLETED').map((sample) => sample.wallClockElapsedMs));
+const publishedStats = readJson('output/thesis-results/device-summary.json');
+const expectClose = (label, expected, actual) => {
+  if (expected === null || actual === null) {
+    if (expected !== actual) fail(`${label}: summary=${expected} recomputed=${actual}`);
+    return;
+  }
+  if (Math.abs(expected - actual) > 1e-6) fail(`${label}: summary=${expected} recomputed from pinned samples=${actual}`);
+};
+expectClose('PSS median', publishedStats.memoryPssKb.median, quantile(pssValues, 0.5));
+expectClose('PSS q1', publishedStats.memoryPssKb.q1, quantile(pssValues, 0.25));
+expectClose('PSS q3', publishedStats.memoryPssKb.q3, quantile(pssValues, 0.75));
+expectClose('PSS observedN', publishedStats.memoryPssKb.observedN, pssValues.length);
+expectClose('timing median', publishedStats.wallClockElapsedMs.median, quantile(timingValues, 0.5));
+expectClose('timing q1', publishedStats.wallClockElapsedMs.q1, quantile(timingValues, 0.25));
+expectClose('timing q3', publishedStats.wallClockElapsedMs.q3, quantile(timingValues, 0.75));
+expectClose('timing observedN', publishedStats.wallClockElapsedMs.observedN, timingValues.length);
+if (redacted.samples.length !== device.uniquePackagesProcessed) {
+  fail(`The redacted sample set has ${redacted.samples.length} entries but the pinned aggregate reports ${device.uniquePackagesProcessed} packages.`);
+}
+if (redacted.samples.filter((sample) => sample.terminalStatus === 'COMPLETED').length !== device.completedAndVerifiedRemoved) {
+  fail('The redacted sample set and the pinned aggregate disagree on completed workflow count.');
+}
+const redactedPssMean = pssValues.reduce((sum, value) => sum + value, 0) / pssValues.length;
+expectClose('PSS mean versus pinned aggregate', device.telemetry.afterLaunchMemoryPssKb.mean, redactedPssMean);
+
 const observed = {
   fdroidStaticCorpusN: census.apps.length,
   fdroidSensitivePermissionN: count((item) => item.sensitiveCategories.length > 0),
@@ -65,6 +107,7 @@ const observed = {
   completedEndToEndWorkflowsN: device.completedAndVerifiedRemoved,
   failedDeviceWorkflowsN: device.failed,
   validPssTelemetryN: device.telemetry.afterLaunchMemoryPssKb.observed,
+  validTimingTelemetryN: device.telemetry.wallClockElapsedMs.observed,
   flowdroidReceiptsN: 1,
   flowdroidXmlArtifactsN: flowdroid.status === 'COMPLETED_WITH_RESULT_ARTIFACT' ? 1 : 0,
 };
@@ -83,6 +126,8 @@ if (manifest.formalEvidence.mutationCases.length === 0 && manifest.formalEvidenc
 
 const metrics = manifest.empiricalEvidence;
 const stress = manifest.stressCampaign;
+const deviceMacroSource = readJson('output/thesis-results/device-summary.json');
+const texNumber = (value) => (value === null ? 'NOT\\_AVAILABLE' : String(value));
 const totalRuleMatches = Object.values(stress.ruleMatches).reduce((sum, value) => sum + value, 0);
 if (stress.boundedSnapshotEntries !== 10001) fail(`The stress campaign bounded snapshot must remain 10001 entries, observed ${stress.boundedSnapshotEntries}.`);
 if (typeof stress.assertions !== 'number' || stress.assertions <= 0) fail('The stress campaign must record a positive assertion total.');
@@ -98,6 +143,13 @@ const generated = [
   `\\newcommand{\\CompletedWorkflowsN}{${metrics.completedEndToEndWorkflowsN}}`,
   `\\newcommand{\\FailedDeviceWorkflowsN}{${metrics.failedDeviceWorkflowsN}}`,
   `\\newcommand{\\PssObservedN}{${metrics.validPssTelemetryN}}`,
+  `\\newcommand{\\TimingObservedN}{${metrics.validTimingTelemetryN}}`,
+  `\\newcommand{\\DevicePssMedianKb}{${texNumber(deviceMacroSource.memoryPssKb.median)}}`,
+  `\\newcommand{\\DevicePssQOneKb}{${texNumber(deviceMacroSource.memoryPssKb.q1)}}`,
+  `\\newcommand{\\DevicePssQThreeKb}{${texNumber(deviceMacroSource.memoryPssKb.q3)}}`,
+  `\\newcommand{\\DeviceTimingMedianMs}{${texNumber(deviceMacroSource.wallClockElapsedMs.median)}}`,
+  `\\newcommand{\\DeviceTimingQOneMs}{${texNumber(deviceMacroSource.wallClockElapsedMs.q1)}}`,
+  `\\newcommand{\\DeviceTimingQThreeMs}{${texNumber(deviceMacroSource.wallClockElapsedMs.q3)}}`,
   `\\newcommand{\\FlowDroidReceiptsN}{${metrics.flowdroidReceiptsN}}`,
   `\\newcommand{\\FlowDroidXmlArtifactsN}{${metrics.flowdroidXmlArtifactsN}}`,
   `\\newcommand{\\StressCorpusN}{${stress.corpusRounds.toLocaleString('en-US')}}`,

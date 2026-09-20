@@ -7,11 +7,14 @@
  * silent loss of traceability: the claim still reads as supported while its
  * named evidence has moved. This check keeps those citations honest.
  *
- * Scope is deliberately narrow. Only `docs/research/` and `Thesis/Final/` are
- * scanned, because the archived review notes under `Thesis Version/` describe
- * superseded rounds and may legitimately reference retired artefacts. Paths that
- * the repository intentionally does not track (generated APK/AAB/PDF outputs and
- * git-ignored directories) are skipped rather than reported as missing.
+ * Scope is the governing narrative surface. `docs/research/` and `Thesis/Final/`
+ * carry the claim-to-evidence record; `README.md`, `ARTIFACT.md`, and
+ * `release/submission-final/*.md` are the documents a reader actually starts
+ * from, so they are scanned too. The archived review notes under
+ * `Thesis Version/` are excluded because they describe superseded rounds and may
+ * legitimately reference retired artefacts. Paths that the repository
+ * intentionally does not track (generated APK/AAB/PDF outputs and git-ignored
+ * directories) are skipped rather than reported as missing.
  */
 const fs = require('fs');
 const { execFileSync } = require('child_process');
@@ -19,6 +22,8 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '..');
 const SCANNED_ROOTS = ['docs/research', 'Thesis/Final'];
+const SCANNED_FILES = ['README.md', 'ARTIFACT.md', 'User-Guide.md', 'docs/PROJECT-MANUAL.md', 'docs/DELIVERY-CHECKLIST.md'];
+const SCANNED_FILE_GLOBS = ['release/submission-final'];
 const CITED_PREFIXES = ['src', 'scripts', 'tests', 'android', 'docs', 'experiments', 'release', 'output', 'testing-report', 'Thesis', 'components', 'app', 'assets'];
 const CITATION = new RegExp('`((?:' + CITED_PREFIXES.join('|') + ')/[^`\\n]+?)`', 'g');
 
@@ -47,6 +52,18 @@ const tracked = trackedFiles();
 const scanned = [];
 for (const scannedRoot of SCANNED_ROOTS) {
   const absoluteRoot = path.join(root, scannedRoot);
+  if (!fs.existsSync(absoluteRoot)) continue;
+  for (const entry of fs.readdirSync(absoluteRoot, { withFileTypes: true, recursive: true })) {
+    if (!entry.isFile() || !/\.(md|tex)$/.test(entry.name)) continue;
+    scanned.push(path.join(entry.parentPath ?? absoluteRoot, entry.name));
+  }
+}
+for (const scannedFile of SCANNED_FILES) {
+  const absolute = path.join(root, scannedFile);
+  if (fs.existsSync(absolute)) scanned.push(absolute);
+}
+for (const scannedDir of SCANNED_FILE_GLOBS) {
+  const absoluteRoot = path.join(root, scannedDir);
   if (!fs.existsSync(absoluteRoot)) continue;
   for (const entry of fs.readdirSync(absoluteRoot, { withFileTypes: true, recursive: true })) {
     if (!entry.isFile() || !/\.(md|tex)$/.test(entry.name)) continue;

@@ -79,6 +79,38 @@ const stressRuleTotal = Object.values(stress.ruleMatches).reduce((sum, value) =>
 check(numeric(macros.StressRuleMatchesN) === stressRuleTotal, `StressRuleMatchesN=${macros.StressRuleMatchesN} but manifest total=${stressRuleTotal}`);
 check(stress.assertions >= stress.corpusRounds + stress.restartCases + stress.malformedCases, 'The campaign assertion total must be at least one per case across every campaign.');
 
+// ---- 2b. Device percentile macros agree with the generated summary --------
+
+const deviceMacroSource = read('output/thesis-results/generated-results.tex');
+const deviceMacros = Object.fromEntries(
+  [...deviceMacroSource.matchAll(/\\newcommand\{\\([A-Za-z]+)\}\{([^}]*)\}/g)].map(([, name, value]) => [name, value]),
+);
+const deviceExpected = {
+  DevicePssMedianKb: device.memoryPssKb.median,
+  DevicePssQOneKb: device.memoryPssKb.q1,
+  DevicePssQThreeKb: device.memoryPssKb.q3,
+  DeviceTimingMedianMs: device.wallClockElapsedMs.median,
+  DeviceTimingQOneMs: device.wallClockElapsedMs.q1,
+  DeviceTimingQThreeMs: device.wallClockElapsedMs.q3,
+};
+for (const [name, expected] of Object.entries(deviceExpected)) {
+  check(deviceMacros[name] !== undefined, `${name} must be generated so the thesis does not hard-code the statistic`);
+  check(
+    Number(deviceMacros[name]) === expected,
+    `Thesis/Final/generated-results.tex ${name}=${macros[name]} but device-summary.json says ${expected}; the percentile must keep full precision`,
+  );
+}
+// The thesis must cite these macros rather than repeating the literals.
+for (const name of Object.keys(deviceExpected)) {
+  check(thesisAll.includes(`\\${name}{}`), `the thesis must reference \\${name}{} instead of hard-coding the device statistic`);
+}
+for (const literal of ['53,603.5', '47,884', '64,831.25', '23,960.5423', '21,494.4533', '25,115.4851']) {
+  for (const [chapter, text] of Object.entries(thesis)) {
+    check(!text.includes(literal), `${chapter}.tex hard-codes the device statistic ${literal} where a generated macro owns it`);
+  }
+}
+check(numeric(macros.TimingObservedN) === device.wallClockElapsedMs.observedN, `TimingObservedN=${macros.TimingObservedN} but device-summary.json reports ${device.wallClockElapsedMs.observedN}`);
+
 // ---- 3. Device narrative agrees with the committed summaries --------------
 
 const terminal = device.terminalStatuses;

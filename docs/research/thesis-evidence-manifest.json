@@ -21,6 +21,7 @@
     "completedEndToEndWorkflowsN": 203,
     "failedDeviceWorkflowsN": 30,
     "validPssTelemetryN": 98,
+    "validTimingTelemetryN": 101,
     "flowdroidReceiptsN": 1,
     "flowdroidXmlArtifactsN": 0
   },
@@ -39,6 +40,11 @@
       "id": "FLOWDROID_BASELINE_RECEIPT",
       "path": "testing-report/academic-baseline-2026-08-22/flowdroid-wps-rerun/flowdroid-receipt.json",
       "sha256": "1bc7781903d2fccc85ad5ea7a45a0b32769409ce05318a4b8d95d2adc9c0baf0"
+    },
+    {
+      "id": "DEVICE_REDACTED_SAMPLES",
+      "path": "experiments/thesis-results/device-metrics-redacted.json",
+      "sha256": "b1ffb0c21c8a248509db6df6d56524ce2c34e76d7fd1994b6de1d2ba4917510c"
     }
   ],
   "formalEvidence": {

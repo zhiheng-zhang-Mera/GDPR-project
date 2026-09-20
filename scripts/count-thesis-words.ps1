@@ -1,10 +1,30 @@
 param(
     [string]$MainFile = "Thesis Version\main-16.tex",
-    [string]$TexCountPath = "D:\Tools\TinyTeX\TinyTeX\bin\windows\texcount.exe",
+    [string]$TexCountPath,
     [int]$MinimumWords = 25000
 )
 
 $ErrorActionPreference = "Stop"
+
+# Resolve texcount from the caller, then PATH, rather than assuming one host's
+# TeX installation directory.
+if (-not $TexCountPath) {
+    $onPath = Get-Command texcount -ErrorAction SilentlyContinue
+    if ($onPath) {
+        $TexCountPath = $onPath.Source
+    } else {
+        foreach ($candidate in @(
+            "$env:LOCALAPPDATA\Programs\MiKTeX\miktex\bin\x64\texcount.exe",
+            "C:\Program Files\MiKTeX\miktex\bin\x64\texcount.exe",
+            "/usr/bin/texcount"
+        )) {
+            if (Test-Path -LiteralPath $candidate) { $TexCountPath = $candidate; break }
+        }
+    }
+}
+if (-not $TexCountPath) {
+    throw "texcount was not found. Install TeX Live or MiKTeX, or pass -TexCountPath."
+}
 
 $candidateMain = $MainFile
 if (-not [IO.Path]::IsPathRooted($candidateMain) -and -not (Test-Path -LiteralPath $candidateMain)) {

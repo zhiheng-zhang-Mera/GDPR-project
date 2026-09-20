@@ -8,8 +8,7 @@ const quantile = (sorted, q) => {
   const i = (sorted.length - 1) * q;
   const lo = Math.floor(i), hi = Math.ceil(i);
   return sorted[lo] + (sorted[hi] - sorted[lo]) * (i - lo);
-};
-const stats = (values) => {
+};const stats = (values) => {
   const x = values.filter(Number.isFinite).sort((a, b) => a - b);
   if (!x.length) return { observedN: 0, mean: null, sd: null, median: null, q1: null, q3: null, iqr: null, p95: null, min: null, max: null };
   const mean = x.reduce((a, b) => a + b, 0) / x.length;
@@ -26,7 +25,27 @@ const statuses = Object.fromEntries([...new Set(device.samples.map(x=>x.terminal
 const deviceSummary = { schema:'privacy-lens.device-summary.v1', eligibleN:device.samples.length, terminalStatuses:statuses, completedN:statuses.COMPLETED||0, memoryPssKb:stats(device.samples.map(x=>x.memoryPssKb)), wallClockElapsedMs:stats(device.samples.filter(x=>x.terminalStatus==='COMPLETED').map(x=>x.wallClockElapsedMs)), caveat:'Single OPPO device bounded workflows; metrics are engineering observations, not population performance or causal overhead.' };
 const missingness = { schema:'privacy-lens.missingness-summary.v1', metrics:[{metric:'terminalStatus',eligibleN:device.samples.length,observedN:device.samples.length,missingN:0,reasons:{}},{metric:'memoryPssKb',eligibleN:deviceSummary.completedN,observedN:deviceSummary.memoryPssKb.observedN,missingN:deviceSummary.completedN-deviceSummary.memoryPssKb.observedN,reasons:{TELEMETRY_UNAVAILABLE:deviceSummary.completedN-deviceSummary.memoryPssKb.observedN}},{metric:'wallClockElapsedMs',eligibleN:deviceSummary.completedN,observedN:deviceSummary.wallClockElapsedMs.observedN,missingN:deviceSummary.completedN-deviceSummary.wallClockElapsedMs.observedN,reasons:{TELEMETRY_UNAVAILABLE:deviceSummary.completedN-deviceSummary.wallClockElapsedMs.observedN}},{metric:'flowdroidXmlArtifact',eligibleN:1,observedN:flow.status==='COMPLETED_WITH_RESULT_ARTIFACT'?1:0,missingN:flow.status==='COMPLETED_WITH_RESULT_ARTIFACT'?0:1,reasons:{TOOL_NO_ARTIFACT:flow.status==='COMPLETED_WITH_RESULT_ARTIFACT'?0:1}}], caveat:'Operational reason taxonomy only; no MCAR, MAR, or MNAR mechanism is asserted.' };
 const flowSummary = {schema:'privacy-lens.flowdroid-summary.v1',receiptsN:1,statuses:{[flow.status]:1},xmlArtifactsN:flow.status==='COMPLETED_WITH_RESULT_ARTIFACT'?1:0,tool:flow.tool,caveat:flow.caveat};
-const tex = [`% Generated from committed receipts by scripts/summarize-thesis-results.js --write.`,`\\newcommand{\\DevicePssMedianKb}{${Math.round(deviceSummary.memoryPssKb.median)}}`,`\\newcommand{\\DevicePssQOneKb}{${Math.round(deviceSummary.memoryPssKb.q1)}}`,`\\newcommand{\\DevicePssQThreeKb}{${Math.round(deviceSummary.memoryPssKb.q3)}}`,`\\newcommand{\\DeviceTimingMedianMs}{${Math.round(deviceSummary.wallClockElapsedMs.median)}}`,`\\newcommand{\\DeviceTimingQOneMs}{${Math.round(deviceSummary.wallClockElapsedMs.q1)}}`,`\\newcommand{\\DeviceTimingQThreeMs}{${Math.round(deviceSummary.wallClockElapsedMs.q3)}}`,``].join('\n');
+// Device percentile macros are emitted here from the generated summary and are
+// re-exported into Thesis/Final/generated-results.tex by
+// scripts/verify-thesis-evidence.js, which is the file the thesis inputs. Keep
+// the two in step: tests/runThesisNumberConsistencyTests.js checks both.
+//
+// Values keep full precision because the recorded statistics carry fractional
+// parts (for example a 53,603.5 KB median). `\num{}` from siunitx would format
+// them, but adding a package dependency to change how a number looks is not
+// worth it, so the raw value is emitted and the thesis states it as-is.
+const texNumber = (value) => (value === null ? 'NOT\\_AVAILABLE' : String(value));
+const tex = [
+  `% Generated from committed receipts by scripts/summarize-thesis-results.js --write.`,
+  `% Re-exported into Thesis/Final/generated-results.tex by scripts/verify-thesis-evidence.js --write.`,
+  `\\newcommand{\\DevicePssMedianKb}{${texNumber(deviceSummary.memoryPssKb.median)}}`,
+  `\\newcommand{\\DevicePssQOneKb}{${texNumber(deviceSummary.memoryPssKb.q1)}}`,
+  `\\newcommand{\\DevicePssQThreeKb}{${texNumber(deviceSummary.memoryPssKb.q3)}}`,
+  `\\newcommand{\\DeviceTimingMedianMs}{${texNumber(deviceSummary.wallClockElapsedMs.median)}}`,
+  `\\newcommand{\\DeviceTimingQOneMs}{${texNumber(deviceSummary.wallClockElapsedMs.q1)}}`,
+  `\\newcommand{\\DeviceTimingQThreeMs}{${texNumber(deviceSummary.wallClockElapsedMs.q3)}}`,
+  ``,
+].join('\n');
 const outputs = {'fdroid-summary.json':stable(fdroid),'device-summary.json':stable(deviceSummary),'flowdroid-summary.json':stable(flowSummary),'missingness-summary.json':stable(missingness),'generated-results.tex':tex};
 const dir = path.join(root,'output/thesis-results');
 if (process.argv.includes('--write')) { fs.mkdirSync(dir,{recursive:true}); for(const [n,v] of Object.entries(outputs)) fs.writeFileSync(path.join(dir,n),v); }
