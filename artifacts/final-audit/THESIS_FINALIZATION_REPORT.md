@@ -5,19 +5,32 @@ closure for the Privacy Lens GDPR/privacy thesis artifact.
 
 ## A. Final status
 
-**`SUBMISSION_READY_WITH_MINOR_MANUAL_ITEMS`**
+**`SUBMISSION_READY`**
 
 Every claim the thesis makes is supported by a real, re-runnable artifact on a
 clean second host, every published number reproduces exactly or is honestly
-classified as historical, and the canonical reproduction command is green with a
-clean tree. One tracked deliverable — the rendered thesis PDF — is stale
-relative to its own source because this host cannot drive the LaTeX package
-installer, and closing it needs a working TeX distribution rather than a
-judgement call.
+classified as historical, the canonical reproduction command is green with a
+clean tree, and the shipped thesis PDF now matches the corrected source and is
+verified to contain no retracted figure.
 
 The gate was not lowered to reach this verdict. The starting commit **failed**
 the canonical reproduction command on this host, and the failure was fixed
-rather than waived.
+rather than waived. The last remaining blocker — a thesis PDF that predated the
+chapter-5 corrections — has been closed by re-rendering it from the corrected
+source and adding checks that would catch the same drift again.
+
+### Submission-layer closure (follow-up round)
+
+The publication layer was closed in a second pass:
+
+| Item | Before | After |
+|---|---|---|
+| Thesis PDF | Rendered 2026-09-08, contained the retracted 150,010 figure and the pre-correction chapter-5 statements | Re-rendered from the corrected source; `150,010` absent, `112,236` and the corrected statements present |
+| PDF render | Hand-built; no command could regenerate it | `npm run reproduce:thesis-pdf` renders it byte-reproducibly (`SOURCE_DATE_EPOCH` pinned); two consecutive builds produced identical digests |
+| PDF content checking | None; `verify:delivery` checked only that the file exists | `npm run verify:pdf` extracts both PDFs' prose and fails on a missing corrected claim or a reappearing retracted figure; part of `reproduce:thesis-core` |
+| `SHA256SUMS.txt` | Hand-maintained; still certified the old PDF digest | Derived from disk and checked by `npm run verify:submission-manifest` |
+| Submission manifest | Did not exist | `artifacts/final-audit/SUBMISSION_MANIFEST.json`, generated and verified |
+| Device statistics formatting | Macros rendered `53603.5` without a thousands separator | `siunitx` in the preamble; macros emit full-precision values wrapped in `\num{}` |
 
 ## B. Git state
 
@@ -73,7 +86,7 @@ The remaining commits on the branch only amend this audit document.
 | 13 | `verify:formal-properties` printed "9/9 curated mutants detected" while executing no test | Misleading artifact documentation | Report reworded; it now states it is a structural check and names `verify:mutation` for execution |
 | 14 | The 50 ms burst assertion was an absolute wall-clock bound inside a suite that `verify:mutation` runs ten times | A loaded runner would have produced a spurious "mutant detected" | Budget calibrated on the host with a floor and an explicit multiple |
 | 15 | `count-thesis-words.ps1` hard-coded one host's TinyTeX path | Threw on any other host | Resolves `texcount` from PATH or the caller |
-| 16 | `verify:claim-boundaries` and `verify:claim-paths` did not scan `README.md` or `ARTIFACT.md` | The two documents a reader sees first were unprotected | Both scanners extended; cited paths checked rose from 10 to 62 |
+| 16 | `verify:claim-boundaries` and `verify:claim-paths` did not scan `README.md` or `ARTIFACT.md` | The two documents a reader sees first were unprotected | Both scanners extended; cited paths checked rose from 10 to 61 |
 
 ### Tests and verification added
 
@@ -136,7 +149,7 @@ Observed on the Alien host at the final revision. All exit 0.
 | `verify:mutation` | 9 mutants detected | 0 | 0 | 77.4 s |
 | `verify:thesis-evidence` | 12 metrics / 4 pinned sources | 0 | 0 | |
 | `verify:claim-boundaries` | narrative + production tokens | 0 | 0 | |
-| `verify:claim-paths` | 62 paths / 45 documents | 0 | 0 | |
+| `verify:claim-paths` | 61 paths / 45 documents | 0 | 0 | |
 | `verify:latex` | 11 TeX / 9 labels / 56 citations | 0 | 0 | source quality only |
 | `verify:generated-results` | 4 summary files | 0 | 0 | |
 | `verify:mapping-review` | 13 items | 0 | 0 | |
@@ -255,13 +268,18 @@ satisfied. Full argument in `ANDROID_RUNTIME_JUSTIFICATION.md`.
 
 | ID | Item | WHY_MANUAL | IMPACT | EXACT_ACTION | ESTIMATED_IMPORTANCE |
 |---|---|---|---|---|---|
-| I-1 | Re-render the thesis PDFs | This host's MiKTeX package installer blocks on a dependency prompt with CPU idle and no way to answer it. `pdflatex` compiles a minimal document in 0.5 s but hangs on anything loading `geometry`. Not a code or research decision | **High.** The shipped PDF still contains the retracted 150,010 figure and the pre-correction chapter-5 statements, while the source and everything else are corrected | On a host with a working TeX Live or MiKTeX distribution: `cd Thesis/Final && pdflatex -interaction=nonstopmode main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex`, then copy `Thesis/Final/main.pdf` over `output/pdf/Privacy-Lens-Thesis-Final.pdf` and `release/submission-final/Privacy-Lens-Thesis-Final.pdf`, and regenerate `release/submission-final/SHA256SUMS.txt`. Then commit and confirm `verify:delivery` still passes | Blocker for submission |
+| ~~I-1~~ | ~~Re-render the thesis PDFs~~ | **CLOSED.** A TeX Live 2026 installation (TinyTeX) was found on this host; the earlier failure was MiKTeX-specific. The thesis was re-rendered byte-reproducibly, the published PDFs replaced, `SHA256SUMS.txt` regenerated, and `verify:pdf` added so the same drift cannot recur silently | — | Done. Use `npm run reproduce:thesis-pdf` if a future source change requires another render | Closed |
 | I-2 | Observe CI on a real runner | GitHub Actions cannot be executed from this host. The workflow YAML is edited and locally equivalent commands all pass, but no runner has executed it | Medium. The three CI jobs are unvalidated as CI; a YAML or `setup-android` mistake would only show on push | Push the branch and watch the three jobs. The core job is unchanged from the previously working configuration; the research-reproduction and Android-units jobs are new | High |
-| I-3 | Confirm the Docker/self-hosted Node 20 path | The declared engine range is `>=20 <25` and CI targets Node 20, but this host ran Node 24.14.1 only | Low. Every suite passes on 24.14.1, so the range is honest at the top end; the bottom end is untested here | Run `npm ci && npm run reproduce:thesis-core` under Node 20 | Medium |
+| I-3 | Confirm the Node 20 path | The declared engine range is `>=20 <25` and CI targets Node 20, but this host ran Node 24.14.1 only | Low. Every suite passes on 24.14.1, so the range is honest at the top end; the bottom end is untested here | Run `npm ci && npm run reproduce:thesis-core` under Node 20 | Medium |
 | I-4 | Decide on the 24 npm advisories | Remediation choices (upgrade vs. accept vs. override) are a maintenance policy decision with no single correct answer, and changing transitive versions could alter resolved behaviour | Low to medium. The app requests no sensitive permission and performs no network I/O, which bounds exposure, but the advisories remain unreviewed | Triage with `npm audit` and either pin safe versions or record an accepted-risk note in `docs/` | Medium |
 | I-5 | Independent legal mapping review | Requires a qualified legal reviewer. Structurally unavailable to any automated process; `manifest.independentReview.status` is `NOT_RUN` and the manifest enforces that | High for the legal-validity claim, which the thesis already declares unestablished | Commission the 13-item packet in `experiments/mapping-review/v1/` from an independent qualified reviewer and record agreement statistics | Owner decision |
 | I-6 | Participant comprehension and accessibility study | Requires human participants and ethics approval | High for the human-validity claim, already declared unestablished | Execute the preregistered study in `docs/research/decision-pause-preregistration.md` | Owner decision |
 | I-7 | Decide whether to add Robolectric for the `BuildConfig.DEBUG` gate | Adds a large test dependency to cover one boolean whose behaviour is already covered by a source contract and a device receipt. The cost/benefit trade-off is a maintainer preference | Low | `testImplementation("org.robolectric:robolectric:4.x")` and a `@RunWith(RobolectricTestRunner::class)` test asserting the release build rejects the controlled fixture | Nice to have |
+
+**No submission blocker remains.** Items I-2 to I-7 are non-blocking: I-2 and
+I-3 are environment verification, I-4 is dependency maintenance, I-5 and I-6
+require external people or authority and are already declared unestablished in
+the thesis, and I-7 is optional additional coverage.
 
 Items deliberately **not** listed because they are ordinary engineering work
 already completed in this branch: any test, script, documentation, CI, cleanup,
@@ -272,6 +290,7 @@ number calibration, or reproducibility change described in section C.
 | File | Contents |
 |---|---|
 | `THESIS_FINALIZATION_REPORT.md` | This report |
+| `SUBMISSION_MANIFEST.json` | Machine-readable submission manifest: PDF identity and digest, release version, evidence counts, build status, known limitations, and blocker classification |
 | `ENVIRONMENT_BASELINE.md` | Repo provenance and full host/toolchain inventory |
 | `PROJECT_FACT_BASELINE.md` | What the project is, its pipelines, inputs, outputs, tests, and claim classes |
 | `CLAIM_EVIDENCE_MATRIX.md` | Claim · location · required evidence · actual evidence · reproducible? · status |

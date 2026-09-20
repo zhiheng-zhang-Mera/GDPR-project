@@ -5,6 +5,15 @@
 \geometry{left=2.7cm,right=2.7cm,top=2.6cm,bottom=2.6cm}
 \usepackage{lmodern,microtype,setspace}
 \usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
+% siunitx formats the measured statistics so that thousands separators are
+% restored without truncating the fractional part the receipts record.
+\usepackage[
+  group-separator={,},
+  group-minimum-digits=4,
+  round-mode=places,
+  round-precision=4,
+  round-pad=false
+]{siunitx}
 \usepackage[hidelinks]{hyperref}
 \pgfplotsset{compat=1.18}
 \usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,matrix,calc}

@@ -82,7 +82,7 @@ Android backup is disabled. App-private storage is not tamper-resistant. Uninsta
 Required baseline:
 
 - Node.js 20 or later and npm;
-- Java 21;
+- Java 17 or later (CI uses 17; the release build was verified on 21);
 - Android SDK/compile target 36;
 - Expo 54-compatible Android NDK;
 - PowerShell 5+ on Windows for the included QA scripts.

@@ -64,6 +64,18 @@ for (const name of ['main.tex', 'chapter-01.tex', 'chapter-02.tex', 'chapter-03.
   }
 }
 
+// The submission package ships its own ARTIFACT.md. It previously drifted from
+// the root copy and certified a description of the verification pipeline that
+// the pipeline no longer matched, so the two must stay identical.
+{
+  const canonicalArtifact = path.join(root, 'ARTIFACT.md');
+  const packagedArtifact = path.join(root, 'release', 'submission-final', 'ARTIFACT.md');
+  if (fs.existsSync(canonicalArtifact) && fs.existsSync(packagedArtifact)
+    && !fs.readFileSync(canonicalArtifact).equals(fs.readFileSync(packagedArtifact))) {
+    fail('release/submission-final/ARTIFACT.md differs from the root ARTIFACT.md');
+  }
+}
+
 const packageJson = JSON.parse(read('package.json'));
 const appJson = JSON.parse(read('app.json'));
 const gradle = read('android/app/build.gradle');

@@ -1,0 +1,100 @@
+{
+  "schema": "privacy-lens.submission-manifest.v1",
+  "generatedBy": "scripts/write-submission-manifest.js --write",
+  "thesis": {
+    "pdfFile": "output/pdf/Privacy-Lens-Thesis-Final.pdf",
+    "packagedPdfFile": "release/submission-final/Privacy-Lens-Thesis-Final.pdf",
+    "pdfSha256": "bd9625fd29835576281fea80e5d45ac2156efb6027340fad288a0ea11df2fb87",
+    "pdfBytes": 579798,
+    "pdfPages": 85,
+    "pdfCreatedAt": "2026-09-01T07:00:00",
+    "sourceDirectory": "Thesis/Final",
+    "inputFile": "Thesis/Final/main.tex",
+    "buildProcedure": [
+      "pdflatex -interaction=nonstopmode -halt-on-error main.tex",
+      "bibtex main",
+      "pdflatex -interaction=nonstopmode -halt-on-error main.tex",
+      "pdflatex -interaction=nonstopmode -halt-on-error main.tex"
+    ],
+    "toolchain": "TeX Live 2026 via TinyTeX (pdfTeX 1.40.29)"
+  },
+  "release": {
+    "version": "1.15.0",
+    "packageJsonVersion": "1.15.0",
+    "sourceBaselineSha": "727056c4b29065a4c21ab9bc291c85ca8fa93d5f"
+  },
+  "evidence": {
+    "measuredStressAssertions": 112236,
+    "pinnedStressAssertions": 112236,
+    "stressRuleMatches": 22246,
+    "formalPropertiesN": 9,
+    "curatedMutantsN": 9,
+    "curatedMutantsDetectedN": 9,
+    "kotlinJvmTestsN": 24,
+    "fdroidCensusN": 495,
+    "devicePackagesN": 233,
+    "completedWorkflowsN": 203,
+    "failedDeviceWorkflowsN": 30,
+    "pssObservedN": 98,
+    "timingObservedN": 101
+  },
+  "canonicalReproduction": {
+    "command": "npm run reproduce:thesis-core",
+    "expectedExit": 0,
+    "leavesTrackedGeneratedFilesUnchanged": true
+  },
+  "heavierReproduction": {
+    "reproduce:thesis-stress": "runs the fixed-seed temporal campaign twice and requires identical deterministic results",
+    "verify:mutation": "applies each registered source weakening in an isolated tree and requires detection",
+    "test:android-unit": "runs the host-JVM Kotlin unit tests; no device or emulator"
+  },
+  "androidArtifacts": {
+    "note": "Built on the Alien host with gradlew :app:assembleRelease :app:bundleRelease. APK/AAB are excluded from source control by policy.",
+    "apkBytes": 62969819,
+    "apkSha256": "ec74f7df4832a00a830e0902790c46b258e0e51a7653411e7e46b4c59728ad14",
+    "aabBytes": 31811673,
+    "aabSha256": "d9b3d31c47e2eb54e24588f8ae9173d93d4c2f9c271c422ef16152f4de7e4cc6",
+    "buildSeconds": 245,
+    "packagedPermissions": [
+      "android.permission.WAKE_LOCK",
+      "android.permission.RECEIVE_BOOT_COMPLETED",
+      "android.permission.FOREGROUND_SERVICE",
+      "com.zhihengzhang.privacylens.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "sensitiveRuntimePermissions": 0
+  },
+  "stalePdfWarningStatus": "OBSOLETE_REMOVED",
+  "knownLimitations": [
+    {
+      "id": "L-1",
+      "classification": "NON_BLOCKING_LIMITATION",
+      "text": "The 233-package device campaign and the FlowDroid invocation are not reproducible from this repository; their receipts are pinned by hash and their derived metrics are re-verified on every run."
+    },
+    {
+      "id": "L-2",
+      "classification": "NON_BLOCKING_LIMITATION",
+      "text": "The PSS and timing percentiles are recomputed from a pinned redacted per-sample extract; the upstream raw receipts are referenced by SHA-256 but not redistributed."
+    },
+    {
+      "id": "L-3",
+      "classification": "NON_BLOCKING_LIMITATION",
+      "text": "Release APK/AAB bytes are host-dependent; size and permission facts reproduce, binary hashes do not."
+    },
+    {
+      "id": "L-4",
+      "classification": "NON_BLOCKING_LIMITATION",
+      "text": "Independent legal mapping review, participant comprehension, accessibility conformance, multi-OEM reliability, production signing and store acceptance are not established."
+    },
+    {
+      "id": "L-5",
+      "classification": "NON_BLOCKING_LIMITATION",
+      "text": "No Robolectric or instrumentation test covers the BuildConfig.DEBUG gate; it is covered by a source contract and a device receipt."
+    },
+    {
+      "id": "L-6",
+      "classification": "INFORMATIONAL_ONLY",
+      "text": "24 npm advisories remain in transitive dependencies; the app requests no sensitive runtime permission and performs no network I/O."
+    }
+  ],
+  "submissionBlockers": []
+}

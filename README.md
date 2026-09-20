@@ -88,6 +88,8 @@ Each command is labelled with what it needs. `HOST-ONLY` means one machine and n
 | `npm run verify` | HOST-ONLY | The same checks plus executable mutation detection |
 | `npm run reproduce:thesis-stress` | HOST-ONLY | The high-volume fixed-seed temporal campaign, run twice, requiring identical deterministic results. Writes receipts under `artifacts/reproduction/` |
 | `npm run verify:mutation` | HOST-ONLY | Applies each registered source weakening in a throwaway tree, recompiles, and requires the suite to catch it |
+| `npm run verify:pdf` | HOST-ONLY | Extracts the text of both shipped thesis PDFs and fails if a corrected claim is missing or a retracted figure such as 150,010 has reappeared. Runs as part of `reproduce:thesis-core` |
+| `npm run reproduce:thesis-pdf` | OPTIONAL (TeX Live or TinyTeX) | Re-renders the thesis byte-reproducibly (`SOURCE_DATE_EPOCH` pinned) and reports whether the result matches the published digest |
 | `npm run test:android-unit` | HOST-ONLY (Android SDK + JDK) | 24 JUnit tests for the native audit-bridge mapping |
 | `npm run test:thesis-numbers` | HOST-ONLY | Thesis prose against pack sources, receipts, the evidence manifest, and generated macros |
 | `npm run android:qa` | OPTIONAL (Android SDK) | Debug APK for a device or emulator |
@@ -142,7 +144,7 @@ Never edit a tracked generated file by hand. `npm run verify:generated-results` 
 - Ordinary Android apps cannot read unrestricted AppOps history for other apps, so a blank audit is an evidence gap rather than proof that nothing occurred.
 - The device evidence comes from one OPPO PERM00 handset over a short interval; it is not a multi-OEM, long-run, or population result.
 - Independent legal mapping review, participant comprehension, accessibility conformance, production signing, and store acceptance have **not** been established.
-- The compiled thesis PDFs under `output/pdf/` and `release/submission-final/` were rendered before the final chapter-5 corrections and must be re-rendered with a working LaTeX installation (see `artifacts/final-audit/THESIS_FINALIZATION_REPORT.md`).
+- The thesis PDF is now rendered from the corrected source and checked for stale content on every `reproduce:thesis-core` run: `verify:pdf` fails if a retracted figure such as the old 150,010 stress total reappears. `npm run reproduce:thesis-pdf` re-renders it byte-reproducibly on any host with a TeX installation.
 - Reproducing a release APK yields different bytes than another host: builds embed environment-dependent metadata. Artifact size and permission facts reproduce; binary hashes do not.
 
 ### Troubleshooting
@@ -154,7 +156,7 @@ Never edit a tracked generated file by hand. `npm run verify:generated-results` 
 | `generated-results.tex is stale` | Run `node scripts/verify-thesis-evidence.js --write`, then `node scripts/summarize-thesis-results.js --write`. |
 | `chapter-split submission source differs from Thesis/Final` | Copy the named file from `Thesis/Final/` into `release/submission-final/tex/`. |
 | Gradle cannot find the Android SDK | Set `ANDROID_HOME`. The analysis scripts also honour `ANDROID_HOME`/`ANDROID_SDK_ROOT` and per-tool flags such as `--aapt`. |
-| `pdflatex` hangs on the thesis | The host's LaTeX distribution is trying to install packages interactively. This does not affect `npm run reproduce:thesis-core`; `verify:latex` checks source quality only. |
+| `pdflatex` hangs on the thesis | The host's LaTeX distribution is trying to install packages interactively. Install TeX Live or TinyTeX, or set `PDFLATEX_BIN` to a directory containing `pdflatex`. `verify:pdf` and `reproduce:thesis-core` work without a TeX installation; only `reproduce:thesis-pdf` needs one. |
 
 ### Repository map
 
@@ -235,6 +237,8 @@ npm start
 | `npm run verify` | 仅主机 | 上述全部检查，外加可执行的变异检测 |
 | `npm run reproduce:thesis-stress` | 仅主机 | 固定随机种子的高量时序压力测试，连续运行两次并要求确定性结果完全一致，回执写入 `artifacts/reproduction/` |
 | `npm run verify:mutation` | 仅主机 | 在临时目录中逐个注入已登记的源码弱化并重新编译，要求测试必须捕获 |
+| `npm run verify:pdf` | 仅主机 | 提取两份论文 PDF 的文本，若修正后的表述缺失或已撤回的旧数字（如 150,010）重新出现则失败。已包含在 `reproduce:thesis-core` 中 |
+| `npm run reproduce:thesis-pdf` | 可选（TeX Live 或 TinyTeX） | 逐字节可复现地重新渲染论文（固定 `SOURCE_DATE_EPOCH`），并报告结果是否与已发布摘要一致 |
 | `npm run test:android-unit` | 仅主机（需 Android SDK 与 JDK） | 原生审计桥接映射的 24 个 JUnit 测试 |
 | `npm run test:thesis-numbers` | 仅主机 | 论文正文与法规包源码、实验回执、证据清单、生成宏之间的一致性 |
 | `.\android\gradlew.bat assembleRelease bundleRelease` | 可选（Android SDK 与 NDK） | 发布 APK 与 AAB |
@@ -248,7 +252,7 @@ F-Droid 语料抓取、233 个安装包的设备实验和 FlowDroid 调用**无�
 - 普通 Android 应用无法读取其他应用不受限制的 AppOps 历史，空白审查结果属于证据缺口，而非“没有发生”；
 - 设备证据来自一台 OPPO PERM00 与一个短时窗口，不代表多 OEM、长时间或总体结果；
 - 独立法律映射复核、用户理解实验、无障碍合规、生产签名与商店审核**均未**完成；
-- `output/pdf/` 与 `release/submission-final/` 下的论文 PDF 渲染于最终第 5 章修订之前，需要用可用的 LaTeX 环境重新渲染（见 `artifacts/final-audit/THESIS_FINALIZATION_REPORT.md`）；
+- `output/pdf/` 与 `release/submission-final/` 下的论文 PDF 已由修正后的源码重新渲染；`reproduce:thesis-core` 每次都会运行 `verify:pdf`，一旦已撤回的旧数字（例如 150,010）重新出现即会失败。在装有 TeX 的主机上可用 `npm run reproduce:thesis-pdf` 逐字节可复现地重新渲染；
 - 不同主机构建出的 APK 字节不同：构建会嵌入环境相关信息。体积与权限事实可复现，二进制哈希不可复现。
 
 ### 故障排查
@@ -260,7 +264,7 @@ F-Droid 语料抓取、233 个安装包的设备实验和 FlowDroid 调用**无�
 | 出现 `generated-results.tex is stale` | 依次运行 `node scripts/verify-thesis-evidence.js --write` 与 `node scripts/summarize-thesis-results.js --write` |
 | 出现 `chapter-split submission source differs from Thesis/Final` | 将报错文件从 `Thesis/Final/` 复制到 `release/submission-final/tex/` |
 | Gradle 找不到 Android SDK | 设置 `ANDROID_HOME`。分析脚本同样支持 `ANDROID_HOME`/`ANDROID_SDK_ROOT` 以及 `--aapt` 等单工具参数 |
-| 编译论文时 `pdflatex` 卡住 | 本机 LaTeX 发行版正在交互式安装宏包。这不影响 `npm run reproduce:thesis-core`；`verify:latex` 只做源质量检查 |
+| 编译论文时 `pdflatex` 卡住 | 本机 LaTeX 发行版正在交互式安装宏包。请安装 TeX Live 或 TinyTeX，或用 `PDFLATEX_BIN` 指向含 `pdflatex` 的目录。`verify:pdf` 与 `reproduce:thesis-core` 无需 TeX 即可运行，只有 `reproduce:thesis-pdf` 需要 |
 
 ### 阅读顺序
 

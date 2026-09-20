@@ -55,7 +55,7 @@ macro file, and fails if a chapter hard-codes a value that a macro owns.
 | Mapping packet 13 atomic items | `generate-mapping-review.js` | exact |
 | Nine safety properties, nine curated mutants | `safety-property-catalog.json` | exact, now executable |
 
-All 17 generated macros agree with the evidence manifest, and the abstract
+All 24 generated macros agree with the evidence manifest, and the abstract
 references the macros rather than literals.
 
 ## 2. Inconsistencies found and corrected
@@ -160,32 +160,66 @@ folded into a denominator as zero.
   by `verify-delivery.js`, so the submitted source cannot drift from the checked
   source.
 
-## 6. Residual limitation
+## 6. Residual limitation — CLOSED
 
 The LaTeX PDFs tracked at `output/pdf/Privacy-Lens-Thesis-Final.pdf` and
 `release/submission-final/Privacy-Lens-Thesis-Final.pdf` were rendered on the
-original host **before** the chapter-5 corrections, and this environment cannot
-re-render them (see `ALIEN_CLEAN_BUILD_REPORT.md` §5).
+original host **before** the chapter-5 corrections, and this environment
+initially could not re-render them.
 
 An independent audit confirmed the consequence by inflating the PDF content
-stream: the shipped PDF still contains the superseded sentence "a separate
+stream: the shipped PDF still contained the superseded sentence "a separate
 fixed-seed driver was executed twice against the compiled delivered source. Each
-execution completed 150,010 assertions in approximately 6.7 seconds", and it does
+execution completed 150,010 assertions in approximately 6.7 seconds", and it did
 not contain `112,236`, `verify:mutation`, or either corrected chapter-5
-statement. Its PDF metadata records creation on 2026-09-08.
+statement. Its PDF metadata recorded creation on 2026-09-08.
 
-So the PDF is not merely stale in formatting: **it states two claims the
-repository has since corrected or retracted** (the 150,010 figure and the
-pre-correction mutation claim) and it predates the corrected legal-review-gate
-and dashboard-summary statements. This is the largest remaining divergence
-between a tracked artifact and its source, and it is the reason the verdict in
-`THESIS_FINALIZATION_REPORT.md` is not `SUBMISSION_READY`.
+So the PDF was not merely stale in formatting: **it stated two claims the
+repository had since corrected or retracted** (the 150,010 figure and the
+pre-correction mutation claim) and it predated the corrected legal-review-gate
+and dashboard-summary statements.
 
-It is disclosed in `README.md` under "Known limitations" and in this report.
-`verify:latex` validates source quality and states explicitly that PDF
-compilation is a separate rendered-artifact check; `verify-delivery` currently
-checks only that the PDF exists. No script in the repository detects stale PDF
-content, and adding such a check would require a PDF text extractor that is not a
-current dependency.
+**Resolution.** A complete TeX Live 2026 distribution (TinyTeX) was present on
+the host at `D:\Tools\TinyTeX\TinyTeX`. The earlier blocking attempt had used
+MiKTeX, whose package installer waits on an interactive dependency prompt;
+TinyTeX already carried every package the preamble needs, so all four
+documentation and bibliography passes complete in about eight seconds. The
+thesis was re-rendered from the corrected source and the published PDFs were
+replaced.
+
+The render is now reproducible rather than hand-built:
+
+- `npm run reproduce:thesis-pdf` runs the four-pass build in a temporary
+  directory with `SOURCE_DATE_EPOCH` pinned, so identical sources produce
+  byte-identical output. Two consecutive rebuilds produced the same digest.
+- `npm run verify:pdf` extracts the prose of both shipped PDFs and fails if a
+  corrected statement is missing or a retracted figure has reappeared. It runs as
+  part of `reproduce:thesis-core`.
+- `npm run verify:submission-manifest` regenerates and checks
+  `release/submission-final/SHA256SUMS.txt` and
+  `artifacts/final-audit/SUBMISSION_MANIFEST.json`, both now derived from the
+  files on disk. The checksum list had been hand-maintained and still certified
+  the old PDF digest.
+
+Verified after the re-render: the shipped PDF contains `112,236`, `40,000`,
+`10,000`, `20,000`, the corrected dashboard summary ("two evidence gaps"), the
+corrected withdrawal statement, the `9/9` mutation result, and the
+`npm run verify:mutation` command reference; and it does **not** contain
+`150,010`, the 6.7-second sentence, the retracted one-gap summary, or the
+retracted no-concern sentence. The absence check for the removed
+`evidenceAdmission` identifier is performed against the PDF's raw and inflated
+bytes, because the narrative reports legitimately quote that identifier when
+describing the fix.
+
+The re-render also required two source-level typesetting decisions, neither of
+which changes thesis substance:
+
+- `siunitx` was added to the preamble so that generated device statistics keep
+  their thousands separators. Generated macros emit full-precision bare numbers
+  and the thesis wraps them in `\num{}`, so no measured digit is truncated by
+  formatting. Without this, `\DevicePssMedianKb` rendered as `53603.5` rather
+  than `53,603.5`.
+- Chapter 5 now names the `npm run verify:mutation` command explicitly, so the
+  mutation claim is traceable to its harness from the rendered document.
 
 Everything else in this document was verified against the corrected sources.

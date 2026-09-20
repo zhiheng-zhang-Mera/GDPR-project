@@ -30,10 +30,9 @@ const flowSummary = {schema:'privacy-lens.flowdroid-summary.v1',receiptsN:1,stat
 // scripts/verify-thesis-evidence.js, which is the file the thesis inputs. Keep
 // the two in step: tests/runThesisNumberConsistencyTests.js checks both.
 //
-// Values keep full precision because the recorded statistics carry fractional
-// parts (for example a 53,603.5 KB median). `\num{}` from siunitx would format
-// them, but adding a package dependency to change how a number looks is not
-// worth it, so the raw value is emitted and the thesis states it as-is.
+// Values keep full precision and are emitted as bare numbers. The thesis wraps
+// them in \num{} (siunitx), which restores thousands separators and preserves
+// the fractional part, so formatting never truncates the measurement.
 const texNumber = (value) => (value === null ? 'NOT\\_AVAILABLE' : String(value));
 const tex = [
   `% Generated from committed receipts by scripts/summarize-thesis-results.js --write.`,

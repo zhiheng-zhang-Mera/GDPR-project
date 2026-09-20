@@ -35,25 +35,32 @@ Run after the finalisation changes, in one pass:
 | 6 | `npm run test:accessibility` | 0 | 3.1 s | 5 files, 15 interactive touchables |
 | 7 | `npm run test:release-privacy` | 0 | 4.0 s | 37 source files + debug-only fixture gate |
 | 8 | `npm run test:experiments` | 0 | 33.9 s | corpus, runner, aggregation, FlowDroid scoring contracts |
-| 9 | `npm run test:thesis-numbers` | 0 | 3.1 s | 17 macros, 9 properties, 8 cross-references |
+| 9 | `npm run test:thesis-numbers` | 0 | 3.1 s | 24 macros, 9 properties, 8 cross-references |
 | 10 | `npm run verify:delivery` | 0 | 3.3 s | 36 files, 113 Markdown files, version 1.15.0 |
 | 11 | `npm run verify:formal-properties` | 0 | 3.1 s | 9 properties, 9/9 mutants |
-| 12 | `npm run verify:thesis-evidence` | 0 | 3.1 s | 11 metrics, 3 pinned sources |
+| 12 | `npm run verify:thesis-evidence` | 0 | 3.1 s | 12 metrics, 4 pinned sources |
 | 13 | `npm run verify:claim-boundaries` | 0 | 3.1 s | no legal-verdict tokens; high-risk prose qualified |
-| 14 | `npm run verify:claim-paths` | 0 | 3.2 s | 10 cited paths across 25 documents |
+| 14 | `npm run verify:claim-paths` | 0 | 3.2 s | 61 cited paths across 45 documents |
 | 15 | `npm run verify:latex` | 0 | 4.1 s | 11 TeX files, 9 labels, 56 citations |
 | 16 | `npm run verify:generated-results` | 0 | 3.1 s | F-Droid N=495, device N=233, PSS N=98 |
 | 17 | `npm run verify:mapping-review` | 0 | 3.1 s | 13 atomic items |
 | 18 | `npm run verify:mutation` | 0 | 77.4 s | baseline green, 9/9 mutants detected |
 | 19 | `npm run reproduce:thesis-stress` | 0 | 26.2 s | 112,236 assertions, two runs identical |
+| 20 | `npm run verify:pdf` | 0 | ~1 s | both shipped PDFs: 22 required fragments present, 6 retracted fragments absent |
+| 21 | `npm run verify:submission-manifest` | 0 | ~1 s | 17 checksums, PDF digest, 85 pages |
+| 22 | `npm run reproduce:thesis-pdf` | 0 | 9.7 s | render byte-identical to the published PDF |
 
-Total: 19 commands, all exit 0, no failures, no skips.
+Total: 22 commands, all exit 0, no failures, no skips.
 
 ### Canonical entry point
 
 | Command | Exit | Duration |
 |---|---|---|
-| `npm run reproduce:thesis-core` | 0 | 103.5–105.2 s (four runs) |
+| `npm run reproduce:thesis-core` | 0 | 103.5–110.4 s (five runs) |
+
+`reproduce:thesis-core` now also runs the PDF prose check and the submission
+manifest check, so a stale PDF or a stale checksum list fails the canonical
+command rather than passing silently.
 
 This is the command the CI workflow invokes. It was also run three times
 consecutively to confirm determinism: identical output, identical exit code, and
@@ -118,7 +125,7 @@ None of these prevented a successful build, and none is hidden.
 bibliography keys, stale markers, figure paths, duplicate paragraphs). It states
 explicitly that PDF compilation is a separate rendered-artifact check.
 
-An attempt was made to perform that render:
+An attempt was made to perform that render with the host's MiKTeX installation:
 
 | Command | Result |
 |---|---|
@@ -126,22 +133,33 @@ An attempt was made to perform that render:
 | `pdflatex` on a document loading `geometry` | **hangs indefinitely** |
 | `pdflatex main.tex` (thesis) | **hangs indefinitely**, three attempts, killed after 15+ minutes each |
 
-Diagnosis: `miKTeX`'s package manager reports unresolved dependencies
-(`ms`, `showframe`, `sttools`, `thailatex`, `luxie` and the transitive needs of
+Diagnosis: MiKTeX's package manager reports unresolved dependencies
+(`ms`, `showframe`, `sttools`, `thailatex`, `luxi` and the transitive needs of
 `geometry`) and then blocks while trying to obtain them, with CPU idle and no
 download activity logged. No interactive prompt is available to answer, so the
 install cannot complete. Setting `MIKTEX_AUTOINSTALL=no` did not change the
 behaviour, and `mpm`/`miktex packages install` could not resolve the names.
 
-Consequence: the two tracked thesis PDFs still contain the pre-finalisation
-chapter 5 and the older macro set. This is the single remaining divergence
-between a tracked artifact and its source, and it is listed as the principal
-manual item in `THESIS_FINALIZATION_REPORT.md` with the exact command to close
-it.
+**Resolution.** The failure was specific to MiKTeX, not to this host. A complete
+TeX Live 2026 distribution was already installed as TinyTeX at
+`D:\Tools\TinyTeX\TinyTeX`, and it carried every package the preamble needs.
+The thesis now renders in about eight seconds:
 
-This is an environment limitation of this host's LaTeX installation, not a
-repository defect: the LaTeX source itself passes every source-level check, and
-the PDF is a rendered derivative rather than research evidence.
+| Command | Result |
+|---|---|
+| `pdflatex` via TinyTeX (4 passes with `bibtex`) | **exit 0**, 85 pages, 579,798 bytes |
+| Rebuild with `SOURCE_DATE_EPOCH` pinned | **byte-identical** across consecutive runs (sha256 `a49ea44a6957b4e3…`) |
+
+The published PDFs were replaced with the fresh render, `SHA256SUMS.txt` was
+regenerated, and two guards were added so this cannot drift again silently:
+`npm run verify:pdf` extracts both PDFs' prose and fails on a missing corrected
+claim or a reappearing retracted figure, and it runs inside
+`reproduce:thesis-core`. `npm run reproduce:thesis-pdf` re-renders on demand.
+
+`reproduce:thesis-pdf` locates TeX from `PDFLATEX_BIN`, `TINYTEX_ROOT`, a set of
+conventional install paths, or `PATH`, and reports a clear skip rather than a
+failure when no TeX installation exists — so a runner without LaTeX still passes
+the content checks against the committed PDF.
 
 ## 6. Reproducibility observations
 

@@ -7,7 +7,7 @@ npm ci
 npm run reproduce:thesis-core
 ```
 
-For Android, install SDK platform/build-tools 36, NDK 27.1.12297006, CMake 3.22.1, and JDK 21, then run from `android`:
+For Android, install SDK platform/build-tools 36, NDK 27.1.12297006, CMake 3.22.1, and JDK 17 or later, then run from `android`:
 
 ```powershell
 .\gradlew.bat assembleRelease bundleRelease --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a

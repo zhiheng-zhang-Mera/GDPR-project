@@ -25,12 +25,12 @@ Runtime classes:
 | REPRODUCIBILITY, EVIDENCE_PIPELINE | `tests/runTemporalStressCampaign.ts` | TypeScript runner | HOST | 112,236 assertions; 6/6 rules matched; non-vacuity guard | ADDED |
 | REPRODUCIBILITY, MUTATION | `scripts/verify-mutation-detection.js` | Node, temp-tree recompile | HOST | 9 mutants, 9 detected | ADDED |
 | KOTLIN_JVM_UNIT | `android/app/src/test/.../ObservationMapperTest.kt` | JUnit 4 via `:app:testDebugUnitTest` | HOST | 24 tests | ADDED |
-| STATIC_ANALYSIS, EVIDENCE_PIPELINE | `tests/runThesisNumberConsistencyTests.js` | Node | HOST | 8 check groups over 17 macros, 9 properties, 8 cross-refs | ADDED |
-| STATIC_ANALYSIS, CORPUS | `scripts/verify-claim-paths.js` | Node | HOST | 10 cited paths across 25 documents | ADDED |
+| STATIC_ANALYSIS, EVIDENCE_PIPELINE | `tests/runThesisNumberConsistencyTests.js` | Node | HOST | 8 check groups over 24 macros, 9 properties, 8 cross-refs | ADDED |
+| STATIC_ANALYSIS, CORPUS | `scripts/verify-claim-paths.js` | Node | HOST | 61 cited paths across 45 documents | ADDED |
 | STATIC_ANALYSIS, BUILD | `scripts/verify-delivery.js` | Node | HOST | 36 required files, 113 Markdown files, chapter-split byte equality | PRESENT |
 | RULE_PACK, STATIC_ANALYSIS | `scripts/verify-safety-properties.js` | Node | HOST | 9 properties, catalogue consistency, mutant totals | PRESENT |
 | RULE_PACK | `scripts/generate-mapping-review.js` | Node | HOST | 13 atomic review items | PRESENT |
-| EVIDENCE_PIPELINE, REPRODUCIBILITY | `scripts/verify-thesis-evidence.js` | Node | HOST | 11 receipt-derived metrics, 3 pinned sources, 2 generated macro files | PRESENT (extended) |
+| EVIDENCE_PIPELINE, REPRODUCIBILITY | `scripts/verify-thesis-evidence.js` | Node | HOST | 12 receipt-derived metrics, 4 pinned sources, 2 generated macro files | PRESENT (extended) |
 | STATIC_ANALYSIS | `scripts/verify-claim-boundaries.js` | Node | HOST | legal-verdict tokens, high-risk prose qualification | PRESENT |
 | STATIC_ANALYSIS | `scripts/verify-latex-quality.js` | Node | HOST | 11 TeX files, 9 labels, 56 citations, 86 bibliography entries | PRESENT |
 | CORPUS, EVIDENCE_PIPELINE | `scripts/summarize-thesis-results.js` | Node | HOST | 4 generated summary files | PRESENT |

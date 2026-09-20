@@ -9,13 +9,32 @@ npm ci
 npm run reproduce:thesis-core
 ```
 
-This is the only canonical core entry point. It compiles and runs the semantic suites; checks accessibility-source, release-privacy, experiment, TypeScript, lint, and delivery contracts; verifies the nine formal safety properties and curated mutants; validates the mapping-review packet; regenerates corpus/device/FlowDroid summaries and LaTeX result macros; verifies the thesis evidence manifest and claim boundaries; and checks TeX inputs, labels, references, citations, bibliography keys, stale markers, figure paths, and duplicate long paragraphs.
+This is the only canonical core entry point. It compiles and runs the semantic suites; runs the fixed-seed temporal stress campaign and checks its deterministic totals against the evidence manifest; checks accessibility-source, release-privacy, experiment, TypeScript, lint, and delivery contracts; checks the safety-property catalogue structurally; validates the mapping-review packet; regenerates corpus/device/FlowDroid summaries and LaTeX result macros; recomputes the published device percentiles from the pinned redacted samples; verifies the thesis evidence manifest, thesis numeric consistency, and claim boundaries; checks that every repository path cited by the governing documents exists; and checks TeX inputs, labels, references, citations, bibliography keys, stale markers, figure paths, and duplicate long paragraphs.
 
-Expected terminal summaries include `Safety properties verified: 9 properties, 9/9 curated mutants detected`, `Thesis results verified: F-Droid N=495, device N=233, PSS N=98`, `Thesis evidence verified`, and `Thesis references verified`. A successful run must leave tracked generated files unchanged.
+Expected terminal summaries include `Safety-property catalogue verified: 9 properties`, `Thesis results verified: F-Droid N=495, device N=233, PSS N=98`, `Thesis evidence verified: 12 receipt-derived metrics, 4 pinned sources`, `Thesis numeric consistency verified`, `Claim-evidence path traceability verified`, and `Thesis references verified`. A successful run must leave tracked generated files unchanged.
+
+Note on `verify:formal-properties`: that command performs a **structural** check of `docs/research/safety-property-catalog.json` — that the catalogue is complete, internally consistent, and that each property names an existing test file containing its evidence marker. It does not execute a property test, and its output says so. The executable form of the curated mutation claim is `npm run verify:mutation` (see below), which is part of `npm run verify` but deliberately kept out of the core path because it recompiles the suite once per mutant.
+
+### Heavier reproduction commands
+
+Two claims are deliberately kept out of the default path because they are slower. Both are first-class reproduction entry points and are exercised by `npm run verify`.
+
+| Command | What it reproduces | Approximate cost |
+|---|---|---|
+| `npm run reproduce:thesis-stress` | Runs the full fixed-seed temporal stress campaign twice and requires both runs to agree on every deterministic field. Writes host-stamped receipts under `artifacts/reproduction/`. | ~20 s |
+| `npm run verify:mutation` | Applies each of the nine registered source weakenings in an isolated temporary tree, recompiles, and requires the compiled compliance suite to detect it. Fails if any mutant survives. Writes `artifacts/mutation/mutation-verification.json`. | ~80 s |
+| `npm run test:android-unit` | Host-JVM Kotlin unit tests for the native audit-bridge mapping. Requires the Android SDK and a JDK; no emulator or device. | ~45 s first run |
+| `npm run reproduce:thesis-pdf` | Re-renders the thesis from `Thesis/Final` in a temporary directory with `SOURCE_DATE_EPOCH` pinned, so identical sources give identical bytes, and reports whether the result matches the published digest. Needs TeX Live or TinyTeX; skipped with a clear message when none is present. | ~10 s |
+| `npm run verify:pdf` | Extracts the prose of both shipped thesis PDFs and fails if a corrected statement is missing or a retracted figure has reappeared. Part of `reproduce:thesis-core`. | ~2 s |
+| `npm run verify:submission-manifest` | Regenerates and checks `release/submission-final/SHA256SUMS.txt` and `artifacts/final-audit/SUBMISSION_MANIFEST.json` against the files on disk. Part of `reproduce:thesis-core`. | ~1 s |
 
 ## Reproducible claims
 
-The public artifact reproduces software-semantic conformance, curated mutation detection, regulation-pack isolation, typed-policy output restrictions, accessibility source contracts, evidence-manifest hashes, committed aggregate summaries, FlowDroid receipt interpretation, and thesis reference integrity. It can verify that a completed FlowDroid invocation without XML remains missing evidence.
+The public artifact reproduces software-semantic conformance, curated mutation detection, regulation-pack isolation, typed-policy output restrictions, accessibility source contracts, native audit-bridge mapping on the host JVM, evidence-manifest hashes, committed aggregate summaries, FlowDroid receipt interpretation, and thesis reference integrity. It can verify that a completed FlowDroid invocation without XML remains missing evidence.
+
+The curated mutation score is executable rather than declared. `npm run verify:mutation` copies the compilable sources to a temporary tree, applies one declared weakening per registered mutant, recompiles, and requires the compiled suite to fail. Each transformation is anchored to an exact source string and the script fails loudly if an anchor drifts, so a mutant can never be silently skipped. A surviving mutant fails the command.
+
+The high-volume temporal campaign is also in-repo. `npm run reproduce:thesis-stress` runs 40,000 randomised observation multisets against an independent count-and-window oracle, 10,000 partition/export/restore/resume cases, and 20,000 malformed-audit cases, and fails if any registered temporal rule is never matched.
 
 It does not reproduce the 233-package device campaign, the one-device UI session, a fresh FlowDroid invocation, legal mapping review, participant comprehension, multi-OEM behaviour, production signing, store acceptance, population prevalence, or GDPR compliance. Those require hardware, restricted inputs, independent people, external accounts, or authority not supplied by this repository.
 
@@ -42,7 +61,9 @@ The machine-specific Android platform path is receipt evidence, not a portable r
 
 ## Evidence and hashes
 
-The machine-readable authority is `docs/research/thesis-evidence-manifest.json`. It pins the F-Droid census, device aggregate, and FlowDroid receipt by SHA-256. `docs/research/release-identity.json` records package, branch, source baseline, and Android version metadata. `output/thesis-results/` is generated from committed summaries; `Thesis/Final/generated-results.tex` is generated from the evidence manifest.
+The machine-readable authority is `docs/research/thesis-evidence-manifest.json`. It pins the F-Droid census, the device aggregate, the device redacted per-sample metrics, and the FlowDroid receipt by SHA-256. `docs/research/release-identity.json` records package, branch, source baseline, and Android version metadata. `output/thesis-results/` is generated from committed summaries; `Thesis/Final/generated-results.tex` is generated from the evidence manifest.
+
+The published PSS and timing percentiles are **recomputed from the pinned redacted per-sample file** on every run of `verify:thesis-evidence`, not trusted as prose. That file is a redacted per-sample extract: the upstream raw device receipts it summarises are referenced by SHA-256 but are not redistributed, so the percentiles are reproducible from the committed samples rather than from a re-execution of the campaign.
 
 Hardware evidence is retained under `testing-report/` with denominators, failures, UI trees, screenshots, and explicit limitations. CI verifies these committed receipts and transformations but does not pretend to rerun the hardware study.
 

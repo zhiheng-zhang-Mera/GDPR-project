@@ -23,7 +23,10 @@ Two claims are deliberately kept out of the default path because they are slower
 |---|---|---|
 | `npm run reproduce:thesis-stress` | Runs the full fixed-seed temporal stress campaign twice and requires both runs to agree on every deterministic field. Writes host-stamped receipts under `artifacts/reproduction/`. | ~20 s |
 | `npm run verify:mutation` | Applies each of the nine registered source weakenings in an isolated temporary tree, recompiles, and requires the compiled compliance suite to detect it. Fails if any mutant survives. Writes `artifacts/mutation/mutation-verification.json`. | ~80 s |
-| `npm run test:android-unit` | Runs the 24 host-JVM Kotlin unit tests for the native audit-bridge mapping. Requires the Android SDK and a JDK; no emulator or device. | ~45 s first run |
+| `npm run test:android-unit` | Host-JVM Kotlin unit tests for the native audit-bridge mapping. Requires the Android SDK and a JDK; no emulator or device. | ~45 s first run |
+| `npm run reproduce:thesis-pdf` | Re-renders the thesis from `Thesis/Final` in a temporary directory with `SOURCE_DATE_EPOCH` pinned, so identical sources give identical bytes, and reports whether the result matches the published digest. Needs TeX Live or TinyTeX; skipped with a clear message when none is present. | ~10 s |
+| `npm run verify:pdf` | Extracts the prose of both shipped thesis PDFs and fails if a corrected statement is missing or a retracted figure has reappeared. Part of `reproduce:thesis-core`. | ~2 s |
+| `npm run verify:submission-manifest` | Regenerates and checks `release/submission-final/SHA256SUMS.txt` and `artifacts/final-audit/SUBMISSION_MANIFEST.json` against the files on disk. Part of `reproduce:thesis-core`. | ~1 s |
 
 ## Reproducible claims
 

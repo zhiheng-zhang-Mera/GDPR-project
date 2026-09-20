@@ -100,9 +100,14 @@ for (const [name, expected] of Object.entries(deviceExpected)) {
     `Thesis/Final/generated-results.tex ${name}=${macros[name]} but device-summary.json says ${expected}; the percentile must keep full precision`,
   );
 }
-// The thesis must cite these macros rather than repeating the literals.
+// The thesis must cite these macros rather than repeating the literals. They may
+// be wrapped for formatting (for example \num{\DevicePssMedianKb}), so both the
+// bare and wrapped forms satisfy the check.
 for (const name of Object.keys(deviceExpected)) {
-  check(thesisAll.includes(`\\${name}{}`), `the thesis must reference \\${name}{} instead of hard-coding the device statistic`);
+  check(
+    thesisAll.includes(`\\${name}{}`) || thesisAll.includes(`{\\${name}}`),
+    `the thesis must reference \\${name} instead of hard-coding the device statistic`,
+  );
 }
 for (const literal of ['53,603.5', '47,884', '64,831.25', '23,960.5423', '21,494.4533', '25,115.4851']) {
   for (const [chapter, text] of Object.entries(thesis)) {
