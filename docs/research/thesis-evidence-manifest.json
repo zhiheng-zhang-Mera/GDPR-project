@@ -47,6 +47,26 @@
     "mutationScore": 1,
     "stressReceipt": "testing-report/final-thesis-evidence-2026-08-21.md"
   },
+  "stressCampaign": {
+    "driver": "tests/runTemporalStressCampaign.ts",
+    "determinismCheck": "scripts/verify-stress-determinism.js",
+    "seed": "0x5eed2026",
+    "corpusRounds": 40000,
+    "restartCases": 10000,
+    "malformedCases": 20000,
+    "boundedSnapshotEntries": 10001,
+    "assertions": 112236,
+    "elapsedMsObservedOnBaselineHost": 9513,
+    "ruleMatches": {
+      "CROSS_DOMAIN_PROFILING": 1354,
+      "HIGH_FREQUENCY_LOCATION": 1300,
+      "MULTIMODAL_BIOMETRIC_CAPTURE": 1407,
+      "POST_BACKGROUND_MEDIA_ACCESS": 1397,
+      "RESEARCH_SENSOR_FUSION": 15194,
+      "WEARABLE_LOCATION_HEALTH": 1594
+    },
+    "caveat": "Deterministic logical campaign over generated inputs. The assertion total and per-rule match counts are reproduced byte-for-byte on any host; the recorded elapsed time is a single host observation and is not a benchmark."
+  },
   "independentReview": {
     "status": "NOT_RUN",
     "reviewedItemsN": null,

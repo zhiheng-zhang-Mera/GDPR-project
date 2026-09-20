@@ -171,6 +171,11 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation("androidx.work:work-runtime-ktx:2.10.1")
 
+    // Host-only JVM unit tests for the pure audit-bridge mapping rules. These
+    // require no emulator or physical device.
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.0.21")
+
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
     def isWebpAnimatedEnabled = (findProperty('expo.webp.animated') ?: "") == "true";

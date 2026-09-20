@@ -62,37 +62,18 @@ class PrivacyInspectorModule(
         destination: String,
         eventType: String
     ) {
-        val permissionType = when (eventType) {
-            "SENSITIVE_LEAK_RISK" -> "MICROPHONE"
-            "UNAUTHORIZED_CROSS_BORDER" -> "CONTACTS"
-            else -> "LOCATION"
-        }
+        // Mapping rules live in ObservationMapper so they can be unit-tested on
+        // the JVM without a device; this method only builds the bridge payload.
+        val permissionType = ObservationMapper.resolvePermissionType(eventType)
         val now = System.currentTimeMillis()
-        val normalizedApi = apiName.uppercase()
-        val observationType = when {
-            "BODY" in normalizedApi || "HEALTH" in normalizedApi -> "BODY_SENSORS"
-            "ACTIVITY" in normalizedApi -> "ACTIVITY_RECOGNITION"
-            "CAMERA" in normalizedApi -> "CAMERA"
-            "CLIPBOARD" in normalizedApi -> "CLIPBOARD_READ"
-            "DEVICE" in normalizedApi || "PHONE_STATE" in normalizedApi -> "DEVICE_IDENTIFIER"
-            "MEDIA_LOCATION" in normalizedApi -> "MEDIA_LOCATION"
-            "MEDIA" in normalizedApi || "IMAGE" in normalizedApi -> "MEDIA_IMAGES"
-            "BACKGROUND" in normalizedApi -> "APP_BACKGROUNDED"
-            destination != "local" -> "DATA_TRANSFER"
-            else -> permissionType
-        }
-        val observationChannel = when (observationType) {
-            "DATA_TRANSFER" -> "DATA_TRANSFER"
-            "APP_BACKGROUNDED" -> "APP_STATE"
-            "CLIPBOARD_READ", "DEVICE_IDENTIFIER", "MEDIA_IMAGES", "MEDIA_LOCATION", "CONTACTS" -> "DATA_ACCESS"
-            else -> "SENSOR_CALL"
-        }
+        val observationType = ObservationMapper.resolveObservationType(apiName, destination, permissionType)
+        val observationChannel = ObservationMapper.resolveObservationChannel(observationType)
         val observation = Arguments.createMap().apply {
             putString("type", observationType)
             putDouble("occurredAt", now.toDouble())
             putInt("count", frequency)
             putString("channel", observationChannel)
-            putString("destination", if (destination == "local") "LOCAL" else "NETWORK")
+            putString("destination", ObservationMapper.resolveDestination(destination))
             putString("source", "NATIVE_BRIDGE")
         }
         val observations = Arguments.createArray().apply {
@@ -126,32 +107,36 @@ class PrivacyInspectorModule(
         }
         try {
             val fixture = org.json.JSONObject(payload)
-            require(fixture.optBoolean("controlledDemo", false))
-            require(fixture.optString("evidenceKind") == "CONTROLLED_DEMO")
-            require(fixture.optString("source") == "NATIVE_BRIDGE")
-            val permission = fixture.getString("permissionType")
-            require(permission in setOf("LOCATION", "MICROPHONE", "CONTACTS"))
-            val packageName = fixture.getString("packageName")
-            require(packageName.matches(Regex("^[A-Za-z0-9_.-]{1,255}$")))
             val events = fixture.getJSONArray("observationEvents")
-            require(events.length() in 1..100)
+            val eventTypes = (0 until events.length()).map { index -> events.getJSONObject(index).getString("type") }
+            val validation = ObservationMapper.validateControlledFixture(
+                controlledDemo = fixture.optBoolean("controlledDemo", false),
+                evidenceKind = fixture.optString("evidenceKind"),
+                source = fixture.optString("source"),
+                permissionType = fixture.optString("permissionType"),
+                packageName = fixture.optString("packageName"),
+                eventTypes = eventTypes,
+            )
+            if (validation is ObservationMapper.FixtureValidation.Invalid) {
+                promise.reject("INVALID_CONTROLLED_FIXTURE", validation.reason, null)
+                return
+            }
+            val accepted = validation as ObservationMapper.FixtureValidation.Valid
             val eventArray = Arguments.createArray()
             for (index in 0 until events.length()) {
                 val source = events.getJSONObject(index)
-                val type = source.getString("type")
-                require(type in setOf("LOCATION", "MICROPHONE", "CONTACTS", "ACTIVITY_RECOGNITION", "BODY_SENSORS", "CAMERA", "CLIPBOARD_READ", "DEVICE_IDENTIFIER", "MEDIA_IMAGES", "MEDIA_LOCATION", "APP_BACKGROUNDED", "DATA_TRANSFER"))
                 val occurredAt = source.getLong("occurredAt")
                 require(occurredAt > 0L)
                 eventArray.pushMap(Arguments.createMap().apply {
-                    putString("type", type)
+                    putString("type", eventTypes[index])
                     putDouble("occurredAt", occurredAt.toDouble())
                     putInt("count", source.optInt("count", 1))
                     putString("source", "NATIVE_BRIDGE")
                 })
             }
             val params = Arguments.createMap().apply {
-                putString("packageName", packageName)
-                putString("permissionType", permission)
+                putString("packageName", accepted.packageName)
+                putString("permissionType", accepted.permissionType)
                 putInt("accessCount", fixture.optInt("accessCount", 1))
                 putDouble("windowStart", fixture.getLong("windowStart").toDouble())
                 putDouble("windowEnd", fixture.getLong("windowEnd").toDouble())

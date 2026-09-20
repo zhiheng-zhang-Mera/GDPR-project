@@ -3,7 +3,7 @@
   "$id": "https://example.invalid/privacy-lens/evidence-manifest.schema.json",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "projectIdentity", "empiricalEvidence", "evidenceSources", "formalEvidence", "independentReview", "claimBoundary"],
+  "required": ["schemaVersion", "projectIdentity", "empiricalEvidence", "evidenceSources", "formalEvidence", "stressCampaign", "independentReview", "claimBoundary"],
   "properties": {
     "$schema": { "type": "string" },
     "schemaVersion": { "const": 1 },
@@ -49,6 +49,28 @@
         "mutationCases": { "type": "array", "items": { "type": "string" } },
         "mutationScore": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
         "stressReceipt": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stressCampaign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["driver", "determinismCheck", "seed", "corpusRounds", "restartCases", "malformedCases", "boundedSnapshotEntries", "assertions", "elapsedMsObservedOnBaselineHost", "ruleMatches", "caveat"],
+      "properties": {
+        "driver": { "type": "string", "minLength": 1 },
+        "determinismCheck": { "type": "string", "minLength": 1 },
+        "seed": { "type": "string", "minLength": 1 },
+        "corpusRounds": { "type": "integer", "minimum": 1 },
+        "restartCases": { "type": "integer", "minimum": 1 },
+        "malformedCases": { "type": "integer", "minimum": 1 },
+        "boundedSnapshotEntries": { "type": "integer", "minimum": 1 },
+        "assertions": { "type": "integer", "minimum": 1 },
+        "elapsedMsObservedOnBaselineHost": { "type": "integer", "minimum": 1 },
+        "ruleMatches": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "type": "integer", "minimum": 1 }
+        },
+        "caveat": { "type": "string", "minLength": 1 }
       }
     },
     "independentReview": {

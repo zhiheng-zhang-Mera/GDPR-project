@@ -1,5 +1,17 @@
 # Final thesis evidence record — 2026-08-21
 
+> **Status note (added during cross-host finalisation, 2026-09-20).** The
+> high-volume driver described below lived outside the repository, so its
+> 150,010-assertion figure could not be re-run by a reproducer. It is retained
+> here as a historical record of the 21 August campaign and is no longer cited
+> as the reproducible figure. The superseding in-repository campaign is
+> `tests/runTemporalStressCampaign.ts`, executed by
+> `npm run reproduce:thesis-stress`, with its deterministic totals pinned in
+> `docs/research/thesis-evidence-manifest.json`. The in-repo campaign is a
+> reimplementation from the same specification, not a rerun of the external
+> script, and it reports its own measured assertion total. `Thesis/Final/`
+> cites only the reproducible figure.
+
 ## Evidence scope
 
 This record describes the current 8-21 source as tested on 21 August 2026. It separates deterministic engineering evidence from legal, field, and product claims. The accompanying final manuscript is self-contained under `Thesis/Final` and does not rely on this report for interpretation.

@@ -32,8 +32,10 @@ import { getRegulationPack } from '../src/regulations/registry';
 import { PermissionAudit, PrivacyObservation, PrivacyObservationType, RegulationId } from '../src/compliance/types';
 import { MAX_RESTORED_TEMPORAL_ENTRIES } from '../src/compliance/temporalLedgerLimits';
 import { cpus, hostname, platform, release, totalmem, arch } from 'node:os';
-import { writeFileSync, mkdirSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+
+const root = resolve(__dirname, '..', '..');
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -403,12 +405,42 @@ for (let round = 0; round < malformedCases; round += 1) {
 const elapsedMs = Date.now() - started;
 const total = assertions;
 const ruleMatchSummary = Object.fromEntries([...ruleMatchCounts.entries()].sort(([left], [right]) => left.localeCompare(right)));
+
+/**
+ * The deterministic outcome of the full default campaign is pinned in the
+ * evidence manifest so that the thesis figure cannot drift away from the driver.
+ * A campaign run at reduced sizes is a smoke check: it exercises every campaign
+ * and every rule but cannot reproduce the full-campaign counts, so only the
+ * upper bound is enforced against the pin.
+ */
+const DEFAULT_CAMPAIGN = corpusRounds === 40_000 && restartCases === 10_000 && malformedCases === 20_000;
+const manifestPath = join(root, 'docs', 'research', 'thesis-evidence-manifest.json');
+const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+const pinned = manifest.stressCampaign ?? {};
+if (!process.argv.includes('--measure')) {
+  assert(typeof pinned.assertions === 'number' && typeof pinned.elapsedMsObservedOnBaselineHost === 'number', 'The manifest stressCampaign block must record the observed assertion total and baseline elapsed time.');
+  if (DEFAULT_CAMPAIGN) {
+    assert(pinned.assertions === total, `The manifest stressCampaign assertion total is stale: manifest=${pinned.assertions} campaign=${total}.`);
+    assert(JSON.stringify(pinned.ruleMatches) === JSON.stringify(ruleMatchSummary), `The manifest stressCampaign rule matches are stale: manifest=${JSON.stringify(pinned.ruleMatches)} campaign=${JSON.stringify(ruleMatchSummary)}.`);
+  } else {
+    assert(pinned.assertions >= total, `A reduced campaign (${total} assertions) cannot exceed the pinned full-campaign total (${pinned.assertions}).`);
+    for (const ruleId of Object.keys(pinned.ruleMatches)) {
+      assert(ruleId in ruleMatchSummary, `The reduced campaign did not reach pinned rule ${ruleId}.`);
+    }
+  }
+}
+if (process.argv.includes('--measure')) {
+  console.log(`MEASURED assertions=${total} ruleMatches=${JSON.stringify(ruleMatchSummary)} elapsedMs=${elapsedMs}`);
+}
+
 const receipt = {
   schema: 'privacy-lens.temporal-stress-campaign.v1',
   seed: '0x5eed2026',
   evaluatedAt: '2026-08-20T00:00:00Z',
   campaign: { corpusRounds, restartCases, malformedCases, boundedSnapshotEntries: MAX_RESTORED_TEMPORAL_ENTRIES + 1, forgedSnapshotCases: 1 },
+  matchesPinnedCampaign: DEFAULT_CAMPAIGN,
   observed: { assertions: total, elapsedMs, ruleMatches: ruleMatchSummary },
+  pinned: { assertions: pinned.assertions, ruleMatches: pinned.ruleMatches },
   host: hostFacts(),
   generatedAt: new Date().toISOString(),
   caveat: 'Deterministic logical campaign only. It establishes conformance and fail-closed behaviour for the generated inputs; it is not a performance benchmark, field evidence, population estimate, or legal validation. The host block records provenance and is not a test input.',
