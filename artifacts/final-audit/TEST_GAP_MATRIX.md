@@ -26,8 +26,8 @@ Runtime classes:
 | REPRODUCIBILITY, MUTATION | `scripts/verify-mutation-detection.js` | Node, temp-tree recompile | HOST | 9 mutants, 9 detected | ADDED |
 | KOTLIN_JVM_UNIT | `android/app/src/test/.../ObservationMapperTest.kt` | JUnit 4 via `:app:testDebugUnitTest` | HOST | 24 tests | ADDED |
 | STATIC_ANALYSIS, EVIDENCE_PIPELINE | `tests/runThesisNumberConsistencyTests.js` | Node | HOST | 8 check groups over 24 macros, 9 properties, 8 cross-refs | ADDED |
-| STATIC_ANALYSIS, CORPUS | `scripts/verify-claim-paths.js` | Node | HOST | 66 cited paths across 45 documents | ADDED |
-| STATIC_ANALYSIS, BUILD | `scripts/verify-delivery.js` | Node | HOST | 36 required files, 113 Markdown files, chapter-split byte equality | PRESENT |
+| STATIC_ANALYSIS, CORPUS | `scripts/verify-claim-paths.js` | Node | HOST | 180 cited paths across 54 documents | ADDED |
+| STATIC_ANALYSIS, BUILD | `scripts/verify-delivery.js` | Node | HOST | 36 required files, 122 Markdown files, chapter-split and ARTIFACT byte equality | PRESENT |
 | RULE_PACK, STATIC_ANALYSIS | `scripts/verify-safety-properties.js` | Node | HOST | 9 properties, catalogue consistency, mutant totals | PRESENT |
 | RULE_PACK | `scripts/generate-mapping-review.js` | Node | HOST | 13 atomic review items | PRESENT |
 | EVIDENCE_PIPELINE, REPRODUCIBILITY | `scripts/verify-thesis-evidence.js` | Node | HOST | 12 receipt-derived metrics, 4 pinned sources, 2 generated macro files | PRESENT (extended) |
@@ -35,15 +35,15 @@ Runtime classes:
 | STATIC_ANALYSIS | `scripts/verify-latex-quality.js` | Node | HOST | 11 TeX files, 9 labels, 56 citations, 86 bibliography entries | PRESENT |
 | CORPUS, EVIDENCE_PIPELINE | `scripts/summarize-thesis-results.js` | Node | HOST | 4 generated summary files | PRESENT |
 | UI_E2E, STATIC_ANALYSIS | `tests/runAccessibilityContractTests.js` | Node, source inspection | HOST | 5 files, 15 interactive touchables | PRESENT |
-| STATIC_ANALYSIS | `tests/runReleasePrivacyContractTests.js` | Node, source + manifest | HOST | 37 source files | PRESENT |
+| STATIC_ANALYSIS | `tests/runReleasePrivacyContractTests.js` | Node, source + manifest | HOST | 38 source files | PRESENT |
 | STATIC_ANALYSIS | `tests/runNativeControlledFixtureContractTests.js` | Node, source | HOST | debug-only gate contract | PRESENT |
 | CORPUS, EVIDENCE_PIPELINE | `tests/runExperimentContractTests.js` | Node, script invocation | HOST | 20 check sites; 18 script syntax checks; corpus/runner/aggregation contracts | PRESENT |
 | BUILD | `:app:compileDebugKotlin`, `:app:testDebugUnitTest` | Gradle | HOST | 24 tests, 43–46 s | ADDED |
 | BUILD | `:app:assembleRelease`, `:app:bundleRelease` | Gradle | HOST | APK 62,969,819 B; AAB 31,811,673 B; 4 m 04 s | VERIFIED |
-| LINT, TYPECHECK | `expo lint`, `tsc --noEmit` | Node | HOST | 37 source files; whole-project type check | PRESENT |
+| LINT, TYPECHECK | `expo lint`, `tsc --noEmit` | Node | HOST | whole-project type check across app, component and library sources | PRESENT |
 | FLOWDROID | `scripts/run-flowdroid-baseline.js` and adapters | Node + external JAR | REQUIRES_PHYSICAL_DEVICE / external tool | receipt interpretation only | PARTIAL (by design) |
 | ANDROID_INSTRUMENTATION | — | — | REQUIRES_EMULATOR or DEVICE | none | ABSENT (justified) |
-| UI_E2E (device) | `tests/run-real-device-extended-qa.ps1` | PowerShell + ADB | REQUIRES_PHYSICAL_DEVICE | historical receipts retained | HISTORICAL |
+| UI_E2E (device) | `scripts/run-real-device-extended-qa.ps1` | PowerShell + ADB | REQUIRES_PHYSICAL_DEVICE | historical receipts retained | HISTORICAL |
 
 ## 2. Gaps found and what was done
 

@@ -33,14 +33,14 @@ Run after the finalisation changes, in one pass:
 | 4 | `npm run test:compliance` | 0 | 10.4 s | 5 runners: seeded corpus, adversarial, governance (1,800 cases), temporal, information flow |
 | 5 | `npm run test:stress-campaign` | 0 | 6.0 s | 3,262 assertions over the reduced campaign |
 | 6 | `npm run test:accessibility` | 0 | 3.1 s | 5 files, 15 interactive touchables |
-| 7 | `npm run test:release-privacy` | 0 | 4.0 s | 37 source files + debug-only fixture gate |
+| 7 | `npm run test:release-privacy` | 0 | 4.0 s | 38 source files + debug-only fixture gate |
 | 8 | `npm run test:experiments` | 0 | 33.9 s | corpus, runner, aggregation, FlowDroid scoring contracts |
 | 9 | `npm run test:thesis-numbers` | 0 | 3.1 s | 24 macros, 9 properties, 8 cross-references |
-| 10 | `npm run verify:delivery` | 0 | 3.3 s | 36 files, 113 Markdown files, version 1.15.0 |
+| 10 | `npm run verify:delivery` | 0 | 3.3 s | 36 files, 122 Markdown files, version 1.15.0 |
 | 11 | `npm run verify:formal-properties` | 0 | 3.1 s | 9 properties, 9/9 mutants |
 | 12 | `npm run verify:thesis-evidence` | 0 | 3.1 s | 12 metrics, 4 pinned sources |
 | 13 | `npm run verify:claim-boundaries` | 0 | 3.1 s | no legal-verdict tokens; high-risk prose qualified |
-| 14 | `npm run verify:claim-paths` | 0 | 3.2 s | 66 cited paths across 45 documents |
+| 14 | `npm run verify:claim-paths` | 0 | 3.2 s | 180 cited paths across 54 documents |
 | 15 | `npm run verify:latex` | 0 | 4.1 s | 11 TeX files, 9 labels, 56 citations |
 | 16 | `npm run verify:generated-results` | 0 | 3.1 s | F-Droid N=495, device N=233, PSS N=98 |
 | 17 | `npm run verify:mapping-review` | 0 | 3.1 s | 13 atomic items |
@@ -148,7 +148,7 @@ The thesis now renders in about eight seconds:
 | Command | Result |
 |---|---|
 | `pdflatex` via TinyTeX (4 passes with `bibtex`) | **exit 0**, 85 pages, 579,798 bytes |
-| Rebuild with `SOURCE_DATE_EPOCH` pinned | **byte-identical** across consecutive runs (sha256 `a49ea44a6957b4e3…`) |
+| Rebuild with `SOURCE_DATE_EPOCH` pinned | **byte-identical** across consecutive runs (digest recorded in `SUBMISSION_MANIFEST.json`) |
 
 The published PDFs were replaced with the fresh render, `SHA256SUMS.txt` was
 regenerated, and two guards were added so this cannot drift again silently:

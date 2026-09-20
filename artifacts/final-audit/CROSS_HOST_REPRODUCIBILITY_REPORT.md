@@ -61,7 +61,7 @@ Installation from zero succeeded with no manual steps beyond `npm ci`.
 | `expo lint` | exit 0 |
 | `:app:testDebugUnitTest` | exit 0, 24/24 tests |
 | `:app:assembleRelease` + `:app:bundleRelease` | exit 0, 4 m 04 s, APK 62,969,819 B, AAB 31,811,673 B |
-| `npm run reproduce:thesis-core` | exit 0, 103.5–105.2 s, four consecutive runs |
+| `npm run reproduce:thesis-core` | exit 0, 103.5–110.4 s, six consecutive runs |
 
 ## 4. Tests
 
@@ -70,7 +70,7 @@ Installation from zero succeeded with no manual steps beyond `npm ci`.
 | Compliance (5 TypeScript runners) | pass |
 | Temporal stress campaign (reduced) | pass, 3,262 assertions |
 | Accessibility contracts | pass, 5 files / 15 touchables |
-| Release-privacy contracts | pass, 37 files |
+| Release-privacy contracts | pass, 38 files |
 | Experiment contracts | pass |
 | Kotlin JVM unit tests | pass, 24/24 |
 | Delivery, formal properties, evidence, claim boundaries, claim paths, LaTeX, generated results, mapping review | pass |
@@ -125,7 +125,7 @@ CRLF; normalising Alien's reproduces Mech's digest bit-for-bit.
 | 233-package device campaign | executed once on OPPO PERM00 | not re-executed | n/a | n/a | `INSUFFICIENT_EVIDENCE` — requires the handset and corpus APKs |
 | FlowDroid invocation | one receipt, zero XML artifacts | not re-executed | n/a | n/a | `INSUFFICIENT_EVIDENCE` — requires the JAR and restricted APKs |
 | Legal mapping review | `NOT_RUN` | `NOT_RUN` | none | n/a | `INSUFFICIENT_EVIDENCE` by design |
-| Thesis PDF render | rendered on Mech | **could not render** on Alien (MiKTeX package-install hang) | n/a | n/a | `ENVIRONMENT_DEPENDENT` — see `ALIEN_CLEAN_BUILD_REPORT.md` §5 |
+| Thesis PDF render | rendered on Mech, 8 September, before the chapter-5 corrections | **re-rendered on Alien** from the corrected source via the TeX Live 2026 (TinyTeX) installation; byte-reproducible and verified against the source | corrected | exact | `EXACT_REPRODUCTION` for content; see `ALIEN_CLEAN_BUILD_REPORT.md` §5 |
 
 ### 5.3 The mutation result was corrected, not merely re-run
 

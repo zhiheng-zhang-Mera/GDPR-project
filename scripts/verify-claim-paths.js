@@ -21,7 +21,7 @@ const { execFileSync } = require('child_process');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const SCANNED_ROOTS = ['docs/research', 'Thesis/Final'];
+const SCANNED_ROOTS = ['docs/research', 'Thesis/Final', 'artifacts/final-audit'];
 const SCANNED_FILES = ['README.md', 'ARTIFACT.md', 'User-Guide.md', 'docs/PROJECT-MANUAL.md', 'docs/DELIVERY-CHECKLIST.md'];
 const SCANNED_FILE_GLOBS = ['release/submission-final'];
 const CITED_PREFIXES = ['src', 'scripts', 'tests', 'android', 'docs', 'experiments', 'release', 'output', 'testing-report', 'Thesis', 'components', 'app', 'assets'];
@@ -73,21 +73,37 @@ for (const scannedDir of SCANNED_FILE_GLOBS) {
 
 const failures = [];
 let citations = 0;
+/**
+ * A cited path that is deliberately absent.
+ *
+ * The finalisation reports record what was fixed, so they quote identifiers such
+ * as the removed `src/compliance/evidenceAdmission.ts` on lines that explicitly
+ * mark them as corrected or non-existent. Those citations must be present for the
+ * record to be honest, so a line describing a removal is exempt from the
+ * existence requirement.
+ */
+const DESCRIBES_REMOVAL = /\b(?:does not exist|did not exist|removed|retracted|superseded|corrected|stale|mismatch|instead of|FIXED|no longer)\b/i;
+
 for (const absolute of scanned) {
   const relative = path.relative(root, absolute).replaceAll('\\', '/');
   const text = fs.readFileSync(absolute, 'utf8');
   let match;
   while ((match = CITATION.exec(text))) {
     let cited = match[1].replaceAll('\\', '/').replace(/[.,;:]+$/, '').trim();
-    // Skip globs, placeholders, and prose that merely starts with a scanned prefix.
-    if (/[*<>]|\.\.\./.test(cited)) continue;
+    // Skip globs, placeholders, shell flags, and prose that merely starts with a
+    // scanned prefix. `…` is the Unicode ellipsis used in the reports.
+    if (/[*<>]|\.\.\.|\u2026|[{}]|\s--?[a-z]/.test(cited)) continue;
+    const lineStart = text.lastIndexOf('\n', match.index) + 1;
+    const lineEnd = text.indexOf('\n', match.index);
+    const line = text.slice(lineStart, lineEnd === -1 ? undefined : lineEnd);
+    if (DESCRIBES_REMOVAL.test(line)) continue;
     if (UNTRACKED_BY_DESIGN.some((pattern) => pattern.test(cited))) continue;
     if (tracked.has(cited)) { citations += 1; continue; }
     // A citation may legitimately name a directory rather than a file.
     if (fs.existsSync(path.join(root, cited)) && fs.statSync(path.join(root, cited)).isDirectory()) { citations += 1; continue; }
     if (ignoredDirectory(cited.split('/').slice(0, 2).join('/'))) continue;
-    const line = text.slice(0, match.index).split('\n').length;
-    failures.push(`${relative}:${line}: cited path does not exist and is not tracked: ${cited}`);
+    const lineNumber = text.slice(0, match.index).split('\n').length;
+    failures.push(`${relative}:${lineNumber}: cited path does not exist and is not tracked: ${cited}`);
     citations += 1;
   }
 }

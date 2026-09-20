@@ -70,11 +70,13 @@ Prerequisites: Node.js 20--24, npm 10, Java 17, Android SDK 36, and an Expo 54-c
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
-git switch 9-8-Finalize
+git switch dev/thesis-finalization-alien
 npm ci
 npm run reproduce:thesis-core
 npm start
 ```
+
+> **Use this branch, not the tag.** Tag `v1.15.0-thesis-final` points at commit `acffee1e`, the pre-finalisation revision. It is immutable and still published, and its tree carries a thesis PDF from before the chapter-5 corrections plus a `package.json` without the PDF and submission-manifest guards. Reproducing from that tag would rebuild the retracted thesis. A successor tag, or merging this branch into `9-8-Finalize`, is an owner-controlled release action.
 
 `npm run reproduce:thesis-core` is the canonical core verification path. It should exit 0 and leave `git status` clean. If it reports a stale generated file, do not hand-edit the file: run the command named in the error.
 
@@ -177,7 +179,9 @@ Never edit a tracked generated file by hand. `npm run verify:generated-results` 
 
 ### Citation and immutable archive
 
-Zhang, Z. (2026). *Privacy Lens: Evidence-Bounded Android Privacy Review with Regulation-Driven Temporal Combination Notices*, version 1.15.0. The immutable identity is tag `v1.15.0-thesis-final`; its exact commit and release-asset checksums are published with the GitHub release.
+Zhang, Z. (2026). *Privacy Lens: Evidence-Bounded Android Privacy Review with Regulation-Driven Temporal Combination Notices*, version 1.15.0.
+
+The tag `v1.15.0-thesis-final` resolves to commit `acffee1e`, which predates the finalisation corrections; its exact commit and release-asset checksums are published with the GitHub release. The corrected source of truth is branch `dev/thesis-finalization-alien` at the commit recorded in `artifacts/final-audit/SUBMISSION_MANIFEST.json`, whose thesis PDF digest is published there and in `release/submission-final/SHA256SUMS.txt`.
 
 ### Claim boundaries
 
@@ -219,11 +223,13 @@ Privacy Lens 是一款离线运行、证据优先的 Android 隐私审查研究�
 ```powershell
 git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
 Set-Location GDPR-project
-git switch 9-8-Finalize
+git switch dev/thesis-finalization-alien
 npm ci
 npm run reproduce:thesis-core
 npm start
 ```
+
+> **请使用本分支，不要使用 tag。** `v1.15.0-thesis-final` 指向提交 `acffee1e`，即收尾修正之前的版本。该 tag 不可变且已发布，其代码树中的论文 PDF 早于第 5 章修正，且 `package.json` 尚无 PDF 与提交清单校验。从该 tag 复现会重建已撤回的论文内容。创建后继 tag 或将本分支合入 `9-8-Finalize` 属于项目所有者控制的发布操作。
 
 源代码仓库不保存 APK/AAB。正式分发前请配置独立上传密钥，并逐项完成[商店就绪清单](docs/store-readiness.md)。
 

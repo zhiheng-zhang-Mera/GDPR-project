@@ -2,7 +2,17 @@
 
 ## Canonical reproduction command
 
-From the immutable tag `v1.15.0-thesis-final`, or from branch `9-8-Finalize` before the tag is created:
+From branch `dev/thesis-finalization-alien` at the finalisation commit recorded in `artifacts/final-audit/SUBMISSION_MANIFEST.json`:
+
+> **Identity note.** The tag `v1.15.0-thesis-final` points at commit `acffee1e`, the *pre-finalisation* revision. It is immutable and still published, and it must not be used to reproduce this artifact: its tree carries a thesis PDF that predates the chapter-5 corrections and a `package.json` without the `verify:pdf` and `submission-manifest` guards described below. A successor tag, or merging this branch into `9-8-Finalize`, is an owner-controlled release action; until then this branch tip is the corrected source of truth.
+
+```powershell
+git clone https://github.com/zhiheng-zhang-Mera/GDPR-project.git
+Set-Location GDPR-project
+git switch dev/thesis-finalization-alien
+npm ci
+npm run reproduce:thesis-core
+```
 
 ```powershell
 npm ci

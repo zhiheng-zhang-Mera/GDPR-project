@@ -234,7 +234,28 @@ const mustNotAppear = [
   ['removed module citation', 'evidenceAdmission', 'bytes-only'],
 ];
 
+/**
+ * Exact decimal forms.
+ *
+ * The main matcher strips separator punctuation so that it tolerates the
+ * extraction ambiguities above, which means it cannot see a number rendered with
+ * the wrong separator. siunitx defaulted to a French-style decimal mark once and
+ * printed a timing value of 23960.5423 as `23,960.542,3`. These patterns require
+ * the comma-grouped, period-decimal form to appear literally, so a formatting
+ * regression like that fails the check instead of passing it.
+ */
+const exactDecimalForms = [
+  ['PSS median', /53,603\.5/],
+  ['PSS upper quartile', /64,831\.25/],
+  ['timing median', /23,960\.5423/],
+  ['timing lower quartile', /21,494\.4533/],
+  ['timing upper quartile', /25,115\.4851/],
+];
+
 const failures = [];
+for (const [label, pattern] of exactDecimalForms) {
+  if (!pattern.test(compact)) failures.push(`MALFORMED in PDF (${label}): expected the form ${pattern.source} but it is absent`);
+}
 for (const [label, needle] of mustAppear) {
   if (missing(needle)) failures.push(`MISSING from PDF (${label}): ${needle}`);
 }

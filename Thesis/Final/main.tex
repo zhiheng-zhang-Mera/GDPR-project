@@ -7,9 +7,14 @@
 \usepackage{graphicx,float,amsmath,amssymb,cite,listings,xcolor,booktabs,array,caption,subcaption,algorithm,algpseudocode,tikz,pgfplots,seqsplit}
 % siunitx formats the measured statistics so that thousands separators are
 % restored without truncating the fractional part the receipts record.
+% `output-decimal-marker` and `group-digits=integer` are required: siunitx
+% otherwise defaults to grouping every digit run and uses a French-style decimal
+% mark, which rendered a timing value of 23960.5423 as `23,960.542,3`.
 \usepackage[
   group-separator={,},
   group-minimum-digits=4,
+  group-digits=integer,
+  output-decimal-marker={.},
   round-mode=places,
   round-precision=4,
   round-pad=false

@@ -1,6 +1,6 @@
 # Privacy Lens final public submission package
 
-This directory is the public, identity-minimised submission surface for Privacy Lens v1.15.0. The canonical source is branch `9-8-Finalize`; immutable identity is tag `v1.15.0-thesis-final` and the associated GitHub release.
+This directory is the public, identity-minimised submission surface for Privacy Lens v1.15.0. The corrected source is branch `dev/thesis-finalization-alien` at the commit recorded in `artifacts/final-audit/SUBMISSION_MANIFEST.json` (repository root). Tag `v1.15.0-thesis-final` and its GitHub release are the earlier published identity: the tag resolves to commit `acffee1e`, which predates the finalisation corrections and whose thesis PDF has been superseded, so it must not be used to reproduce this package.
 
 Contents:
 

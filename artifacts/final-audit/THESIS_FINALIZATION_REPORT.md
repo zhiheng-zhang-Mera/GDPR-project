@@ -42,7 +42,7 @@ The publication layer was closed in a second pass:
 | Final SHA | `1e545dafe84fb26cc7c58c4a33df311c56a079f0` |
 | Remote SHA | `1e545dafe84fb26cc7c58c4a33df311c56a079f0` (`origin/dev/thesis-finalization-alien`) — identical to local |
 | Working tree | clean |
-| Commits added | 10, none of which touches `9-8-Finalize` (still `acffee1e`) |
+| Commits added | 11 so far, none of which touches `9-8-Finalize` (still `acffee1e`) |
 | History | preserved; no rebase, no force-push, no amendment of published commits |
 | Merge to main | not performed — no owner policy permits automatic promotion |
 
@@ -86,7 +86,7 @@ Commits on the branch, each a logical unit:
 | 13 | `verify:formal-properties` printed "9/9 curated mutants detected" while executing no test | Misleading artifact documentation | Report reworded; it now states it is a structural check and names `verify:mutation` for execution |
 | 14 | The 50 ms burst assertion was an absolute wall-clock bound inside a suite that `verify:mutation` runs ten times | A loaded runner would have produced a spurious "mutant detected" | Budget calibrated on the host with a floor and an explicit multiple |
 | 15 | `count-thesis-words.ps1` hard-coded one host's TinyTeX path | Threw on any other host | Resolves `texcount` from PATH or the caller |
-| 16 | `verify:claim-boundaries` and `verify:claim-paths` did not scan `README.md` or `ARTIFACT.md` | The two documents a reader sees first were unprotected | Both scanners extended; cited paths checked rose from 10 to 66 |
+| 16 | `verify:claim-boundaries` and `verify:claim-paths` did not scan `README.md` or `ARTIFACT.md` | The two documents a reader sees first were unprotected | Both scanners extended; cited paths checked rose from 10 to 180 (audit reports are now scanned too) |
 
 ### Tests and verification added
 
@@ -144,12 +144,12 @@ Observed on the Alien host at the final revision. All exit 0.
 | `test:experiments` | 20 check sites | 0 | 0 | 33.9 s |
 | `test:thesis-numbers` | 24 macros / 9 properties / 8 refs | 0 | 0 | |
 | `test:android-unit` (`:app:testDebugUnitTest`) | 24 | 0 | 0 | 45.9 s; JVM only, no device |
-| `verify:delivery` | 36 files / 113 Markdown | 0 | 0 | |
+| `verify:delivery` | 36 files / 122 Markdown | 0 | 0 | |
 | `verify:formal-properties` | 9 properties | 0 | 0 | structural catalogue check only |
 | `verify:mutation` | 9 mutants detected | 0 | 0 | 77.4 s |
 | `verify:thesis-evidence` | 12 metrics / 4 pinned sources | 0 | 0 | |
 | `verify:claim-boundaries` | narrative + production tokens | 0 | 0 | |
-| `verify:claim-paths` | 66 paths / 45 documents | 0 | 0 | |
+| `verify:claim-paths` | 180 paths / 54 documents | 0 | 0 | |
 | `verify:latex` | 11 TeX / 9 labels / 56 citations | 0 | 0 | source quality only |
 | `verify:generated-results` | 4 summary files | 0 | 0 | |
 | `verify:mapping-review` | 13 items | 0 | 0 | |
@@ -278,11 +278,13 @@ satisfied. Full argument in `ANDROID_RUNTIME_JUSTIFICATION.md`.
 | I-5 | Independent legal mapping review | Requires a qualified legal reviewer. Structurally unavailable to any automated process; `manifest.independentReview.status` is `NOT_RUN` and the manifest enforces that | High for the legal-validity claim, which the thesis already declares unestablished | Commission the 13-item packet in `experiments/mapping-review/v1/` from an independent qualified reviewer and record agreement statistics | Owner decision |
 | I-6 | Participant comprehension and accessibility study | Requires human participants and ethics approval | High for the human-validity claim, already declared unestablished | Execute the preregistered study in `docs/research/decision-pause-preregistration.md` | Owner decision |
 | I-7 | Decide whether to add Robolectric for the `BuildConfig.DEBUG` gate | Adds a large test dependency to cover one boolean whose behaviour is already covered by a source contract and a device receipt. The cost/benefit trade-off is a maintainer preference | Low | `testImplementation("org.robolectric:robolectric:4.x")` and a `@RunWith(RobolectricTestRunner::class)` test asserting the release build rejects the controlled fixture | Nice to have |
+| I-8 | Publish a successor tag, or merge this branch into the release branch | Tag `v1.15.0-thesis-final` is immutable and already published, and it resolves to `acffee1e`, the **pre-finalisation** revision. Its tree carries the superseded thesis PDF and a `package.json` without the `verify:pdf` and submission-manifest guards. A published tag cannot be repaired by a later commit, and re-pointing a release identity or creating a new one is a release-authority decision, so every in-repository pointer (`README.md`, `ARTIFACT.md`, `release/submission-final/REPRODUCIBILITY.md`, `release/submission-final/SUBMISSION-README.md`, `docs/research/FINALIZATION-GATE.md`) now directs readers to this branch, with an explicit note that the tag must not be used | Medium. The corrected artifact is available and correctly referenced; the residual risk is a reader who follows the older tag anyway and rebuilds the retracted thesis | Owner: either `git tag -a v1.15.1-thesis-final <final-sha>` and publish the matching release, or merge `dev/thesis-finalization-alien` into the release branch and make it the default | Owner decision |
 
-**No submission blocker remains.** Items I-2 to I-7 are non-blocking: I-2 and
+**No submission blocker remains.** Items I-2 to I-8 are non-blocking: I-2 and
 I-3 are environment verification, I-4 is dependency maintenance, I-5 and I-6
 require external people or authority and are already declared unestablished in
-the thesis, and I-7 is optional additional coverage.
+the thesis, I-7 is optional additional coverage, and I-8 is a release-publication
+action whose artifact is already available and correctly pointed to.
 
 Items deliberately **not** listed because they are ordinary engineering work
 already completed in this branch: any test, script, documentation, CI, cleanup,

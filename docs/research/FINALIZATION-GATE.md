@@ -18,5 +18,6 @@ Date: 8 September 2026
 | Remote branch and terminal CI | PASS | candidate `0ef733acd454cef34a60239177a82eb96d4f192f`; final-branch run `34199906919` and fast-forwarded-master run `34200280823` completed successfully |
 | Default branch and historical-branch cleanup | PASS | default changed to `9-8-Finalize`; 21 other remote heads were verified as ancestors and deleted after the fast-forwarded master CI passed |
 | Immutable tag and public release | PASS_AT_FINAL_HANDOFF | `v1.15.0-thesis-final` and its release are created only after the commit containing this record passes CI; their observed target and asset digests form the terminal publication receipt |
+| Post-tag thesis-PDF correction | SUPERSEDED_BY_FINALIZATION_BRANCH | The tag resolves to `acffee1e`, whose thesis PDF predates the chapter-5 corrections and contains a retracted figure. The corrected source is branch `dev/thesis-finalization-alien` at the commit recorded in `artifacts/final-audit/SUBMISSION_MANIFEST.json`, where `npm run verify:pdf` enforces the corrected content. Publishing a successor tag, or merging that branch into the release branch, is an owner-controlled action |
 
 The project is suitable as a bounded research-prototype and thesis submission artifact. It is not represented as legally certified, production-ready, broadly accessible, population-valid, or store-approved.

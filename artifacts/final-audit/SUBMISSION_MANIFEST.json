@@ -4,8 +4,8 @@
   "thesis": {
     "pdfFile": "output/pdf/Privacy-Lens-Thesis-Final.pdf",
     "packagedPdfFile": "release/submission-final/Privacy-Lens-Thesis-Final.pdf",
-    "pdfSha256": "bd9625fd29835576281fea80e5d45ac2156efb6027340fad288a0ea11df2fb87",
-    "pdfBytes": 579798,
+    "pdfSha256": "8aeb170c69e4530cde08b26e400a52b34dfdf3e2f5d45fd4c31677c20a4be89b",
+    "pdfBytes": 579738,
     "pdfPages": 85,
     "pdfCreatedAt": "2026-09-01T07:00:00",
     "sourceDirectory": "Thesis/Final",

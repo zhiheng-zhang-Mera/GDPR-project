@@ -1,6 +1,6 @@
 # Reproducibility
 
-Use Node 20--24 and npm 10.8.2 from a clean checkout of tag `v1.15.0-thesis-final`:
+Use Node 20--24 and npm 10.8.2 from a clean checkout of branch `dev/thesis-finalization-alien` (see the identity note in `ARTIFACT.md`: tag `v1.15.0-thesis-final` points at the pre-finalisation commit `acffee1e` and must not be used):
 
 ```powershell
 npm ci
