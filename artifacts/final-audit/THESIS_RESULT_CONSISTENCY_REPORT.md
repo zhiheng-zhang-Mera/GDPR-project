@@ -164,9 +164,28 @@ folded into a denominator as zero.
 
 The LaTeX PDFs tracked at `output/pdf/Privacy-Lens-Thesis-Final.pdf` and
 `release/submission-final/Privacy-Lens-Thesis-Final.pdf` were rendered on the
-original host. This environment cannot render them (see
-`ALIEN_CLEAN_BUILD_REPORT.md`), so **the PDFs now lag the corrected chapter 5
-and the new generated macros**. `verify:latex` validates source quality but
-explicitly does not compile. This is the one place where a tracked artifact and
-its source disagree, it is recorded as the principal remaining manual item, and
-the exact command to close it is in `THESIS_FINALIZATION_REPORT.md`.
+original host **before** the chapter-5 corrections, and this environment cannot
+re-render them (see `ALIEN_CLEAN_BUILD_REPORT.md` §5).
+
+An independent audit confirmed the consequence by inflating the PDF content
+stream: the shipped PDF still contains the superseded sentence "a separate
+fixed-seed driver was executed twice against the compiled delivered source. Each
+execution completed 150,010 assertions in approximately 6.7 seconds", and it does
+not contain `112,236`, `verify:mutation`, or either corrected chapter-5
+statement. Its PDF metadata records creation on 2026-09-08.
+
+So the PDF is not merely stale in formatting: **it states two claims the
+repository has since corrected or retracted** (the 150,010 figure and the
+pre-correction mutation claim) and it predates the corrected legal-review-gate
+and dashboard-summary statements. This is the largest remaining divergence
+between a tracked artifact and its source, and it is the reason the verdict in
+`THESIS_FINALIZATION_REPORT.md` is not `SUBMISSION_READY`.
+
+It is disclosed in `README.md` under "Known limitations" and in this report.
+`verify:latex` validates source quality and states explicitly that PDF
+compilation is a separate rendered-artifact check; `verify-delivery` currently
+checks only that the PDF exists. No script in the repository detects stale PDF
+content, and adding such a check would require a PDF text extractor that is not a
+current dependency.
+
+Everything else in this document was verified against the corrected sources.
