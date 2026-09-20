@@ -30,7 +30,9 @@ The publication layer was closed in a second pass:
 | PDF content checking | None; `verify:delivery` checked only that the file exists | `npm run verify:pdf` extracts both PDFs' prose and fails on a missing corrected claim or a reappearing retracted figure; part of `reproduce:thesis-core` |
 | `SHA256SUMS.txt` | Hand-maintained; still certified the old PDF digest | Derived from disk and checked by `npm run verify:submission-manifest` |
 | Submission manifest | Did not exist | `artifacts/final-audit/SUBMISSION_MANIFEST.json`, generated and verified |
-| Device statistics formatting | Macros rendered `53603.5` without a thousands separator | `siunitx` in the preamble; macros emit full-precision values wrapped in `\num{}` |
+| Device statistics formatting | Macros rendered `53603.5` with no thousands separator; a first siunitx attempt then rendered the timing values as `23,960.542,3` | `siunitx` configured with `group-digits=integer` and `output-decimal-marker={.}`; macros emit full-precision values wrapped in `\num{}`, and `verify:pdf` now requires the exact `53,603.5` / `23,960.5423` forms |
+| Release-identity pointers | `README.md`, `ARTIFACT.md`, the submission README and the reproducibility guide all directed readers to tag `v1.15.0-thesis-final`, which resolves to the pre-correction commit and whose tree ships the retracted PDF | Every in-repository pointer now targets this branch, with an explicit note that the tag must not be used; publishing a successor tag is recorded as owner item I-8 |
+| Stale-PDF warnings | `README.md`, `output/pdf/README.md`, and the consistency report warned that the PDF was stale | Warnings removed; these documents now state the PDF is current and that `verify:pdf` guards it |
 
 ## B. Git state
 
@@ -39,8 +41,8 @@ The publication layer was closed in a second pass:
 | Repository | `https://github.com/zhiheng-zhang-Mera/GDPR-project.git` |
 | Working branch | `dev/thesis-finalization-alien` |
 | Starting SHA | `acffee1e29f1d450aeaa92113cda59cfd309417e` (branch `9-8-Finalize`) |
-| Final SHA | `1e545dafe84fb26cc7c58c4a33df311c56a079f0` |
-| Remote SHA | `1e545dafe84fb26cc7c58c4a33df311c56a079f0` (`origin/dev/thesis-finalization-alien`) — identical to local |
+| Final SHA | `7f5cff29b25bdc0d83e9cc5ba0b941324bb2cc58` |
+| Remote SHA | `7f5cff29b25bdc0d83e9cc5ba0b941324bb2cc58` (`origin/dev/thesis-finalization-alien`) — identical to local |
 | Working tree | clean |
 | Commits added | 11 so far, none of which touches `9-8-Finalize` (still `acffee1e`) |
 | History | preserved; no rebase, no force-push, no amendment of published commits |
@@ -48,7 +50,7 @@ The publication layer was closed in a second pass:
 
 A report cannot contain the hash of the commit that writes it, so the table above
 names the tip at the time of writing. `git rev-parse HEAD` on
-`dev/thesis-finalization-alien` is authoritative; any commits after `1e545da` are
+`dev/thesis-finalization-alien` is authoritative; any commits after `7f5cff2` are
 amendments to this audit document itself.
 
 Commits on the branch, each a logical unit:
@@ -64,6 +66,8 @@ Commits on the branch, each a logical unit:
 | `9c61abd` | docs | record the finalisation report and the stale-PDF finding |
 | `5cc1bc3`, `77e5714` | docs | finalise the report's git-state section |
 | `1e545da` | docs | render the final thesis PDF from the corrected source |
+| `fdad9c6` | docs | reconcile finalisation report counts with measured output |
+| `7f5cff2` | fix | correct decimal formatting and the release-identity pointers |
 
 ## C. Work completed
 
