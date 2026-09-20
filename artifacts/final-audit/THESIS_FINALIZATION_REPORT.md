@@ -39,19 +39,19 @@ The publication layer was closed in a second pass:
 | Repository | `https://github.com/zhiheng-zhang-Mera/GDPR-project.git` |
 | Working branch | `dev/thesis-finalization-alien` |
 | Starting SHA | `acffee1e29f1d450aeaa92113cda59cfd309417e` (branch `9-8-Finalize`) |
-| Final SHA | `5cc1bc3b5bd3a48a1470a2cfd74ddba6355c955c` |
-| Remote SHA | `5cc1bc3b5bd3a48a1470a2cfd74ddba6355c955c` (`origin/dev/thesis-finalization-alien`) — identical to local |
+| Final SHA | `1e545dafe84fb26cc7c58c4a33df311c56a079f0` |
+| Remote SHA | `1e545dafe84fb26cc7c58c4a33df311c56a079f0` (`origin/dev/thesis-finalization-alien`) — identical to local |
 | Working tree | clean |
-| Commits added | 8, none of which touches `9-8-Finalize` (still `acffee1e`) |
-
-A report cannot contain the hash of the commit that writes it, so the table above
-names the tip at the time of writing. `git rev-parse HEAD` on
-`dev/thesis-finalization-alien` is authoritative; the only commits after
-`5cc1bc3` are amendments to this document itself.
+| Commits added | 10, none of which touches `9-8-Finalize` (still `acffee1e`) |
 | History | preserved; no rebase, no force-push, no amendment of published commits |
 | Merge to main | not performed — no owner policy permits automatic promotion |
 
-Seven commits before this document was written, each a logical unit:
+A report cannot contain the hash of the commit that writes it, so the table above
+names the tip at the time of writing. `git rev-parse HEAD` on
+`dev/thesis-finalization-alien` is authoritative; any commits after `1e545da` are
+amendments to this audit document itself.
+
+Commits on the branch, each a logical unit:
 
 | Commit | Kind | Subject |
 |---|---|---|
@@ -62,8 +62,8 @@ Seven commits before this document was written, each a logical unit:
 | `e9826b4` | chore | remove machine-specific SDK paths, document reproduction, split CI |
 | `45c4d8b` | fix | close verification gaps found by an independent audit |
 | `9c61abd` | docs | record the finalisation report and the stale-PDF finding |
-
-The remaining commits on the branch only amend this audit document.
+| `5cc1bc3`, `77e5714` | docs | finalise the report's git-state section |
+| `1e545da` | docs | render the final thesis PDF from the corrected source |
 
 ## C. Work completed
 
@@ -86,7 +86,7 @@ The remaining commits on the branch only amend this audit document.
 | 13 | `verify:formal-properties` printed "9/9 curated mutants detected" while executing no test | Misleading artifact documentation | Report reworded; it now states it is a structural check and names `verify:mutation` for execution |
 | 14 | The 50 ms burst assertion was an absolute wall-clock bound inside a suite that `verify:mutation` runs ten times | A loaded runner would have produced a spurious "mutant detected" | Budget calibrated on the host with a floor and an explicit multiple |
 | 15 | `count-thesis-words.ps1` hard-coded one host's TinyTeX path | Threw on any other host | Resolves `texcount` from PATH or the caller |
-| 16 | `verify:claim-boundaries` and `verify:claim-paths` did not scan `README.md` or `ARTIFACT.md` | The two documents a reader sees first were unprotected | Both scanners extended; cited paths checked rose from 10 to 61 |
+| 16 | `verify:claim-boundaries` and `verify:claim-paths` did not scan `README.md` or `ARTIFACT.md` | The two documents a reader sees first were unprotected | Both scanners extended; cited paths checked rose from 10 to 66 |
 
 ### Tests and verification added
 
@@ -149,13 +149,16 @@ Observed on the Alien host at the final revision. All exit 0.
 | `verify:mutation` | 9 mutants detected | 0 | 0 | 77.4 s |
 | `verify:thesis-evidence` | 12 metrics / 4 pinned sources | 0 | 0 | |
 | `verify:claim-boundaries` | narrative + production tokens | 0 | 0 | |
-| `verify:claim-paths` | 61 paths / 45 documents | 0 | 0 | |
+| `verify:claim-paths` | 66 paths / 45 documents | 0 | 0 | |
 | `verify:latex` | 11 TeX / 9 labels / 56 citations | 0 | 0 | source quality only |
 | `verify:generated-results` | 4 summary files | 0 | 0 | |
 | `verify:mapping-review` | 13 items | 0 | 0 | |
 | `reproduce:thesis-stress` | 112,236 × 2 runs, identical | 0 | 0 | 26.2 s |
-| `reproduce:thesis-core` | full chain | 0 | 0 | 103.5–105.2 s, four consecutive runs |
-| `npm run verify` | full chain incl. mutation | 0 | 0 | 181.3 s |
+| `verify:pdf` | both PDFs: 22 present / 6 absent | 0 | 0 | ~2 s |
+| `verify:submission-manifest` | 17 checksums / 85 pages | 0 | 0 | ~1 s |
+| `reproduce:thesis-pdf` | byte-identical render | 0 | 0 | 9.7 s (needs TeX) |
+| `reproduce:thesis-core` | full chain | 0 | 0 | 103.5–110.4 s, five consecutive runs |
+| `npm run verify` | full chain incl. mutation | 0 | 0 | 184.7 s |
 
 **Skipped tests: none.** Nothing was disabled to reach a green run, and no
 assertion was weakened.

@@ -40,7 +40,7 @@ Run after the finalisation changes, in one pass:
 | 11 | `npm run verify:formal-properties` | 0 | 3.1 s | 9 properties, 9/9 mutants |
 | 12 | `npm run verify:thesis-evidence` | 0 | 3.1 s | 12 metrics, 4 pinned sources |
 | 13 | `npm run verify:claim-boundaries` | 0 | 3.1 s | no legal-verdict tokens; high-risk prose qualified |
-| 14 | `npm run verify:claim-paths` | 0 | 3.2 s | 61 cited paths across 45 documents |
+| 14 | `npm run verify:claim-paths` | 0 | 3.2 s | 66 cited paths across 45 documents |
 | 15 | `npm run verify:latex` | 0 | 4.1 s | 11 TeX files, 9 labels, 56 citations |
 | 16 | `npm run verify:generated-results` | 0 | 3.1 s | F-Droid N=495, device N=233, PSS N=98 |
 | 17 | `npm run verify:mapping-review` | 0 | 3.1 s | 13 atomic items |

@@ -26,7 +26,7 @@ Runtime classes:
 | REPRODUCIBILITY, MUTATION | `scripts/verify-mutation-detection.js` | Node, temp-tree recompile | HOST | 9 mutants, 9 detected | ADDED |
 | KOTLIN_JVM_UNIT | `android/app/src/test/.../ObservationMapperTest.kt` | JUnit 4 via `:app:testDebugUnitTest` | HOST | 24 tests | ADDED |
 | STATIC_ANALYSIS, EVIDENCE_PIPELINE | `tests/runThesisNumberConsistencyTests.js` | Node | HOST | 8 check groups over 24 macros, 9 properties, 8 cross-refs | ADDED |
-| STATIC_ANALYSIS, CORPUS | `scripts/verify-claim-paths.js` | Node | HOST | 61 cited paths across 45 documents | ADDED |
+| STATIC_ANALYSIS, CORPUS | `scripts/verify-claim-paths.js` | Node | HOST | 66 cited paths across 45 documents | ADDED |
 | STATIC_ANALYSIS, BUILD | `scripts/verify-delivery.js` | Node | HOST | 36 required files, 113 Markdown files, chapter-split byte equality | PRESENT |
 | RULE_PACK, STATIC_ANALYSIS | `scripts/verify-safety-properties.js` | Node | HOST | 9 properties, catalogue consistency, mutant totals | PRESENT |
 | RULE_PACK | `scripts/generate-mapping-review.js` | Node | HOST | 13 atomic review items | PRESENT |
