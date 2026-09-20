@@ -26,8 +26,8 @@ rather than waived.
 | Repository | `https://github.com/zhiheng-zhang-Mera/GDPR-project.git` |
 | Working branch | `dev/thesis-finalization-alien` |
 | Starting SHA | `acffee1e29f1d450aeaa92113cda59cfd309417e` (branch `9-8-Finalize`) |
-| Final SHA | `45c4d8b` (see the push record at the end of this section for the exact tip) |
-| Remote SHA | pushed to `origin/dev/thesis-finalization-alien` |
+| Final SHA | `9c61abd7668b3a1c96bc071959dd15ac9bcb9c35` |
+| Remote SHA | `9c61abd7668b3a1c96bc071959dd15ac9bcb9c35` (`origin/dev/thesis-finalization-alien`) — identical to local |
 | Working tree | clean |
 | History | preserved; no rebase, no force-push, no amendment of published commits |
 | Merge to main | not performed — no owner policy permits automatic promotion |
@@ -42,6 +42,7 @@ Six commits, each a logical unit:
 | `6a4c8a5` | test | make the curated mutation score executable |
 | `e9826b4` | chore | remove machine-specific SDK paths, document reproduction, split CI |
 | `45c4d8b` | fix | close verification gaps found by an independent audit |
+| `9c61abd` | docs | record the finalisation report and the stale-PDF finding |
 
 ## C. Work completed
 
