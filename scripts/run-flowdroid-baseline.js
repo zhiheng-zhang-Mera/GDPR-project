@@ -4,6 +4,7 @@ const { createHash } = require('crypto');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { resolveSdkDirectory } = require('./lib/android-sdk-paths');
 
 const root = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
@@ -11,7 +12,7 @@ function value(flag) { const index = args.indexOf(flag); return index < 0 ? unde
 const apk = value('--apk');
 const outputDir = value('--output-dir');
 const jar = process.env.FLOWDROID_JAR || path.join(root, '.codex-tools', 'flowdroid', 'soot-infoflow-cmd-2.15.1.jar');
-const platforms = process.env.ANDROID_PLATFORMS || 'C:\\Users\\15601\\AppData\\Local\\Android\\Sdk\\platforms';
+const platforms = resolveSdkDirectory('platforms', process.env.ANDROID_PLATFORMS);
 const definitions = value('--sources-sinks') || path.join(root, 'experiments', 'baselines', 'flowdroid', 'SourcesAndSinks.txt');
 if (!apk || !outputDir) throw new Error('Usage: node scripts/run-flowdroid-baseline.js --apk <file.apk> --output-dir <directory> [--sources-sinks <file>]');
 for (const required of [apk, jar, platforms, definitions]) if (!fs.existsSync(required)) throw new Error(`Required input is unavailable: ${required}`);

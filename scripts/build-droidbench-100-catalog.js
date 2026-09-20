@@ -4,6 +4,7 @@ const { createHash } = require('crypto');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { resolveBuildTool } = require('./lib/android-sdk-paths');
 const root = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const get = (flag) => { const index = args.indexOf(flag); return index < 0 ? undefined : args[index + 1]; };
@@ -15,7 +16,7 @@ const files = fs.readdirSync(apkRoot, { recursive: true }).filter((entry) => ent
 if (files.length < 100) throw new Error('DroidBench suite does not contain 100 APK files.');
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const apkanalyzer = process.env.APKANALYZER || 'apkanalyzer.bat';
-const aapt = process.env.AAPT || 'C:\\Users\\15601\\AppData\\Local\\Android\\Sdk\\build-tools\\36.0.0\\aapt.exe';
+const aapt = resolveBuildTool('aapt.exe', process.env.AAPT);
 const packageName = (file) => {
   if (fs.existsSync(aapt)) {
     const badging = execFileSync(aapt, ['dump', 'badging', file], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 10_000 });

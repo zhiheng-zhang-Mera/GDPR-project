@@ -9,13 +9,13 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
-
+const { resolveBuildTool } = require('./lib/android-sdk-paths');
 const args = process.argv.slice(2);
 const value = (flag) => { const index = args.indexOf(flag); return index < 0 ? undefined : args[index + 1]; };
 const catalogPath = value('--catalog');
 const output = value('--output');
 const apiBase = value('--api-base') || 'https://androzoo.uni.lu/api/download';
-const aapt = value('--aapt') || 'C:\\Users\\15601\\AppData\\Local\\Android\\Sdk\\build-tools\\36.0.0\\aapt.exe';
+const aapt = resolveBuildTool('aapt.exe', value('--aapt'));
 const validationOnly = args.includes('--validation-only');
 if (!catalogPath || !output) throw new Error('Usage: node scripts/download-authorized-androzoo-corpus.js --catalog <catalog.json> --output <receipt.json> [--aapt <aapt>] [--validation-only]');
 if (!fs.existsSync(catalogPath)) throw new Error(`Catalog does not exist: ${catalogPath}`);

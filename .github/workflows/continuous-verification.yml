@@ -10,6 +10,9 @@ permissions:
   contents: read
 
 jobs:
+  # Fast path: the whole core verification chain on a clean install. This is the
+  # gate that must stay green, and it is the only job a contributor needs to
+  # reproduce the thesis-core claims locally.
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -21,3 +24,63 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run reproduce:thesis-core
+
+  # Research reproduction: slower checks that the thesis cites but that are
+  # deliberately kept out of the fast path. Both compile or recompile more than
+  # the core chain does, so they run as their own job with its own budget rather
+  # than stretching the core gate.
+  research-reproduction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Applies each registered safety-property mutant in an isolated tree and
+      # requires the compiled compliance suite to detect it.
+      - run: npm run verify:mutation
+      # Runs the full fixed-seed temporal campaign twice and requires both runs
+      # to agree on every deterministic field.
+      - run: npm run reproduce:thesis-stress
+      - name: Upload reproduction receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproduction-receipts
+          path: |
+            artifacts/mutation/
+            artifacts/reproduction/
+          if-no-files-found: warn
+          retention-days: 14
+
+  # Android host-only unit tests. No emulator and no device: these exercise the
+  # pure native mapping rules on the JVM.
+  android-unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - name: Run Kotlin JVM unit tests
+        working-directory: android
+        run: ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-unit-test-report
+          path: android/app/build/reports/tests/testDebugUnitTest
+          if-no-files-found: warn
+          retention-days: 14

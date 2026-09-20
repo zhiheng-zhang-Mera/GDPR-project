@@ -4,13 +4,15 @@ const { createHash } = require('crypto');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { resolveBuildTool, resolveCmdlineTool } = require('./lib/android-sdk-paths');
 
 const args = process.argv.slice(2);
 const get = (flag) => { const index = args.indexOf(flag); return index < 0 ? undefined : args[index + 1]; };
 const catalogPath = get('--catalog'); const output = get('--output');
-const aapt = get('--aapt') || 'C:\\Users\\15601\\AppData\\Local\\Android\\Sdk\\build-tools\\36.0.0\\aapt.exe';
+const aapt = resolveBuildTool('aapt.exe', get('--aapt'));
 const java = get('--java') || 'java';
-const analyzerClasspath = get('--apkanalyzer-classpath') || 'C:\\Users\\15601\\AppData\\Local\\Android\\Sdk\\cmdline-tools\\latest\\lib\\apkanalyzer-classpath.jar';
+const analyzerClasspath = resolveCmdlineTool(path.join('lib', 'apkanalyzer-classpath.jar'), get('--apkanalyzer-classpath'));
+const analyzerToolsDir = path.dirname(path.dirname(analyzerClasspath));
 if (!catalogPath || !output || !fs.existsSync(aapt) || !fs.existsSync(analyzerClasspath)) throw new Error('Usage: node scripts/scan-verified-store-corpus.js --catalog <catalog.json> --output <report.json> [--aapt <path>] [--java <java>] [--apkanalyzer-classpath <jar>]');
 const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
 if (!Array.isArray(catalog.apps) || catalog.apps.length < 100 || catalog.apps.length > 500) throw new Error('Catalog must contain 100 to 500 APK entries.');
@@ -24,7 +26,7 @@ const sensitive = new Map([
 ]);
 const backgroundPermissions = new Set(['android.permission.RECEIVE_BOOT_COMPLETED', 'android.permission.FOREGROUND_SERVICE', 'android.permission.WAKE_LOCK']);
 const countBy = (items) => Object.fromEntries([...items.entries()].sort(([left], [right]) => left.localeCompare(right)));
-const analyzerReferences = (apk) => execFileSync(java, ['-Dcom.android.sdklib.toolsdir=C:\\Users\\15601\\AppData\\Local\\Android\\Sdk\\cmdline-tools\\latest', '-classpath', analyzerClasspath, 'com.android.tools.apk.analyzer.ApkAnalyzerCli', 'dex', 'references', apk], { encoding: 'utf8', timeout: 60_000, maxBuffer: 64 * 1024 * 1024 });
+const analyzerReferences = (apk) => execFileSync(java, [`-Dcom.android.sdklib.toolsdir=${analyzerToolsDir}`, '-classpath', analyzerClasspath, 'com.android.tools.apk.analyzer.ApkAnalyzerCli', 'dex', 'references', apk], { encoding: 'utf8', timeout: 60_000, maxBuffer: 64 * 1024 * 1024 });
 const report = { schema: 'privacy-lens.verified-store-manifest-census.v1', corpusId: catalog.corpusId, corpusKind: catalog.corpusKind, generatedAt: new Date().toISOString(), method: { level: 'STATIC_MANIFEST_AND_DEX_REFERENCE', aapt, analyzerClasspath, findingMeaning: 'Potential review signal only; API references do not prove execution, data flow, controller intent, legal basis, or GDPR infringement.' }, apps: [], failures: [] };
 for (const app of catalog.apps) {
   try {
