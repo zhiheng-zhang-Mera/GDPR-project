@@ -26,13 +26,19 @@ rather than waived.
 | Repository | `https://github.com/zhiheng-zhang-Mera/GDPR-project.git` |
 | Working branch | `dev/thesis-finalization-alien` |
 | Starting SHA | `acffee1e29f1d450aeaa92113cda59cfd309417e` (branch `9-8-Finalize`) |
-| Final SHA | `9c61abd7668b3a1c96bc071959dd15ac9bcb9c35` |
-| Remote SHA | `9c61abd7668b3a1c96bc071959dd15ac9bcb9c35` (`origin/dev/thesis-finalization-alien`) — identical to local |
+| Final SHA | `5cc1bc3b5bd3a48a1470a2cfd74ddba6355c955c` |
+| Remote SHA | `5cc1bc3b5bd3a48a1470a2cfd74ddba6355c955c` (`origin/dev/thesis-finalization-alien`) — identical to local |
 | Working tree | clean |
+| Commits added | 8, none of which touches `9-8-Finalize` (still `acffee1e`) |
+
+A report cannot contain the hash of the commit that writes it, so the table above
+names the tip at the time of writing. `git rev-parse HEAD` on
+`dev/thesis-finalization-alien` is authoritative; the only commits after
+`5cc1bc3` are amendments to this document itself.
 | History | preserved; no rebase, no force-push, no amendment of published commits |
 | Merge to main | not performed — no owner policy permits automatic promotion |
 
-Six commits, each a logical unit:
+Seven commits before this document was written, each a logical unit:
 
 | Commit | Kind | Subject |
 |---|---|---|
@@ -43,6 +49,8 @@ Six commits, each a logical unit:
 | `e9826b4` | chore | remove machine-specific SDK paths, document reproduction, split CI |
 | `45c4d8b` | fix | close verification gaps found by an independent audit |
 | `9c61abd` | docs | record the finalisation report and the stale-PDF finding |
+
+The remaining commits on the branch only amend this audit document.
 
 ## C. Work completed
 
