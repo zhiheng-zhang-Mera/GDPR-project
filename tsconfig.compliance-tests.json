@@ -20,11 +20,13 @@
     "src/compliance/DecisionReadiness.ts",
     "src/compliance/TemporalCooccurrenceEngine.ts",
     "src/compliance/ControlledTemporalFixture.ts",
+    "src/compliance/temporalLedgerLimits.ts",
     "tests/pinned-evaluation-date.ts",
     "tests/runComplianceTests.ts",
     "tests/runExtendedComplianceTests.ts",
     "tests/runGovernanceAndPropertyTests.ts",
     "tests/runTemporalCooccurrenceTests.ts",
+    "tests/runTemporalStressCampaign.ts",
     "tests/runInformationFlowPolicyTests.ts"
   ]
 }

@@ -7,6 +7,7 @@ import { CompiledTemporalRule, evaluateTemporalCooccurrence, SUPPORTED_OBSERVATI
 import { compileTemporalRuleMapping } from '../regulations/temporalRuleMapping';
 import { compileFormalPolicyModel, evaluateFormalPolicy, FormalPolicyAssessment } from '../regulations/formalPolicy';
 import { compileInformationFlowPolicyModel, evaluateInformationFlowPolicy, InformationFlowAssessment, InformationFlowGraph } from '../regulations/informationFlowPolicy';
+import { MAX_RESTORED_TEMPORAL_ENTRIES, MAX_RETAINED_WINDOW_SUMMARIES, MAX_RETAINED_TEMPORAL_OBSERVATIONS } from './temporalLedgerLimits';
 
 const DAY_MS = 86_400_000;
 const BURST_LIMIT: Record<SensitivePermission, number> = { LOCATION: 12, MICROPHONE: 6, CONTACTS: 4 };
@@ -16,8 +17,8 @@ const SOURCES = new Set(['SIMULATOR', 'NATIVE_BRIDGE', 'IMPORTED']);
 const OBSERVATION_CHANNELS = new Set(['SENSOR_CALL', 'DATA_ACCESS', 'DATA_TRANSFER', 'APP_STATE']);
 const OBSERVATION_CONTEXTS = new Set(['FOREGROUND', 'BACKGROUND', 'UNKNOWN']);
 const OBSERVATION_DESTINATIONS = new Set(['LOCAL', 'NETWORK', 'UNKNOWN']);
-const MAX_HISTORY_ENTRIES = 4_096;
-const MAX_TEMPORAL_ENTRIES = 10_000;
+const MAX_HISTORY_ENTRIES = MAX_RETAINED_WINDOW_SUMMARIES;
+const MAX_TEMPORAL_ENTRIES = MAX_RETAINED_TEMPORAL_OBSERVATIONS;
 
 export interface TemporalLedgerSnapshot {
   schema: 'privacy-lens.temporal-ledger.v1';
@@ -186,7 +187,7 @@ export class RulePackComplianceEngine implements IComplianceEngine {
     if (snapshot.schema !== 'privacy-lens.temporal-ledger.v1' || snapshot.regulationId !== this.pack.id || snapshot.packVersion !== this.pack.versionLabel || !Array.isArray(snapshot.entries)) return false;
     const cutoff = restoredAt - this.maxWindowMs();
     const restored = new Map<string, Map<string, PrivacyObservation>>();
-    for (const entry of snapshot.entries.slice(0, MAX_TEMPORAL_ENTRIES)) {
+    for (const entry of snapshot.entries.slice(0, MAX_RESTORED_TEMPORAL_ENTRIES)) {
       if (!entry || typeof entry.packageName !== 'string' || !/^[A-Za-z0-9_.-]{1,255}$/.test(entry.packageName) || !entry.observation) return false;
       const event = entry.observation;
       if (!SUPPORTED_OBSERVATION_TYPES.has(event.type) || !Number.isSafeInteger(event.occurredAt) || event.occurredAt < cutoff || event.occurredAt > restoredAt || (event.count !== undefined && (!Number.isSafeInteger(event.count) || event.count <= 0)) || (event.source !== undefined && !SOURCES.has(event.source))) return false;
