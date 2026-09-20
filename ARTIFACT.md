@@ -9,13 +9,27 @@ npm ci
 npm run reproduce:thesis-core
 ```
 
-This is the only canonical core entry point. It compiles and runs the semantic suites; checks accessibility-source, release-privacy, experiment, TypeScript, lint, and delivery contracts; verifies the nine formal safety properties and curated mutants; validates the mapping-review packet; regenerates corpus/device/FlowDroid summaries and LaTeX result macros; verifies the thesis evidence manifest and claim boundaries; and checks TeX inputs, labels, references, citations, bibliography keys, stale markers, figure paths, and duplicate long paragraphs.
+This is the only canonical core entry point. It compiles and runs the semantic suites; runs the fixed-seed temporal stress campaign and checks its deterministic totals against the evidence manifest; checks accessibility-source, release-privacy, experiment, TypeScript, lint, and delivery contracts; verifies the nine formal safety properties; validates the mapping-review packet; regenerates corpus/device/FlowDroid summaries and LaTeX result macros; verifies the thesis evidence manifest, thesis numeric consistency, and claim boundaries; checks that every repository path cited by the governing documents exists; and checks TeX inputs, labels, references, citations, bibliography keys, stale markers, figure paths, and duplicate long paragraphs.
 
-Expected terminal summaries include `Safety properties verified: 9 properties, 9/9 curated mutants detected`, `Thesis results verified: F-Droid N=495, device N=233, PSS N=98`, `Thesis evidence verified`, and `Thesis references verified`. A successful run must leave tracked generated files unchanged.
+Expected terminal summaries include `Safety properties verified: 9 properties, 9/9 curated mutants detected`, `Thesis results verified: F-Droid N=495, device N=233, PSS N=98`, `Thesis evidence verified`, `Thesis numeric consistency verified`, `Claim-evidence path traceability verified`, and `Thesis references verified`. A successful run must leave tracked generated files unchanged.
+
+### Heavier reproduction commands
+
+Two claims are deliberately kept out of the default path because they are slower. Both are first-class reproduction entry points and are exercised by `npm run verify`.
+
+| Command | What it reproduces | Approximate cost |
+|---|---|---|
+| `npm run reproduce:thesis-stress` | Runs the full fixed-seed temporal stress campaign twice and requires both runs to agree on every deterministic field. Writes host-stamped receipts under `artifacts/reproduction/`. | ~20 s |
+| `npm run verify:mutation` | Applies each of the nine registered source weakenings in an isolated temporary tree, recompiles, and requires the compiled compliance suite to detect it. Fails if any mutant survives. Writes `artifacts/mutation/mutation-verification.json`. | ~80 s |
+| `npm run test:android-unit` | Runs the 24 host-JVM Kotlin unit tests for the native audit-bridge mapping. Requires the Android SDK and a JDK; no emulator or device. | ~45 s first run |
 
 ## Reproducible claims
 
-The public artifact reproduces software-semantic conformance, curated mutation detection, regulation-pack isolation, typed-policy output restrictions, accessibility source contracts, evidence-manifest hashes, committed aggregate summaries, FlowDroid receipt interpretation, and thesis reference integrity. It can verify that a completed FlowDroid invocation without XML remains missing evidence.
+The public artifact reproduces software-semantic conformance, curated mutation detection, regulation-pack isolation, typed-policy output restrictions, accessibility source contracts, native audit-bridge mapping on the host JVM, evidence-manifest hashes, committed aggregate summaries, FlowDroid receipt interpretation, and thesis reference integrity. It can verify that a completed FlowDroid invocation without XML remains missing evidence.
+
+The curated mutation score is executable rather than declared. `npm run verify:mutation` copies the compilable sources to a temporary tree, applies one declared weakening per registered mutant, recompiles, and requires the compiled suite to fail. Each transformation is anchored to an exact source string and the script fails loudly if an anchor drifts, so a mutant can never be silently skipped. A surviving mutant fails the command.
+
+The high-volume temporal campaign is also in-repo. `npm run reproduce:thesis-stress` runs 40,000 randomised observation multisets against an independent count-and-window oracle, 10,000 partition/export/restore/resume cases, and 20,000 malformed-audit cases, and fails if any registered temporal rule is never matched.
 
 It does not reproduce the 233-package device campaign, the one-device UI session, a fresh FlowDroid invocation, legal mapping review, participant comprehension, multi-OEM behaviour, production signing, store acceptance, population prevalence, or GDPR compliance. Those require hardware, restricted inputs, independent people, external accounts, or authority not supplied by this repository.
 

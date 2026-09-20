@@ -53,6 +53,37 @@ for (const permutation of permutations(sixEvents)) {
   assert(result?.evidenceSha256 === invariant.evidenceSha256, 'All 720 permutations must preserve the evidence receipt.');
 }
 
+/**
+ * Independently anchored order invariance.
+ *
+ * The loop above compares every permutation against a reference computed by the
+ * same engine, so it would still agree with itself if the receipt depended on
+ * input order. This check derives the expected ordering from an explicit
+ * comparator declared here, so an order-sensitive receipt is detected even when
+ * every permutation is consistent with every other.
+ */
+const canonicalOrder = [...sixEvents].sort(
+  (left, right) =>
+    left.occurredAt - right.occurredAt ||
+    left.type.localeCompare(right.type) ||
+    (left.count ?? 1) - (right.count ?? 1) ||
+    (left.channel ?? '').localeCompare(right.channel ?? '') ||
+    (left.context ?? '').localeCompare(right.context ?? '') ||
+    (left.destination ?? '').localeCompare(right.destination ?? '') ||
+    (left.source ?? '').localeCompare(right.source ?? ''),
+);
+const canonicalReceipt = evaluateTemporalCooccurrence({ packageName: 'test.permutation', evaluatedAt, observations: canonicalOrder, rules: [biometricRule] })[0];
+assert(canonicalReceipt, 'The canonical ordering must match.');
+const reverseReceipt = evaluateTemporalCooccurrence({ packageName: 'test.permutation', evaluatedAt, observations: [...canonicalOrder].reverse(), rules: [biometricRule] })[0];
+assert(
+  reverseReceipt?.evidenceSha256 === canonicalReceipt.evidenceSha256,
+  'The evidence receipt must be invariant under input order, not merely self-consistent across permutations.',
+);
+assert(
+  reverseReceipt?.observedCounts && JSON.stringify(reverseReceipt.observedCounts) === JSON.stringify(canonicalReceipt.observedCounts),
+  'Observed counts must be invariant under input order.',
+);
+
 const burst: PrivacyObservation[] = Array.from({ length: 1_000 }, (_, index) => ({
   type: index % 3 === 0 ? 'BODY_SENSORS' : index % 3 === 1 ? 'MICROPHONE' : 'CAMERA',
   occurredAt: evaluatedAt - index,
