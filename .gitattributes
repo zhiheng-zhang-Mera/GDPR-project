@@ -1,0 +1,18 @@
+# Canonical byte identity for the reproducible artifact.
+#
+# `docs/research/thesis-evidence-manifest.json` pins evidence files by raw
+# SHA-256 over their committed bytes. Git's `core.autocrlf`/`text` conversions
+# rewrite line endings per platform, so a Windows checkout with the common
+# `core.autocrlf=true` setting previously produced different bytes and therefore
+# different digests than a Linux checkout of the same commit. That made
+# `npm run reproduce:thesis-core` fail on Windows while passing in CI.
+#
+# Disabling all text conversion makes every checkout byte-identical to the
+# committed blob, so the pinned digests verify on any operating system
+# regardless of the reproducer's local Git configuration.
+#
+# Reviewers who prefer Windows line endings can still opt in locally without
+# touching the repository, for example:
+#   git config core.autocrlf input
+#   git -c core.eol=crlf checkout -- .
+* -text

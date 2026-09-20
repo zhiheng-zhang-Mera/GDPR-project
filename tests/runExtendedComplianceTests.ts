@@ -6,6 +6,7 @@ import { RulePackComplianceEngine } from '../src/compliance/RulePackComplianceEn
 import { getRegulationPack, isRegulationId, listRegulationPacks } from '../src/regulations/registry';
 import { createEvaluationConfig, createSimulationConfig, simulationToAudit } from '../src/compliance/ViolationSimulator';
 import { ProcessingContext, SensitivePermission } from '../src/compliance/types';
+import { PINNED_EVALUATION_DATE } from './pinned-evaluation-date';
 
 function assert(condition: boolean, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -50,7 +51,7 @@ const malformedContexts: Record<string, unknown>[] = [
   { ...validContext, dpiaRequired: 'false' },
 ];
 for (const processingContext of malformedContexts) {
-  const result = new GDPRComplianceEngine().evaluateSafe({
+  const result = new GDPRComplianceEngine(PINNED_EVALUATION_DATE).evaluateSafe({
     packageName: 'extended.context', permissionType: 'LOCATION', accessCount: 1,
     windowStart: now - 1_000, windowEnd: now, processingContext,
   });
@@ -64,7 +65,7 @@ const timestampCases = [
   [now - 500.5, now - 400],
 ];
 for (const accessTimestamps of timestampCases) {
-  const result = new GDPRComplianceEngine().evaluateSafe({
+  const result = new GDPRComplianceEngine(PINNED_EVALUATION_DATE).evaluateSafe({
     packageName: 'extended.timestamps', permissionType: 'MICROPHONE', accessCount: 2,
     windowStart: now - 1_000, windowEnd: now, accessTimestamps,
   });
@@ -72,14 +73,14 @@ for (const accessTimestamps of timestampCases) {
 }
 
 for (const invalidNumber of [Number.MAX_SAFE_INTEGER + 1, Number.POSITIVE_INFINITY]) {
-  const invalidCount = new GDPRComplianceEngine().evaluateSafe({
+  const invalidCount = new GDPRComplianceEngine(PINNED_EVALUATION_DATE).evaluateSafe({
     packageName: 'extended.numeric', permissionType: 'LOCATION', accessCount: invalidNumber,
     windowStart: now - 1_000, windowEnd: now,
   });
   assert(!invalidCount.accepted && invalidCount.code === 'INVALID_COUNT', 'Unsafe counts must fail closed.');
 }
 
-const invalidSource = new GDPRComplianceEngine().evaluateSafe({
+const invalidSource = new GDPRComplianceEngine(PINNED_EVALUATION_DATE).evaluateSafe({
   packageName: 'extended.source', permissionType: 'LOCATION', accessCount: 1,
   windowStart: now - 1_000, windowEnd: now, source: 'FORGED',
 });
@@ -88,14 +89,14 @@ assert(!invalidSource.accepted && invalidSource.code === 'INVALID_SOURCE', 'Unkn
 for (const [permissionType, limit] of [['LOCATION', 12], ['MICROPHONE', 6], ['CONTACTS', 4]] as const) {
   const atLimit = Array.from({ length: limit }, (_, index) => now - 10_000 + index);
   const aboveLimit = Array.from({ length: limit + 1 }, (_, index) => now - 10_000 + index);
-  const engine = new GDPRComplianceEngine();
+  const engine = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
   const normal = engine.evaluate({ packageName: `burst.limit.${permissionType}`, permissionType, accessCount: limit, windowStart: now - 60_000, windowEnd: now, accessTimestamps: atLimit, source: 'IMPORTED', processingContext: validContext });
   const alert = engine.evaluate({ packageName: `burst.above.${permissionType}`, permissionType, accessCount: limit + 1, windowStart: now - 60_000, windowEnd: now, accessTimestamps: aboveLimit, source: 'IMPORTED', processingContext: validContext });
   assert(!normal.signals.includes('BURST_RATE'), `${permissionType} must not alert at its burst limit.`);
   assert(alert.signals.includes('BURST_RATE'), `${permissionType} must alert above its burst limit.`);
 }
 
-const historyEngine = new GDPRComplianceEngine();
+const historyEngine = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
 for (const permissionType of ['LOCATION', 'MICROPHONE', 'CONTACTS'] as SensitivePermission[]) {
   const first = historyEngine.evaluate({ packageName: 'history.a', permissionType, accessCount: 1, windowStart: now - 4_000, windowEnd: now - 3_000, source: 'IMPORTED' });
   const otherPackage = historyEngine.evaluate({ packageName: 'history.b', permissionType, accessCount: 100, windowStart: now - 2_000, windowEnd: now - 1_000, source: 'IMPORTED' });
@@ -103,24 +104,24 @@ for (const permissionType of ['LOCATION', 'MICROPHONE', 'CONTACTS'] as Sensitive
   assert(!first.signals.includes('CROSS_WINDOW') && !second.signals.includes('CROSS_WINDOW'), `History leaked between packages for ${permissionType}.`);
   assert(otherPackage.isActive, `Large independent audit must remain detectable for ${permissionType}.`);
 }
-const simulatorHistory = new GDPRComplianceEngine();
+const simulatorHistory = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
 simulatorHistory.evaluate({ packageName: 'history.sim', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 2_000, windowEnd: now - 1_000, source: 'SIMULATOR' });
 const simulatorSecond = simulatorHistory.evaluate({ packageName: 'history.sim', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 500, windowEnd: now, source: 'SIMULATOR' });
 assert(!simulatorSecond.signals.includes('CROSS_WINDOW'), 'Simulator history must not be presented as imported temporal evidence.');
 
-const overlapEngine = new GDPRComplianceEngine();
+const overlapEngine = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
 overlapEngine.evaluate({ packageName: 'history.overlap', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 60_000, windowEnd: now - 20_000, source: 'IMPORTED' });
 const overlapping = overlapEngine.evaluate({ packageName: 'history.overlap', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 30_000, windowEnd: now, source: 'IMPORTED' });
 assert(!overlapping.signals.includes('CROSS_WINDOW'), 'Overlapping windows must not be double-counted as cross-window evidence.');
 assert(overlapping.evidence.rollingCount === 20, 'Overlapping history must be excluded from the rolling count.');
 
-const adjacentEngine = new GDPRComplianceEngine();
+const adjacentEngine = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
 adjacentEngine.evaluate({ packageName: 'history.adjacent', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 60_000, windowEnd: now - 30_000, source: 'IMPORTED' });
 const adjacent = adjacentEngine.evaluate({ packageName: 'history.adjacent', permissionType: 'LOCATION', accessCount: 20, windowStart: now - 30_000, windowEnd: now, source: 'IMPORTED' });
 assert(adjacent.signals.includes('CROSS_WINDOW'), 'Adjacent completed windows must remain eligible for cross-window evidence.');
 assert(adjacent.evidence.rollingCount === 40, 'Adjacent completed windows must contribute to the rolling count.');
 
-const replayEngine = new GDPRComplianceEngine();
+const replayEngine = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
 const replayAudit = { packageName: 'history.replay', permissionType: 'LOCATION' as const, accessCount: 20, windowStart: now - 60_000, windowEnd: now - 30_000, source: 'IMPORTED' as const };
 replayEngine.evaluate(replayAudit);
 replayEngine.evaluate(replayAudit);
@@ -132,7 +133,7 @@ for (const randomValue of [0, 0.999_999_999]) {
   assert(config.totalCalls >= 50 && config.totalCalls <= 200, 'Simulation count escaped the documented 50-200 range.');
   assert(config.triggerTimes.length === config.totalCalls, 'Simulation timestamps must match totalCalls.');
   assert(config.triggerTimes.every((value) => value >= now - 86_400_000 && value < now), 'Simulation timestamp escaped its 24-hour window.');
-  assert(new GDPRComplianceEngine().evaluateSafe(simulationToAudit(config)).accepted, 'Bounded simulator output must be accepted.');
+  assert(new GDPRComplianceEngine(PINNED_EVALUATION_DATE).evaluateSafe(simulationToAudit(config)).accepted, 'Bounded simulator output must be accepted.');
 }
 for (let round = 0; round < 100; round += 1) {
   const control = createEvaluationConfig(round, now, () => 0.5);
@@ -154,8 +155,8 @@ const packAudit = {
   packageName: 'pack.switch', permissionType: 'LOCATION' as const, accessCount: 40,
   windowStart: now - 60_000, windowEnd: now, source: 'IMPORTED' as const, processingContext: validContext,
 };
-const gdprFinding = new RulePackComplianceEngine(getRegulationPack('EU_GDPR')).evaluate(packAudit);
-const baselineFinding = new RulePackComplianceEngine(getRegulationPack('GLOBAL_RESEARCH_BASELINE')).evaluate(packAudit);
+const gdprFinding = new RulePackComplianceEngine(getRegulationPack('EU_GDPR'), PINNED_EVALUATION_DATE).evaluate(packAudit);
+const baselineFinding = new RulePackComplianceEngine(getRegulationPack('GLOBAL_RESEARCH_BASELINE'), PINNED_EVALUATION_DATE).evaluate(packAudit);
 assert(gdprFinding.regulationId === 'EU_GDPR' && baselineFinding.regulationId === 'GLOBAL_RESEARCH_BASELINE', 'Findings must retain their producing rule-pack identity.');
 assert(gdprFinding.threshold !== baselineFinding.threshold, 'Independent packs must load their own thresholds.');
 assert(baselineFinding.compliance.legalCaveat.includes('not law'), 'The research baseline must disclose that it is non-legal.');

@@ -6,12 +6,13 @@ import {
   createSimulationConfig,
   simulationToAudit,
 } from '../src/compliance/ViolationSimulator';
+import { PINNED_EVALUATION_DATE } from './pinned-evaluation-date';
 
 function assert(condition: boolean, message: string) {
   if (!condition) throw new Error(message);
 }
 
-const engine = new GDPRComplianceEngine();
+const engine = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
 const safe = engine.evaluate({
   packageName: 'safe.app',
   permissionType: 'LOCATION',
@@ -61,7 +62,7 @@ const seededRandom = () => {
 };
 const monteCarloSamples = Array.from({ length: 1_000 }, (_, round) => {
   const evaluationConfig = createEvaluationConfig(round, 1_700_000_000_000 + round, seededRandom);
-  const result = new GDPRComplianceEngine().evaluate(simulationToAudit(evaluationConfig));
+  const result = new GDPRComplianceEngine(PINNED_EVALUATION_DATE).evaluate(simulationToAudit(evaluationConfig));
   return {
     expectedViolation: evaluationConfig.expectedViolation,
     detectedViolation: result.isActive,
@@ -89,7 +90,7 @@ assert(metrics.recall === 0.5, 'Recall calculation is incorrect.');
 
 console.log('Compliance engine tests passed.');
 
-const secureEngine = new GDPRComplianceEngine();
+const secureEngine = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
 const invalidInputs: { value: unknown; code: string }[] = [
   { value: { packageName: 'x', permissionType: 'UNKNOWN', accessCount: 1, windowStart: 0, windowEnd: 1 }, code: 'UNSUPPORTED_PERMISSION' },
   { value: { packageName: 'x', permissionType: 'LOCATION', accessCount: Number.NaN, windowStart: 0, windowEnd: 1 }, code: 'INVALID_COUNT' },
@@ -104,12 +105,12 @@ for (const sample of invalidInputs) {
 const burstTimes = Array.from({ length: 20 }, (_, index) => 1_000 + index * 100);
 const burst = secureEngine.evaluate({ packageName: 'burst.app', permissionType: 'LOCATION', accessCount: 20, windowStart: 1_000, windowEnd: 61_000, accessTimestamps: burstTimes, source: 'IMPORTED' });
 assert(burst.isActive && burst.signals.includes('BURST_RATE'), 'Burst must be detected.');
-const splitEngine = new GDPRComplianceEngine();
+const splitEngine = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
 const first = splitEngine.evaluate({ packageName: 'split.app', permissionType: 'LOCATION', accessCount: 20, windowStart: 1, windowEnd: 2, source: 'IMPORTED' });
 const second = splitEngine.evaluate({ packageName: 'split.app', permissionType: 'LOCATION', accessCount: 20, windowStart: 3, windowEnd: 4, source: 'IMPORTED' });
 assert(!first.isActive, 'First below-threshold window must remain normal.');
 assert(second.isActive && second.signals.includes('CROSS_WINDOW'), 'Cross-window accumulation must be detected.');
-const boundaryEngine = new GDPRComplianceEngine();
+const boundaryEngine = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
 for (const [permissionType, threshold] of [['LOCATION', 36], ['MICROPHONE', 12], ['CONTACTS', 6]] as const) {
   for (let offset = -2; offset <= 2; offset += 1) {
     const result = boundaryEngine.evaluate({ packageName: `boundary.${permissionType}.${offset}`, permissionType, accessCount: threshold + offset, windowStart: 1, windowEnd: 2 });
@@ -118,7 +119,7 @@ for (const [permissionType, threshold] of [['LOCATION', 36], ['MICROPHONE', 12],
 }
 console.log('Security boundary and temporal detection tests passed.');
 
-const legalEngine = new GDPRComplianceEngine();
+const legalEngine = new GDPRComplianceEngine(PINNED_EVALUATION_DATE);
 const insufficient = legalEngine.evaluate({ packageName: 'context.missing', permissionType: 'CONTACTS', accessCount: 1, windowStart: 1, windowEnd: 2 });
 assert(insufficient.compliance.status === 'INSUFFICIENT_EVIDENCE', 'Missing legal context must not be labelled compliant.');
 assert(insufficient.communication.notificationPriority === 'STANDARD', 'Evidence gaps require a review notification.');
